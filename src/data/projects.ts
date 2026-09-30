@@ -21,4 +21,15 @@ export const projects: Project[] = [
     status: "Live",
     featured: true,
   },
+  {
+    name: "UpTo",
+    slug: "upto",
+    description:
+      "A living status page you update once and share across every social profile.",
+    url: "https://upto.baodium.com/",
+    image: "/projects/upto.jpg",
+    tags: ["Status"],
+    status: "Live",
+    featured: false,
+  },
 ];

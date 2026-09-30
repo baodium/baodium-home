@@ -30,7 +30,7 @@ export function Focus() {
           >
             What I work on
           </h2>
-          <ol className="mt-12">
+          <ol className="mt-12 border-b border-line">
             {areas.map((area, index) => (
               <li
                 key={area.title}

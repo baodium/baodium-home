@@ -43,15 +43,19 @@ export function Navigation() {
 
   return (
     <header id="top" className="sticky top-0 z-30 border-b border-line bg-bg">
-      <div className="shell flex items-center justify-between gap-4 py-4">
-        <a href="#top" className="text-[0.78rem] tracking-[0.24em] text-ink">
+      <div className="shell flex items-center justify-between gap-4 py-1">
+        <a href="#top" className="inline-flex min-h-11 items-center text-[0.78rem] tracking-[0.22em] text-ink">
           BAODIUM
         </a>
         <nav aria-label="Primary">
-          <ul className="flex items-center gap-5 text-[0.84rem] text-muted md:gap-8">
+          <ul className="flex items-center gap-1 text-[0.9rem] text-muted md:gap-3">
             {links.map((link) => (
               <li key={link.id}>
-                <a href={link.href} data-nav={link.id} className="nav-link whitespace-nowrap">
+                <a
+                  href={link.href}
+                  data-nav={link.id}
+                  className="nav-link inline-flex min-h-11 items-center px-2 whitespace-nowrap"
+                >
                   {link.label}
                 </a>
               </li>

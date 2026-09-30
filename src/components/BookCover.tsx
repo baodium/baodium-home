@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type PointerEvent } from "react";
+import { book } from "@/data/writing";
 
 function allowTilt(event: { pointerType: string }) {
   if (event.pointerType !== "mouse") return false;
@@ -17,93 +18,43 @@ export function BookCover() {
     const px = (event.clientX - rect.left) / rect.width - 0.5;
     const py = (event.clientY - rect.top) / rect.height - 0.5;
     cover.classList.add("is-tracking");
-    cover.style.transform = `rotateX(${py * -7}deg) rotateY(${px * 8}deg)`;
+    cover.style.transform = `rotateX(${py * -5}deg) rotateY(${-14 + px * 8}deg)`;
   };
 
   const reset = () => {
     const cover = coverRef.current;
     if (!cover) return;
     cover.classList.remove("is-tracking");
-    cover.style.transform = "rotateX(0deg) rotateY(0deg)";
+    cover.style.transform = "";
   };
 
+  const lines = book.title.split(" ");
+
   return (
-    <div className="[perspective:1100px]" onPointerMove={move} onPointerLeave={reset} onPointerCancel={reset}>
-      <div
-        ref={coverRef}
-        className="book-face shadow-[0_22px_50px_rgba(0,0,0,0.45)]"
-      >
-        <svg viewBox="0 0 360 540" className="h-auto w-full" role="img" aria-label="Typographic cover of Practical System Design">
-          <rect width="360" height="540" fill="#16130f" />
-          <rect width="8" height="540" fill="#c4a27a" />
-          <text
-            x="32"
-            y="58"
-            fill="#c4a27a"
-            fontSize="11"
-            letterSpacing="3.2"
-            fontFamily="var(--font-geist), sans-serif"
-          >
-            BAODIUM
-          </text>
-          <text
-            x="32"
-            y="210"
-            fill="#f3efe8"
-            fontSize="42"
-            fontFamily="var(--font-newsreader), Palatino, serif"
-          >
-            Practical
-          </text>
-          <text
-            x="32"
-            y="258"
-            fill="#f3efe8"
-            fontSize="42"
-            fontFamily="var(--font-newsreader), Palatino, serif"
-          >
-            System
-          </text>
-          <text
-            x="32"
-            y="306"
-            fill="#f3efe8"
-            fontSize="42"
-            fontFamily="var(--font-newsreader), Palatino, serif"
-          >
-            Design
-          </text>
-          <text
-            x="32"
-            y="352"
-            fill="#a39b92"
-            fontSize="14"
-            fontStyle="italic"
-            fontFamily="var(--font-newsreader), Palatino, serif"
-          >
-            Building Reliable Systems
-          </text>
-          <text
-            x="32"
-            y="372"
-            fill="#a39b92"
-            fontSize="14"
-            fontStyle="italic"
-            fontFamily="var(--font-newsreader), Palatino, serif"
-          >
-            Through Production Failures
-          </text>
-          <line x1="32" y1="470" x2="120" y2="470" stroke="#c4a27a" strokeWidth="1" />
-          <text
-            x="32"
-            y="498"
-            fill="#8a827a"
-            fontSize="12"
-            fontFamily="var(--font-geist), sans-serif"
-          >
-            Adewale Obadimu
-          </text>
-        </svg>
+    <div
+      className="book-scene pr-5"
+      onPointerMove={move}
+      onPointerLeave={reset}
+      onPointerCancel={reset}
+    >
+      <div ref={coverRef} className="book-object">
+        <div className="book-pages" aria-hidden="true" />
+        <div className="book-board">
+          <p className="text-[0.62rem] tracking-[0.22em] text-bronze">BAODIUM</p>
+          <div className="mt-auto">
+            <p className="font-serif text-[clamp(1.85rem,3vw,2.35rem)] leading-[0.92] tracking-[-0.03em] text-ink">
+              {lines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </p>
+            <p className="mt-5 max-w-[16rem] font-serif text-[0.95rem] italic leading-snug text-muted">
+              {book.subtitle}
+            </p>
+          </div>
+          <p className="mt-8 text-[0.75rem] tracking-wide text-faint">{book.author}</p>
+        </div>
       </div>
     </div>
   );

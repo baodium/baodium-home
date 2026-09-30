@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Newsreader } from "next/font/google";
-import { CursorFollower } from "@/components/CursorFollower";
 import { ScrollProgress } from "@/components/ScrollProgress";
-import { StudioField } from "@/components/StudioField";
 import { site } from "@/data/site";
 import "./globals.css";
 
@@ -57,11 +55,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <ScrollProgress />
-        <CursorFollower />
-        <StudioField />
         {children}
         <noscript>
-          <style>{`.reveal,.map-root,.map-root *{opacity:1 !important;transform:none !important}`}</style>
+          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
         </noscript>
       </body>
     </html>

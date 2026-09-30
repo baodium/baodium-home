@@ -16,11 +16,11 @@ npm run build
 
 Import this GitHub repository in Vercel. No environment variables are required. Attach `baodium.com` as the canonical domain and redirect `www` to the apex.
 
-`interview.baodium.com` (Interview Coach) stays a separate Vercel project. Do not attach that domain here.
+`interview.baodium.com` (Interview Coach) and `upto.baodium.com` (UpTo) stay on their own projects. Do not attach those domains here.
 
 ## Hero portrait
 
-The still is `public/images/adewale-hero-poster.jpg`. The frame crops toward the portrait with `object-position: 72% center`.
+The still is `public/images/adewale-hero-poster.jpg`. The frame crops toward the portrait with `object-position: 90% center`.
 
 An optional muted loop can be added at `public/media/adewale-hero.mp4`. When that file is present and motion is allowed, it plays over the still. `prefers-reduced-motion` keeps the still and does not play video.
 
@@ -30,6 +30,10 @@ Keep the MP4 small. Do not commit an uncompressed master. If the file later outg
 
 Add an object to `src/data/projects.ts`.
 
+## Adding an essay
+
+Add an object to the `writing` array in `src/data/writing.ts` (`title`, `description`, `href`, `date`). The book is a separate object in that file.
+
 ## Before launch
 
-Replace the placeholder GitHub, LinkedIn, and email hrefs in `src/data/site.ts`. There is no book purchase URL yet.
+Set real GitHub, LinkedIn, and email values in `src/data/site.ts`. Blank values are not shown.
