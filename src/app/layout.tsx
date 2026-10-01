@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Newsreader } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Providers } from "@/components/Providers";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { site } from "@/data/site";
+import "lenis/dist/lenis.css";
 import "./globals.css";
 
 const geist = Geist({
@@ -11,13 +13,23 @@ const geist = Geist({
   display: "swap",
 });
 
-const newsreader = Newsreader({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  weight: ["400", "500", "600"],
-  variable: "--font-newsreader",
+  variable: "--font-geist-mono",
   display: "swap",
 });
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  themeColor: "#080706",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -49,16 +61,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} ${newsreader.variable} h-full antialiased`}>
-      <body className="min-h-full bg-paper font-sans text-ink">
+    <html
+      lang="en"
+      className={`${geist.variable} ${geistMono.variable} ${instrument.variable} h-full antialiased`}
+    >
+      <body className="min-h-full bg-night font-sans text-cream">
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <ScrollProgress />
-        {children}
-        <noscript>
-          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
-        </noscript>
+        <Providers>
+          <ScrollProgress />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
-/** Featured book. Title, subtitle, and author are the ones printed on the book. */
+/** Featured book. Title, subtitle, and author are the ones printed on the cover. */
 export const book = {
   title: "Practical System Design",
   subtitle: "Building Reliable Systems Through Production Failures",
-  author: "Adewale Muyiwa Obadimu",
+  author: "Adewale Obadimu",
   href: "https://www.amazon.com/dp/B0H8KKBJRH",
 } as const;
 
