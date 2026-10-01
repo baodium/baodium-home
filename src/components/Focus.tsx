@@ -1,3 +1,4 @@
+import { Mark } from "@/components/Mark";
 import { Reveal } from "@/components/Reveal";
 
 const areas = [
@@ -21,25 +22,20 @@ const areas = [
 
 export function Focus() {
   return (
-    <section id="focus" aria-labelledby="focus-heading" className="section">
+    <section id="focus" aria-labelledby="focus-heading" className="section bg-paper">
       <Reveal>
         <div className="shell">
-          <h2
-            id="focus-heading"
-            className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-bronze"
-          >
-            What I work on
-          </h2>
+          <Mark index="04" title="What I work on" id="focus-heading" />
           <ol className="mt-12 border-b border-line">
             {areas.map((area, index) => (
               <li
                 key={area.title}
                 className="grid gap-3 border-t border-line py-8 md:grid-cols-12 md:items-baseline md:gap-8"
               >
-                <span className="text-[0.72rem] tracking-[0.16em] text-bronze md:col-span-2">
+                <span className="font-serif text-4xl leading-none text-cinnabar md:col-span-2">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <h3 className="font-serif text-2xl tracking-[-0.02em] md:col-span-4 md:text-[1.7rem]">
+                <h3 className="font-serif text-2xl tracking-[-0.03em] md:col-span-4 md:text-[1.85rem]">
                   {area.title}
                 </h3>
                 <p className="max-w-md leading-relaxed text-muted md:col-span-6">{area.copy}</p>

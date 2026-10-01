@@ -50,10 +50,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} ${newsreader.variable} h-full antialiased`}>
-      <body className="min-h-full bg-bg font-sans text-ink">
+      <body className="min-h-full bg-paper font-sans text-ink">
         <a className="skip-link" href="#main">
           Skip to content
         </a>
+        <div className="grain" aria-hidden="true" />
         <ScrollProgress />
         {children}
         <noscript>

@@ -28,7 +28,7 @@ export function ScrollProgress() {
     <div
       ref={barRef}
       aria-hidden="true"
-      className="fixed inset-x-0 top-0 z-40 h-[2px] origin-left bg-bronze"
+      className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-cinnabar"
       style={{ transform: "scaleX(0)" }}
     />
   );

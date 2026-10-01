@@ -13,8 +13,8 @@ export function OgImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0c0b0a",
-          color: "#f3efe8",
+          background: "#f4efe6",
+          color: "#1c1915",
           padding: "72px",
         }}
       >
@@ -23,7 +23,7 @@ export function OgImage() {
             display: "flex",
             letterSpacing: "0.28em",
             fontSize: 18,
-            color: "#c4a27a",
+            color: "#e23b16",
           }}
         >
           BAODIUM
@@ -34,7 +34,7 @@ export function OgImage() {
               display: "flex",
               fontSize: 22,
               letterSpacing: "0.18em",
-              color: "#a39b92",
+              color: "#1b5c40",
             }}
           >
             ADEWALE OBADIMU

@@ -7,6 +7,7 @@ export type Project = {
   tags: string[];
   status: "Live" | "Book" | "In progress";
   featured: boolean;
+  tone: "cinnabar" | "moss";
 };
 
 export const projects: Project[] = [
@@ -20,6 +21,7 @@ export const projects: Project[] = [
     tags: ["AI", "Interviewing"],
     status: "Live",
     featured: true,
+    tone: "cinnabar",
   },
   {
     name: "UpTo",
@@ -31,5 +33,6 @@ export const projects: Project[] = [
     tags: ["Status"],
     status: "Live",
     featured: false,
+    tone: "moss",
   },
 ];

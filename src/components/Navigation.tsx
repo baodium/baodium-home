@@ -10,20 +10,15 @@ const links = [
 
 export function Navigation() {
   useEffect(() => {
-    const anchors = Array.from(
-      document.querySelectorAll<HTMLAnchorElement>("a[data-nav]"),
-    );
+    const anchors = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-nav]"));
     const sections = links
       .map((link) => document.getElementById(link.id))
       .filter((section): section is HTMLElement => section !== null);
 
     const setCurrent = (id: string | null) => {
       anchors.forEach((anchor) => {
-        if (id && anchor.dataset.nav === id) {
-          anchor.setAttribute("aria-current", "location");
-        } else {
-          anchor.removeAttribute("aria-current");
-        }
+        if (id && anchor.dataset.nav === id) anchor.setAttribute("aria-current", "location");
+        else anchor.removeAttribute("aria-current");
       });
     };
 
@@ -42,13 +37,14 @@ export function Navigation() {
   }, []);
 
   return (
-    <header id="top" className="sticky top-0 z-30 border-b border-line bg-bg">
+    <header id="top" className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur-sm">
       <div className="shell flex items-center justify-between gap-4 py-1">
-        <a href="#top" className="inline-flex min-h-11 items-center text-[0.78rem] tracking-[0.22em] text-ink">
+        <a href="#top" className="inline-flex min-h-11 items-center gap-2.5 text-[0.78rem] tracking-[0.22em] text-ink">
+          <span aria-hidden="true" className="h-2.5 w-2.5 bg-cinnabar" />
           BAODIUM
         </a>
         <nav aria-label="Primary">
-          <ul className="flex items-center gap-1 text-[0.9rem] text-muted md:gap-3">
+          <ul className="flex items-center gap-1 text-[0.92rem] text-muted md:gap-2">
             {links.map((link) => (
               <li key={link.id}>
                 <a

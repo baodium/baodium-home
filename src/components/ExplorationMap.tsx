@@ -1,3 +1,5 @@
+import { ArrowUpRight } from "lucide-react";
+import { Mark } from "@/components/Mark";
 import { projects } from "@/data/projects";
 import { book } from "@/data/writing";
 
@@ -39,26 +41,18 @@ function Node({
   external,
   emphasis = false,
 }: Item & { emphasis?: boolean }) {
-  const className = `flex min-h-11 items-center gap-3 text-[0.98rem] ${
-    emphasis ? "font-serif text-[1.35rem] tracking-[-0.02em] text-ink" : "text-muted hover:text-ink"
+  const className = `flex min-h-11 items-center gap-2 ${
+    emphasis ? "font-serif text-[1.55rem] tracking-[-0.03em] text-ink" : "text-ink/80 hover:text-cinnabar"
   }`;
 
-  if (!href) {
-    return <span className={className}>{label}</span>;
-  }
+  if (!href) return <span className={className}>{label}</span>;
 
   return (
-    <a
-      href={href}
-      className={className}
-      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-    >
+    <a href={href} className={className} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
       <span>{label}</span>
       {external ? (
         <>
-          <span aria-hidden="true" className="text-[0.8rem] text-faint">
-            ↗
-          </span>
+          <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.75} />
           <span className="sr-only"> (opens in a new tab)</span>
         </>
       ) : null}
@@ -68,19 +62,15 @@ function Node({
 
 export function ExplorationMap() {
   return (
-    <section id="map" aria-labelledby="map-heading" className="section">
+    <section id="map" aria-labelledby="map-heading" className="section bg-sand">
       <div className="shell">
-        <h2
-          id="map-heading"
-          className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-bronze"
-        >
-          Map
-        </h2>
-        <div className="mt-12 grid gap-12 border-line lg:mt-14 lg:grid-cols-3 lg:gap-8 lg:border-t lg:pt-8">
-          {columns.map((column) => (
-            <div key={column.title} className="border-l border-line-strong pl-5">
+        <Mark index="03" title="Map" id="map-heading" />
+        <div className="mt-12 grid gap-10 lg:grid-cols-3 lg:gap-8">
+          {columns.map((column, index) => (
+            <div key={column.title} className="border-t-2 border-kiln pt-5">
+              <p className="text-[0.68rem] tracking-[0.18em] text-muted">0{index + 1}</p>
               <Node href={column.href} label={column.title} emphasis />
-              <ul className="mt-4">
+              <ul className="mt-2">
                 {column.items.map((item) => (
                   <li key={item.label}>
                     <Node {...item} />

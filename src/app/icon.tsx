@@ -10,8 +10,8 @@ export default function Icon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#0c0b0a",
-          color: "#f3efe8",
+          background: "#1a2e28",
+          color: "#fbf7f0",
           display: "flex",
           alignItems: "flex-end",
           justifyContent: "center",
@@ -26,7 +26,7 @@ export default function Icon() {
             height: "100%",
             alignItems: "center",
             justifyContent: "center",
-            borderBottom: "2px solid #c4a27a",
+            borderBottom: "3px solid #e23b16",
           }}
         >
           B
