@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   motion,
@@ -13,40 +13,66 @@ import {
 } from "motion/react";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { CircuitField } from "@/components/hero/CircuitField";
-import { KineticRoles } from "@/components/hero/KineticRoles";
+import { KineticRoles, roles } from "@/components/hero/KineticRoles";
+import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
+import { projects } from "@/data/projects";
 import { useHeroMotionOk } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const line =
   "I build software, systems, and products around reliability, infrastructure, AI, and how people work.";
 
+/** The trace finishes drawing into "Engineer" at LOCK_MS; that is when the word locks in. */
+const TRACE_DELAY = 1.15;
+const LOCK_MS = 1950;
+const CYCLE_MS = 2800;
+const liveCount = projects.filter((project) => project.status === "Live").length;
 
 export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const ref = useRef<HTMLElement>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
+  const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const reduce = useReducedMotion();
   const motionOk = useHeroMotionOk();
   const [paused, setPaused] = useState(false);
+  const [active, setActive] = useState(-1);
+
+  useEffect(() => {
+    if (reduce) {
+      const frame = requestAnimationFrame(() => setActive(0));
+      return () => cancelAnimationFrame(frame);
+    }
+    let interval: number | undefined;
+    const lock = window.setTimeout(() => {
+      setActive(0);
+      interval = window.setInterval(() => setActive((value) => (value + 1) % roles.length), CYCLE_MS);
+    }, LOCK_MS);
+    return () => {
+      window.clearTimeout(lock);
+      window.clearInterval(interval);
+    };
+  }, [reduce]);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   useMotionValueEvent(scrollYProgress, "change", (value) => setPaused(value > 0.98));
 
-  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 140]);
-  const photoScale = useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1, 1.08]);
-  const copyY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, -90]);
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.75]);
+  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 120]);
+  const copyY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, -110]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.8]);
 
+  // Three depth planes: field (far), portrait (mid), type (near, moves against the pointer).
   const px = useMotionValue(0);
   const py = useMotionValue(0);
-  const spx = useSpring(px, { stiffness: 50, damping: 18 });
-  const spy = useSpring(py, { stiffness: 50, damping: 18 });
-  const photoX = useTransform(spx, (v) => v * -16);
-  const photoPY = useTransform(spy, (v) => v * -10);
-  const glowX = useTransform(spx, (v) => v * 50);
-  const glowY = useTransform(spy, (v) => v * 36);
-  const lineX = useTransform(spx, (v) => v * 22);
-  const lineY = useTransform(spy, (v) => v * 14);
+  const spx = useSpring(px, { stiffness: 45, damping: 18 });
+  const spy = useSpring(py, { stiffness: 45, damping: 18 });
+  const fieldX = useTransform(spx, (v) => v * 10);
+  const fieldY = useTransform(spy, (v) => v * 6);
+  const photoX = useTransform(spx, (v) => v * -14);
+  const photoPY = useTransform(spy, (v) => v * -8);
+  const typeX = useTransform(spx, (v) => v * 8);
+  const typeY = useTransform(spy, (v) => v * 5);
 
   return (
     <section
@@ -60,145 +86,134 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       }}
       className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px] [@media(min-width:1024px)_and_(min-height:700px)]:sticky [@media(min-width:1024px)_and_(min-height:700px)]:top-0"
     >
-      {/* Ambient light behind and around the portrait */}
-      <motion.div aria-hidden="true" style={{ x: glowX, y: glowY }} className="pointer-events-none absolute inset-0 -z-10">
+      {/* Far plane: one warm light and the circuit field */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 2.2, ease }}
-          className="absolute inset-0"
-        >
-          <div className="aurora absolute left-[38%] top-[18%] h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.42),rgba(216,38,43,0.14)_55%,transparent)] blur-2xl max-lg:left-[10%] max-lg:top-[-10%]" />
-          <div className="aurora-slow absolute right-[-12%] top-[-8%] h-[48vmax] w-[48vmax] rounded-full bg-[radial-gradient(closest-side,rgba(255,164,92,0.26),transparent)] blur-2xl" />
-          <div className="absolute bottom-[-30%] left-[-10%] h-[60vmax] w-[80vmax] rounded-full bg-[radial-gradient(closest-side,rgba(216,38,43,0.22),transparent)] blur-3xl" />
-        </motion.div>
+          transition={{ duration: 2.4, ease }}
+          className="aurora absolute left-[34%] top-[8%] h-[72vmax] w-[72vmax] rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.34),rgba(216,38,43,0.1)_55%,transparent)] blur-2xl max-lg:left-[5%] max-lg:top-[-12%]"
+        />
+      </div>
+      <motion.div
+        aria-hidden="true"
+        style={{ x: fieldX, y: fieldY }}
+        className="circuit-mask pointer-events-none absolute inset-0 max-lg:h-[calc(60svh+4rem)] max-lg:max-h-[664px] max-lg:opacity-50"
+      >
+        <CircuitField />
       </motion.div>
 
-      {/* Portrait, melted into the page with masks */}
+      {/* Mid plane: the portrait, melted into the field */}
       <motion.div
-        style={{ y: photoY, scale: photoScale }}
+        style={{ y: photoY }}
         className="relative h-[60svh] max-h-[600px] min-h-[400px] w-full max-lg:mt-16 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
       >
         <motion.div style={{ x: photoX, y: photoPY }} className="absolute -inset-6">
           <motion.div
-            initial={{ scale: 1.08 }}
+            ref={photoRef}
+            initial={{ scale: 1.06 }}
             animate={{ scale: 1 }}
             transition={{ duration: 2.2, ease }}
             className="absolute inset-0 lg:inset-auto lg:bottom-0 lg:right-0 lg:aspect-[2752/1536] lg:h-[80%] lg:min-w-[70%] xl:h-[90%]"
           >
-            <div className="hero-photo-mask absolute inset-0">
+            <div className="hero-photo-mask absolute inset-0 overflow-hidden">
               <Portrait hasVideo={hasVideo && motionOk} />
+              <div aria-hidden="true" className="portrait-sweep absolute inset-y-0 -left-1/2 w-1/2" />
               <motion.div
                 aria-hidden="true"
                 initial={{ opacity: 1 }}
                 animate={{ opacity: 0 }}
-                transition={{ duration: 1.8, ease }}
+                transition={{ duration: 1.6, ease }}
                 className="absolute inset-0 bg-night"
               />
             </div>
           </motion.div>
         </motion.div>
-        {/* Rim light that blends into the portrait without touching the face */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 right-[4%] h-[55%] w-[46%] rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.32),transparent)] mix-blend-screen blur-2xl max-lg:hidden"
-        />
       </motion.div>
 
-      <motion.div aria-hidden="true" style={{ x: lineX, y: lineY }} className="circuit-mask pointer-events-none absolute inset-0 max-lg:h-[64svh] max-lg:max-h-[620px] max-lg:opacity-60">
-        <CircuitField />
+      <motion.div aria-hidden="true" style={{ opacity: shade }} className="pointer-events-none absolute inset-0 z-[2] bg-night" />
+
+      {/* Near plane: type, the signature trace, and a quiet HUD */}
+      <motion.div style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
+        <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={TRACE_DELAY} />
       </motion.div>
 
-      <motion.div
-        aria-hidden="true"
-        style={{ opacity: shade }}
-        className="pointer-events-none absolute inset-0 z-[2] bg-night"
-      />
-
-      {/* Copy */}
       <motion.div
         style={{ y: copyY, opacity: copyOpacity }}
-        className="relative z-[3] -mt-24 px-5 pb-16 sm:px-8 md:-mt-40 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
+        className="relative z-[3] -mt-24 px-5 pb-16 sm:px-8 md:-mt-36 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
       >
-        <div className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease }}
-            className="kicker items-center gap-2.5 rounded-full max-md:hidden md:inline-flex border border-white/10 bg-white/[0.04] px-3 py-1.5 text-cream/70 backdrop-blur-md"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-cinnabar" />
-            Baodium · Products and writing
-          </motion.p>
-          <h1 className="md:mt-6">
+        <motion.div style={{ x: typeX, y: typeY }} className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
+          <h1>
             <motion.span
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.42, ease }}
+              transition={{ duration: 0.9, delay: 0.4, ease }}
               className="block font-serif text-[clamp(1.6rem,2.4vw,2.25rem)] italic leading-none text-cream/90"
             >
               Adewale Obadimu
             </motion.span>
-            <KineticRoles />
+            <KineticRoles active={active} wordRefs={wordRefs} />
           </h1>
 
-          <p className="mt-6 max-w-[27rem] text-[1.05rem] leading-[1.65] text-cream/70 md:text-lg">
-            {line.split(" ").map((word, index) => (
-              <motion.span
-                key={`${word}-${index}`}
-                className="inline-block"
-                initial={{ opacity: 0, y: 8, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.6, delay: 1.35 + index * 0.025, ease }}
-              >
-                {word}&nbsp;
-              </motion.span>
-            ))}
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 1.5, ease }}
+            data-hero-line=""
+            className="mt-6 max-w-[27rem] text-[1.05rem] lg:max-w-[22rem] xl:max-w-[27rem] leading-[1.65] text-cream/70 md:text-lg"
+          >
+            {line}
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.7, ease }}
+            transition={{ duration: 0.8, delay: 1.75, ease }}
             className="mt-9 flex flex-wrap items-center gap-3"
           >
             <Magnetic>
               <a
                 href="#work"
-                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#ff7a45] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-8px_rgba(236,61,32,0.65)]"
+                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#ff7a45] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(236,61,32,0.6)]"
               >
                 <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 <span className="relative">See the work</span>
                 <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
               </a>
             </Magnetic>
-            <Magnetic strength={0.2}>
-              <a
-                href="#book"
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 text-[0.95rem] text-cream backdrop-blur-md transition-colors hover:border-white/30 hover:bg-white/10"
-              >
-                Read the book
-              </a>
-            </Magnetic>
+            <a
+              href="#book"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-[0.95rem] text-cream transition-colors hover:border-white/35 hover:bg-white/[0.05]"
+            >
+              Read the book
+            </a>
           </motion.div>
-        </div>
+        </motion.div>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.2, duration: 1 }}
+        transition={{ delay: 2.3, duration: 1.2 }}
         style={{ opacity: copyOpacity }}
-        className="absolute inset-x-0 bottom-0 z-[3] hidden lg:block"
+        className="pointer-events-none absolute inset-0 z-[3] hidden lg:block"
       >
-        <div className="shell flex items-end justify-between pb-8">
-          <a href="#work" className="group flex items-center gap-3 text-cream/55 transition-colors hover:text-cream">
+        <span aria-hidden="true" className="hud-corner left-6 top-6 border-l border-t" />
+        <span aria-hidden="true" className="hud-corner right-6 top-6 border-r border-t" />
+        <span aria-hidden="true" className="hud-corner bottom-6 left-6 border-b border-l" />
+        <span aria-hidden="true" className="hud-corner bottom-6 right-6 border-b border-r" />
+        <div className="shell pointer-events-auto absolute inset-x-0 bottom-0 flex items-end justify-between pb-9">
+          <a href="#work" className="group flex items-center gap-3 text-cream/50 transition-colors hover:text-cream">
             <span className="relative h-10 w-px overflow-hidden bg-white/10">
               <span className="scroll-cue absolute inset-0 bg-gradient-to-b from-amber to-cinnabar" />
             </span>
             <span className="kicker">Scroll</span>
             <ArrowDown aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
           </a>
+          <p className="kicker flex items-center gap-2.5 text-cream/50">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#5fd38a] shadow-[0_0_10px_rgba(95,211,138,0.8)]" />
+            Products live · {String(liveCount).padStart(2, "0")}
+          </p>
         </div>
       </motion.div>
     </section>

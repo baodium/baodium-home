@@ -224,16 +224,6 @@ html {
   animation-play-state: paused;
 }
 
-/* Marquee */
-.marquee-track {
-  animation: marquee 38s linear infinite;
-}
-
-@keyframes marquee {
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
 
 /* Live status dot */
 .live-dot {
@@ -318,7 +308,6 @@ html {
   .breathe,
   .pulse-trace,
   .twinkle,
-  .marquee-track,
   .live-dot::after,
   .caret,
   .scroll-cue,
@@ -396,4 +385,64 @@ html {
   .wordmark:hover .wordmark-light {
     opacity: 1;
   }
+}
+
+/* Hero: a warm light band crosses the portrait once on load, then rarely. Opacity/transform only. */
+.portrait-sweep {
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 196, 160, 0.13) 45%, rgba(255, 226, 200, 0.2) 50%, rgba(255, 196, 160, 0.13) 55%, transparent 100%);
+  mix-blend-mode: screen;
+  transform: translate3d(0, 0, 0);
+  animation: portrait-sweep 11s cubic-bezier(0.65, 0, 0.35, 1) 0.5s infinite;
+  opacity: 0;
+}
+
+@keyframes portrait-sweep {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  17% {
+    opacity: 1;
+  }
+  20% {
+    transform: translate3d(300%, 0, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(300%, 0, 0);
+    opacity: 0;
+  }
+}
+
+.hud-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(245, 239, 229, 0.22);
+}
+
+.sig-pulse {
+  stroke-dasharray: 0.07 1;
+  stroke-dashoffset: 0.07;
+  animation: trace 3.4s cubic-bezier(0.45, 0, 0.55, 1) 2.4s infinite backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-sweep,
+  .sig-pulse {
+    animation: none !important;
+    display: none;
+  }
+}
+
+.instrument-tick {
+  position: absolute;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border-color: rgba(245, 239, 229, 0.35);
+  transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }

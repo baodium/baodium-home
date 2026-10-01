@@ -50,10 +50,6 @@ export function BookSection() {
       }}
       className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-night pb-20 pt-24 md:-mt-14 md:rounded-t-[3.5rem] md:pb-28 md:pt-36"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,239,229,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(245,239,229,0.045)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_70%_35%,#000,transparent)]" />
-      </div>
-
       <div className="shell relative z-[2]">
         <div className="grid items-center gap-16 md:grid-cols-12 md:gap-8 lg:gap-10">
           <div className="md:col-span-7 lg:col-span-6">
@@ -121,8 +117,7 @@ export function BookSection() {
 
           <div className="relative md:col-span-5 lg:col-span-6" aria-hidden="true">
             <motion.div style={{ x: glowX, y: glowY }} className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="breathe absolute h-[130%] w-[130%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.7),rgba(236,61,32,0.28)_45%,transparent_72%)] blur-2xl" />
-              <div className="absolute aspect-square w-[62%] rounded-full bg-gradient-to-br from-[#ff7a45] via-crimson to-[#7a0d16] opacity-80 blur-[70px]" />
+              <div className="breathe absolute h-[120%] w-[120%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.62),rgba(236,61,32,0.22)_48%,transparent_72%)] blur-2xl" />
             </motion.div>
             <div className="relative py-6 lg:py-10">
               <Book3D rotateX={rotateX} rotateY={rotateY} sheen={sheen} />
@@ -130,25 +125,15 @@ export function BookSection() {
           </div>
         </div>
 
-        <Reveal className="mt-20 md:mt-28">
-          <figure className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.015] p-5 backdrop-blur-sm md:rounded-[2.25rem] md:p-10">
-            <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <figcaption className="max-w-xl">
-                <p className="kicker text-cream/45">Fig. 1 — From the cover</p>
-                <p className="mt-3 font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-cream">
-                  The median says everything is fine. <span className="italic text-flame">The tail tells the truth.</span>
-                </p>
-              </figcaption>
-              <div className="flex items-center gap-5 font-mono text-xs text-cream/60">
-                <span className="flex items-center gap-2">
-                  <span className="h-0.5 w-6 rounded bg-cream" /> p50
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="h-0.5 w-6 rounded bg-cinnabar" /> p99
-                </span>
-              </div>
-            </div>
-            <div className="relative mt-8 md:mt-10">
+        <Reveal className="mt-24 md:mt-36">
+          <figure className="border-t border-white/10 pt-8 md:pt-12">
+            <figcaption className="flex flex-col gap-4">
+              <p className="kicker shrink-0 text-cream/45">Fig. 1 — From the cover</p>
+              <p className="max-w-3xl font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-cream">
+                The median says everything is fine. <span className="italic text-flame">The tail tells the truth.</span>
+              </p>
+            </figcaption>
+            <div className="relative mt-10 md:mt-14">
               <LatencyChart />
             </div>
           </figure>

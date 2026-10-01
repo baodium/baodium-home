@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import type { RefObject } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
-const roles = [
+export const roles = [
   { word: "Engineer", note: "Reliability and infrastructure" },
-  { word: "Builder", note: "Interview Coach and UpTo, both live" },
+  { word: "Builder", note: "Interview Coach and UpTo" },
   { word: "Author", note: "Practical System Design" },
 ];
 
@@ -25,31 +25,17 @@ function flameAt(t: number) {
 }
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const INTRO_MS = 2600;
-const CYCLE_MS = 2600;
 
-export function KineticRoles() {
-  const reduce = useReducedMotion();
-  const [active, setActive] = useState(-1);
-
-  useEffect(() => {
-    if (reduce) return;
-    let interval: number | undefined;
-    const start = window.setTimeout(() => {
-      setActive(0);
-      interval = window.setInterval(() => {
-        setActive((value) => (value + 1) % roles.length);
-      }, CYCLE_MS);
-    }, INTRO_MS);
-    return () => {
-      window.clearTimeout(start);
-      window.clearInterval(interval);
-    };
-  }, [reduce]);
-
+export function KineticRoles({
+  active,
+  wordRefs,
+}: {
+  active: number;
+  wordRefs: RefObject<Array<HTMLSpanElement | null>>;
+}) {
   return (
     <>
-      <span className="mt-5 flex flex-col gap-[0.06em] md:mt-7">
+      <span className="mt-5 flex flex-col gap-[0.04em] md:mt-7">
         {roles.map((role, line) => {
           const isActive = active === line;
           const dim = active !== -1 && !isActive;
@@ -65,13 +51,15 @@ export function KineticRoles() {
               >
                 0{line + 1}
               </motion.span>
-              <motion.span
-                className="block overflow-hidden pb-[0.08em] text-[clamp(3.1rem,6.4vw,6.6rem)] font-semibold leading-[0.98] tracking-[-0.055em]"
-                animate={{ x: isActive ? "0.08em" : "0em" }}
-                transition={{ type: "spring", stiffness: 220, damping: 26 }}
-              >
+              <span className="block overflow-hidden pb-[0.08em] text-[clamp(3.1rem,6.4vw,6.6rem)] font-semibold leading-[0.98] tracking-[-0.055em]">
                 <span className="sr-only">{role.word}.</span>
-                <span aria-hidden="true" className="inline-flex">
+                <span
+                  aria-hidden="true"
+                  ref={(node) => {
+                    wordRefs.current[line] = node;
+                  }}
+                  className="inline-flex"
+                >
                   {letters.map((letter, k) => (
                     <motion.span
                       key={k}
@@ -83,16 +71,16 @@ export function KineticRoles() {
                         color: isActive
                           ? flameAt(k / Math.max(letters.length - 1, 1))
                           : dim
-                            ? "rgba(245,239,229,0.32)"
+                            ? "rgba(245,239,229,0.3)"
                             : "#f5efe5",
-                        transition: `color 0.55s ease ${k * 0.035}s`,
+                        transition: `color 0.5s ease ${isActive ? (letters.length - 1 - k) * 0.03 : 0}s`,
                       }}
                     >
                       {letter}
                     </motion.span>
                   ))}
                 </span>
-              </motion.span>
+              </span>
             </span>
           );
         })}
@@ -102,10 +90,10 @@ export function KineticRoles() {
           {active >= 0 ? (
             <motion.span
               key={active}
-              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-              transition={{ duration: 0.45, ease }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.4, ease }}
               className="inline-flex items-center gap-2.5"
             >
               <span className="h-px w-6 bg-gradient-to-r from-amber to-cinnabar" />

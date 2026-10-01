@@ -109,14 +109,18 @@ export function LatencyChart() {
           SLO
         </text>
 
-        <path d={`M${X0} 16 V${BASE} H${X1 + 26}`} stroke="rgba(245,239,229,0.55)" strokeWidth={1.5} fill="none" />
-        <path d={`M${X0 - 6} 26 L${X0} 14 L${X0 + 6} 26`} stroke="rgba(245,239,229,0.55)" strokeWidth={1.5} fill="none" />
-        <path d={`M${X1 + 16} ${BASE - 6} L${X1 + 28} ${BASE} L${X1 + 16} ${BASE + 6}`} stroke="rgba(245,239,229,0.55)" strokeWidth={1.5} fill="none" />
-        <text x={X0 - 18} y={150} fill="rgba(245,239,229,0.5)" transform={`rotate(-90 ${X0 - 18} 150)`} textAnchor="middle" className="font-mono text-[13px] max-md:text-[30px]">
-          Latency
+        <line x1={X0} x2={X1} y1={BASE} y2={BASE} stroke="rgba(245,239,229,0.35)" />
+        {Array.from({ length: 13 }, (_, i) => X0 + (i * (X1 - X0)) / 12).map((x, i) => (
+          <line key={x} x1={x} x2={x} y1={BASE} y2={BASE + (i % 3 === 0 ? 10 : 5)} stroke="rgba(245,239,229,0.35)" />
+        ))}
+        <text x={X0} y={BASE + 34} fill="rgba(245,239,229,0.45)" className="font-mono text-[13px] max-md:text-[28px]">
+          t−60s
         </text>
-        <text x={(X0 + X1) / 2} y={BASE + 28} fill="rgba(245,239,229,0.5)" textAnchor="middle" className="font-mono text-[13px] max-md:text-[30px]">
-          Time
+        <text x={X1} y={BASE + 34} fill="rgba(245,239,229,0.45)" textAnchor="end" className="font-mono text-[13px] max-md:text-[28px]">
+          now
+        </text>
+        <text x={X0} y={40} fill="rgba(245,239,229,0.45)" className="font-mono text-[13px] uppercase tracking-[0.12em] max-md:text-[28px]">
+          Latency
         </text>
 
         <g clipPath="url(#reveal-clip)">

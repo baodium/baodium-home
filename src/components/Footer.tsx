@@ -8,13 +8,6 @@ import { book } from "@/data/writing";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const sections = [
-  { label: "Work", href: "#work" },
-  { label: "Book", href: "#book" },
-  { label: "Writing", href: "#writing" },
-  { label: "About", href: "#about" },
-];
-
 const contact = [
   { label: "GitHub", href: site.github },
   { label: "LinkedIn", href: site.linkedin },
@@ -33,35 +26,18 @@ export function Footer() {
       </div>
 
       <div className="shell relative z-[2]">
-        <div className="grid gap-12 md:grid-cols-12 md:items-end">
-          <div className="md:col-span-7">
-            <p className="kicker text-cream/45">Baodium</p>
-            <p className="mt-5 text-[clamp(2rem,4vw,3.5rem)] font-semibold leading-[1] tracking-[-0.045em]">
-              Engineer. Builder.{" "}
-              <span className="font-serif font-normal italic text-flame">Author.</span>
-            </p>
-            <p className="mt-5 max-w-md text-cream/55">Projects and writing by {site.name}.</p>
-          </div>
-          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 text-sm md:col-span-5">
-            <ul>
-              <li className="kicker mb-3 text-cream/35">Sections</li>
-              {sections.map((link) => (
-                <li key={link.href}>
-                  <a href={link.href} className="group inline-flex min-h-10 items-center text-cream/70 transition-colors hover:text-cream">
-                    <span className="mr-0 h-px w-0 bg-cinnabar transition-all duration-300 group-hover:mr-2 group-hover:w-4" />
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <ul>
-              <li className="kicker mb-3 text-cream/35">Elsewhere</li>
+        <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+          <p className="max-w-md text-[clamp(1.6rem,2.6vw,2.25rem)] font-semibold leading-[1.1] tracking-[-0.035em]">
+            Projects and writing by <span className="font-serif font-normal italic text-flame">{site.name}.</span>
+          </p>
+          <nav aria-label="Elsewhere">
+            <ul className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
               <li>
                 <a
                   href={book.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex min-h-10 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
+                  className="group inline-flex min-h-11 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
                 >
                   Book on Amazon
                   <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -74,7 +50,7 @@ export function Footer() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="group inline-flex min-h-10 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
+                      className="group inline-flex min-h-11 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
                       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     >
                       {link.label}

@@ -3,26 +3,17 @@
 import { motion } from "motion/react";
 
 const traces = [
-  "M0 182 H250 L292 224 H548 L590 182 H748",
-  "M84 0 V118 L124 158 H332",
-  "M0 628 H176 L224 580 H414 L456 538 V386 L498 344 H690",
   "M146 900 V766 L194 718 H372",
   "M0 800 H118 L160 842 H298",
   "M520 900 V728 L562 686 H742",
   "M366 0 V62 L406 102 H612 L652 142 V262",
-  "M248 300 H344 L386 258 H470",
 ];
 
 const nodes: Array<[number, number]> = [
-  [748, 182],
-  [332, 158],
-  [690, 344],
   [372, 718],
   [298, 842],
   [742, 686],
   [652, 262],
-  [470, 258],
-  [248, 300],
 ];
 
 export function CircuitField() {
@@ -51,7 +42,7 @@ export function CircuitField() {
           transition={{ duration: 1.8, delay: 0.35 + index * 0.09, ease: [0.65, 0, 0.35, 1] }}
         />
       ))}
-      {traces.map((d, index) => (
+      {traces.filter((_, index) => index % 3 === 0).map((d, index) => (
         <path
           key={`pulse-${d}`}
           d={d}
@@ -62,8 +53,8 @@ export function CircuitField() {
           className="pulse-trace"
           style={
             {
-              "--dur": `${5 + (index % 4) * 1.3}s`,
-              "--delay": `${1.8 + index * 0.7}s`,
+              "--dur": `${7 + index * 1.5}s`,
+              "--delay": `${3 + index * 1.6}s`,
             } as React.CSSProperties
           }
         />

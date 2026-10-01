@@ -3,19 +3,12 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { Reveal } from "@/components/motion/Reveal";
-import { book } from "@/data/writing";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const statement =
-  "Adewale Obadimu is a reliability engineer, technical leader, builder, and author. He is currently building at the intersection of AI, software engineering, reliability, and how people work.";
-const highlight = new Set(["reliability", "builder,", "author.", "AI,"]);
-
-const facts = [
-  { label: "Building", value: "Interview Coach and UpTo" },
-  { label: "Author of", value: book.title },
-  { label: "Works on", value: "Reliability, AI, infrastructure" },
-];
+  "Adewale Obadimu is a reliability engineer and technical leader. Today he builds AI products at Baodium and writes about running systems in production.";
+const highlight = new Set(["reliability", "AI", "production."]);
 
 const areas: Array<{ title: string; copy: string; glyph: ReactNode }> = [
   {
@@ -52,8 +45,8 @@ const areas: Array<{ title: string; copy: string; glyph: ReactNode }> = [
     ),
   },
   {
-    title: "Writing",
-    copy: "Practical system design and production engineering.",
+    title: "Technical Writing",
+    copy: "Long-form system design, from real production failures.",
     glyph: (
       <path
         d="M4 38 C14 20 20 44 30 28 S46 14 52 30 S58 40 62 34"
@@ -133,28 +126,13 @@ export function About() {
           </h2>
         </Reveal>
 
-        <div className="mt-8 grid gap-12 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-8">
-            <ScrollStatement />
-          </div>
-          <Reveal delay={0.15} className="lg:col-span-4 lg:pt-3">
-            <dl className="rounded-[1.5rem] border border-ink/10 bg-white/50 p-6 backdrop-blur-sm md:p-7">
-              {facts.map((fact, index) => (
-                <div key={fact.label} className={`flex flex-col gap-1 ${index > 0 ? "mt-5 border-t border-ink/10 pt-5" : ""}`}>
-                  <dt className="kicker text-muted">{fact.label}</dt>
-                  <dd className="text-lg font-medium tracking-[-0.02em]">{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
+        <div className="mt-8 max-w-[62rem]">
+          <ScrollStatement />
         </div>
 
         <div className="mt-24 md:mt-32">
           <Reveal y={12}>
-            <h3 className="kicker flex items-center justify-between border-b border-ink/15 pb-4 text-muted">
-              <span>Focus</span>
-              <span>04 areas</span>
-            </h3>
+            <h3 className="kicker border-b border-ink/15 pb-4 text-muted">Focus</h3>
           </Reveal>
           <ul>
             {areas.map((area, index) => (
