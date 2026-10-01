@@ -10,16 +10,13 @@ export default function AppleIcon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#1a2e28",
-          color: "#fbf7f0",
+          background: "#f4efe6",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 96,
-          borderBottom: "12px solid #e23b16",
         }}
       >
-        B
+        <div style={{ width: 112, height: 112, background: "#e23b16", display: "flex" }} />
       </div>
     ),
     { ...size },

@@ -54,7 +54,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <div className="grain" aria-hidden="true" />
         <ScrollProgress />
         {children}
         <noscript>

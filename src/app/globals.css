@@ -63,17 +63,6 @@ body {
   outline-offset: 3px;
 }
 
-.grain {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  opacity: 0.22;
-  background-image: url("/texture/grain.png");
-  background-size: 180px 180px;
-  mix-blend-mode: multiply;
-}
-
 .shell {
   margin-inline: auto;
   width: min(100% - 2.5rem, 76rem);
@@ -86,13 +75,13 @@ body {
 }
 
 .section {
-  padding-block: 5.25rem;
-  scroll-margin-top: 5.25rem;
+  padding-block: 4.5rem;
+  scroll-margin-top: 5rem;
 }
 
 @media (min-width: 768px) {
   .section {
-    padding-block: 7.25rem;
+    padding-block: 6rem;
   }
 }
 
@@ -157,7 +146,7 @@ body {
 .project-card,
 .preview-shot,
 .card-arrow,
-.book-object {
+.book-stand {
   transition:
     transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.35s ease;
@@ -167,59 +156,25 @@ body {
   transform: scale(1.01);
 }
 
-.bleed-kiln {
-  position: relative;
-}
-
-.bleed-kiln::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 0;
-  width: 50vw;
-  background: var(--kiln);
-}
-
 .book-scene {
-  perspective: 1600px;
+  perspective: 1400px;
 }
 
-.book-object {
+.book-stand {
   position: relative;
-  width: min(100%, 20rem);
-  transform: rotateY(-16deg) rotateX(5deg);
+  transform: rotateY(-10deg) rotateX(2.5deg);
   transform-style: preserve-3d;
-}
-
-.book-object.is-tracking {
-  transition-duration: 0.08s;
+  filter: drop-shadow(16px 28px 18px rgba(0, 0, 0, 0.55));
 }
 
 .book-pages {
   position: absolute;
-  top: 14px;
-  right: -16px;
-  bottom: 14px;
-  width: 16px;
-  background: repeating-linear-gradient(90deg, #fffaf3 0 1px, #e4d8c6 1px 3px, #f7f1e6 3px 4px);
-  box-shadow: 3px 0 0 #1a2e28;
-}
-
-.book-board {
-  position: relative;
-  display: flex;
-  min-height: 30rem;
-  flex-direction: column;
-  aspect-ratio: 6 / 9.1;
-  border-left: 11px solid var(--cinnabar);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%),
-    var(--kiln);
-  color: var(--cream);
-  padding: 1.4rem 1.3rem 1.25rem;
-  box-shadow: 22px 34px 50px rgba(26, 46, 40, 0.28);
+  top: 8px;
+  right: -12px;
+  bottom: 8px;
+  width: 13px;
+  background: repeating-linear-gradient(90deg, #f6f1e8 0 1px, #c8bfb2 1px 2px, #efe8dc 2px 3px);
+  box-shadow: 2px 0 0 rgba(0, 0, 0, 0.18);
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
@@ -263,7 +218,7 @@ body {
   .project-card,
   .preview-shot,
   .card-arrow,
-  .book-object,
+  .book-stand,
   .reveal {
     animation: none !important;
     transition: none !important;
@@ -271,10 +226,11 @@ body {
 
   .seq,
   .reveal,
-  .book-object,
+  .book-stand,
   .preview-shot {
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
   }
 
   video.hero-video {

@@ -20,7 +20,7 @@ Import this GitHub repository in Vercel. No environment variables are required. 
 
 ## Hero portrait
 
-The still is `public/images/adewale-hero-poster.jpg`. The frame crops toward the portrait with `object-position: 90% center`.
+The still is `public/images/adewale-hero-poster.jpg`. The frame crops toward the portrait with `object-position: 86% 42%`. The book cover is `public/projects/practical-system-design.png`.
 
 An optional muted loop can be added at `public/media/adewale-hero.mp4`. When that file is present and motion is allowed, it plays over the still. `prefers-reduced-motion` keeps the still and does not play video.
 

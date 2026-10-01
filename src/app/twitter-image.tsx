@@ -4,6 +4,6 @@ export const alt = "Adewale Obadimu — engineer, builder, and author. Baodium."
 export const size = ogSize;
 export const contentType = ogContentType;
 
-export default function TwitterImage() {
+export default async function TwitterImage() {
   return OgImage();
 }

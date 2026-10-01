@@ -4,6 +4,6 @@ export const alt = "Adewale Obadimu — engineer, builder, and author. Baodium."
 export const size = ogSize;
 export const contentType = ogContentType;
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
   return OgImage();
 }

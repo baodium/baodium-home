@@ -1,6 +1,4 @@
 import { About } from "@/components/About";
-import { ExplorationMap } from "@/components/ExplorationMap";
-import { Focus } from "@/components/Focus";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { Navigation } from "@/components/Navigation";
@@ -15,8 +13,6 @@ export default function Home() {
         <Hero />
         <Projects />
         <Writing />
-        <ExplorationMap />
-        <Focus />
         <About />
       </main>
       <Footer />
