@@ -128,7 +128,7 @@ export function Writing() {
             title: "Essays",
             detail: "Practical system design and production engineering, in shorter form.",
             action: (
-              <span className="inline-flex items-center gap-2.5 rounded-full border border-amber/30 bg-amber/[0.08] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-amber">
+              <span className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-amber/30 bg-amber/[0.08] px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-amber">
                 <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
                 Publishing here next
               </span>
