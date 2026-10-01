@@ -22,10 +22,10 @@ export function Writing() {
   const hasEssays = writing.length > 0;
 
   return (
-    <section id="writing" aria-labelledby="writing-heading" className="relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-cream pb-24 pt-28 text-ink md:-mt-14 md:rounded-t-[3.5rem] md:pb-36 md:pt-40">
+    <section id="writing" aria-labelledby="writing-heading" className="relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-cream pb-24 pt-28 text-ink md:-mt-14 md:rounded-t-[3.5rem] md:pb-32 md:pt-40">
       <div className="shell relative z-[2]">
-        <div className="grid gap-8 md:grid-cols-12 md:items-end">
-          <div className="md:col-span-7">
+        <div>
+          <div>
             <Reveal y={12}>
               <p className="kicker text-cinnabar">Writing</p>
             </Reveal>
@@ -37,8 +37,8 @@ export function Writing() {
             />
           </div>
           {!hasEssays ? (
-            <Reveal delay={0.2} className="md:col-span-5 md:pb-2">
-              <p className="max-w-sm text-lg leading-relaxed text-muted md:ml-auto">
+            <Reveal delay={0.2}>
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
                 Shorter pieces on practical system design and production engineering will publish here.
               </p>
             </Reveal>

@@ -9,6 +9,6 @@ export const site = {
   /** Adewale's lifestyle and social home; Baodium stays the product studio. */
   personal: "https://obadimu.com",
   github: "",
-  linkedin: "",
+  linkedin: "https://www.linkedin.com/in/obadimu",
   email: "",
 } as const;

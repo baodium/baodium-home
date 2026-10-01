@@ -96,6 +96,7 @@ export function LatencyFigure() {
   const shown = useMotionValue(0);
   const scrubOpacity = useSpring(shown, { stiffness: 300, damping: 30 });
   const axisOpacity = useTransform(scrubOpacity, [0, 1], [1, 0]);
+  const restOpacity = useTransform(() => Math.min(labelOpacity.get(), 1 - scrubOpacity.get()));
   const markerX = useTransform(scrub, (t) => X0 + t * (X1 - X0));
   const y99 = useTransform(scrub, (t) => yAt(p99Points, t));
   const y50 = useTransform(scrub, (t) => yAt(p50Points, t));
@@ -156,13 +157,7 @@ export function LatencyFigure() {
   return (
     <figure className="border-t border-white/10 pt-8 md:pt-12">
       <figcaption className="flex flex-col gap-4">
-        <p className="kicker flex items-center justify-between gap-6 text-cream/45">
-          <span>Fig. 1 — From the cover</span>
-          <span className="shrink-0">
-            <span className="sm:hidden">Drag to scrub</span>
-            <span className="max-sm:hidden">Scrub the timeline</span>
-          </span>
-        </p>
+        <p className="kicker text-cream/45">Fig. 1 — From the cover</p>
         <p aria-live="polite" className="relative min-h-[2.3em] max-w-5xl font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-cream md:min-h-[1.2em]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
@@ -194,7 +189,7 @@ export function LatencyFigure() {
         onPointerCancel={release}
         onKeyDown={onKey}
         onBlur={release}
-        className="relative mt-10 cursor-crosshair touch-pan-y rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 md:mt-14"
+        className="relative mt-10 cursor-ew-resize touch-pan-y rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 md:mt-14"
       >
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -277,6 +272,17 @@ export function LatencyFigure() {
             </text>
             <text x={X1 + 12} y={252} fill="#f5efe5">
               p50
+            </text>
+          </motion.g>
+
+          {/* At rest, a grip on the "now" edge invites a drag back through time. */}
+          <motion.g style={{ opacity: restOpacity }} pointerEvents="none">
+            <line x1={X1} x2={X1} y1={60} y2={BASE} stroke="rgba(245,239,229,0.28)" strokeDasharray="3 5" />
+            <rect x={X1 - 9} y={170} width={18} height={44} rx={9} fill="#241612" stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
+            <line x1={X1 - 3} x2={X1 - 3} y1={183} y2={201} stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
+            <line x1={X1 + 3} x2={X1 + 3} y1={183} y2={201} stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
+            <text x={X1 - 22} y={197} textAnchor="end" fill="rgba(245,239,229,0.75)" className="font-mono text-[13px] uppercase tracking-[0.14em] max-md:text-[28px]">
+              ← Drag
             </text>
           </motion.g>
 

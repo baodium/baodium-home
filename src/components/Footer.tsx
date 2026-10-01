@@ -8,9 +8,13 @@ import { book } from "@/data/writing";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const contact = [
-  { label: "GitHub", href: site.github },
+type Link = { label: string; note?: string; href: string };
+
+const elsewhere: Link[] = [
+  { label: "Obadimu", note: "Lifestyle and social", href: site.personal },
   { label: "LinkedIn", href: site.linkedin },
+  { label: "Book on Amazon", href: book.href },
+  { label: "GitHub", href: site.github },
   { label: "Email", href: site.email },
 ].filter((link) => link.href.length > 0);
 
@@ -32,32 +36,7 @@ export function Footer() {
           </p>
           <nav aria-label="Elsewhere">
             <ul className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
-              <li>
-                <a
-                  href={site.personal}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex min-h-11 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
-                >
-                  Obadimu
-                  <span className="text-cream/40">· Lifestyle and social</span>
-                  <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  <span className="sr-only"> (opens obadimu.com in a new tab)</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href={book.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex min-h-11 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
-                >
-                  Book on Amazon
-                  <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </li>
-              {contact.map((link) => {
+              {elsewhere.map((link) => {
                 const external = link.href.startsWith("http");
                 return (
                   <li key={link.label}>
@@ -67,7 +46,10 @@ export function Footer() {
                       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     >
                       {link.label}
-                      {external ? <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" /> : null}
+                      {link.note ? <span className="text-cream/40">· {link.note}</span> : null}
+                      {external ? (
+                        <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      ) : null}
                       {external ? <span className="sr-only"> (opens in a new tab)</span> : null}
                     </a>
                   </li>
