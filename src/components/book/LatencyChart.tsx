@@ -254,6 +254,18 @@ export function LatencyFigure() {
           <motion.g style={{ opacity: breachOpacity }}>
             <line x1={breachX} x2={breachX} y1={SLO} y2={BASE} stroke="rgba(236,61,32,0.5)" strokeDasharray="2 4" />
             <circle cx={breachX} cy={SLO} r={5} fill="#ec3d20" />
+            {phase === "breach" ? (
+              <motion.circle
+                cx={breachX}
+                cy={SLO}
+                fill="none"
+                stroke="#ff5a3a"
+                strokeWidth={2}
+                initial={{ r: 5, opacity: 0.9 }}
+                animate={{ r: 26, opacity: 0 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              />
+            ) : null}
             <text x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#ff8a5c" className="font-mono text-[12px] uppercase tracking-[0.12em] max-md:text-[26px]">
               Tail breach
             </text>
@@ -270,11 +282,11 @@ export function LatencyFigure() {
 
           {/* The "now" marker: everything to its right is the future, so it dims. */}
           <motion.g style={{ opacity: scrubOpacity }} pointerEvents="none">
-            <motion.rect x={markerX} y={0} height={BASE} width={futureWidth} fill="#0e0c0b" fillOpacity={0.62} />
+            <motion.rect x={markerX} y={0} height={BASE} width={futureWidth} fill="#241612" fillOpacity={0.66} />
             <motion.line x1={markerX} x2={markerX} y1={10} y2={BASE + 10} stroke="rgba(245,239,229,0.7)" strokeWidth={1} />
             <motion.circle cx={markerX} cy={y99} r={12} fill="#ec3d20" opacity={0.25} />
             <motion.circle cx={markerX} cy={y99} r={5} fill="#fff" stroke="#ec3d20" strokeWidth={2} />
-            <motion.circle cx={markerX} cy={y50} r={4.5} fill="#0e0c0b" stroke="#f5efe5" strokeWidth={2} />
+            <motion.circle cx={markerX} cy={y50} r={4.5} fill="#241612" stroke="#f5efe5" strokeWidth={2} />
             <g className="font-mono text-[14px] max-md:text-[28px]" textAnchor={flip ? "end" : "start"}>
               <motion.text x={labelX} y={label99Y} fill="#ff8a5c">
                 {ms99}

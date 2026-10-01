@@ -12,10 +12,9 @@ import {
 } from "motion/react";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { CircuitField } from "@/components/hero/CircuitField";
-import { KineticRoles, roles } from "@/components/hero/KineticRoles";
+import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
-import { projects } from "@/data/projects";
 import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -26,7 +25,6 @@ const line =
 const TRACE_DELAY = 1.15;
 const LOCK_MS = 1950;
 const CYCLE_MS = 2800;
-const liveCount = projects.filter((project) => project.status === "Live").length;
 
 export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const ref = useRef<HTMLElement>(null);
@@ -50,11 +48,18 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
     return () => window.clearTimeout(lock);
   }, [reduce]);
 
+  /** One guided tour of the roles, then the line rests until a person moves it. */
+  const touched = useRef(false);
   useEffect(() => {
-    if (!locked || steering || reduce) return;
-    const interval = window.setInterval(() => setActive((value) => (value + 1) % roles.length), CYCLE_MS);
-    return () => window.clearInterval(interval);
+    if (!locked || steering || reduce || touched.current) return;
+    const timers = [1, 2, 0].map((index, step) => window.setTimeout(() => setActive(index), CYCLE_MS * (step + 1)));
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [locked, steering, reduce]);
+
+  const select = (index: number) => {
+    touched.current = true;
+    setActive(index);
+  };
 
   /** The signal routes to whichever role sits nearest the pointer; on leave it rests there. */
   const steer = (clientY: number) => {
@@ -100,6 +105,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       onPointerMove={(event) => {
         if (event.pointerType !== "mouse") return;
         if (locked && window.innerWidth >= 1024) {
+          touched.current = true;
           if (!steering) setSteering(true);
           steer(event.clientY);
         }
@@ -176,7 +182,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             >
               Adewale Obadimu
             </motion.span>
-            <KineticRoles active={active} wordRefs={wordRefs} />
+            <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
           </h1>
 
           <motion.p
@@ -230,10 +236,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             <span className="kicker">Scroll</span>
             <ArrowDown aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
           </a>
-          <p className="kicker flex items-center gap-2.5 text-cream/50">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#5fd38a] shadow-[0_0_10px_rgba(95,211,138,0.8)]" />
-            Products live · {String(liveCount).padStart(2, "0")}
-          </p>
         </div>
       </motion.div>
     </section>

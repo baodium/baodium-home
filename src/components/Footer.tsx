@@ -20,7 +20,7 @@ export function Footer() {
   const markRef = useRef<HTMLDivElement>(null);
 
   return (
-    <footer className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-night pt-20 md:-mt-14 md:rounded-t-[3.5rem] md:pt-28">
+    <footer className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-ember pt-20 md:-mt-14 md:rounded-t-[3.5rem] md:pt-28">
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%]">
         <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.45),rgba(216,38,43,0.12)_50%,transparent)] blur-3xl" />
       </div>

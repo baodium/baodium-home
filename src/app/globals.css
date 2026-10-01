@@ -17,6 +17,8 @@
   --color-night: #080706;
   --color-ink: #0e0c0b;
   --color-ink-raise: #171412;
+  --color-cocoa: #1d1512;
+  --color-ember: #241612;
   --color-cream: #f5efe5;
   --color-paper: #ede5d7;
   --color-muted: #6b6157;
@@ -438,4 +440,21 @@ html {
   height: 12px;
   border-color: rgba(245, 239, 229, 0.35);
   transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Calm at rest: nothing loops while nobody is touching the page. Effects fire once, or in response to a person. */
+.aurora,
+.aurora-slow,
+.breathe,
+.twinkle,
+.live-dot::after,
+.scroll-cue,
+.caret,
+.text-flame-animated {
+  animation: none !important;
+}
+
+.portrait-sweep,
+.sig-pulse {
+  animation-iteration-count: 1 !important;
 }

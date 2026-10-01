@@ -29,9 +29,11 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function KineticRoles({
   active,
   wordRefs,
+  onSelect,
 }: {
   active: number;
   wordRefs: RefObject<Array<HTMLSpanElement | null>>;
+  onSelect: (index: number) => void;
 }) {
   return (
     <>
@@ -41,7 +43,11 @@ export function KineticRoles({
           const dim = active !== -1 && !isActive;
           const letters = `${role.word}.`.split("");
           return (
-            <span key={role.word} className="flex items-baseline gap-3 md:gap-5">
+            <span
+              key={role.word}
+              onClick={() => onSelect(line)}
+              className="flex w-fit cursor-pointer items-baseline gap-3 md:gap-5"
+            >
               <motion.span
                 aria-hidden="true"
                 initial={{ opacity: 0 }}

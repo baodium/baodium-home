@@ -3,7 +3,8 @@ export type Project = {
   slug: string;
   description: string;
   url: string;
-  image: string;
+  /** Full-page capture of the live product, 1200px wide; the frame scrolls through it on hover. */
+  page: { src: string; height: number };
   tags: string[];
   status: "Live" | "Book" | "In progress";
   featured: boolean;
@@ -17,7 +18,7 @@ export const projects: Project[] = [
     description:
       "An AI-powered interview coaching environment for practicing technical and behavioral interviews.",
     url: "https://interview.baodium.com/",
-    image: "/projects/interview-coach.jpg",
+    page: { src: "/projects/interview-coach-page.jpg", height: 3750 },
     tags: ["AI", "Interviewing"],
     status: "Live",
     featured: true,
@@ -29,7 +30,7 @@ export const projects: Project[] = [
     description:
       "A living status page you update once and share across every social profile.",
     url: "https://upto.baodium.com/",
-    image: "/projects/upto.jpg",
+    page: { src: "/projects/upto-page.jpg", height: 3514 },
     tags: ["Status"],
     status: "Live",
     featured: false,

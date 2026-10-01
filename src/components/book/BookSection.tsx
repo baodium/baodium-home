@@ -49,17 +49,13 @@ export function BookSection() {
         px.set(0);
         py.set(0);
       }}
-      className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-night pb-20 pt-24 md:-mt-14 md:rounded-t-[3.5rem] md:pb-28 md:pt-36"
+      className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-ember pb-32 pt-28 md:-mt-14 md:rounded-t-[3.5rem] md:pb-44 md:pt-40"
     >
       <div className="shell relative z-[2]">
         <div className="grid items-center gap-16 md:grid-cols-12 md:gap-8 lg:gap-10">
           <div className="md:col-span-7 lg:col-span-6">
             <Reveal y={12}>
-              <p className="kicker flex items-center gap-3 text-cream/55">
-                <span className="text-cinnabar">(02)</span>
-                <span className="h-px w-10 bg-white/20" />
-                The book
-              </p>
+              <p className="kicker text-amber">The book</p>
             </Reveal>
             <h2 id="book-heading" className="mt-7">
               <span className="sr-only">{book.title}</span>
@@ -106,7 +102,7 @@ export function BookSection() {
                   >
                     <span className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#ff7a45] via-cinnabar to-crimson transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                     <span className="relative transition-colors duration-500 group-hover:text-white">Get it on Amazon</span>
-                    <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink text-cream transition-transform duration-500 group-hover:rotate-45">
+                    <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-ember text-cream transition-transform duration-500 group-hover:rotate-45">
                       <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                     </span>
                     <span className="sr-only"> (opens in a new tab)</span>

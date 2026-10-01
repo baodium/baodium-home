@@ -36,22 +36,9 @@ export function CircuitField() {
           transition={{ duration: 1.8, delay: 0.35 + index * 0.09, ease: [0.65, 0, 0.35, 1] }}
         />
       ))}
-      {nodes.map(([cx, cy], index) => (
+      {nodes.map(([cx, cy]) => (
         <g key={`${cx}-${cy}`}>
           <circle cx={cx} cy={cy} r={2.4} fill="#f5efe5" fillOpacity={0.35} />
-          <circle
-            cx={cx}
-            cy={cy}
-            r={2.4}
-            fill="#ff8a55"
-            className="twinkle"
-            style={
-              {
-                "--dur": `${2.6 + (index % 3)}s`,
-                "--delay": `${index * 0.45}s`,
-              } as React.CSSProperties
-            }
-          />
         </g>
       ))}
     </svg>
