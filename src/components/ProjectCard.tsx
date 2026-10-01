@@ -63,7 +63,7 @@ export function ProjectCard({ project, index, featured = false }: { project: Pro
                 </span>
                 <span className="shrink-0 uppercase tracking-[0.14em] text-cream/35 max-sm:hidden">{project.tags.join(" / ")}</span>
               </span>
-              <span className="relative block aspect-[16/10] overflow-hidden">
+              <span className={`relative block overflow-hidden ${featured ? "aspect-[16/10]" : "aspect-[16/10] lg:aspect-[11/10]"}`}>
                 <Image
                   src={project.image}
                   alt=""

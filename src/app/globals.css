@@ -417,17 +417,10 @@ html {
   }
 }
 
-.hud-corner {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: rgba(245, 239, 229, 0.22);
-}
-
 .sig-pulse {
   stroke-dasharray: 0.07 1;
   stroke-dashoffset: 0.07;
-  animation: trace 3.4s cubic-bezier(0.45, 0, 0.55, 1) 2.4s infinite backwards;
+  animation: trace 3.4s cubic-bezier(0.45, 0, 0.55, 1) 0.45s infinite backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

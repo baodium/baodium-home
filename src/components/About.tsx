@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import type { ReactNode } from "react";
+import { motion } from "motion/react";
 import { Reveal } from "@/components/motion/Reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -57,51 +57,14 @@ const areas: Array<{ title: string; copy: string; glyph: ReactNode }> = [
   },
 ];
 
-/** Words are readable from the first frame; scrolling deepens them from muted to ink. */
-function Word({
-  children,
-  progress,
-  range,
-  accent,
-}: {
-  children: string;
-  progress: MotionValue<number>;
-  range: [number, number];
-  accent: boolean;
-}) {
-  const color = useTransform(progress, range, accent ? ["#a8543f", "#d8331a"] : ["#6b6157", "#0e0c0b"]);
+function Statement() {
   return (
-    <>
-      <motion.span style={{ color }} className={accent ? "font-serif font-normal italic" : ""}>
-        {children}
-      </motion.span>{" "}
-    </>
-  );
-}
-
-function ScrollStatement() {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.9", "end 0.55"] });
-  const words = statement.split(" ");
-  return (
-    <p
-      ref={ref}
-      className="text-[clamp(1.9rem,4.2vw,3.75rem)] font-semibold leading-[1.1] tracking-[-0.04em] text-ink"
-    >
-      {words.map((word, index) => {
-        const start = index / words.length;
-        return (
-          <Word
-            key={`${word}-${index}`}
-            progress={scrollYProgress}
-            range={reduce ? [-1, 0] : [start, start + 2 / words.length]}
-            accent={highlight.has(word)}
-          >
-            {word}
-          </Word>
-        );
-      })}
+    <p className="text-[clamp(1.9rem,4.2vw,3.75rem)] font-semibold leading-[1.1] tracking-[-0.04em] text-ink">
+      {statement.split(" ").map((word, index) => (
+        <span key={`${word}-${index}`}>
+          <span className={highlight.has(word) ? "font-serif font-normal italic text-cinnabar" : ""}>{word}</span>{" "}
+        </span>
+      ))}
     </p>
   );
 }
@@ -127,7 +90,7 @@ export function About() {
         </Reveal>
 
         <div className="mt-8 max-w-[62rem]">
-          <ScrollStatement />
+          <Statement />
         </div>
 
         <div className="mt-24 md:mt-32">

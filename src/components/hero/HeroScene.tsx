@@ -6,7 +6,6 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -17,7 +16,7 @@ import { KineticRoles, roles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
 import { projects } from "@/data/projects";
-import { useHeroMotionOk } from "@/lib/motion-prefs";
+import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const line =
@@ -33,26 +32,45 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
   const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const motionOk = useHeroMotionOk();
   const [paused, setPaused] = useState(false);
   const [active, setActive] = useState(-1);
+  const [locked, setLocked] = useState(false);
+  const [steering, setSteering] = useState(false);
 
   useEffect(() => {
-    if (reduce) {
-      const frame = requestAnimationFrame(() => setActive(0));
-      return () => cancelAnimationFrame(frame);
-    }
-    let interval: number | undefined;
-    const lock = window.setTimeout(() => {
-      setActive(0);
-      interval = window.setInterval(() => setActive((value) => (value + 1) % roles.length), CYCLE_MS);
-    }, LOCK_MS);
-    return () => {
-      window.clearTimeout(lock);
-      window.clearInterval(interval);
-    };
+    const lock = window.setTimeout(
+      () => {
+        setActive(0);
+        setLocked(true);
+      },
+      reduce ? 0 : LOCK_MS,
+    );
+    return () => window.clearTimeout(lock);
   }, [reduce]);
+
+  useEffect(() => {
+    if (!locked || steering || reduce) return;
+    const interval = window.setInterval(() => setActive((value) => (value + 1) % roles.length), CYCLE_MS);
+    return () => window.clearInterval(interval);
+  }, [locked, steering, reduce]);
+
+  /** The signal routes to whichever role sits nearest the pointer; on leave it rests there. */
+  const steer = (clientY: number) => {
+    let nearest = 0;
+    let best = Infinity;
+    wordRefs.current.forEach((node, index) => {
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - clientY);
+      if (distance < best) {
+        best = distance;
+        nearest = index;
+      }
+    });
+    setActive((value) => (value === nearest ? value : nearest));
+  };
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   useMotionValueEvent(scrollYProgress, "change", (value) => setPaused(value > 0.98));
@@ -80,10 +98,16 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       data-paused={paused}
       aria-label="Introduction"
       onPointerMove={(event) => {
-        if (reduce || event.pointerType !== "mouse") return;
+        if (event.pointerType !== "mouse") return;
+        if (locked && window.innerWidth >= 1024) {
+          if (!steering) setSteering(true);
+          steer(event.clientY);
+        }
+        if (reduce) return;
         px.set(event.clientX / window.innerWidth - 0.5);
         py.set(event.clientY / window.innerHeight - 0.5);
       }}
+      onPointerLeave={() => setSteering(false)}
       className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px] [@media(min-width:1024px)_and_(min-height:700px)]:sticky [@media(min-width:1024px)_and_(min-height:700px)]:top-0"
     >
       {/* Far plane: one warm light and the circuit field */}
@@ -135,7 +159,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
 
       {/* Near plane: type, the signature trace, and a quiet HUD */}
       <motion.div style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
-        <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={TRACE_DELAY} />
+        <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={reduce ? 0 : TRACE_DELAY} instant={!!reduce} />
       </motion.div>
 
       <motion.div
@@ -198,10 +222,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         style={{ opacity: copyOpacity }}
         className="pointer-events-none absolute inset-0 z-[3] hidden lg:block"
       >
-        <span aria-hidden="true" className="hud-corner left-6 top-6 border-l border-t" />
-        <span aria-hidden="true" className="hud-corner right-6 top-6 border-r border-t" />
-        <span aria-hidden="true" className="hud-corner bottom-6 left-6 border-b border-l" />
-        <span aria-hidden="true" className="hud-corner bottom-6 right-6 border-b border-r" />
         <div className="shell pointer-events-auto absolute inset-x-0 bottom-0 flex items-end justify-between pb-9">
           <a href="#work" className="group flex items-center gap-3 text-cream/50 transition-colors hover:text-cream">
             <span className="relative h-10 w-px overflow-hidden bg-white/10">

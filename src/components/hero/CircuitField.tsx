@@ -25,12 +25,6 @@ export function CircuitField() {
       preserveAspectRatio="xMinYMid slice"
       fill="none"
     >
-      <defs>
-        <linearGradient id="pulse" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0" stopColor="#ffb27a" />
-          <stop offset="1" stopColor="#ec3d20" />
-        </linearGradient>
-      </defs>
       {traces.map((d, index) => (
         <motion.path
           key={d}
@@ -40,23 +34,6 @@ export function CircuitField() {
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
           transition={{ duration: 1.8, delay: 0.35 + index * 0.09, ease: [0.65, 0, 0.35, 1] }}
-        />
-      ))}
-      {traces.filter((_, index) => index % 3 === 0).map((d, index) => (
-        <path
-          key={`pulse-${d}`}
-          d={d}
-          pathLength={1}
-          stroke="url(#pulse)"
-          strokeWidth={1.6}
-          strokeLinecap="round"
-          className="pulse-trace"
-          style={
-            {
-              "--dur": `${7 + index * 1.5}s`,
-              "--delay": `${3 + index * 1.6}s`,
-            } as React.CSSProperties
-          }
         />
       ))}
       {nodes.map(([cx, cy], index) => (

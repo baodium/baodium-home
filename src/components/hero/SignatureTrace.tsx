@@ -10,12 +10,22 @@ const SHOULDER = { x: 0.494, y: 0.69 };
 /** Must match the desktop object-position of the portrait. */
 const OBJECT_POS = { x: 0.88, y: 0.38 };
 
-type Geo = { w: number; h: number; sx: number; sy: number; clear: number; words: Array<{ x: number; y: number }> };
+type Geo = {
+  w: number;
+  h: number;
+  sx: number;
+  sy: number;
+  clear: number;
+  words: Array<{ x: number; y: number }>;
+};
 
 function buildPath(geo: Geo, index: number) {
   const target = geo.words[index] ?? geo.words[0];
   const xe = target.x + 18;
-  const spine = Math.max(Math.max(...geo.words.map((word) => word.x)) + 64, geo.clear);
+  const spine = Math.max(
+    Math.max(...geo.words.map((word) => word.x)) + 64,
+    geo.clear,
+  );
   const xa = Math.min(geo.sx - 24, spine);
   const dy = geo.sy - target.y;
   const r = Math.sign(dy || 1) * Math.min(28, Math.abs(dy) / 2);
@@ -28,12 +38,14 @@ export function SignatureTrace({
   wordRefs,
   active,
   drawDelay,
+  instant = false,
 }: {
   sectionRef: RefObject<HTMLElement | null>;
   photoRef: RefObject<HTMLDivElement | null>;
   wordRefs: RefObject<Array<HTMLSpanElement | null>>;
   active: number;
   drawDelay: number;
+  instant?: boolean;
 }) {
   const [geo, setGeo] = useState<Geo | null>(null);
 
@@ -58,7 +70,9 @@ export function SignatureTrace({
         const r = node.getBoundingClientRect();
         return { x: r.right - s.left, y: r.top - s.top + r.height * 0.56 };
       });
-      const copy = section.querySelector("[data-hero-line]")?.getBoundingClientRect();
+      const copy = section
+        .querySelector("[data-hero-line]")
+        ?.getBoundingClientRect();
       setGeo({
         clear: copy ? copy.right - s.left + 28 : 0,
         w: s.width,
@@ -106,14 +120,28 @@ export function SignatureTrace({
         d={d}
         stroke="url(#sig-stroke)"
         strokeWidth={1.25}
-        initial={{ pathLength: 0, d }}
+        initial={{ pathLength: instant ? 1 : 0, d }}
         animate={{ pathLength: 1, d }}
         transition={{
-          pathLength: { duration: 0.8, delay: drawDelay, ease: [0.65, 0, 0.35, 1] },
-          d: { duration: 0.7, ease: [0.65, 0, 0.35, 1] },
+          pathLength: {
+            duration: 0.8,
+            delay: drawDelay,
+            ease: [0.65, 0, 0.35, 1],
+          },
+          d: { duration: instant ? 0 : 0.55, ease: [0.65, 0, 0.35, 1] },
         }}
       />
-      <path d={d} pathLength={1} stroke="#ffd2b0" strokeWidth={2} strokeLinecap="round" className="sig-pulse" />
+      {active >= 0 ? (
+        <path
+          key={active}
+          d={d}
+          pathLength={1}
+          stroke="#ffd2b0"
+          strokeWidth={2}
+          strokeLinecap="round"
+          className="sig-pulse"
+        />
+      ) : null}
       <motion.circle
         cx={geo.sx}
         cy={geo.sy}
@@ -128,9 +156,14 @@ export function SignatureTrace({
         animate={{ opacity: 1, scale: 1, x: end.x + 18, y: end.y }}
         transition={{
           opacity: { delay: drawDelay + 0.75, duration: 0.25 },
-          scale: { delay: drawDelay + 0.75, type: "spring", stiffness: 500, damping: 18 },
-          x: { duration: 0.7, ease: [0.65, 0, 0.35, 1] },
-          y: { duration: 0.7, ease: [0.65, 0, 0.35, 1] },
+          scale: {
+            delay: drawDelay + 0.75,
+            type: "spring",
+            stiffness: 500,
+            damping: 18,
+          },
+          x: { duration: instant ? 0 : 0.55, ease: [0.65, 0, 0.35, 1] },
+          y: { duration: instant ? 0 : 0.55, ease: [0.65, 0, 0.35, 1] },
         }}
       >
         <circle r={10} fill="#ec3d20" opacity={0.18} />

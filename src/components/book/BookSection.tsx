@@ -1,10 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { ArrowUpRight } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
-import { LatencyChart } from "@/components/book/LatencyChart";
+import { LatencyFigure } from "@/components/book/LatencyChart";
 import { Magnetic } from "@/components/Magnetic";
 import { Reveal } from "@/components/motion/Reveal";
 import { book } from "@/data/writing";
@@ -18,7 +19,7 @@ const titleLines = [
 
 export function BookSection() {
   const ref = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const scrollTurn = useTransform(scrollYProgress, [0.1, 0.6], reduce ? [22, 22] : [30, 15]);
@@ -126,17 +127,7 @@ export function BookSection() {
         </div>
 
         <Reveal className="mt-24 md:mt-36">
-          <figure className="border-t border-white/10 pt-8 md:pt-12">
-            <figcaption className="flex flex-col gap-4">
-              <p className="kicker shrink-0 text-cream/45">Fig. 1 — From the cover</p>
-              <p className="max-w-3xl font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-cream">
-                The median says everything is fine. <span className="italic text-flame">The tail tells the truth.</span>
-              </p>
-            </figcaption>
-            <div className="relative mt-10 md:mt-14">
-              <LatencyChart />
-            </div>
-          </figure>
+          <LatencyFigure />
         </Reveal>
       </div>
     </section>

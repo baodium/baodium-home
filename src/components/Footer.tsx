@@ -34,6 +34,19 @@ export function Footer() {
             <ul className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
               <li>
                 <a
+                  href={site.personal}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex min-h-11 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
+                >
+                  Obadimu
+                  <span className="text-cream/40">· Lifestyle and social</span>
+                  <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  <span className="sr-only"> (opens obadimu.com in a new tab)</span>
+                </a>
+              </li>
+              <li>
+                <a
                   href={book.href}
                   target="_blank"
                   rel="noopener noreferrer"
