@@ -85,8 +85,9 @@ export function Footer() {
         </div>
 
         <div className="mt-20 md:mt-28">
+          <span className="sr-only">{site.brand}</span>
           <motion.p
-            aria-label={site.brand}
+            aria-hidden="true"
             className="flex select-none justify-between text-[clamp(3.5rem,19.4vw,18.5rem)] font-semibold leading-[0.8] tracking-[-0.05em]"
             initial="hidden"
             whileInView="shown"
@@ -94,7 +95,7 @@ export function Footer() {
             transition={{ staggerChildren: 0.06 }}
           >
             {letters.map((letter, index) => (
-              <span key={index} aria-hidden="true" className="inline-block overflow-hidden pb-[0.06em]">
+              <span key={index} className="inline-block overflow-hidden pb-[0.06em]">
                 <motion.span
                   className="inline-block bg-gradient-to-b from-cream via-[#ffc29c] to-cinnabar bg-clip-text text-transparent"
                   variants={{

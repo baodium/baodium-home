@@ -81,13 +81,20 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       >
         <motion.div style={{ x: photoX, y: photoPY }} className="absolute -inset-6">
           <motion.div
-            initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 2, ease }}
+            initial={{ scale: 1.08 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2.2, ease }}
             className="absolute inset-0 lg:inset-auto lg:bottom-0 lg:right-0 lg:aspect-[2752/1536] lg:h-[80%] lg:min-w-[70%] xl:h-[90%]"
           >
             <div className="hero-photo-mask absolute inset-0">
               <Portrait hasVideo={hasVideo && motionOk} />
+              <motion.div
+                aria-hidden="true"
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 1.8, ease }}
+                className="absolute inset-0 bg-night"
+              />
             </div>
           </motion.div>
         </motion.div>

@@ -78,7 +78,7 @@ const areas: Array<{ title: string; copy: string; glyph: ReactNode }> = [
 ];
 
 function Word({ children, progress, range, accent }: { children: string; progress: MotionValue<number>; range: [number, number]; accent: boolean }) {
-  const opacity = useTransform(progress, range, [0.14, 1]);
+  const opacity = useTransform(progress, range, [0.18, 1]);
   return (
     <span className="relative inline-block">
       <motion.span style={{ opacity }} className={accent ? "font-serif font-normal italic text-cinnabar" : ""}>
