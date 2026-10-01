@@ -53,7 +53,7 @@ export function Book3D({
           >
             <span className="-scale-x-100 whitespace-nowrap text-[10px] font-black tracking-[0.12em] text-black [writing-mode:vertical-rl]">
               PRACTICAL <span className="text-[#e3262c]">SYSTEM</span> DESIGN
-              <span className="ml-3 font-semibold text-black/60">ADEWALE OBADIMU</span>
+              <span className="ml-4 font-semibold text-black/60">ADEWALE OBADIMU</span>
             </span>
           </div>
           {/* Page block */}

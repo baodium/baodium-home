@@ -172,7 +172,7 @@ export function About() {
                     0{index + 1}
                   </span>
                 </span>
-                <h3 className="relative mt-auto pt-8 text-[1.6rem] md:pt-10 font-semibold leading-[1.05] tracking-[-0.035em] transition-colors duration-500 group-hover:text-cream">
+                <h3 className="relative pt-10 text-[1.6rem] md:pt-16 font-semibold leading-[1.05] tracking-[-0.035em] transition-colors duration-500 group-hover:text-cream">
                   {area.title}
                 </h3>
                 <p className="relative mt-3 text-[0.95rem] leading-relaxed text-muted transition-colors duration-500 group-hover:text-cream/65">

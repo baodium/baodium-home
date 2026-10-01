@@ -122,8 +122,12 @@ export function BookSection() {
 
           <div className="relative md:col-span-5 lg:col-span-6" aria-hidden="true">
             <motion.div style={{ x: glowX, y: glowY }} className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="breathe absolute h-[130%] w-[130%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.75),rgba(236,61,32,0.3)_40%,transparent_72%)] blur-2xl" />
-              <div className="aurora absolute h-[70%] w-[55%] rounded-full bg-[radial-gradient(closest-side,rgba(255,140,90,0.45),transparent)] blur-3xl" />
+              <div className="breathe absolute h-[130%] w-[130%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.7),rgba(236,61,32,0.28)_45%,transparent_72%)] blur-2xl" />
+              <div className="absolute aspect-square w-[62%] rounded-full bg-gradient-to-br from-[#ff7a45] via-crimson to-[#7a0d16] opacity-80 blur-[70px]" />
+              <div className="absolute aspect-square w-[78%] animate-[spin_60s_linear_infinite] rounded-full border border-dashed border-white/10 motion-reduce:animate-none" />
+              <div className="absolute aspect-square w-[96%] animate-[spin_90s_linear_infinite_reverse] rounded-full border border-white/[0.06] motion-reduce:animate-none">
+                <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cinnabar shadow-[0_0_16px_4px_rgba(236,61,32,0.8)]" />
+              </div>
             </motion.div>
             <div className="relative py-6 lg:py-10">
               <Book3D rotateX={rotateX} rotateY={rotateY} sheen={sheen} />
