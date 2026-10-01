@@ -19,10 +19,14 @@ function formatDate(iso: string) {
 }
 
 export function Writing() {
-  const hasEssays = writing.length > 0;
+  if (writing.length === 0) return null;
 
   return (
-    <section id="writing" aria-labelledby="writing-heading" className="relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-cream pb-24 pt-28 text-ink md:-mt-14 md:rounded-t-[3.5rem] md:pb-32 md:pt-40">
+    <section
+      id="writing"
+      aria-labelledby="writing-heading"
+      className="relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-cream pb-24 pt-28 text-ink md:-mt-14 md:rounded-t-[3.5rem] md:pb-32 md:pt-40"
+    >
       <div className="shell relative z-[2]">
         <div>
           <div>
@@ -31,47 +35,49 @@ export function Writing() {
             </Reveal>
             <SplitHeading
               id="writing-heading"
-              text={hasEssays ? "Notes from production." : "Essays are next."}
-              accent={hasEssays ? ["production"] : ["next"]}
+              text="Notes from production."
+              accent={["production"]}
               className="mt-6 text-[clamp(2.6rem,6vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.05em]"
             />
           </div>
-          {!hasEssays ? (
-            <Reveal delay={0.2}>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
-                Shorter pieces on practical system design and production engineering will publish here.
-              </p>
-            </Reveal>
-          ) : null}
         </div>
 
-        {hasEssays ? (
-          <ol className="mt-14 border-t border-ink/10 md:mt-20">
-            {writing.map((piece, index) => (
-              <motion.li
-                key={piece.href}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-                transition={{ duration: 0.8, delay: index * 0.08, ease }}
-                className="border-b border-ink/10"
+        <ol className="mt-14 border-t border-ink/10 md:mt-20">
+          {writing.map((piece, index) => (
+            <motion.li
+              key={piece.href}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+              transition={{ duration: 0.8, delay: index * 0.08, ease }}
+              className="border-b border-ink/10"
+            >
+              <a
+                href={piece.href}
+                className="group relative grid gap-x-6 gap-y-3 py-8 md:grid-cols-12 md:items-center md:py-10"
               >
-                <a href={piece.href} className="group relative grid gap-x-6 gap-y-3 py-8 md:grid-cols-12 md:items-center md:py-10">
-                  <span className="font-mono text-xs uppercase tracking-[0.14em] text-muted md:col-span-2">{formatDate(piece.date)}</span>
-                  <span className="md:col-span-8">
-                    <span className="block text-[clamp(1.75rem,3.2vw,2.75rem)] font-semibold leading-[1.05] tracking-[-0.04em] transition-transform duration-500 group-hover:translate-x-2">
-                      {piece.title}
-                    </span>
-                    <span className="mt-3 block max-w-md text-muted">{piece.description}</span>
+                <span className="font-mono text-xs uppercase tracking-[0.14em] text-muted md:col-span-2">
+                  {formatDate(piece.date)}
+                </span>
+                <span className="md:col-span-8">
+                  <span className="block text-[clamp(1.75rem,3.2vw,2.75rem)] font-semibold leading-[1.05] tracking-[-0.04em] transition-transform duration-500 group-hover:translate-x-2">
+                    {piece.title}
                   </span>
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/15 transition-colors duration-500 group-hover:border-transparent group-hover:bg-ink group-hover:text-cream md:col-span-2 md:justify-self-end">
-                    <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
+                  <span className="mt-3 block max-w-md text-muted">
+                    {piece.description}
                   </span>
-                </a>
-              </motion.li>
-            ))}
-          </ol>
-        ) : null}
+                </span>
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/15 transition-colors duration-500 group-hover:border-transparent group-hover:bg-ink group-hover:text-cream md:col-span-2 md:justify-self-end">
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    strokeWidth={1.75}
+                  />
+                </span>
+              </a>
+            </motion.li>
+          ))}
+        </ol>
       </div>
     </section>
   );

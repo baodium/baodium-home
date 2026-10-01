@@ -10,8 +10,7 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
-import { ArrowDown, ArrowRight } from "lucide-react";
-import { CircuitField } from "@/components/hero/CircuitField";
+import { ArrowRight } from "lucide-react";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
@@ -24,7 +23,6 @@ const line =
 /** The trace finishes drawing into "Engineer" at LOCK_MS; that is when the word locks in. */
 const TRACE_DELAY = 1.15;
 const LOCK_MS = 1950;
-const CYCLE_MS = 2800;
 
 export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const ref = useRef<HTMLElement>(null);
@@ -48,18 +46,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
     return () => window.clearTimeout(lock);
   }, [reduce]);
 
-  /** One guided tour of the roles, then the line rests until a person moves it. */
-  const touched = useRef(false);
-  useEffect(() => {
-    if (!locked || steering || reduce || touched.current) return;
-    const timers = [1, 2, 0].map((index, step) => window.setTimeout(() => setActive(index), CYCLE_MS * (step + 1)));
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [locked, steering, reduce]);
-
-  const select = (index: number) => {
-    touched.current = true;
-    setActive(index);
-  };
+  const select = (index: number) => setActive(index);
 
   /** The signal routes to whichever role sits nearest the pointer; on leave it rests there. */
   const steer = (clientY: number) => {
@@ -85,13 +72,11 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const shade = useTransform(scrollYProgress, [0, 1], [0, 0.8]);
 
-  // Three depth planes: field (far), portrait (mid), type (near, moves against the pointer).
+  // Depth: portrait (back) and type (front) drift against each other with the pointer.
   const px = useMotionValue(0);
   const py = useMotionValue(0);
   const spx = useSpring(px, { stiffness: 45, damping: 18 });
   const spy = useSpring(py, { stiffness: 45, damping: 18 });
-  const fieldX = useTransform(spx, (v) => v * 10);
-  const fieldY = useTransform(spy, (v) => v * 6);
   const photoX = useTransform(spx, (v) => v * -14);
   const photoPY = useTransform(spy, (v) => v * -8);
   const typeX = useTransform(spx, (v) => v * 8);
@@ -105,7 +90,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       onPointerMove={(event) => {
         if (event.pointerType !== "mouse") return;
         if (locked && window.innerWidth >= 1024) {
-          touched.current = true;
           if (!steering) setSteering(true);
           steer(event.clientY);
         }
@@ -116,7 +100,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       onPointerLeave={() => setSteering(false)}
       className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px] [@media(min-width:1024px)_and_(min-height:700px)]:sticky [@media(min-width:1024px)_and_(min-height:700px)]:top-0"
     >
-      {/* Far plane: one warm light and the circuit field */}
+      {/* Far plane: one warm light */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
           initial={{ opacity: 0 }}
@@ -125,18 +109,10 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
           className="aurora absolute left-[34%] top-[8%] h-[72vmax] w-[72vmax] rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.34),rgba(216,38,43,0.1)_55%,transparent)] blur-2xl max-lg:left-[5%] max-lg:top-[-12%]"
         />
       </div>
-      <motion.div
-        aria-hidden="true"
-        style={{ x: fieldX, y: fieldY }}
-        className="circuit-mask pointer-events-none absolute inset-0 max-lg:h-[calc(60svh+4rem)] max-lg:max-h-[664px] max-lg:opacity-50"
-      >
-        <CircuitField />
-      </motion.div>
-
       {/* Mid plane: the portrait, melted into the field */}
       <motion.div
         style={{ y: photoY }}
-        className="relative h-[60svh] max-h-[600px] min-h-[400px] w-full max-lg:mt-16 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
+        className="relative h-[54svh] max-h-[560px] min-h-[360px] w-full max-lg:mt-16 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
       >
         <motion.div style={{ x: photoX, y: photoPY }} className="absolute -inset-6">
           <motion.div
@@ -163,7 +139,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
 
       <motion.div aria-hidden="true" style={{ opacity: shade }} className="pointer-events-none absolute inset-0 z-[2] bg-night" />
 
-      {/* Near plane: type, the signature trace, and a quiet HUD */}
+      {/* Near plane: type and the signature trace */}
       <motion.div style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
         <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={reduce ? 0 : TRACE_DELAY} instant={!!reduce} />
       </motion.div>
@@ -221,23 +197,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         </motion.div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.3, duration: 1.2 }}
-        style={{ opacity: copyOpacity }}
-        className="pointer-events-none absolute inset-0 z-[3] hidden lg:block"
-      >
-        <div className="shell pointer-events-auto absolute inset-x-0 bottom-0 flex items-end justify-between pb-9">
-          <a href="#work" className="group flex items-center gap-3 text-cream/50 transition-colors hover:text-cream">
-            <span className="relative h-10 w-px overflow-hidden bg-white/10">
-              <span className="scroll-cue absolute inset-0 bg-gradient-to-b from-amber to-cinnabar" />
-            </span>
-            <span className="kicker">Scroll</span>
-            <ArrowDown aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
-          </a>
-        </div>
-      </motion.div>
     </section>
   );
 }

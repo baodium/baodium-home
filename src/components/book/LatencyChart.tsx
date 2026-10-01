@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from "react";
 import {
   AnimatePresence,
   animate,
@@ -13,10 +13,7 @@ import {
 } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
-const WIDTH = 1000;
 const HEIGHT = 300;
-const X0 = 56;
-const X1 = 930;
 const BASE = 262;
 const SLO = 118;
 /** Illustrative scale: the SLO line sits at 300 ms. */
@@ -28,20 +25,15 @@ function jitter(i: number, amp: number) {
 }
 
 function buildPoints(fn: (t: number) => number, amp: number) {
-  return Array.from({ length: STEPS + 1 }, (_, i) => {
-    const t = i / STEPS;
-    return [X0 + t * (X1 - X0), fn(t) + jitter(i + amp * 7, amp)] as const;
-  });
+  return Array.from({ length: STEPS + 1 }, (_, i) => [i / STEPS, fn(i / STEPS) + jitter(i + amp * 7, amp)] as const);
 }
 
-const toPath = (points: ReadonlyArray<readonly [number, number]>) =>
-  points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+const toPath = (points: ReadonlyArray<readonly [number, number]>, x0: number, x1: number) =>
+  points.map(([t, y], i) => `${i === 0 ? "M" : "L"}${(x0 + t * (x1 - x0)).toFixed(1)} ${y.toFixed(1)}`).join(" ");
 
 const p99Curve = (t: number) => 222 - 46 * t - 150 * Math.pow(t, 6);
 const p50Points = buildPoints(() => 246, 2.4);
 const p99Points = buildPoints(p99Curve, 3.2);
-const p50 = toPath(p50Points);
-const p99 = toPath(p99Points);
 
 function yAt(points: ReadonlyArray<readonly [number, number]>, t: number) {
   const f = Math.min(Math.max(t, 0), 1) * STEPS;
@@ -58,8 +50,27 @@ const breachT = (() => {
   }
   return 1;
 })();
-const breachX = X0 + breachT * (X1 - X0);
 const DRIFT_T = 0.55;
+
+/** Phones get a narrower drawing space, so the same chart renders about twice as tall and stays scrubbable. */
+function geometry(width: number, x0: number, x1: number) {
+  return { WIDTH: width, X0: x0, X1: x1, p50: toPath(p50Points, x0, x1), p99: toPath(p99Points, x0, x1), breachX: x0 + breachT * (x1 - x0) };
+}
+type Geometry = ReturnType<typeof geometry>;
+const WIDE = geometry(1000, 56, 930);
+const NARROW = geometry(560, 34, 486);
+
+const narrowQuery = "(max-width: 767px)";
+const subscribeNarrow = (onChange: () => void) => {
+  const media = window.matchMedia(narrowQuery);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+};
+
+export function LatencyFigure() {
+  const narrow = useSyncExternalStore(subscribeNarrow, () => window.matchMedia(narrowQuery).matches, () => false);
+  return <Figure key={narrow ? "narrow" : "wide"} g={narrow ? NARROW : WIDE} />;
+}
 
 type Phase = "rest" | "calm" | "drift" | "breach";
 
@@ -72,7 +83,8 @@ const captions: Record<Phase, { lead: string; turn: string }> = {
 
 const phaseAt = (t: number): Phase => (t >= breachT ? "breach" : t >= DRIFT_T ? "drift" : "calm");
 
-export function LatencyFigure() {
+function Figure({ g }: { g: Geometry }) {
+  const { WIDTH, X0, X1, p50, p99, breachX } = g;
   const ref = useRef<HTMLDivElement>(null);
   const reduce = usePrefersReducedMotion();
   const [phase, setPhase] = useState<Phase>("rest");
@@ -82,9 +94,11 @@ export function LatencyFigure() {
   const eased = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
   const peak = useRef(0);
   const forced = useMotionValue(0);
+  const still = useMotionValue(0);
+  useEffect(() => still.set(reduce ? 1 : 0), [reduce, still]);
   const progress = useTransform(() => {
     const v = eased.get();
-    if (reduce) return 1;
+    if (still.get()) return 1;
     peak.current = Math.max(peak.current, Math.min(Math.max(v, 0), 1), forced.get());
     return peak.current;
   });
@@ -219,7 +233,7 @@ export function LatencyFigure() {
             <line key={y} x1={X0} x2={X1} y1={y} y2={y} stroke="rgba(245,239,229,0.07)" strokeDasharray="2 6" />
           ))}
           <line x1={X0} x2={X1} y1={SLO} y2={SLO} stroke="rgba(255,164,92,0.5)" strokeDasharray="6 6" />
-          <text x={X1 + 12} y={SLO + 4} fill="rgba(255,164,92,0.85)" className="font-mono text-[13px] max-md:text-[28px]">
+          <text x={X1 + 12} y={SLO + 4} fill="rgba(255,164,92,0.85)" className="font-mono text-[13px] max-md:text-[19px]">
             SLO
           </text>
 
@@ -227,7 +241,7 @@ export function LatencyFigure() {
           {Array.from({ length: 13 }, (_, i) => X0 + (i * (X1 - X0)) / 12).map((x, i) => (
             <line key={x} x1={x} x2={x} y1={BASE} y2={BASE + (i % 3 === 0 ? 10 : 5)} stroke="rgba(245,239,229,0.35)" />
           ))}
-          <motion.g style={{ opacity: axisOpacity }} fill="rgba(245,239,229,0.45)" className="font-mono text-[13px] max-md:text-[28px]">
+          <motion.g style={{ opacity: axisOpacity }} fill="rgba(245,239,229,0.45)" className="font-mono text-[13px] max-md:text-[19px]">
             <text x={X0} y={BASE + 34}>
               t−60s
             </text>
@@ -235,7 +249,7 @@ export function LatencyFigure() {
               now
             </text>
           </motion.g>
-          <text x={X0} y={40} fill="rgba(245,239,229,0.45)" className="font-mono text-[13px] uppercase tracking-[0.12em] max-md:text-[28px]">
+          <text x={X0} y={40} fill="rgba(245,239,229,0.45)" className="font-mono text-[13px] uppercase tracking-[0.12em] max-md:text-[19px]">
             Latency
           </text>
 
@@ -261,12 +275,12 @@ export function LatencyFigure() {
                 transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               />
             ) : null}
-            <text x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#ff8a5c" className="font-mono text-[12px] uppercase tracking-[0.12em] max-md:text-[26px]">
+            <text x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#ff8a5c" className="font-mono text-[12px] uppercase tracking-[0.12em] max-md:text-[17px]">
               Tail breach
             </text>
           </motion.g>
 
-          <motion.g style={{ opacity: labelOpacity }} className="font-mono text-[18px] font-bold max-md:text-[36px]">
+          <motion.g style={{ opacity: labelOpacity }} className="font-mono text-[18px] font-bold max-md:text-[24px]">
             <text x={X1 + 12} y={34} fill="#ff5a3a">
               p99
             </text>
@@ -281,7 +295,7 @@ export function LatencyFigure() {
             <rect x={X1 - 9} y={170} width={18} height={44} rx={9} fill="#241612" stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
             <line x1={X1 - 3} x2={X1 - 3} y1={183} y2={201} stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
             <line x1={X1 + 3} x2={X1 + 3} y1={183} y2={201} stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
-            <text x={X1 - 22} y={197} textAnchor="end" fill="rgba(245,239,229,0.75)" className="font-mono text-[13px] uppercase tracking-[0.14em] max-md:text-[28px]">
+            <text x={X1 - 22} y={197} textAnchor="end" fill="rgba(245,239,229,0.75)" className="font-mono text-[13px] uppercase tracking-[0.14em] max-md:text-[19px]">
               ← Drag
             </text>
           </motion.g>
@@ -293,7 +307,7 @@ export function LatencyFigure() {
             <motion.circle cx={markerX} cy={y99} r={12} fill="#ec3d20" opacity={0.25} />
             <motion.circle cx={markerX} cy={y99} r={5} fill="#fff" stroke="#ec3d20" strokeWidth={2} />
             <motion.circle cx={markerX} cy={y50} r={4.5} fill="#241612" stroke="#f5efe5" strokeWidth={2} />
-            <g className="font-mono text-[14px] max-md:text-[28px]" textAnchor={flip ? "end" : "start"}>
+            <g className="font-mono text-[14px] max-md:text-[19px]" textAnchor={flip ? "end" : "start"}>
               <motion.text x={labelX} y={label99Y} fill="#ff8a5c">
                 {ms99}
               </motion.text>
@@ -301,7 +315,7 @@ export function LatencyFigure() {
                 {ms50}
               </motion.text>
             </g>
-            <motion.text x={markerX} y={BASE + 34} textAnchor="middle" fill="#f5efe5" className="font-mono text-[13px] max-md:text-[28px]">
+            <motion.text x={markerX} y={BASE + 34} textAnchor="middle" fill="#f5efe5" className="font-mono text-[13px] max-md:text-[19px]">
               {clock}
             </motion.text>
           </motion.g>

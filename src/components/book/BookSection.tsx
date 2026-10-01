@@ -52,7 +52,7 @@ export function BookSection() {
       className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-ember pb-32 pt-28 md:-mt-14 md:rounded-t-[3.5rem] md:pb-44 md:pt-40"
     >
       <div className="shell relative z-[2]">
-        <div className="grid items-center gap-16 md:grid-cols-12 md:gap-8 lg:gap-10">
+        <div className="grid items-center gap-10 md:grid-cols-12 md:gap-8 lg:gap-10">
           <div className="md:col-span-7 lg:col-span-6">
             <Reveal y={12}>
               <p className="kicker text-amber">The book</p>
@@ -112,7 +112,7 @@ export function BookSection() {
             </Reveal>
           </div>
 
-          <div className="relative md:col-span-5 lg:col-span-6" aria-hidden="true">
+          <div className="relative max-md:order-first max-md:mx-auto max-md:w-[78%] md:col-span-5 lg:col-span-6" aria-hidden="true">
             <motion.div style={{ x: glowX, y: glowY }} className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <div className="breathe absolute h-[120%] w-[120%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.62),rgba(236,61,32,0.22)_48%,transparent_72%)] blur-2xl" />
             </motion.div>

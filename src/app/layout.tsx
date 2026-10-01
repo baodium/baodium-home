@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Providers } from "@/components/Providers";
-import { ScrollProgress } from "@/components/ScrollProgress";
 import { site } from "@/data/site";
 import "lenis/dist/lenis.css";
 import "./globals.css";
@@ -70,7 +69,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <Providers>
-          <ScrollProgress />
           {children}
         </Providers>
       </body>

@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import { book } from "@/data/writing";
+import { book, writing } from "@/data/writing";
 
 const links = [
   { id: "work", label: "Work" },
   { id: "book", label: "Book" },
-  { id: "writing", label: "Writing" },
+  ...(writing.length > 0 ? [{ id: "writing", label: "Writing" }] : []),
   { id: "about", label: "About" },
 ];
 

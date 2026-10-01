@@ -37,7 +37,19 @@ export function KineticRoles({
 }) {
   return (
     <>
-      <span className="mt-5 flex flex-col gap-[0.04em] md:mt-7">
+      <span className="relative mt-5 flex flex-col gap-[0.04em] md:mt-7">
+        {/* Phones: the signal runs down the gutter, clear of the portrait, and rests on the chosen role. */}
+        <span aria-hidden="true" className="pointer-events-none absolute -left-3.5 -top-16 bottom-[16%] w-px bg-gradient-to-b from-transparent via-cinnabar/40 to-cinnabar/60 sm:-left-5 lg:hidden" />
+        <motion.span
+          aria-hidden="true"
+          initial={false}
+          animate={{ top: `${(Math.max(active, 0) * 100) / roles.length + 100 / roles.length / 2}%`, opacity: active >= 0 ? 1 : 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 26 }}
+          className="pointer-events-none absolute -left-[1.125rem] mt-1.5 flex -translate-y-1/2 items-center sm:-left-[1.5rem] lg:hidden"
+        >
+          <span className="h-2 w-2 rounded-full bg-cinnabar shadow-[0_0_0_5px_rgba(236,61,32,0.18)]" />
+          <span className="h-px w-3 bg-cinnabar/70" />
+        </motion.span>
         {roles.map((role, line) => {
           const isActive = active === line;
           const dim = active !== -1 && !isActive;
@@ -46,14 +58,14 @@ export function KineticRoles({
             <span
               key={role.word}
               onClick={() => onSelect(line)}
-              className="flex w-fit cursor-pointer items-baseline gap-3 md:gap-5"
+              className="group/role flex w-fit cursor-pointer items-baseline gap-3 md:gap-5"
             >
               <motion.span
                 aria-hidden="true"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 + line * 0.12, duration: 0.6 }}
-                className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-500 md:w-8 md:text-xs ${isActive ? "text-cinnabar" : "text-cream/35"}`}
+                className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-500 md:w-8 md:text-xs ${isActive ? "text-cinnabar" : "text-cream/45 group-hover/role:text-cream/80"}`}
               >
                 0{line + 1}
               </motion.span>
@@ -69,7 +81,7 @@ export function KineticRoles({
                   {letters.map((letter, k) => (
                     <motion.span
                       key={k}
-                      className="inline-block"
+                      className={`inline-block ${dim ? "group-hover/role:!text-[rgba(245,239,229,0.78)]" : ""}`}
                       initial={{ y: "105%", rotate: 6 }}
                       animate={{ y: "0%", rotate: 0 }}
                       transition={{ duration: 0.9, delay: 0.55 + line * 0.14 + k * 0.035, ease }}
@@ -77,7 +89,7 @@ export function KineticRoles({
                         color: isActive
                           ? flameAt(k / Math.max(letters.length - 1, 1))
                           : dim
-                            ? "rgba(245,239,229,0.3)"
+                            ? "rgba(245,239,229,0.4)"
                             : "#f5efe5",
                         transition: `color 0.5s ease ${isActive ? (letters.length - 1 - k) * 0.03 : 0}s`,
                       }}
@@ -91,7 +103,7 @@ export function KineticRoles({
           );
         })}
       </span>
-      <span aria-hidden="true" className="mt-5 flex h-6 items-center gap-3 pl-9 text-sm text-cream/60 md:pl-[3.25rem]">
+      <span aria-hidden="true" className="mt-5 flex h-7 items-center gap-3 pl-9 text-base text-cream/80 md:pl-[3.25rem]">
         <AnimatePresence mode="wait">
           {active >= 0 ? (
             <motion.span

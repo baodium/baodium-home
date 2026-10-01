@@ -35,7 +35,7 @@ export function Footer() {
             Projects and writing by <span className="font-serif font-normal italic text-flame">{site.name}.</span>
           </p>
           <nav aria-label="Elsewhere">
-            <ul className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
+            <ul className="flex flex-col text-[0.95rem] sm:flex-row sm:flex-wrap sm:gap-x-8 sm:text-sm">
               {elsewhere.map((link) => {
                 const external = link.href.startsWith("http");
                 return (
