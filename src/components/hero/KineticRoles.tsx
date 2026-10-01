@@ -83,7 +83,7 @@ export function KineticRoles() {
                         color: isActive
                           ? flameAt(k / Math.max(letters.length - 1, 1))
                           : dim
-                            ? "rgba(245,239,229,0.27)"
+                            ? "rgba(245,239,229,0.32)"
                             : "#f5efe5",
                         transition: `color 0.55s ease ${k * 0.035}s`,
                       }}

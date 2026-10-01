@@ -118,19 +118,19 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       {/* Copy */}
       <motion.div
         style={{ y: copyY, opacity: copyOpacity }}
-        className="relative z-[3] -mt-32 px-5 pb-16 sm:px-8 md:-mt-40 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
+        className="relative z-[3] -mt-24 px-5 pb-16 sm:px-8 md:-mt-40 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
       >
         <div className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease }}
-            className="kicker inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-cream/70 backdrop-blur-md"
+            className="kicker items-center gap-2.5 rounded-full max-md:hidden md:inline-flex border border-white/10 bg-white/[0.04] px-3 py-1.5 text-cream/70 backdrop-blur-md"
           >
-            <span className="live-dot h-1.5 w-1.5 rounded-full bg-cinnabar text-cinnabar" />
+            <span className="h-1.5 w-1.5 rounded-full bg-cinnabar" />
             Baodium · Products and writing
           </motion.p>
-          <h1 className="mt-6">
+          <h1 className="md:mt-6">
             <motion.span
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
@@ -199,7 +199,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             <span className="kicker">Scroll</span>
             <ArrowDown aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
           </a>
-          <p className="kicker text-cream/45">Reliability · AI · Infrastructure · Writing</p>
         </div>
       </motion.div>
     </section>

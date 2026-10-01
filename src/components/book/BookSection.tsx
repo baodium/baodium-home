@@ -21,7 +21,7 @@ export function BookSection() {
   const reduce = useReducedMotion();
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const scrollTurn = useTransform(scrollYProgress, [0.1, 0.6], reduce ? [24, 24] : [42, 16]);
+  const scrollTurn = useTransform(scrollYProgress, [0.1, 0.6], reduce ? [22, 22] : [30, 15]);
 
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -52,7 +52,6 @@ export function BookSection() {
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(245,239,229,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(245,239,229,0.045)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_70%_35%,#000,transparent)]" />
-        <div className="aurora-slow absolute -left-[20%] bottom-[-10%] h-[50vmax] w-[50vmax] rounded-full bg-[radial-gradient(closest-side,rgba(255,164,92,0.12),transparent)] blur-2xl" />
       </div>
 
       <div className="shell relative z-[2]">
@@ -124,10 +123,6 @@ export function BookSection() {
             <motion.div style={{ x: glowX, y: glowY }} className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <div className="breathe absolute h-[130%] w-[130%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.7),rgba(236,61,32,0.28)_45%,transparent_72%)] blur-2xl" />
               <div className="absolute aspect-square w-[62%] rounded-full bg-gradient-to-br from-[#ff7a45] via-crimson to-[#7a0d16] opacity-80 blur-[70px]" />
-              <div className="absolute aspect-square w-[78%] animate-[spin_60s_linear_infinite] rounded-full border border-dashed border-white/10 motion-reduce:animate-none" />
-              <div className="absolute aspect-square w-[96%] animate-[spin_90s_linear_infinite_reverse] rounded-full border border-white/[0.06] motion-reduce:animate-none">
-                <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cinnabar shadow-[0_0_16px_4px_rgba(236,61,32,0.8)]" />
-              </div>
             </motion.div>
             <div className="relative py-6 lg:py-10">
               <Book3D rotateX={rotateX} rotateY={rotateY} sheen={sheen} />
@@ -137,7 +132,6 @@ export function BookSection() {
 
         <Reveal className="mt-20 md:mt-28">
           <figure className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.015] p-5 backdrop-blur-sm md:rounded-[2.25rem] md:p-10">
-            <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.3),transparent)] blur-2xl" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <figcaption className="max-w-xl">
                 <p className="kicker text-cream/45">Fig. 1 — From the cover</p>

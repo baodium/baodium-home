@@ -60,7 +60,7 @@ export function Navigation() {
       transition={{ duration: 0.9, delay: 1.4, ease }}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >
-      <div className="mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/10 bg-[#110e0c]/65 p-1.5 pl-4 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] bg-[#0f0c0a]/[0.92] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">
         <a
           href="#main"
           className="group inline-flex min-h-10 items-center gap-2.5 font-mono text-[0.72rem] tracking-[0.28em] text-cream"
@@ -139,7 +139,7 @@ export function Navigation() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.35, ease }}
-            className="mx-auto mt-2 max-w-[52rem] overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#110e0c]/90 p-3 backdrop-blur-xl md:hidden"
+            className="mx-auto mt-2 max-w-[52rem] overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0f0c0a]/[0.96] p-3 backdrop-blur-xl md:hidden"
           >
             <ul>
               {links.map((link, index) => (

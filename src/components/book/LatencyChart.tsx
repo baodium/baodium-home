@@ -105,17 +105,17 @@ export function LatencyChart() {
         ))}
 
         <line x1={X0} x2={X1} y1={SLO} y2={SLO} stroke="rgba(255,164,92,0.5)" strokeDasharray="6 6" />
-        <text x={X1 + 12} y={SLO + 4} fill="rgba(255,164,92,0.85)" className="font-mono text-[13px]">
+        <text x={X1 + 12} y={SLO + 4} fill="rgba(255,164,92,0.85)" className="font-mono text-[13px] max-md:text-[30px]">
           SLO
         </text>
 
         <path d={`M${X0} 16 V${BASE} H${X1 + 26}`} stroke="rgba(245,239,229,0.55)" strokeWidth={1.5} fill="none" />
         <path d={`M${X0 - 6} 26 L${X0} 14 L${X0 + 6} 26`} stroke="rgba(245,239,229,0.55)" strokeWidth={1.5} fill="none" />
         <path d={`M${X1 + 16} ${BASE - 6} L${X1 + 28} ${BASE} L${X1 + 16} ${BASE + 6}`} stroke="rgba(245,239,229,0.55)" strokeWidth={1.5} fill="none" />
-        <text x={X0 - 18} y={150} fill="rgba(245,239,229,0.5)" transform={`rotate(-90 ${X0 - 18} 150)`} textAnchor="middle" className="font-mono text-[13px]">
+        <text x={X0 - 18} y={150} fill="rgba(245,239,229,0.5)" transform={`rotate(-90 ${X0 - 18} 150)`} textAnchor="middle" className="font-mono text-[13px] max-md:text-[30px]">
           Latency
         </text>
-        <text x={(X0 + X1) / 2} y={BASE + 28} fill="rgba(245,239,229,0.5)" textAnchor="middle" className="font-mono text-[13px]">
+        <text x={(X0 + X1) / 2} y={BASE + 28} fill="rgba(245,239,229,0.5)" textAnchor="middle" className="font-mono text-[13px] max-md:text-[30px]">
           Time
         </text>
 
@@ -142,7 +142,7 @@ export function LatencyChart() {
             <animate attributeName="r" values="5;18" dur="1.8s" repeatCount="indefinite" />
             <animate attributeName="opacity" values="0.9;0" dur="1.8s" repeatCount="indefinite" />
           </circle>
-          <text x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#ff8a5c" className="font-mono text-[12px] uppercase tracking-[0.12em]">
+          <text x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#ff8a5c" className="font-mono text-[12px] uppercase tracking-[0.12em] max-md:text-[26px]">
             Tail breach
           </text>
         </motion.g>
@@ -150,7 +150,7 @@ export function LatencyChart() {
         <motion.circle cx={headX} cy={headY} r={5.5} fill="#fff" style={{ opacity: headOpacity }} />
         <motion.circle cx={headX} cy={headY} r={12} fill="#ec3d20" opacity={0.35} style={{ opacity: headOpacity }} />
 
-        <motion.g style={{ opacity: labelOpacity }} className="font-mono text-[18px] font-bold">
+        <motion.g style={{ opacity: labelOpacity }} className="font-mono text-[18px] font-bold max-md:text-[36px]">
           <text x={X1 + 12} y={34} fill="#ff5a3a">
             p99
           </text>

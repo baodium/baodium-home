@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "motion/react";
 import { ArrowUp, ArrowUpRight } from "lucide-react";
 import { site } from "@/data/site";
@@ -23,6 +24,7 @@ const contact = [
 export function Footer() {
   const year = new Date().getFullYear();
   const letters = site.brand.split("");
+  const markRef = useRef<HTMLDivElement>(null);
 
   return (
     <footer className="grain relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-night pt-20 md:-mt-14 md:rounded-t-[3.5rem] md:pt-28">
@@ -31,7 +33,7 @@ export function Footer() {
       </div>
 
       <div className="shell relative z-[2]">
-        <div className="grid gap-12 md:grid-cols-12">
+        <div className="grid gap-12 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
             <p className="kicker text-cream/45">Baodium</p>
             <p className="mt-5 text-[clamp(2rem,4vw,3.5rem)] font-semibold leading-[1] tracking-[-0.045em]">
@@ -41,17 +43,19 @@ export function Footer() {
             <p className="mt-5 max-w-md text-cream/55">Projects and writing by {site.name}.</p>
           </div>
           <nav aria-label="Footer" className="grid grid-cols-2 gap-8 text-sm md:col-span-5">
-            <ul className="space-y-1">
+            <ul>
+              <li className="kicker mb-3 text-cream/35">Sections</li>
               {sections.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="group inline-flex min-h-10 items-center gap-2 text-cream/70 transition-colors hover:text-cream">
-                    <span className="h-px w-0 bg-cinnabar transition-all duration-300 group-hover:w-4" />
+                  <a href={link.href} className="group inline-flex min-h-10 items-center text-cream/70 transition-colors hover:text-cream">
+                    <span className="mr-0 h-px w-0 bg-cinnabar transition-all duration-300 group-hover:mr-2 group-hover:w-4" />
                     {link.label}
                   </a>
                 </li>
               ))}
             </ul>
-            <ul className="space-y-1">
+            <ul>
+              <li className="kicker mb-3 text-cream/35">Elsewhere</li>
               <li>
                 <a
                   href={book.href}
@@ -84,7 +88,17 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-20 md:mt-28">
+        <div
+          ref={markRef}
+          className="wordmark relative mt-16 md:mt-20"
+          onPointerMove={(event) => {
+            const el = markRef.current;
+            if (!el || event.pointerType !== "mouse") return;
+            const rect = el.getBoundingClientRect();
+            el.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+            el.style.setProperty("--my", `${event.clientY - rect.top}px`);
+          }}
+        >
           <span className="sr-only">{site.brand}</span>
           <motion.p
             aria-hidden="true"
@@ -97,18 +111,27 @@ export function Footer() {
             {letters.map((letter, index) => (
               <span key={index} className="inline-block overflow-hidden pb-[0.06em]">
                 <motion.span
-                  className="inline-block bg-gradient-to-b from-cream via-[#ffc29c] to-cinnabar bg-clip-text text-transparent"
+                  className="inline-block bg-gradient-to-b from-cream via-[#f3d9c6] to-[#e9866a] bg-clip-text text-transparent"
                   variants={{
                     hidden: { y: "100%" },
                     shown: { y: "0%", transition: { duration: 1.1, ease } },
                   }}
-                  whileHover={{ y: "-8%", transition: { type: "spring", stiffness: 400, damping: 12 } }}
                 >
                   {letter}
                 </motion.span>
               </span>
             ))}
           </motion.p>
+          <p
+            aria-hidden="true"
+            className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(3.5rem,19.4vw,18.5rem)] font-semibold leading-[0.8] tracking-[-0.05em]"
+          >
+            {letters.map((letter, index) => (
+              <span key={index} className="inline-block pb-[0.06em] text-cinnabar">
+                {letter}
+              </span>
+            ))}
+          </p>
         </div>
 
         <div className="flex flex-col gap-4 border-t border-white/10 py-7 text-sm text-cream/50 sm:flex-row sm:items-center sm:justify-between">
