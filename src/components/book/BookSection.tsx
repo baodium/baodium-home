@@ -9,7 +9,8 @@ import {
   useTransform,
 } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
-import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
 import { LatencyFigure } from "@/components/book/LatencyChart";
 import { Magnetic } from "@/components/Magnetic";
@@ -111,7 +112,7 @@ export function BookSection() {
                 </p>
               </Reveal>
               <Reveal delay={0.45}>
-                <div className="mt-10 flex flex-wrap items-center gap-5">
+                <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
                   <Magnetic>
                     <a
                       href={book.href}
@@ -132,6 +133,17 @@ export function BookSection() {
                       </span>
                       <span className="sr-only"> (opens in a new tab)</span>
                     </a>
+                  </Magnetic>
+                  <Magnetic>
+                    <Link
+                      href={book.readPath}
+                      className="group relative inline-flex min-h-14 items-center gap-3 rounded-full border border-cream/30 py-2 pl-7 pr-2 text-base font-medium text-cream transition-colors duration-500 hover:border-cream/60 hover:bg-white/[0.06]"
+                    >
+                      Read for free
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#ff7a45] via-cinnabar to-crimson text-white transition-transform duration-500 group-hover:translate-x-0.5">
+                        <BookOpen aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+                      </span>
+                    </Link>
                   </Magnetic>
                 </div>
               </Reveal>
