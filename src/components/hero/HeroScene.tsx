@@ -55,7 +55,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
     });
     const nearest = distances.indexOf(Math.min(...distances));
     // A little hysteresis so the line doesn't flicker when the pointer sits between two words.
-    setActive((value) => (value < 0 || distances[nearest] + 18 < distances[value] ? nearest : value));
+    setActive((value) => (value < 0 || distances[nearest] + 28 < distances[value] ? nearest : value));
   };
 
 

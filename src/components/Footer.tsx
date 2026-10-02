@@ -35,7 +35,7 @@ export function Footer() {
         <div className="shell relative z-[2]">
           <div className="flex">
             <nav aria-label="Elsewhere">
-              <ul className="flex flex-col text-[0.95rem] sm:flex-row sm:flex-wrap sm:gap-x-8 sm:text-sm">
+              <ul className="flex flex-wrap gap-x-7 text-[0.95rem]">
                 {elsewhere.map((link) => {
                   const external = link.href.startsWith("http");
                   return (

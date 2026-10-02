@@ -58,7 +58,7 @@ export function About() {
             </p>
           </Reveal>
 
-          <ul className="mt-20 grid gap-x-10 border-t border-ink/10 md:mt-28 md:grid-cols-2" onPointerLeave={() => setFocus(null)}>
+          <ul className="mt-14 grid grid-cols-2 gap-x-6 border-t border-ink/10 md:mt-20 md:gap-x-10 lg:grid-cols-4" onPointerLeave={() => setFocus(null)}>
             {areas.map((area, index) => {
               const on = focus === index;
               return (
@@ -77,12 +77,12 @@ export function About() {
                     onFocus={() => setFocus(index)}
                     onBlur={() => setFocus(null)}
                     onClick={() => setFocus(on ? null : index)}
-                    className="group block w-full py-7 text-left outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:py-8"
+                    className="group block w-full py-6 text-left outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:py-7"
                   >
-                    <span className="flex items-center gap-3 text-[clamp(1.5rem,2.4vw,2.1rem)] font-semibold leading-tight tracking-[-0.035em]">
+                    <span className="flex items-start gap-2.5 text-[clamp(1.05rem,1.7vw,1.45rem)] font-semibold leading-tight tracking-[-0.03em]">
                       <span
                         aria-hidden="true"
-                        className={`h-2 w-2 shrink-0 rounded-full transition-all duration-500 ${on ? "scale-150 bg-cinnabar" : "bg-ink/20"}`}
+                        className={`mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-500 ${on ? "scale-150 bg-cinnabar" : "bg-ink/20"}`}
                       />
                       <span className={`transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${on ? "translate-x-1.5" : ""}`}>{area.title}</span>
                     </span>

@@ -65,7 +65,7 @@ export function BookSection() {
       }}
       className="relative bg-cream px-3 md:px-5"
     >
-      <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pb-24 pt-24 md:rounded-[3rem] md:pb-32 md:pt-32">
+      <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pb-16 pt-14 md:rounded-[3rem] md:pb-24 md:pt-28">
         <div className="shell relative z-[2]">
           <div className="grid items-center gap-10 md:grid-cols-12 md:gap-8 lg:gap-10">
             <div className="md:col-span-7 lg:col-span-6">
@@ -152,7 +152,7 @@ export function BookSection() {
             <Link
               href={book.readPath}
               aria-label={`Read ${book.title} for free`}
-              className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 max-md:order-first max-md:mx-auto max-md:w-[78%] md:col-span-5 lg:col-span-6"
+              className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 max-md:order-first max-md:mx-auto max-md:w-[70%] md:col-span-5 lg:col-span-6"
             >
               <motion.div
                 aria-hidden="true"
@@ -173,7 +173,7 @@ export function BookSection() {
             </Link>
           </div>
 
-          <Reveal className="mt-24 md:mt-36">
+          <Reveal className="mt-14 md:mt-16">
             <LatencyFigure />
           </Reveal>
         </div>

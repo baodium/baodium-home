@@ -172,7 +172,7 @@ function Figure({ g }: { g: Geometry }) {
   };
 
   return (
-    <figure className="border-t border-white/10 pt-12 md:pt-16">
+    <figure>
 
       <div
         ref={ref}
