@@ -24,22 +24,16 @@ export function Footer() {
 
   return (
     <footer className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
-      <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pt-20 md:rounded-[3rem] md:pt-28">
+      <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pt-14 md:rounded-[3rem] md:pt-20">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%]"
         >
-          <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.45),rgba(216,38,43,0.12)_50%,transparent)] blur-3xl" />
+          <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.45),rgba(151,64,49,0.12)_50%,transparent)] blur-3xl" />
         </div>
 
         <div className="shell relative z-[2]">
-          <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
-            <p className="max-w-md text-[clamp(1.6rem,2.6vw,2.25rem)] font-semibold leading-[1.1] tracking-[-0.035em]">
-              Projects and writing by{" "}
-              <span className="font-serif font-normal italic text-flame">
-                {site.name}.
-              </span>
-            </p>
+          <div className="flex">
             <nav aria-label="Elsewhere">
               <ul className="flex flex-col text-[0.95rem] sm:flex-row sm:flex-wrap sm:gap-x-8 sm:text-sm">
                 {elsewhere.map((link) => {
@@ -73,7 +67,7 @@ export function Footer() {
 
           <div
             ref={markRef}
-            className="wordmark relative mb-4 mt-16 md:mb-6 md:mt-20"
+            className="wordmark relative mb-4 mt-10 md:mb-6 md:mt-14"
             onPointerMove={(event) => {
               const el = markRef.current;
               if (!el || event.pointerType !== "mouse") return;
@@ -97,7 +91,7 @@ export function Footer() {
                   className="inline-block overflow-hidden pb-[0.06em]"
                 >
                   <motion.span
-                    className="inline-block bg-gradient-to-b from-cream via-[#f3d9c6] to-[#e9866a] bg-clip-text text-transparent"
+                    className="inline-block bg-gradient-to-b from-cream via-[#f3d9c6] to-[#d39a7c] bg-clip-text text-transparent"
                     variants={{
                       hidden: { y: "100%" },
                       shown: { y: "0%", transition: { duration: 1.1, ease } },
@@ -123,7 +117,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-cream/50 md:py-7">
+          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-cream/60 md:py-7">
             <p>© {year} Baodium</p>
             <a
               href="#main"

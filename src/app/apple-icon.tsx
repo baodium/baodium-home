@@ -16,7 +16,7 @@ export default function AppleIcon() {
           justifyContent: "center",
         }}
       >
-        <div style={{ width: 112, height: 112, background: "#e23b16", display: "flex" }} />
+        <div style={{ width: 112, height: 112, background: "#b04f35", display: "flex" }} />
       </div>
     ),
     { ...size },

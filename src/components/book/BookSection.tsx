@@ -70,7 +70,7 @@ export function BookSection() {
           <div className="grid items-center gap-10 md:grid-cols-12 md:gap-8 lg:gap-10">
             <div className="md:col-span-7 lg:col-span-6">
               <Reveal y={12}>
-                <p className="kicker text-amber">The book</p>
+                <p className="kicker text-amber">Book</p>
               </Reveal>
               <h2 id="book-heading" className="mt-7">
                 <span className="sr-only">{book.title}</span>
@@ -118,9 +118,9 @@ export function BookSection() {
                       href={book.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative inline-flex min-h-14 items-center gap-3 overflow-hidden rounded-full bg-cream py-2 pl-7 pr-2 text-base font-medium text-ink shadow-[0_18px_50px_-12px_rgba(236,61,32,0.55)]"
+                      className="group relative inline-flex min-h-14 items-center gap-3 overflow-hidden rounded-full bg-cream py-2 pl-7 pr-2 text-base font-medium text-ink shadow-[0_18px_50px_-12px_rgba(173,79,54,0.55)]"
                     >
-                      <span className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#ff7a45] via-cinnabar to-crimson transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
+                      <span className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                       <span className="relative transition-colors duration-500 group-hover:text-white">
                         Get it on Amazon
                       </span>
@@ -140,7 +140,7 @@ export function BookSection() {
                       className="group relative inline-flex min-h-14 items-center gap-3 rounded-full border border-cream/30 py-2 pl-7 pr-2 text-base font-medium text-cream transition-colors duration-500 hover:border-cream/60 hover:bg-white/[0.06]"
                     >
                       Read for free
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#ff7a45] via-cinnabar to-crimson text-white transition-transform duration-500 group-hover:translate-x-0.5">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#cf7752] via-cinnabar to-crimson text-white transition-transform duration-500 group-hover:translate-x-0.5">
                         <BookOpen aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                       </span>
                     </Link>
@@ -149,20 +149,28 @@ export function BookSection() {
               </Reveal>
             </div>
 
-            <div
-              className="relative max-md:order-first max-md:mx-auto max-md:w-[78%] md:col-span-5 lg:col-span-6"
-              aria-hidden="true"
+            <Link
+              href={book.readPath}
+              aria-label={`Read ${book.title} for free`}
+              className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 max-md:order-first max-md:mx-auto max-md:w-[78%] md:col-span-5 lg:col-span-6"
             >
               <motion.div
+                aria-hidden="true"
                 style={{ x: glowX, y: glowY }}
                 className="pointer-events-none absolute inset-0 flex items-center justify-center"
               >
-                <div className="breathe absolute h-[120%] w-[120%] rounded-full bg-[radial-gradient(closest-side,rgba(232,38,44,0.62),rgba(236,61,32,0.22)_48%,transparent_72%)] blur-2xl" />
+                <div className="absolute h-[120%] w-[120%] rounded-full bg-[radial-gradient(closest-side,rgba(190,84,58,0.5),rgba(190,84,58,0.16)_48%,transparent_72%)] opacity-80 blur-2xl transition-opacity duration-700 group-hover/cover:opacity-100" />
               </motion.div>
               <div className="relative py-6 lg:py-10">
                 <Book3D rotateX={rotateX} rotateY={rotateY} sheen={sheen} />
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-2 left-1/2 inline-flex h-11 w-11 -translate-x-1/2 translate-y-2 items-center justify-center rounded-full bg-cream text-ink opacity-0 shadow-[0_12px_30px_-10px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover/cover:translate-y-0 group-hover/cover:opacity-100 group-focus-visible/cover:translate-y-0 group-focus-visible/cover:opacity-100 max-md:hidden lg:bottom-4"
+                >
+                  <BookOpen className="h-4 w-4" strokeWidth={2} />
+                </span>
               </div>
-            </div>
+            </Link>
           </div>
 
           <Reveal className="mt-24 md:mt-36">

@@ -13,10 +13,10 @@ const accent = new Set(["reliability", "AI", "production."]);
 const linked: Record<string, number> = { reliability: 0, AI: 1, running: 2, systems: 2, writes: 3 };
 
 const areas = [
-  { title: "Reliability Engineering", copy: "Distributed systems, production reliability, observability, incident response, and SRE." },
-  { title: "AI Products", copy: "Practical AI applications and agent-driven workflows." },
-  { title: "Infrastructure", copy: "Cloud, Kubernetes, telemetry, automation, and developer infrastructure." },
-  { title: "Technical Writing", copy: "Long-form system design, from real production failures." },
+  { title: "Reliability Engineering" },
+  { title: "AI Products" },
+  { title: "Infrastructure" },
+  { title: "Technical Writing" },
 ];
 
 export function About() {
@@ -77,7 +77,7 @@ export function About() {
                     onFocus={() => setFocus(index)}
                     onBlur={() => setFocus(null)}
                     onClick={() => setFocus(on ? null : index)}
-                    className="group block w-full py-8 text-left outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:py-10"
+                    className="group block w-full py-7 text-left outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:py-8"
                   >
                     <span className="flex items-center gap-3 text-[clamp(1.5rem,2.4vw,2.1rem)] font-semibold leading-tight tracking-[-0.035em]">
                       <span
@@ -85,9 +85,6 @@ export function About() {
                         className={`h-2 w-2 shrink-0 rounded-full transition-all duration-500 ${on ? "scale-150 bg-cinnabar" : "bg-ink/20"}`}
                       />
                       <span className={`transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${on ? "translate-x-1.5" : ""}`}>{area.title}</span>
-                    </span>
-                    <span className={`mt-3 block max-w-md pl-5 leading-relaxed transition-colors duration-500 ${on ? "text-ink/80" : "text-muted"}`}>
-                      {area.copy}
                     </span>
                   </button>
                 </motion.li>

@@ -2,29 +2,29 @@
 
 :root {
   color-scheme: dark;
-  --night: #080706;
-  --ink: #0e0c0b;
-  --ink-raise: #171412;
+  --night: #241c18;
+  --ink: #2b221d;
+  --ink-raise: #2f2620;
   --cream: #f5efe5;
   --paper: #ede5d7;
-  --muted: #6b6157;
-  --cinnabar: #ec3d20;
-  --crimson: #d8262b;
-  --amber: #ffa45c;
+  --muted: #6f6359;
+  --cinnabar: #ad4f36;
+  --crimson: #974031;
+  --amber: #dea27c;
 }
 
 @theme inline {
-  --color-night: #080706;
-  --color-ink: #0e0c0b;
-  --color-ink-raise: #171412;
-  --color-cocoa: #1d1512;
-  --color-ember: #241612;
+  --color-night: #241c18;
+  --color-ink: #2b221d;
+  --color-ink-raise: #2f2620;
+  --color-cocoa: #342923;
+  --color-ember: #3a2b23;
   --color-cream: #f5efe5;
   --color-paper: #ede5d7;
-  --color-muted: #6b6157;
-  --color-cinnabar: #ec3d20;
-  --color-crimson: #d8262b;
-  --color-amber: #ffa45c;
+  --color-muted: #6f6359;
+  --color-cinnabar: #ad4f36;
+  --color-crimson: #974031;
+  --color-amber: #dea27c;
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-serif: var(--font-instrument), "Times New Roman", serif;
@@ -103,7 +103,7 @@ html {
 }
 
 .text-flame {
-  background-image: linear-gradient(96deg, #ffc08a 0%, #ff6a3d 38%, #e8262c 72%, #b3141f 100%);
+  background-image: linear-gradient(96deg, #efcbac 0%, #e09a78 45%, #cc7253 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -112,12 +112,11 @@ html {
 .text-flame-animated {
   background-image: linear-gradient(
     96deg,
-    #ff3b2f 0%,
-    #ff7a50 20%,
-    #e8262c 40%,
-    #ff4a36 60%,
-    #ff7a50 80%,
-    #ff3b2f 100%
+    #d27a5a 0%,
+    #e39d7b 30%,
+    #cf7455 60%,
+    #e39d7b 80%,
+    #d27a5a 100%
   );
   background-size: 250% 100%;
   -webkit-background-clip: text;
@@ -286,7 +285,7 @@ html {
 .spotlight {
   background: radial-gradient(
     520px circle at var(--mx, 50%) var(--my, 30%),
-    rgba(255, 120, 70, 0.22),
+    rgba(205, 120, 88, 0.22),
     transparent 45%
   );
 }
@@ -294,8 +293,8 @@ html {
 .spotlight-border {
   background: radial-gradient(
     420px circle at var(--mx, 50%) var(--my, 0%),
-    rgba(255, 150, 90, 0.95),
-    rgba(232, 38, 44, 0.5) 30%,
+    rgba(218, 150, 114, 0.95),
+    rgba(170, 72, 54, 0.5) 30%,
     rgba(255, 255, 255, 0.08) 60%
   );
 }

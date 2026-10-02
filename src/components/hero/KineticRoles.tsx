@@ -1,18 +1,18 @@
 "use client";
 
 import type { RefObject } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 
 export const roles = [
-  { word: "Engineer", note: "Reliability and infrastructure" },
-  { word: "Builder", note: "Interview Coach and UpTo" },
-  { word: "Author", note: "Practical System Design" },
+  { word: "Engineer" },
+  { word: "Builder" },
+  { word: "Author" },
 ];
 
 const stops = [
-  [255, 186, 130],
-  [255, 96, 56],
-  [218, 34, 44],
+  [238, 200, 168],
+  [224, 146, 110],
+  [200, 104, 76],
 ];
 
 function flameAt(t: number) {
@@ -47,7 +47,7 @@ export function KineticRoles({
           transition={{ type: "spring", stiffness: 180, damping: 24 }}
           className="pointer-events-none absolute -left-0.5 mt-1 flex -translate-y-1/2 items-center lg:hidden"
         >
-          <span className="h-2 w-2 rounded-full bg-cinnabar shadow-[0_0_0_5px_rgba(236,61,32,0.18)]" />
+          <span className="h-2 w-2 rounded-full bg-cinnabar shadow-[0_0_0_5px_rgba(173,79,54,0.18)]" />
           <span className="h-px w-3 bg-cinnabar/70" />
         </motion.span>
         {roles.map((role, line) => {
@@ -65,7 +65,7 @@ export function KineticRoles({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 + line * 0.12, duration: 0.6 }}
-                className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-500 md:w-8 md:text-xs ${isActive ? "text-cinnabar" : "text-cream/45 group-hover/role:text-cream/80"}`}
+                className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-500 md:w-8 md:text-xs ${isActive ? "text-amber" : "text-cream/55 group-hover/role:text-cream/80"}`}
               >
                 0{line + 1}
               </motion.span>
@@ -102,23 +102,6 @@ export function KineticRoles({
             </span>
           );
         })}
-      </span>
-      <span aria-hidden="true" className="mt-5 flex h-7 items-center gap-3 pl-14 text-base text-cream/80 md:pl-[4.5rem] lg:pl-[3.25rem]">
-        <AnimatePresence mode="wait">
-          {active >= 0 ? (
-            <motion.span
-              key={active}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.4, ease }}
-              className="inline-flex items-center gap-2.5"
-            >
-              <span className="h-px w-6 bg-gradient-to-r from-amber to-cinnabar" />
-              {roles[active].note}
-            </motion.span>
-          ) : null}
-        </AnimatePresence>
       </span>
     </>
   );

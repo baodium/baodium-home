@@ -96,7 +96,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2.4, ease }}
-          className="aurora absolute left-[34%] top-[8%] h-[72vmax] w-[72vmax] rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.34),rgba(216,38,43,0.1)_55%,transparent)] blur-2xl max-lg:left-[5%] max-lg:top-[-12%]"
+          className="aurora absolute left-[34%] top-[8%] h-[72vmax] w-[72vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.34),rgba(151,64,49,0.1)_55%,transparent)] blur-2xl max-lg:left-[5%] max-lg:top-[-12%]"
         />
       </div>
       {/* Mid plane: the portrait, melted into the field */}
@@ -114,6 +114,8 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
           >
             <div className="hero-photo-mask absolute inset-0 overflow-hidden">
               <Portrait hasVideo={hasVideo && motionOk} />
+              {/* Lifts only the photo's black backdrop to the warm field; anything brighter, like skin, passes through. */}
+              <div aria-hidden="true" className="absolute inset-0 bg-night mix-blend-lighten" />
               <div aria-hidden="true" className="portrait-sweep absolute inset-y-0 -left-1/2 w-1/2" />
               <motion.div
                 aria-hidden="true"
@@ -153,7 +155,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 1.5, ease }}
             data-hero-line=""
-            className="mt-6 max-w-[27rem] text-[1.05rem] lg:max-w-[22rem] xl:max-w-[27rem] leading-[1.65] text-cream/70 md:text-lg"
+            className="mt-8 max-w-[27rem] text-[1.05rem] lg:max-w-[22rem] xl:max-w-[27rem] leading-[1.65] text-cream/70 md:text-lg"
           >
             {line}
           </motion.p>
@@ -167,7 +169,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             <Magnetic>
               <a
                 href="#work"
-                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#ff7a45] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(236,61,32,0.6)]"
+                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.6)]"
               >
                 <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 <span className="relative">See the work</span>

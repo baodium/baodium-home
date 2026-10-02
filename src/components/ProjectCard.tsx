@@ -12,8 +12,8 @@ const FRAME_ASPECT = 16 / 10;
 const PAGE_WIDTH = 1200;
 
 const tones = {
-  cinnabar: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(236,61,32,0.3),transparent_60%)]",
-  amber: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(255,164,92,0.24),transparent_60%)]",
+  cinnabar: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(173,79,54,0.3),transparent_60%)]",
+  amber: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(222,162,124,0.24),transparent_60%)]",
 } as const;
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -83,10 +83,10 @@ export function ProjectCard({ project }: { project: Project }) {
 
         <span aria-hidden="true" className="relative mt-auto block px-7 md:px-10 [perspective:1600px]">
           <span className="relative block origin-bottom transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [@media(hover:hover)]:[transform:rotateX(5deg)_translateY(8px)] [@media(hover:hover)]:group-hover:[transform:rotateX(0deg)_translateY(0px)]">
-            <span className="block overflow-hidden rounded-t-xl border border-b-0 border-white/15 bg-[#161210] shadow-[0_-24px_60px_-24px_rgba(236,61,32,0.4)]">
+            <span className="block overflow-hidden rounded-t-xl border border-b-0 border-white/15 bg-[#2a211c] shadow-[0_-24px_60px_-24px_rgba(173,79,54,0.4)]">
               <span className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-2.5 font-mono text-xs tracking-[0.04em] text-cream/60">
                 <span className="flex min-w-0 items-center gap-2.5">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#5fd38a]" />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8cc49a]" />
                   <span className="truncate">{host}</span>
                 </span>
                 <span className="hidden shrink-0 text-cream/70 [@media(hover:hover)]:group-hover:inline">Move to scroll ↕</span>

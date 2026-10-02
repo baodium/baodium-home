@@ -111,9 +111,9 @@ export function SignatureTrace({
     >
       <defs>
         <linearGradient id="sig-stroke" x1="1" x2="0" y1="0" y2="0">
-          <stop offset="0" stopColor="#ffb27a" stopOpacity="0.2" />
-          <stop offset="0.5" stopColor="#ff6a3d" stopOpacity="0.8" />
-          <stop offset="1" stopColor="#ec3d20" />
+          <stop offset="0" stopColor="#e2b08e" stopOpacity="0.2" />
+          <stop offset="0.5" stopColor="#c96446" stopOpacity="0.8" />
+          <stop offset="1" stopColor="#ad4f36" />
         </linearGradient>
       </defs>
       <motion.path
@@ -136,7 +136,7 @@ export function SignatureTrace({
           key={active}
           d={d}
           pathLength={1}
-          stroke="#ffd2b0"
+          stroke="#f0d2bb"
           strokeWidth={2}
           strokeLinecap="round"
           className="sig-pulse"
@@ -146,7 +146,7 @@ export function SignatureTrace({
         cx={geo.sx}
         cy={geo.sy}
         r={3}
-        fill="#ffb27a"
+        fill="#e2b08e"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.9 }}
         transition={{ delay: drawDelay - 0.1, duration: 0.3 }}
@@ -166,8 +166,8 @@ export function SignatureTrace({
           y: { duration: instant ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] },
         }}
       >
-        <circle r={10} fill="#ec3d20" opacity={0.18} />
-        <circle r={3.5} fill="#ec3d20" />
+        <circle r={10} fill="#ad4f36" opacity={0.18} />
+        <circle r={3.5} fill="#ad4f36" />
       </motion.g>
     </svg>
   );

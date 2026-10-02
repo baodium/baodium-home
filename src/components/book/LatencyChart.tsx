@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from "react";
 import {
-  AnimatePresence,
   animate,
   motion,
   useMotionValue,
@@ -74,12 +73,6 @@ export function LatencyFigure() {
 
 type Phase = "rest" | "calm" | "drift" | "breach";
 
-const captions: Record<Phase, { lead: string; turn: string }> = {
-  rest: { lead: "The median says everything is fine.", turn: "The tail tells the truth." },
-  calm: { lead: "Both percentiles look calm.", turn: "Nothing to see yet." },
-  drift: { lead: "The median hasn’t moved.", turn: "The tail is already drifting." },
-  breach: { lead: "The median still says everything is fine.", turn: "p99 is past the SLO." },
-};
 
 const phaseAt = (t: number): Phase => (t >= breachT ? "breach" : t >= DRIFT_T ? "drift" : "calm");
 
@@ -178,26 +171,8 @@ function Figure({ g }: { g: Geometry }) {
     setPhase(phaseAt(target.get()));
   };
 
-  const caption = captions[phase];
-
   return (
-    <figure className="border-t border-white/10 pt-10 md:pt-14">
-      <figcaption className="flex flex-col gap-4">
-        <p aria-live="polite" className="relative min-h-[2.3em] max-w-5xl font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-cream md:min-h-[1.2em]">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={phase}
-              initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="block"
-            >
-              {caption.lead} <span className="italic text-flame">{caption.turn}</span>
-            </motion.span>
-          </AnimatePresence>
-        </p>
-      </figcaption>
+    <figure className="border-t border-white/10 pt-12 md:pt-16">
 
       <div
         ref={ref}
@@ -214,7 +189,7 @@ function Figure({ g }: { g: Geometry }) {
         onPointerCancel={release}
         onKeyDown={onKey}
         onBlur={release}
-        className="relative mt-10 cursor-ew-resize touch-pan-y rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 md:mt-14"
+        className="relative cursor-ew-resize touch-pan-y rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 md:mt-14"
       >
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -224,13 +199,13 @@ function Figure({ g }: { g: Geometry }) {
         >
           <defs>
             <linearGradient id="p99-stroke" x1="0" x2="1">
-              <stop offset="0" stopColor="#ff9a66" />
-              <stop offset="0.6" stopColor="#ec3d20" />
-              <stop offset="1" stopColor="#ff2d3a" />
+              <stop offset="0" stopColor="#d99474" />
+              <stop offset="0.6" stopColor="#ad4f36" />
+              <stop offset="1" stopColor="#a8443a" />
             </linearGradient>
             <linearGradient id="p99-fill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stopColor="#ec3d20" stopOpacity="0.32" />
-              <stop offset="1" stopColor="#ec3d20" stopOpacity="0" />
+              <stop offset="0" stopColor="#ad4f36" stopOpacity="0.32" />
+              <stop offset="1" stopColor="#ad4f36" stopOpacity="0" />
             </linearGradient>
             <filter id="glow" x="-10%" y="-30%" width="120%" height="160%">
               <feGaussianBlur stdDeviation="6" />
@@ -243,8 +218,8 @@ function Figure({ g }: { g: Geometry }) {
           {[70, 130, 190].map((y) => (
             <line key={y} x1={X0} x2={X1} y1={y} y2={y} stroke="rgba(245,239,229,0.07)" strokeDasharray="2 6" />
           ))}
-          <line x1={X0} x2={X1} y1={SLO} y2={SLO} stroke="rgba(255,164,92,0.5)" strokeDasharray="6 6" />
-          <text x={X1 + 12} y={SLO + 4} fill="rgba(255,164,92,0.85)" className="font-mono text-[13px] max-md:text-[19px]">
+          <line x1={X0} x2={X1} y1={SLO} y2={SLO} stroke="rgba(222,162,124,0.5)" strokeDasharray="6 6" />
+          <text x={X1 + 12} y={SLO + 4} fill="rgba(222,162,124,0.85)" className="font-mono text-[13px] max-md:text-[19px]">
             SLO
           </text>
 
@@ -268,31 +243,31 @@ function Figure({ g }: { g: Geometry }) {
             <path d={`${p99} L${X1} ${BASE} L${X0} ${BASE} Z`} fill="url(#p99-fill)" />
           </g>
           <motion.path d={p50} stroke="#f5efe5" strokeWidth={2.4} fill="none" strokeLinecap="round" style={{ pathLength: progress }} />
-          <motion.path d={p99} stroke="#ec3d20" strokeWidth={8} fill="none" opacity={0.55} filter="url(#glow)" style={{ pathLength: progress }} />
+          <motion.path d={p99} stroke="#ad4f36" strokeWidth={8} fill="none" opacity={0.55} filter="url(#glow)" style={{ pathLength: progress }} />
           <motion.path d={p99} stroke="url(#p99-stroke)" strokeWidth={2.8} fill="none" strokeLinecap="round" style={{ pathLength: progress }} />
 
           <motion.g style={{ opacity: breachOpacity }}>
-            <line x1={breachX} x2={breachX} y1={SLO} y2={BASE} stroke="rgba(236,61,32,0.5)" strokeDasharray="2 4" />
-            <circle cx={breachX} cy={SLO} r={5} fill="#ec3d20" />
+            <line x1={breachX} x2={breachX} y1={SLO} y2={BASE} stroke="rgba(173,79,54,0.5)" strokeDasharray="2 4" />
+            <circle cx={breachX} cy={SLO} r={5} fill="#ad4f36" />
             {phase === "breach" ? (
               <motion.circle
                 cx={breachX}
                 cy={SLO}
                 fill="none"
-                stroke="#ff5a3a"
+                stroke="#c9664a"
                 strokeWidth={2}
                 initial={{ r: 5, opacity: 0.9 }}
                 animate={{ r: 26, opacity: 0 }}
                 transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               />
             ) : null}
-            <text x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#ff8a5c" className="font-mono text-[12px] uppercase tracking-[0.12em] max-md:text-[17px]">
+            <motion.text style={{ opacity: axisOpacity }} x={breachX - 10} y={SLO - 16} textAnchor="end" fill="#dc8f6c" className="font-mono text-[12px] uppercase tracking-[0.12em] max-md:text-[17px]">
               Tail breach
-            </text>
+            </motion.text>
           </motion.g>
 
           <motion.g style={{ opacity: labelOpacity }} className="font-mono text-[18px] font-bold max-md:text-[24px]">
-            <text x={X1 + 12} y={34} fill="#ff5a3a">
+            <text x={X1 + 12} y={34} fill="#c9664a">
               p99
             </text>
             <text x={X1 + 12} y={252} fill="#f5efe5">
@@ -303,7 +278,7 @@ function Figure({ g }: { g: Geometry }) {
           {/* At rest, a grip on the "now" edge invites a drag back through time. */}
           <motion.g style={{ opacity: restOpacity }} pointerEvents="none">
             <line x1={X1} x2={X1} y1={60} y2={BASE} stroke="rgba(245,239,229,0.28)" strokeDasharray="3 5" />
-            <rect x={X1 - 9} y={170} width={18} height={44} rx={9} fill="#241612" stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
+            <rect x={X1 - 9} y={170} width={18} height={44} rx={9} fill="#3a2b23" stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
             <line x1={X1 - 3} x2={X1 - 3} y1={183} y2={201} stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
             <line x1={X1 + 3} x2={X1 + 3} y1={183} y2={201} stroke="rgba(245,239,229,0.75)" strokeWidth={1.5} />
             <text x={X1 - 22} y={197} textAnchor="end" fill="rgba(245,239,229,0.75)" className="font-mono text-[13px] uppercase tracking-[0.14em] max-md:text-[19px]">
@@ -313,13 +288,13 @@ function Figure({ g }: { g: Geometry }) {
 
           {/* The "now" marker: everything to its right is the future, so it dims. */}
           <motion.g style={{ opacity: scrubOpacity }} pointerEvents="none">
-            <motion.rect x={markerX} y={0} height={BASE} width={futureWidth} fill="#241612" fillOpacity={0.66} />
+            <motion.rect x={markerX} y={0} height={BASE} width={futureWidth} fill="#3a2b23" fillOpacity={0.66} />
             <motion.line x1={markerX} x2={markerX} y1={10} y2={BASE + 10} stroke="rgba(245,239,229,0.7)" strokeWidth={1} />
-            <motion.circle cx={markerX} cy={y99} r={12} fill="#ec3d20" opacity={0.25} />
-            <motion.circle cx={markerX} cy={y99} r={5} fill="#fff" stroke="#ec3d20" strokeWidth={2} />
-            <motion.circle cx={markerX} cy={y50} r={4.5} fill="#241612" stroke="#f5efe5" strokeWidth={2} />
+            <motion.circle cx={markerX} cy={y99} r={12} fill="#ad4f36" opacity={0.25} />
+            <motion.circle cx={markerX} cy={y99} r={5} fill="#fff" stroke="#ad4f36" strokeWidth={2} />
+            <motion.circle cx={markerX} cy={y50} r={4.5} fill="#3a2b23" stroke="#f5efe5" strokeWidth={2} />
             <g className="font-mono text-[14px] max-md:text-[19px]" textAnchor={flip ? "end" : "start"}>
-              <motion.text x={labelX} y={label99Y} fill="#ff8a5c">
+              <motion.text x={labelX} y={label99Y} fill="#dc8f6c">
                 {ms99}
               </motion.text>
               <motion.text x={labelX} y={label50Y} fill="#f5efe5">

@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import { Reveal, SplitHeading } from "@/components/motion/Reveal";
+import { Reveal } from "@/components/motion/Reveal";
 import { writing } from "@/data/writing";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -31,14 +31,8 @@ export function Writing() {
         <div>
           <div>
             <Reveal y={12}>
-              <p className="kicker text-cinnabar">Writing</p>
+              <h2 id="writing-heading" className="kicker text-cinnabar">Writing</h2>
             </Reveal>
-            <SplitHeading
-              id="writing-heading"
-              text="Notes from production."
-              accent={["production"]}
-              className="mt-6 text-[clamp(2.6rem,6vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.05em]"
-            />
           </div>
         </div>
 

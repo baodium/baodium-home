@@ -27,11 +27,7 @@ export function Book3D({
         style={{ x: shadowX, scaleX: shadowScale }}
         className="absolute bottom-[-6%] left-1/2 h-10 w-[70%] -translate-x-1/2 rounded-[50%] bg-black/80 blur-2xl"
       />
-      <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="relative"
-      >
+      <div className="relative transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/cover:-translate-y-3 group-focus-visible/cover:-translate-y-3">
         <motion.div
           style={{
             rotateX,
@@ -83,7 +79,7 @@ export function Book3D({
             <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/15" />
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -31,7 +31,7 @@ export async function OgImage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 16, height: 16, background: "#e23b16", display: "flex" }} />
+            <div style={{ width: 16, height: 16, background: "#b04f35", display: "flex" }} />
             <div style={{ display: "flex", letterSpacing: "0.22em", fontSize: 20 }}>BAODIUM</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>

@@ -43,7 +43,7 @@ export default function SystemDesignReader() {
         <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pb-6 pt-12 md:rounded-[3rem] md:pb-10 md:pt-20">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute right-[-10%] top-[-20%] h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(closest-side,rgba(236,61,32,0.3),rgba(216,38,43,0.08)_55%,transparent)] blur-2xl"
+            className="pointer-events-none absolute right-[-10%] top-[-20%] h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.3),rgba(151,64,49,0.08)_55%,transparent)] blur-2xl"
           />
 
           <div className="shell relative z-[2]">
@@ -60,8 +60,7 @@ export default function SystemDesignReader() {
                 />
               </div>
               <div className="min-w-0">
-                <p className="kicker text-amber">Free to read</p>
-                <h1 className="mt-4 text-[clamp(2.4rem,5.4vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-[-0.045em]">
+                <h1 className="text-[clamp(2.4rem,5.4vw,4.75rem)] font-bold uppercase leading-[0.9] tracking-[-0.045em]">
                   Practical <span className="text-flame">System</span> Design
                 </h1>
                 <p className="mt-4 max-w-xl font-serif text-[clamp(1.25rem,2vw,1.6rem)] italic leading-[1.2] text-cream/80">
@@ -71,9 +70,8 @@ export default function SystemDesignReader() {
               </div>
             </div>
 
-            <div className="mt-10 overflow-hidden rounded-2xl border border-white/10 bg-[#161210] md:mt-14">
-              <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-2.5 text-xs text-cream/60">
-                <span className="font-mono tracking-[0.04em]">The full book</span>
+            <div className="mt-10 overflow-hidden rounded-2xl border border-white/10 bg-[#2a211c] md:mt-14">
+              <div className="flex items-center justify-end gap-4 border-b border-white/10 px-4 py-2.5 text-xs text-cream/60">
                 <a
                   href={book.driveHref}
                   target="_blank"
@@ -90,7 +88,7 @@ export default function SystemDesignReader() {
                 title="Practical System Design"
                 allow="autoplay; fullscreen"
                 allowFullScreen
-                className="block h-[78svh] min-h-[520px] w-full bg-[#2a2522] md:h-[88svh] md:min-h-[720px]"
+                className="block h-[78svh] min-h-[520px] w-full bg-[#2f2620] md:h-[88svh] md:min-h-[720px]"
               />
             </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ProjectCard } from "@/components/ProjectCard";
-import { Reveal, SplitHeading } from "@/components/motion/Reveal";
+import { Reveal } from "@/components/motion/Reveal";
 import { projects } from "@/data/projects";
 
 export function Projects() {
@@ -14,21 +14,15 @@ export function Projects() {
       className="relative overflow-hidden bg-cream pb-28 pt-24 text-ink md:pb-36 md:pt-36"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-[30%] h-[60vmax] w-[80vmax] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,164,92,0.28),transparent)] blur-2xl" />
+        <div className="absolute left-1/2 top-[30%] h-[60vmax] w-[80vmax] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.28),transparent)] blur-2xl" />
       </div>
 
       <div className="shell relative z-[2]">
         <Reveal y={12}>
-          <p className="kicker text-cinnabar">Work</p>
+          <h2 id="work-heading" className="kicker text-cinnabar">Work</h2>
         </Reveal>
-        <SplitHeading
-          id="work-heading"
-          text="Shipped, and live."
-          accent={["live"]}
-          className="mt-6 text-[clamp(2.75rem,6vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.055em]"
-        />
 
-        <div className="mt-12 grid gap-6 md:mt-16 lg:grid-cols-2 lg:gap-7">
+        <div className="mt-8 grid gap-6 md:mt-10 lg:grid-cols-2 lg:gap-7">
           {ordered.map((project, index) => (
             <Reveal key={project.slug} delay={index * 0.1} >
               <ProjectCard project={project} />
