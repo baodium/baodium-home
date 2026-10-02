@@ -106,7 +106,8 @@ function Figure({ g }: { g: Geometry }) {
   const labelOpacity = useTransform(progress, [0.88, 1], [0, 1]);
   const breachOpacity = useTransform(progress, [breachT - 0.02, breachT + 0.04], [0, 1]);
 
-  const scrub = useMotionValue(1);
+  const target = useMotionValue(1);
+  const scrub = useSpring(target, { stiffness: 380, damping: 38, mass: 0.6 });
   const shown = useMotionValue(0);
   const scrubOpacity = useSpring(shown, { stiffness: 300, damping: 30 });
   const axisOpacity = useTransform(scrubOpacity, [0, 1], [1, 0]);
@@ -136,10 +137,12 @@ function Figure({ g }: { g: Geometry }) {
     if (progress.get() < 0.98) animate(progress, 1, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
     window.clearTimeout(lingerRef.current);
     const x = ((clientX - rect.left) / rect.width) * WIDTH;
-    scrub.set(Math.min(Math.max((x - X0) / (X1 - X0), 0), 1));
+    const t = Math.min(Math.max((x - X0) / (X1 - X0), 0), 1);
+    target.set(t);
+    if (shown.get() === 0 || reduce) scrub.jump(t);
     if (shown.get() === 0) {
       shown.set(1);
-      setPhase(phaseAt(scrub.get()));
+      setPhase(phaseAt(t));
     }
   };
 
@@ -160,18 +163,19 @@ function Figure({ g }: { g: Geometry }) {
     const keys: Record<string, number> = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step };
     if (event.key === "Home" || event.key === "End") {
       event.preventDefault();
-      scrub.set(event.key === "Home" ? 0 : 1);
+      target.set(event.key === "Home" ? 0 : 1);
     } else if (event.key in keys) {
       event.preventDefault();
-      scrub.set(Math.min(Math.max(scrub.get() + keys[event.key], 0), 1));
+      target.set(Math.min(Math.max(target.get() + keys[event.key], 0), 1));
     } else if (event.key === "Escape") {
       release();
       return;
     } else {
       return;
     }
+    if (reduce) scrub.jump(target.get());
     shown.set(1);
-    setPhase(phaseAt(scrub.get()));
+    setPhase(phaseAt(target.get()));
   };
 
   const caption = captions[phase];

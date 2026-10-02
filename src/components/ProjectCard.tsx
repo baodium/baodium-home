@@ -37,7 +37,7 @@ export function ProjectCard({ project }: { project: Project }) {
     if (still.get()) return 0;
     return Math.min(Math.max((scrollYProgress.get() - 0.3) / 0.5, 0), 1) * 0.35;
   });
-  const smooth = useSpring(scroll, { stiffness: 140, damping: 26, mass: 0.6 });
+  const smooth = useSpring(scroll, { stiffness: 90, damping: 22, mass: 0.7 });
   const travel = (1 - PAGE_WIDTH / FRAME_ASPECT / project.page.height) * 100;
   const pageY = useTransform(smooth, (v) => `${-v * travel}%`);
   const railY = useTransform(smooth, (v) => `${v * 400}%`);
@@ -52,7 +52,8 @@ export function ProjectCard({ project }: { project: Project }) {
         handlers.onPointerMove(event);
         const rect = frameRef.current?.getBoundingClientRect();
         if (!rect || event.pointerType !== "mouse") return;
-        pointer.set(Math.min(Math.max((event.clientY - rect.top) / rect.height, 0), 1));
+        // The top and bottom tenth of the frame hold the ends, so both are easy to land on.
+        pointer.set(Math.min(Math.max(((event.clientY - rect.top) / rect.height - 0.1) / 0.8, 0), 1));
         hovering.set(1);
       }}
       onPointerLeave={() => {
@@ -69,7 +70,7 @@ export function ProjectCard({ project }: { project: Project }) {
         <span aria-hidden="true" className={`absolute inset-0 ${tones[project.tone]}`} />
         <span aria-hidden="true" className="spotlight absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-        <span className="relative flex flex-col p-7 md:p-9">
+        <span className="relative flex flex-col px-7 pb-6 pt-7 md:px-9 md:pb-7 md:pt-9">
           <span className="flex items-start justify-between gap-6">
             <span className="block text-[clamp(2rem,3.2vw,2.9rem)] font-semibold leading-[0.95] tracking-[-0.045em]">{project.name}</span>
             <span className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 transition-colors duration-500 group-hover:border-transparent group-hover:bg-cream group-hover:text-ink">
@@ -80,8 +81,8 @@ export function ProjectCard({ project }: { project: Project }) {
           <span className="sr-only"> (opens {host} in a new tab)</span>
         </span>
 
-        <span aria-hidden="true" className="relative mt-auto block px-7 pt-4 md:px-10 [perspective:1600px]">
-          <span className="relative block origin-bottom transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [@media(hover:hover)]:[transform:rotateX(7deg)_translateY(14px)] [@media(hover:hover)]:group-hover:[transform:rotateX(0deg)_translateY(0px)]">
+        <span aria-hidden="true" className="relative mt-auto block px-7 md:px-10 [perspective:1600px]">
+          <span className="relative block origin-bottom transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [@media(hover:hover)]:[transform:rotateX(5deg)_translateY(8px)] [@media(hover:hover)]:group-hover:[transform:rotateX(0deg)_translateY(0px)]">
             <span className="block overflow-hidden rounded-t-xl border border-b-0 border-white/15 bg-[#161210] shadow-[0_-24px_60px_-24px_rgba(236,61,32,0.4)]">
               <span className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-2.5 font-mono text-xs tracking-[0.04em] text-cream/60">
                 <span className="flex min-w-0 items-center gap-2.5">

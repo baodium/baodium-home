@@ -37,15 +37,15 @@ export function KineticRoles({
 }) {
   return (
     <>
-      <span className="relative mt-5 flex flex-col gap-[0.04em] md:mt-7">
-        {/* Phones: the signal runs down the gutter, clear of the portrait, and rests on the chosen role. */}
-        <span aria-hidden="true" className="pointer-events-none absolute -left-3.5 -top-16 bottom-[16%] w-px bg-gradient-to-b from-transparent via-cinnabar/40 to-cinnabar/60 sm:-left-5 lg:hidden" />
+      <span className="relative mt-5 flex flex-col gap-[0.04em] max-lg:pl-5 md:mt-7">
+        {/* Phones and tablets: the signal runs down a rail beside the numbers and rests on the chosen role. */}
+        <span aria-hidden="true" className="pointer-events-none absolute bottom-[10%] left-0.5 top-[10%] w-px bg-gradient-to-b from-transparent via-cinnabar/45 to-transparent lg:hidden" />
         <motion.span
           aria-hidden="true"
           initial={false}
           animate={{ top: `${(Math.max(active, 0) * 100) / roles.length + 100 / roles.length / 2}%`, opacity: active >= 0 ? 1 : 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 26 }}
-          className="pointer-events-none absolute -left-[1.125rem] mt-1.5 flex -translate-y-1/2 items-center sm:-left-[1.5rem] lg:hidden"
+          transition={{ type: "spring", stiffness: 180, damping: 24 }}
+          className="pointer-events-none absolute -left-0.5 mt-1 flex -translate-y-1/2 items-center lg:hidden"
         >
           <span className="h-2 w-2 rounded-full bg-cinnabar shadow-[0_0_0_5px_rgba(236,61,32,0.18)]" />
           <span className="h-px w-3 bg-cinnabar/70" />
@@ -103,7 +103,7 @@ export function KineticRoles({
           );
         })}
       </span>
-      <span aria-hidden="true" className="mt-5 flex h-7 items-center gap-3 pl-9 text-base text-cream/80 md:pl-[3.25rem]">
+      <span aria-hidden="true" className="mt-5 flex h-7 items-center gap-3 pl-14 text-base text-cream/80 md:pl-[4.5rem] lg:pl-[3.25rem]">
         <AnimatePresence mode="wait">
           {active >= 0 ? (
             <motion.span

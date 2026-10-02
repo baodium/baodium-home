@@ -73,7 +73,7 @@ export function Footer() {
 
           <div
             ref={markRef}
-            className="wordmark relative mt-16 md:mt-20"
+            className="wordmark relative mb-4 mt-16 md:mb-6 md:mt-20"
             onPointerMove={(event) => {
               const el = markRef.current;
               if (!el || event.pointerType !== "mouse") return;
@@ -123,7 +123,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 border-t border-white/10 py-7 text-sm text-cream/50 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-cream/50 md:py-7">
             <p>© {year} Baodium</p>
             <a
               href="#main"
