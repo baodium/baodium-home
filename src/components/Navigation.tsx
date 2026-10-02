@@ -17,6 +17,22 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function Navigation() {
   const [active, setActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [tucked, setTucked] = useState(false);
+  const [entered, setEntered] = useState(false);
+
+  /** The bar steps out of the way while reading downward and returns on any upward scroll. */
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - last;
+      if (Math.abs(delta) < 6) return;
+      setTucked(delta > 0 && y > window.innerHeight * 0.6);
+      last = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const sections = links
@@ -56,8 +72,9 @@ export function Navigation() {
     <motion.header
       id="top"
       initial={{ y: -24, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.9, delay: 1.4, ease }}
+      animate={tucked && !open ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
+      transition={entered ? { duration: 0.45, ease } : { duration: 0.9, delay: 1.4, ease }}
+      onAnimationComplete={() => setEntered(true)}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >
       <div className="mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] bg-[#0f0c0a]/[0.92] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">

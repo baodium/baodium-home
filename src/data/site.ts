@@ -6,8 +6,6 @@ export const site = {
   description:
     "Adewale Obadimu is an engineer, builder, and author. Baodium is the studio for products and writing on reliability engineering, AI products, infrastructure, and system design.",
   // Real profile URLs. Leave a value blank until it exists — the footer does not render empty links.
-  /** Adewale's lifestyle and social home; Baodium stays the product studio. */
-  personal: "https://obadimu.com",
   github: "",
   linkedin: "https://www.linkedin.com/in/obadimu",
   email: "",

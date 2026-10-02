@@ -8,10 +8,9 @@ import { book } from "@/data/writing";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-type Link = { label: string; note?: string; href: string };
+type Link = { label: string; href: string };
 
 const elsewhere: Link[] = [
-  { label: "Obadimu", note: "Lifestyle and social", href: site.personal },
   { label: "LinkedIn", href: site.linkedin },
   { label: "Book on Amazon", href: book.href },
   { label: "GitHub", href: site.github },
@@ -55,9 +54,6 @@ export function Footer() {
                           : {})}
                       >
                         {link.label}
-                        {link.note ? (
-                          <span className="text-cream/40">· {link.note}</span>
-                        ) : null}
                         {external ? (
                           <ArrowUpRight
                             aria-hidden="true"
