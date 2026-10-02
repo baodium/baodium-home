@@ -26,10 +26,10 @@ export function About() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative z-10 -mt-10 rounded-t-[2rem] bg-cream pb-32 text-ink md:-mt-14 md:rounded-t-[3.5rem] md:pb-44"
+      className="relative bg-cream pb-28 text-ink md:pb-36"
     >
       <div className="shell">
-        <div className="pt-28 md:pt-40">
+        <div className="pt-28 md:pt-36">
           <Reveal y={12}>
             <h2 id="about-heading" className="kicker text-cinnabar">
               About

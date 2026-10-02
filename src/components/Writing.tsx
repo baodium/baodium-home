@@ -25,7 +25,7 @@ export function Writing() {
     <section
       id="writing"
       aria-labelledby="writing-heading"
-      className="relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-cream pb-24 pt-28 text-ink md:-mt-14 md:rounded-t-[3.5rem] md:pb-32 md:pt-40"
+      className="relative bg-cream pt-28 text-ink md:pt-36"
     >
       <div className="shell relative z-[2]">
         <div>

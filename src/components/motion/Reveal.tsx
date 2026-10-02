@@ -9,7 +9,7 @@ export function Reveal({
   children,
   className = "",
   delay = 0,
-  y = 28,
+  y = 16,
 }: {
   children: ReactNode;
   className?: string;
@@ -21,15 +21,15 @@ export function Reveal({
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-      transition={{ duration: 0.9, delay, ease }}
+      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+      transition={{ duration: 0.7, delay, ease }}
     >
       {children}
     </motion.div>
   );
 }
 
-/** Words rise out of a mask, one after another. Pass `accent` words to render them in the serif italic flame. */
+/** A heading that rises once as a whole. Pass `accent` words to render them in the serif italic flame. */
 export function SplitHeading({
   text,
   accent = [],
@@ -50,27 +50,17 @@ export function SplitHeading({
   const words = text.split(" ");
   return (
     <Tag id={id} className={className}>
-      <span className="sr-only">{text}</span>
       <motion.span
-        aria-hidden="true"
         className="block"
-        initial="hidden"
-        whileInView="shown"
-        viewport={{ once: true, margin: "0px 0px -12% 0px" }}
-        transition={{ staggerChildren: 0.06, delayChildren: delay }}
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+        transition={{ duration: 0.8, delay, ease }}
       >
         {words.map((word, index) => (
-          <span key={`${word}-${index}`} className="inline-flex overflow-hidden pb-[0.12em] align-top">
-            <motion.span
-              className={`inline-block ${accent.includes(word.replace(/[.,]/g, "")) ? `${accentClassName} pr-[0.06em]` : ""}`}
-              variants={{
-                hidden: { y: "110%", rotate: 4 },
-                shown: { y: "0%", rotate: 0, transition: { duration: 0.9, ease } },
-              }}
-            >
-              {word}
-            </motion.span>
-            {index < words.length - 1 ? <span>&nbsp;</span> : null}
+          <span key={`${word}-${index}`}>
+            <span className={accent.includes(word.replace(/[.,]/g, "")) ? `${accentClassName} pr-[0.06em]` : ""}>{word}</span>
+            {index < words.length - 1 ? " " : null}
           </span>
         ))}
       </motion.span>

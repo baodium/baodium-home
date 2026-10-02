@@ -24,12 +24,12 @@ export function ProjectCard({ project }: { project: Project }) {
   const reduce = usePrefersReducedMotion();
 
   /**
-   * The frame shows the real product page. Scrolling the site scrolls it a little (so phones get it too);
-   * a mouse over the frame takes over and can travel the whole page.
+   * The frame shows the real product page. A mouse over the frame travels the whole page;
+   * on touch screens, which have no hover, scrolling past moves it a little instead.
    */
   const { scrollYProgress } = useScroll({ target: cardRef, offset: ["start end", "end start"] });
-  const still = useMotionValue(0);
-  useEffect(() => still.set(reduce ? 1 : 0), [reduce, still]);
+  const still = useMotionValue(1);
+  useEffect(() => still.set(reduce || window.matchMedia("(hover: hover)").matches ? 1 : 0), [reduce, still]);
   const pointer = useMotionValue(0);
   const hovering = useMotionValue(0);
   const scroll = useTransform(() => {

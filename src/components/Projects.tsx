@@ -11,7 +11,7 @@ export function Projects() {
     <section
       id="work"
       aria-labelledby="work-heading"
-      className="grain-light relative z-10 overflow-hidden rounded-t-[2rem] bg-cream pb-32 pt-24 text-ink md:rounded-t-[3.5rem] md:pb-44 md:pt-32"
+      className="relative overflow-hidden bg-cream pb-28 pt-24 text-ink md:pb-36 md:pt-36"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-[30%] h-[60vmax] w-[80vmax] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,164,92,0.28),transparent)] blur-2xl" />

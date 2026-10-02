@@ -7,7 +7,7 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
-  useScroll,
+  useInView,
   useSpring,
   useTransform,
 } from "motion/react";
@@ -90,18 +90,18 @@ function Figure({ g }: { g: Geometry }) {
   const [phase, setPhase] = useState<Phase>("rest");
   const [flip, setFlip] = useState(false);
 
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.95", "center 0.45"] });
-  const eased = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
-  const peak = useRef(0);
-  const forced = useMotionValue(0);
-  const still = useMotionValue(0);
-  useEffect(() => still.set(reduce ? 1 : 0), [reduce, still]);
-  const progress = useTransform(() => {
-    const v = eased.get();
-    if (still.get()) return 1;
-    peak.current = Math.max(peak.current, Math.min(Math.max(v, 0), 1), forced.get());
-    return peak.current;
-  });
+  /** The chart draws once when it comes into view; scrolling never hides or rewinds it. */
+  const progress = useMotionValue(0);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -20% 0px" });
+  useEffect(() => {
+    if (reduce) {
+      progress.set(1);
+      return;
+    }
+    if (!inView) return;
+    const controls = animate(progress, 1, { duration: 1.6, ease: [0.65, 0, 0.35, 1] });
+    return () => controls.stop();
+  }, [inView, reduce, progress]);
   const clipWidth = useTransform(progress, (v) => X0 + v * (X1 - X0) + 2);
   const labelOpacity = useTransform(progress, [0.88, 1], [0, 1]);
   const breachOpacity = useTransform(progress, [breachT - 0.02, breachT + 0.04], [0, 1]);
@@ -133,13 +133,21 @@ function Figure({ g }: { g: Geometry }) {
   const moveTo = (clientX: number) => {
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
-    if (progress.get() < 0.98 && forced.get() === 0) animate(forced, 1, { duration: 0.6, ease: [0.22, 1, 0.36, 1] });
+    if (progress.get() < 0.98) animate(progress, 1, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
+    window.clearTimeout(lingerRef.current);
     const x = ((clientX - rect.left) / rect.width) * WIDTH;
     scrub.set(Math.min(Math.max((x - X0) / (X1 - X0), 0), 1));
     if (shown.get() === 0) {
       shown.set(1);
       setPhase(phaseAt(scrub.get()));
     }
+  };
+
+  /** Touch lifts a finger off the chart; keep the reading on screen long enough to read it. */
+  const lingerRef = useRef<number | undefined>(undefined);
+  const leave = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse") return release();
+    lingerRef.current = window.setTimeout(release, 1800);
   };
 
   const release = () => {
@@ -169,9 +177,8 @@ function Figure({ g }: { g: Geometry }) {
   const caption = captions[phase];
 
   return (
-    <figure className="border-t border-white/10 pt-8 md:pt-12">
+    <figure className="border-t border-white/10 pt-10 md:pt-14">
       <figcaption className="flex flex-col gap-4">
-        <p className="kicker text-cream/45">Fig. 1 — From the cover</p>
         <p aria-live="polite" className="relative min-h-[2.3em] max-w-5xl font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-cream md:min-h-[1.2em]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
@@ -199,7 +206,7 @@ function Figure({ g }: { g: Geometry }) {
         aria-valuetext="Drag or use arrow keys to inspect p50 and p99 over the last 60 seconds"
         onPointerMove={(event: PointerEvent<HTMLDivElement>) => moveTo(event.clientX)}
         onPointerDown={(event: PointerEvent<HTMLDivElement>) => moveTo(event.clientX)}
-        onPointerLeave={release}
+        onPointerLeave={leave}
         onPointerCancel={release}
         onKeyDown={onKey}
         onBlur={release}

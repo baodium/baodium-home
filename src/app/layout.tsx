@@ -64,7 +64,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${geist.variable} ${geistMono.variable} ${instrument.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-night font-sans text-cream">
+      <body className="min-h-full bg-cream font-sans text-cream">
         <a className="skip-link" href="#main">
           Skip to content
         </a>

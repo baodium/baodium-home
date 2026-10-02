@@ -5,7 +5,6 @@ import Image from "next/image";
 import {
   motion,
   useMotionValue,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -30,7 +29,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const reduce = usePrefersReducedMotion();
   const motionOk = useHeroMotionOk();
-  const [paused, setPaused] = useState(false);
   const [active, setActive] = useState(-1);
   const [locked, setLocked] = useState(false);
   const [steering, setSteering] = useState(false);
@@ -50,27 +48,20 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
 
   /** The signal routes to whichever role sits nearest the pointer; on leave it rests there. */
   const steer = (clientY: number) => {
-    let nearest = 0;
-    let best = Infinity;
-    wordRefs.current.forEach((node, index) => {
-      if (!node) return;
+    const distances = wordRefs.current.map((node) => {
+      if (!node) return Infinity;
       const rect = node.getBoundingClientRect();
-      const distance = Math.abs(rect.top + rect.height / 2 - clientY);
-      if (distance < best) {
-        best = distance;
-        nearest = index;
-      }
+      return Math.abs(rect.top + rect.height / 2 - clientY);
     });
-    setActive((value) => (value === nearest ? value : nearest));
+    const nearest = distances.indexOf(Math.min(...distances));
+    // A little hysteresis so the line doesn't flicker when the pointer sits between two words.
+    setActive((value) => (value < 0 || distances[nearest] + 18 < distances[value] ? nearest : value));
   };
 
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  useMotionValueEvent(scrollYProgress, "change", (value) => setPaused(value > 0.98));
 
-  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 120]);
-  const copyY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, -110]);
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.8]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+
+  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 70]);
 
   // Depth: portrait (back) and type (front) drift against each other with the pointer.
   const px = useMotionValue(0);
@@ -85,7 +76,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   return (
     <section
       ref={ref}
-      data-paused={paused}
       aria-label="Introduction"
       onPointerMove={(event) => {
         if (event.pointerType !== "mouse") return;
@@ -98,7 +88,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         py.set(event.clientY / window.innerHeight - 0.5);
       }}
       onPointerLeave={() => setSteering(false)}
-      className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px] [@media(min-width:1024px)_and_(min-height:700px)]:sticky [@media(min-width:1024px)_and_(min-height:700px)]:top-0"
+      className="grain relative isolate overflow-hidden rounded-b-[2rem] bg-night md:rounded-b-[3.5rem] lg:h-svh lg:min-h-[700px]"
     >
       {/* Far plane: one warm light */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
@@ -137,15 +127,12 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         </motion.div>
       </motion.div>
 
-      <motion.div aria-hidden="true" style={{ opacity: shade }} className="pointer-events-none absolute inset-0 z-[2] bg-night" />
-
       {/* Near plane: type and the signature trace */}
-      <motion.div style={{ opacity: copyOpacity }} className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
+      <div className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
         <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={reduce ? 0 : TRACE_DELAY} instant={!!reduce} />
-      </motion.div>
+      </div>
 
-      <motion.div
-        style={{ y: copyY, opacity: copyOpacity }}
+      <div
         className="relative z-[3] -mt-24 px-5 pb-16 sm:px-8 md:-mt-36 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
       >
         <motion.div style={{ x: typeX, y: typeY }} className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
@@ -195,8 +182,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             </a>
           </motion.div>
         </motion.div>
-      </motion.div>
-
+      </div>
     </section>
   );
 }
