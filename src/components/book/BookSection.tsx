@@ -79,8 +79,8 @@ export function BookSection() {
                   className="block text-[clamp(3.1rem,7.2vw,7.25rem)] font-bold uppercase leading-[0.86] tracking-[-0.045em]"
                   initial="hidden"
                   whileInView="shown"
-                  viewport={{ once: true, margin: "0px 0px -15% 0px" }}
-                  transition={{ staggerChildren: 0.12 }}
+                  viewport={{ once: true, margin: "0px 0px -4% 0px" }}
+                  transition={{ staggerChildren: 0.07 }}
                 >
                   {titleLines.map((line) => (
                     <span
@@ -93,7 +93,7 @@ export function BookSection() {
                           hidden: { y: "105%" },
                           shown: {
                             y: "0%",
-                                                        transition: { duration: 1, ease },
+                                                        transition: { duration: 0.8, ease },
                           },
                         }}
                       >

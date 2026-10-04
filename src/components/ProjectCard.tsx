@@ -24,18 +24,18 @@ export function ProjectCard({ project }: { project: Project }) {
   const reduce = usePrefersReducedMotion();
 
   /**
-   * The frame shows the real product page. A mouse over the frame travels the whole page;
-   * on touch screens, which have no hover, scrolling past moves it a little instead.
+   * The frame shows the real product page. Scrolling past drifts it a little way down the page;
+   * a mouse over the frame takes over and travels the whole page.
    */
   const { scrollYProgress } = useScroll({ target: cardRef, offset: ["start end", "end start"] });
   const still = useMotionValue(1);
-  useEffect(() => still.set(reduce || window.matchMedia("(hover: hover)").matches ? 1 : 0), [reduce, still]);
+  useEffect(() => still.set(reduce ? 1 : 0), [reduce, still]);
   const pointer = useMotionValue(0);
   const hovering = useMotionValue(0);
   const scroll = useTransform(() => {
     if (hovering.get()) return pointer.get();
     if (still.get()) return 0;
-    return Math.min(Math.max((scrollYProgress.get() - 0.3) / 0.5, 0), 1) * 0.35;
+    return Math.min(Math.max((scrollYProgress.get() - 0.15) / 0.6, 0), 1) * 0.4;
   });
   const smooth = useSpring(scroll, { stiffness: 90, damping: 22, mass: 0.7 });
   const travel = (1 - PAGE_WIDTH / FRAME_ASPECT / project.page.height) * 100;

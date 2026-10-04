@@ -1,12 +1,12 @@
 "use client";
 
 import { useRef } from "react";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { ArrowUp, ArrowUpRight } from "lucide-react";
 import { site } from "@/data/site";
 import { book } from "@/data/writing";
 
-const ease = [0.22, 1, 0.36, 1] as const;
 
 type Link = { label: string; href: string };
 
@@ -21,9 +21,12 @@ export function Footer() {
   const year = new Date().getFullYear();
   const letters = site.brand.split("");
   const markRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  /** The wordmark rises with the last stretch of scroll, and is whole by the bottom of the page. */
+  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start end", "end end"] });
 
   return (
-    <footer className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
+    <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
       <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pt-14 md:rounded-[3rem] md:pt-20">
         <div
           aria-hidden="true"
@@ -77,31 +80,14 @@ export function Footer() {
             }}
           >
             <span className="sr-only">{site.brand}</span>
-            <motion.p
+            <p
               aria-hidden="true"
               className="flex select-none justify-between text-[clamp(3.5rem,19.4vw,18.5rem)] font-semibold leading-[0.8] tracking-[-0.05em]"
-              initial="hidden"
-              whileInView="shown"
-              viewport={{ once: true, margin: "0px 0px -5% 0px" }}
-              transition={{ staggerChildren: 0.06 }}
             >
               {letters.map((letter, index) => (
-                <span
-                  key={index}
-                  className="inline-block overflow-hidden pb-[0.06em]"
-                >
-                  <motion.span
-                    className="inline-block bg-gradient-to-b from-cream via-[#f3d9c6] to-[#d39a7c] bg-clip-text text-transparent"
-                    variants={{
-                      hidden: { y: "100%" },
-                      shown: { y: "0%", transition: { duration: 1.1, ease } },
-                    }}
-                  >
-                    {letter}
-                  </motion.span>
-                </span>
+                <RisingLetter key={index} letter={letter} index={index} progress={scrollYProgress} />
               ))}
-            </motion.p>
+            </p>
             <p
               aria-hidden="true"
               className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(3.5rem,19.4vw,18.5rem)] font-semibold leading-[0.8] tracking-[-0.05em]"
@@ -135,5 +121,21 @@ export function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function RisingLetter({ letter, index, progress }: { letter: string; index: number; progress: MotionValue<number> }) {
+  const reduce = usePrefersReducedMotion();
+  const start = 0.12 + index * 0.05;
+  const y = useTransform(progress, [start, start + 0.42], reduce ? ["0%", "0%"] : ["100%", "0%"]);
+  return (
+    <span className="inline-block overflow-hidden pb-[0.06em]">
+      <motion.span
+        style={{ y }}
+        className="inline-block bg-gradient-to-b from-cream via-[#f3d9c6] to-[#d39a7c] bg-clip-text text-transparent"
+      >
+        {letter}
+      </motion.span>
+    </span>
   );
 }

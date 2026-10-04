@@ -85,14 +85,14 @@ function Figure({ g }: { g: Geometry }) {
 
   /** The chart draws once when it comes into view; scrolling never hides or rewinds it. */
   const progress = useMotionValue(0);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -20% 0px" });
+  const inView = useInView(ref, { once: true, margin: "0px 0px -6% 0px" });
   useEffect(() => {
     if (reduce) {
       progress.set(1);
       return;
     }
     if (!inView) return;
-    const controls = animate(progress, 1, { duration: 1.6, ease: [0.65, 0, 0.35, 1] });
+    const controls = animate(progress, 1, { duration: 1.3, ease: [0.65, 0, 0.35, 1] });
     return () => controls.stop();
   }, [inView, reduce, progress]);
   const clipWidth = useTransform(progress, (v) => X0 + v * (X1 - X0) + 2);
