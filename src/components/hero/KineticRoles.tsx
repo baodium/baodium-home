@@ -65,7 +65,7 @@ export function KineticRoles({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 + line * 0.12, duration: 0.6 }}
-                className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-500 md:w-8 md:text-xs ${isActive ? "text-amber" : "text-cream/55 group-hover/role:text-cream/80"}`}
+                className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-300 md:w-8 md:text-xs ${isActive ? "text-amber" : "text-cream/70 group-hover/role:text-cream"}`}
               >
                 0{line + 1}
               </motion.span>
@@ -89,9 +89,9 @@ export function KineticRoles({
                         color: isActive
                           ? flameAt(k / Math.max(letters.length - 1, 1))
                           : dim
-                            ? "rgba(245,239,229,0.4)"
+                            ? "rgba(245,239,229,0.62)"
                             : "#f5efe5",
-                        transition: `color 0.5s ease ${isActive ? (letters.length - 1 - k) * 0.03 : 0}s`,
+                        transition: `color 0.28s ease ${isActive ? (letters.length - 1 - k) * 0.018 : 0}s`,
                       }}
                     >
                       {letter}

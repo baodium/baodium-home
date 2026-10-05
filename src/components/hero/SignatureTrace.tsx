@@ -128,7 +128,7 @@ export function SignatureTrace({
             delay: drawDelay,
             ease: [0.65, 0, 0.35, 1],
           },
-          d: { duration: instant ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] },
+          d: { duration: instant ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] },
         }}
       />
       {active >= 0 ? (
@@ -162,8 +162,8 @@ export function SignatureTrace({
             stiffness: 500,
             damping: 18,
           },
-          x: { duration: instant ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] },
-          y: { duration: instant ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] },
+          x: { duration: instant ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: instant ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] },
         }}
       >
         <circle r={10} fill="#ad4f36" opacity={0.18} />

@@ -25,16 +25,16 @@ export function About() {
   const [focus, setFocus] = useState<number | null>(null);
   const statementRef = useRef<HTMLParagraphElement>(null);
   /** Words come up to full ink as the sentence rises into reading position. */
-  const { scrollYProgress } = useScroll({ target: statementRef, offset: ["start 0.92", "end 0.62"] });
+  const { scrollYProgress } = useScroll({ target: statementRef, offset: ["start 0.9", "start 0.52"] });
 
   return (
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative bg-cream pb-28 text-ink md:pb-36"
+      className="relative bg-cream pb-16 text-ink md:pb-20"
     >
       <div className="shell">
-        <div className="pt-28 md:pt-36">
+        <div className="pt-16 md:pt-24">
           <Reveal y={12}>
             <h2 id="about-heading" className="kicker text-cinnabar">
               About
@@ -63,17 +63,16 @@ export function About() {
               })}
             </p>
 
-          <ul className="mt-14 grid grid-cols-2 gap-x-6 border-t border-ink/10 md:mt-20 md:gap-x-10 lg:grid-cols-4" onPointerLeave={() => setFocus(null)}>
+          <ul className="mt-10 grid grid-cols-2 gap-3 md:mt-12 md:gap-4 lg:grid-cols-4" onPointerLeave={() => setFocus(null)}>
             {areas.map((area, index) => {
               const on = focus === index;
               return (
                 <motion.li
                   key={area.title}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "0px 0px -4% 0px" }}
-                  transition={{ duration: 0.8, delay: (index % 2) * 0.08, ease }}
-                  className="border-b border-ink/10"
+                  transition={{ duration: 0.7, delay: (index % 2) * 0.06, ease }}
                 >
                   <button
                     type="button"
@@ -82,14 +81,14 @@ export function About() {
                     onFocus={() => setFocus(index)}
                     onBlur={() => setFocus(null)}
                     onClick={() => setFocus(on ? null : index)}
-                    className="group block w-full py-6 text-left outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:py-7"
+                    className={`group block w-full rounded-2xl border px-4 py-5 text-left outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:px-5 md:py-6 ${on ? "border-cinnabar/30 bg-[#f6e4d4]" : "border-ink/10 bg-[#fbf7f1] hover:border-cinnabar/20 hover:bg-[#f8efe6]"}`}
                   >
-                    <span className="flex items-start gap-2.5 text-[clamp(1.05rem,1.7vw,1.45rem)] font-semibold leading-tight tracking-[-0.03em]">
+                    <span className="flex items-start gap-2.5 text-[clamp(1.05rem,1.5vw,1.35rem)] font-semibold leading-tight tracking-[-0.03em]">
                       <span
                         aria-hidden="true"
-                        className={`mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-500 ${on ? "scale-150 bg-cinnabar" : "bg-ink/20"}`}
+                        className={`mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-300 ${on ? "scale-150 bg-cinnabar" : "bg-cinnabar/35"}`}
                       />
-                      <span className={`transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${on ? "translate-x-1.5" : ""}`}>{area.title}</span>
+                      <span className={`transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${on ? "translate-x-1 text-cinnabar" : ""}`}>{area.title}</span>
                     </span>
                   </button>
                 </motion.li>
@@ -117,7 +116,7 @@ function ScrollWord({
 }) {
   const reduce = usePrefersReducedMotion();
   const at = index / total;
-  const opacity = useTransform(progress, [at * 0.8, at * 0.8 + 0.2], reduce ? [1, 1] : [0.3, 1]);
+  const opacity = useTransform(progress, [at * 0.5, at * 0.5 + 0.28], reduce ? [1, 1] : [0.5, 1]);
   return (
     <motion.span style={{ opacity }} className={className}>
       {word}

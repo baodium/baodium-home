@@ -22,8 +22,8 @@ export function Footer() {
   const letters = site.brand.split("");
   const markRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
-  /** The wordmark rises with the last stretch of scroll, and is whole by the bottom of the page. */
-  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start end", "end end"] });
+  /** The wordmark rises as the footer arrives, and is whole while the links are still in reading position. */
+  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start 0.98", "start 0.42"] });
 
   return (
     <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
@@ -126,8 +126,8 @@ export function Footer() {
 
 function RisingLetter({ letter, index, progress }: { letter: string; index: number; progress: MotionValue<number> }) {
   const reduce = usePrefersReducedMotion();
-  const start = 0.12 + index * 0.05;
-  const y = useTransform(progress, [start, start + 0.42], reduce ? ["0%", "0%"] : ["100%", "0%"]);
+  const start = 0.04 + index * 0.03;
+  const y = useTransform(progress, [start, Math.min(start + 0.28, 1)], reduce ? ["0%", "0%"] : ["100%", "0%"]);
   return (
     <span className="inline-block overflow-hidden pb-[0.06em]">
       <motion.span

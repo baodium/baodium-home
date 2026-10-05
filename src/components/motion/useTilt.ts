@@ -8,8 +8,8 @@ export function useTilt(max = 6) {
   const reduce = useReducedMotion();
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
-  const rotateX = useSpring(rx, { stiffness: 180, damping: 18, mass: 0.6 });
-  const rotateY = useSpring(ry, { stiffness: 180, damping: 18, mass: 0.6 });
+  const rotateX = useSpring(rx, { stiffness: 260, damping: 26, mass: 0.35 });
+  const rotateY = useSpring(ry, { stiffness: 260, damping: 26, mass: 0.35 });
 
   const onPointerMove = (event: PointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse") return;
