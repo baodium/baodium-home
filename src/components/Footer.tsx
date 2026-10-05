@@ -23,7 +23,7 @@ export function Footer() {
   const markRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
   /** The wordmark rises as the footer arrives, and is whole while the links are still in reading position. */
-  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start 0.98", "start 0.42"] });
+  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start 1.08", "start 0.58"] });
 
   return (
     <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">

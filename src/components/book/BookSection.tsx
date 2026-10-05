@@ -79,8 +79,8 @@ export function BookSection() {
                   className="block text-[clamp(3.1rem,7.2vw,7.25rem)] font-bold uppercase leading-[0.86] tracking-[-0.045em]"
                   initial="hidden"
                   whileInView="shown"
-                  viewport={{ once: true, margin: "0px 0px -4% 0px" }}
-                  transition={{ staggerChildren: 0.07 }}
+                  viewport={{ once: true, margin: "0px 0px 18% 0px" }}
+                  transition={{ staggerChildren: 0.04 }}
                 >
                   {titleLines.map((line) => (
                     <span
@@ -93,7 +93,7 @@ export function BookSection() {
                           hidden: { y: "105%" },
                           shown: {
                             y: "0%",
-                                                        transition: { duration: 0.8, ease },
+                                                        transition: { duration: 0.45, ease },
                           },
                         }}
                       >
@@ -103,7 +103,7 @@ export function BookSection() {
                   ))}
                 </motion.span>
               </h2>
-              <Reveal delay={0.3}>
+              <Reveal delay={0.05}>
                 <p className="mt-8 max-w-lg font-serif text-[clamp(1.6rem,2.6vw,2.25rem)] italic leading-[1.12] text-cream/85">
                   {book.subtitle}
                 </p>
@@ -111,7 +111,7 @@ export function BookSection() {
                   by {book.author}
                 </p>
               </Reveal>
-              <Reveal delay={0.45}>
+              <Reveal delay={0.1}>
                 <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
                   <Magnetic>
                     <a
@@ -161,7 +161,7 @@ export function BookSection() {
               >
                 <div className="absolute h-[120%] w-[120%] rounded-full bg-[radial-gradient(closest-side,rgba(190,84,58,0.5),rgba(190,84,58,0.16)_48%,transparent_72%)] opacity-80 blur-2xl transition-opacity duration-700 group-hover/cover:opacity-100" />
               </motion.div>
-              <div className="relative py-6 lg:py-10">
+              <div className="relative py-1 lg:py-10">
                 <Book3D rotateX={rotateX} rotateY={rotateY} sheen={sheen} />
                 <span
                   aria-hidden="true"

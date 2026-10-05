@@ -31,10 +31,10 @@ export function About() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative bg-cream pb-16 text-ink md:pb-20"
+      className="relative bg-cream pb-14 text-ink md:pb-20"
     >
       <div className="shell">
-        <div className="pt-16 md:pt-24">
+        <div className="pt-12 md:pt-16">
           <Reveal y={12}>
             <h2 id="about-heading" className="kicker text-cinnabar">
               About
@@ -71,7 +71,7 @@ export function About() {
                   key={area.title}
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px -4% 0px" }}
+                  viewport={{ once: true, margin: "0px 0px 12% 0px" }}
                   transition={{ duration: 0.7, delay: (index % 2) * 0.06, ease }}
                 >
                   <button

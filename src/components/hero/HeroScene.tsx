@@ -88,7 +88,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         py.set(event.clientY / window.innerHeight - 0.5);
       }}
       onPointerLeave={() => setSteering(false)}
-      className="grain relative isolate overflow-hidden rounded-b-[2rem] bg-night md:rounded-b-[3.5rem] lg:h-svh lg:min-h-[700px]"
+      className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px]"
     >
       {/* Far plane: one warm light */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
@@ -102,7 +102,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       {/* Mid plane: the portrait, melted into the field */}
       <motion.div
         style={{ y: photoY }}
-        className="relative h-[54svh] max-h-[560px] min-h-[360px] w-full max-lg:mt-16 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
+        className="relative h-[46svh] max-h-[560px] min-h-[300px] w-full max-lg:mt-14 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
       >
         <motion.div style={{ x: photoX, y: photoPY }} className="absolute -inset-6">
           <motion.div
@@ -135,7 +135,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       </div>
 
       <div
-        className="relative z-[3] -mt-24 px-5 pb-16 sm:px-8 md:-mt-36 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
+        className="relative z-[3] -mt-28 px-5 pb-12 sm:px-8 md:-mt-32 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
       >
         <motion.div style={{ x: typeX, y: typeY }} className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
           <h1>
@@ -155,7 +155,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 1.5, ease }}
             data-hero-line=""
-            className="mt-8 max-w-[27rem] text-[1.05rem] lg:max-w-[22rem] xl:max-w-[27rem] leading-[1.65] text-cream/70 md:text-lg"
+            className="mt-6 max-w-[27rem] text-[1.05rem] leading-[1.65] text-cream/70 md:mt-8 md:text-lg lg:max-w-[22rem] xl:max-w-[27rem]"
           >
             {line}
           </motion.p>
@@ -164,15 +164,15 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.75, ease }}
-            className="mt-9 flex flex-wrap items-center gap-3"
+            className="mt-6 flex flex-wrap items-center gap-3 md:mt-9"
           >
             <Magnetic>
               <a
-                href="#work"
+                href="#project"
                 className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.6)]"
               >
                 <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="relative">See the work</span>
+                <span className="relative">See the project</span>
                 <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
               </a>
             </Magnetic>

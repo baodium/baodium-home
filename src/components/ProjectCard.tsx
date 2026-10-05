@@ -41,7 +41,7 @@ export function ProjectCard({ project }: { project: Project }) {
     if (frozen) return 0;
     return Math.min(Math.max((p - 0.02) / 0.8, 0), 1) * 0.84;
   });
-  const smooth = useSpring(scroll, { stiffness: 170, damping: 28, mass: 0.42 });
+  const smooth = useSpring(scroll, { stiffness: 260, damping: 34, mass: 0.28 });
   const restTilt = useTransform(scrollYProgress, [0.05, 0.42, 0.86], reduce ? [0, 0, 0] : [5, 0, 2]);
   const frameTilt = useTransform(() => (hovering.get() ? 0 : restTilt.get()));
   const travel = (1 - PAGE_WIDTH / FRAME_ASPECT / project.page.height) * 100;

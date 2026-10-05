@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { book, writing } from "@/data/writing";
 
 const links = [
-  { id: "work", label: "Work" },
+  { id: "project", label: "Project" },
   { id: "book", label: "Book" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing" }] : []),
   { id: "about", label: "About" },
