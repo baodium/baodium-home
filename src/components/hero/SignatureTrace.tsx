@@ -111,15 +111,15 @@ export function SignatureTrace({
     >
       <defs>
         <linearGradient id="sig-stroke" x1="1" x2="0" y1="0" y2="0">
-          <stop offset="0" stopColor="#e2b08e" stopOpacity="0.2" />
-          <stop offset="0.5" stopColor="#c96446" stopOpacity="0.8" />
+          <stop offset="0" stopColor="#e2b08e" stopOpacity="0.45" />
+          <stop offset="0.5" stopColor="#c96446" stopOpacity="0.9" />
           <stop offset="1" stopColor="#ad4f36" />
         </linearGradient>
       </defs>
       <motion.path
         d={d}
         stroke="url(#sig-stroke)"
-        strokeWidth={1.25}
+        strokeWidth={1.75}
         initial={{ pathLength: instant ? 1 : 0, d }}
         animate={{ pathLength: 1, d }}
         transition={{
@@ -128,7 +128,7 @@ export function SignatureTrace({
             delay: drawDelay,
             ease: [0.65, 0, 0.35, 1],
           },
-          d: { duration: instant ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] },
+          d: { duration: instant ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] },
         }}
       />
       {active >= 0 ? (
@@ -162,8 +162,8 @@ export function SignatureTrace({
             stiffness: 500,
             damping: 18,
           },
-          x: { duration: instant ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] },
-          y: { duration: instant ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] },
+          x: { duration: instant ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: instant ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] },
         }}
       >
         <circle r={10} fill="#ad4f36" opacity={0.18} />

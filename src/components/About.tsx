@@ -116,7 +116,7 @@ function ScrollWord({
 }) {
   const reduce = usePrefersReducedMotion();
   const at = index / total;
-  const opacity = useTransform(progress, [at * 0.5, at * 0.5 + 0.28], reduce ? [1, 1] : [0.5, 1]);
+  const opacity = useTransform(progress, [at * 0.45, at * 0.45 + 0.22], reduce ? [1, 1] : [0.74, 1]);
   return (
     <motion.span style={{ opacity }} className={className}>
       {word}

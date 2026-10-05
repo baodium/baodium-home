@@ -25,7 +25,7 @@ export function Book3D({
       <motion.div
         aria-hidden="true"
         style={{ x: shadowX, scaleX: shadowScale }}
-        className="absolute bottom-[-6%] left-1/2 h-10 w-[70%] -translate-x-1/2 rounded-[50%] bg-black/80 blur-2xl"
+        className="absolute bottom-[-6%] left-1/2 h-10 w-[70%] -translate-x-1/2 rounded-[50%] bg-[#2a1612]/75 blur-2xl"
       />
       <div className="relative transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/cover:-translate-y-3 group-focus-visible/cover:-translate-y-3">
         <motion.div
@@ -48,7 +48,7 @@ export function Book3D({
             style={{ width: D, transform: "rotateY(90deg)" }}
           >
             <span className="-scale-x-100 whitespace-nowrap text-[10px] font-black tracking-[0.12em] text-black [writing-mode:vertical-rl]">
-              PRACTICAL <span className="text-[#e3262c]">SYSTEM</span> DESIGN
+              PRACTICAL <span className="text-[#ad4f36]">SYSTEM</span> DESIGN
               <span className="ml-4 font-semibold text-black/60">ADEWALE OBADIMU</span>
             </span>
           </div>

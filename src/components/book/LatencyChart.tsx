@@ -98,7 +98,7 @@ function geometry(width: number, height: number, x0: number, x1: number, font: n
 
 const WIDE = geometry(1080, 400, 56, 980, 15, 2.8);
 const MID = geometry(780, 460, 40, 700, 20, 3.4);
-const NARROW = geometry(520, 640, 28, 456, 26, 4.2);
+const NARROW = geometry(520, 480, 28, 400, 22, 3.8);
 
 function sizeOf(width: number) {
   if (width < 640) return "narrow" as const;
@@ -139,7 +139,7 @@ function Figure({ g }: { g: Geometry }) {
 
   /** The chart draws once when it comes into view; scrolling never hides or rewinds it. */
   const progress = useMotionValue(0);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -4% 0px" });
+  const inView = useInView(ref, { once: true, margin: "0px 0px 16% 0px" });
   useEffect(() => {
     if (reduce) {
       progress.set(1);
@@ -231,6 +231,10 @@ function Figure({ g }: { g: Geometry }) {
 
   return (
     <figure>
+      <figcaption className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
+        <p className="font-serif text-[clamp(1.35rem,2vw,1.7rem)] italic leading-tight text-cream/88">One minute of tail latency</p>
+        <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-cream/50">p50 holds. p99 crosses 300 ms.</p>
+      </figcaption>
       <div
         ref={ref}
         role="slider"

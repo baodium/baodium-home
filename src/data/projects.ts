@@ -3,8 +3,8 @@ export type Project = {
   slug: string;
   description: string;
   url: string;
-  /** Full-page capture of the live product, 1200px wide; the frame scrolls through it on hover. */
-  page: { src: string; height: number };
+  /** Full-page capture of the live product, 1200px wide; the frame scrolls through it. `origin` skips an empty top, as a fraction of the travel. */
+  page: { src: string; height: number; origin?: number };
   tags: string[];
   status: "Live" | "Book" | "In progress";
   featured: boolean;
@@ -30,7 +30,7 @@ export const projects: Project[] = [
     description:
       "A living status page you update once and share across every social profile.",
     url: "https://upto.baodium.com/",
-    page: { src: "/projects/upto-page.jpg", height: 3514 },
+    page: { src: "/projects/upto-page.jpg", height: 3514, origin: 0.34 },
     tags: ["Status"],
     status: "Live",
     featured: false,

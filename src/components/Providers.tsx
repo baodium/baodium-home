@@ -11,7 +11,7 @@ export function Providers({ children }: { children: ReactNode }) {
     if (reduce || coarse) return;
 
     const lenis = new Lenis({
-      lerp: 0.11,
+      lerp: 0.18,
       wheelMultiplier: 1,
       anchors: { offset: -88 },
     });

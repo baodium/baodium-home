@@ -37,11 +37,13 @@ export function ProjectCard({ project }: { project: Project }) {
     const frozen = still.get();
     const pointerT = pointer.get();
     const p = scrollYProgress.get();
+    const origin = project.page.origin ?? 0;
+    const along = Math.min(Math.max((p - 0.06) / 0.78, 0), 1);
     if (hover) return pointerT;
-    if (frozen) return 0;
-    return Math.min(Math.max((p - 0.02) / 0.8, 0), 1) * 0.84;
+    if (frozen) return origin;
+    return origin + (1 - origin) * along;
   });
-  const smooth = useSpring(scroll, { stiffness: 260, damping: 34, mass: 0.28 });
+  const smooth = useSpring(scroll, { stiffness: 340, damping: 38, mass: 0.24 });
   const restTilt = useTransform(scrollYProgress, [0.05, 0.42, 0.86], reduce ? [0, 0, 0] : [5, 0, 2]);
   const frameTilt = useTransform(() => (hovering.get() ? 0 : restTilt.get()));
   const travel = (1 - PAGE_WIDTH / FRAME_ASPECT / project.page.height) * 100;
@@ -84,7 +86,7 @@ export function ProjectCard({ project }: { project: Project }) {
               <ArrowUpRight aria-hidden="true" className="h-4.5 w-4.5 transition-transform duration-500 group-hover:rotate-45" strokeWidth={1.75} />
             </span>
           </span>
-          <span className="mt-3 block max-w-md text-[0.98rem] leading-relaxed text-cream/78 md:text-[1.05rem]">{project.description}</span>
+          <span className="mt-3 block max-w-md text-[0.98rem] leading-relaxed text-cream/80 md:min-h-[3.4rem] md:text-[1.05rem]">{project.description}</span>
           <span className="sr-only"> (opens {host} in a new tab)</span>
         </span>
 
@@ -109,6 +111,8 @@ export function ProjectCard({ project }: { project: Project }) {
                     className="block h-auto w-full"
                   />
                 </motion.span>
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#c4a484]/15 mix-blend-multiply" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#2a211c] to-transparent" />
                 <span className="absolute inset-y-2 right-1.5 w-[3px] rounded-full bg-white/15">
                   <motion.span style={{ y: railY }} className="block h-1/5 w-full rounded-full bg-cinnabar shadow-[0_0_10px_rgba(173,79,54,0.65)]" />
                 </span>

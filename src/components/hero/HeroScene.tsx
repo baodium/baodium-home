@@ -55,7 +55,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
     });
     const nearest = distances.indexOf(Math.min(...distances));
     // A little hysteresis so the line doesn't flicker when the pointer sits between two words.
-    setActive((value) => (value < 0 || distances[nearest] + 18 < distances[value] ? nearest : value));
+    setActive((value) => (value < 0 || distances[nearest] + 10 < distances[value] ? nearest : value));
   };
 
 
@@ -155,7 +155,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 1.5, ease }}
             data-hero-line=""
-            className="mt-6 max-w-[27rem] text-[1.05rem] leading-[1.65] text-cream/70 md:mt-8 md:text-lg lg:max-w-[22rem] xl:max-w-[27rem]"
+            className="mt-7 max-w-[28rem] text-[1.05rem] leading-[1.65] text-cream/78 md:mt-9 md:text-lg"
           >
             {line}
           </motion.p>
