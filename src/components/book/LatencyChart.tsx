@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from "react";
 import {
   animate,
@@ -370,6 +371,15 @@ function Figure({ g }: { g: Geometry }) {
           </motion.g>
         </svg>
       </div>
+      <p className="mt-4 text-xs leading-relaxed text-cream/55">
+        Illustrative sample: a small fraction of slow requests pulls p99 away from p50.{" "}
+        <Link
+          href="/system-design/chapter-2"
+          className="text-cream/75 underline decoration-cream/25 underline-offset-2 transition-colors hover:text-cream"
+        >
+          Modeling requests, latency, and throughput
+        </Link>
+      </p>
     </figure>
   );
 }

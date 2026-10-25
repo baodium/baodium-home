@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# LaTeX manuscript source (never commit; build converts to src/generated/book)
+/manuscript/*
+!/manuscript/README.md
+Baodium_System_Design_Final_Language_Pass_Web.zip
+
 # vercel
 .vercel
 

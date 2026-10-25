@@ -16,7 +16,7 @@ export const projects: Project[] = [
     name: "Interview Coach",
     slug: "interview-coach",
     description:
-      "An AI-powered interview coaching environment for practicing technical and behavioral interviews.",
+      "Practice technical and behavioral interviews with follow-up questions and feedback you can act on.",
     url: "https://interview.baodium.com/",
     page: { src: "/projects/interview-coach-page.jpg", height: 3750 },
     tags: ["AI", "Interviewing"],
@@ -28,7 +28,7 @@ export const projects: Project[] = [
     name: "UpTo",
     slug: "upto",
     description:
-      "A living status page you update once and share across every social profile.",
+      "One status page you update once and share across Instagram, LinkedIn, X, and every other profile.",
     url: "https://upto.baodium.com/",
     page: { src: "/projects/upto-page.jpg", height: 3514, origin: 0.34 },
     tags: ["Status"],

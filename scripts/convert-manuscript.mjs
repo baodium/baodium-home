@@ -1,0 +1,338 @@
+#!/usr/bin/env node
+/**
+ * Build-time LaTeX → structured book content for the Baodium reader.
+ * Canonical source: Baodium_System_Design_Final_Language_Pass_Web.zip (not committed).
+ */
+
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
+import {
+  preprocessLatex,
+  extractLabels,
+  extractRefs,
+  findUnknownMacros,
+} from "./preprocess-latex.mjs";
+
+const ZIP_NAME = "Baodium_System_Design_Final_Language_Pass_Web.zip";
+const SEARCH_PATHS = [
+  path.join(process.cwd(), "manuscript", ZIP_NAME),
+  path.join(process.cwd(), ZIP_NAME),
+  path.join("/home/ubuntu/.cursor/projects/workspace", ZIP_NAME),
+  path.join("/home/ubuntu/.cursor/projects/workspace/assets", ZIP_NAME),
+  path.join("/home/workdir", ZIP_NAME),
+  path.join("/home/workdir/attachments", ZIP_NAME),
+  path.join("/tmp", ZIP_NAME),
+  process.env.MANUSCRIPT_ZIP,
+].filter(Boolean);
+
+const OUT_DIR = path.join(process.cwd(), "src", "generated", "book");
+const PUBLIC_BOOK = path.join(process.cwd(), "public", "book");
+const REPORT_PATH =
+  process.env.LATEX_CONVERSION_REPORT ||
+  "/cursor/stores/bc-425eb910-84c9-496e-82c4-4866fc10d80d/internal/latex-conversion-report.md";
+
+function findZip() {
+  for (const candidate of SEARCH_PATHS) {
+    if (candidate && fs.existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+function extractZip(zipPath, dest) {
+  fs.rmSync(dest, { recursive: true, force: true });
+  fs.mkdirSync(dest, { recursive: true });
+  execFileSync("unzip", ["-q", zipPath, "-d", dest], { stdio: "inherit" });
+}
+
+function walkTexFiles(root) {
+  const files = [];
+  const stack = [root];
+  while (stack.length) {
+    const dir = stack.pop();
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (!entry.name.startsWith(".") && entry.name !== "node_modules") stack.push(full);
+      } else if (entry.name.endsWith(".tex")) {
+        files.push(full);
+      }
+    }
+  }
+  return files;
+}
+
+function findMainTex(root, texFiles) {
+  const scored = texFiles.map((file) => {
+    const base = path.basename(file).toLowerCase();
+    const text = fs.readFileSync(file, "utf8");
+    let score = 0;
+    if (base.includes("main")) score += 5;
+    if (text.includes("\\documentclass")) score += 3;
+    if (text.includes("\\begin{document}")) score += 2;
+    if ((text.match(/\\include\{/g) || []).length > 3) score += 2;
+    return { file, score };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0]?.file ?? texFiles[0];
+}
+
+function resolveTexPath(root, ref) {
+  const noExt = ref.replace(/\.tex$/, "");
+  const candidates = [
+    path.join(root, `${ref}.tex`),
+    path.join(root, `${noExt}.tex`),
+    path.join(root, ref),
+    path.join(root, noExt),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return null;
+}
+
+function collectIncludes(mainFile, root) {
+  const text = fs.readFileSync(mainFile, "utf8");
+  const order = [];
+  const re = /\\(?:include|input)\{([^}]+)\}/g;
+  let match;
+  while ((match = re.exec(text))) {
+    const resolved = resolveTexPath(path.dirname(mainFile), match[1]);
+    if (resolved) order.push(resolved);
+  }
+  if (order.length === 0) {
+    return walkTexFiles(root)
+      .filter((f) => f !== mainFile && !f.includes("preamble"))
+      .sort();
+  }
+  return order;
+}
+
+function slugForChapter(title, counters) {
+  const t = title.toLowerCase();
+  if (/\bpreface\b/.test(t)) return "preface";
+  if (/\bintroduction\b/.test(t)) return "introduction";
+  if (/\bglossary\b/.test(t)) return "glossary";
+  if (/\bepilogue\b/.test(t)) return "epilogue";
+  if (/\breferences\b/.test(t) || /\bbibliography\b/.test(t)) return "references";
+  if (/\bappendix\b/.test(t)) {
+    counters.appendix += 1;
+    const letter = String.fromCharCode(96 + counters.appendix);
+    return `appendix-${letter}`;
+  }
+  counters.chapter += 1;
+  return `chapter-${counters.chapter}`;
+}
+
+function extractChapterTitle(tex) {
+  const m = tex.match(/\\chapter\*?(?:\[[^\]]*\])?\{([^}]+)\}/);
+  if (m) return m[1].replace(/\s+/g, " ").trim();
+  const s = tex.match(/\\section\*?(?:\[[^\]]*\])?\{([^}]+)\}/);
+  if (s) return s[1].replace(/\s+/g, " ").trim();
+  return path.basename(tex, ".tex").replace(/[-_]/g, " ");
+}
+
+function pandocToHtml(texPath, extractRoot, mediaDir) {
+  const raw = fs.readFileSync(texPath, "utf8");
+  const processed = preprocessLatex(raw);
+  const tmp = path.join(os.tmpdir(), `baodium-${path.basename(texPath)}`);
+  fs.writeFileSync(tmp, processed);
+
+  const lua = path.join(process.cwd(), "scripts", "lua", "custom-environments.lua");
+  const resourcePath = [path.dirname(texPath), extractRoot, path.join(extractRoot, "figures")].join(path.delimiter);
+
+  const html = execFileSync(
+    "pandoc",
+    [
+      tmp,
+      "--from=latex+raw_tex",
+      "--to=html5",
+      "--standalone",
+      "--mathjax",
+      `--lua-filter=${lua}`,
+      `--resource-path=${resourcePath}`,
+      "--wrap=none",
+    ],
+    { encoding: "utf8", maxBuffer: 50 * 1024 * 1024 },
+  );
+
+  fs.unlinkSync(tmp);
+
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  let body = bodyMatch ? bodyMatch[1] : html;
+
+  body = body.replace(
+    /src="([^"]+)"/g,
+    (_, src) => {
+      if (src.startsWith("http") || src.startsWith("/book/")) return `src="${src}"`;
+      const base = path.basename(src);
+      const fromFigures = path.join(extractRoot, "figures", base);
+      const fromDir = path.join(path.dirname(texPath), src);
+      let source = fs.existsSync(fromFigures) ? fromFigures : fs.existsSync(fromDir) ? fromDir : null;
+      if (source) {
+        fs.mkdirSync(mediaDir, { recursive: true });
+        const dest = path.join(mediaDir, base);
+        if (!fs.existsSync(dest)) fs.copyFileSync(source, dest);
+        return `src="/book/figures/${base}"`;
+      }
+      return `src="${src}"`;
+    },
+  );
+
+  return { html: body.trim(), raw, processed };
+}
+
+function extractSectionsFromHtml(html) {
+  const sections = [];
+  const re = /<h([23])[^>]*id="([^"]*)"[^>]*>([\s\S]*?)<\/h\1>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    sections.push({
+      level: Number(m[1]),
+      id: m[2],
+      title: m[3].replace(/<[^>]+>/g, "").trim(),
+    });
+  }
+  return sections;
+}
+
+function writeReport(report) {
+  const dir = path.dirname(REPORT_PATH);
+  fs.mkdirSync(dir, { recursive: true });
+  const frontmatter = `---
+cursor:
+  subagentId: "bc-caf13647-9b84-5838-9085-917c00211ff1"
+---
+
+`;
+  fs.writeFileSync(REPORT_PATH, frontmatter + report);
+}
+
+function main() {
+  const zipPath = findZip();
+  const existingManifest = path.join(OUT_DIR, "manifest.json");
+  if (!zipPath && fs.existsSync(existingManifest)) {
+    console.log("[convert-manuscript] No zip found; using committed generated book output.");
+    return;
+  }
+  if (!zipPath) {
+    const searched = SEARCH_PATHS.map((p) => `- \`${p}\``).join("\n");
+    const report = `# LaTeX conversion report
+
+**Status:** blocked — manuscript zip not found.
+
+## Searched paths
+
+${searched}
+
+## Action required
+
+Place \`${ZIP_NAME}\` in \`manuscript/\` at the repo root (gitignored) or set \`MANUSCRIPT_ZIP\` to its absolute path, then run \`npm run build\` again.
+`;
+    writeReport(report);
+    console.error(`[convert-manuscript] Missing ${ZIP_NAME}. See ${REPORT_PATH}`);
+    process.exit(1);
+  }
+
+  const extractRoot = path.join(os.tmpdir(), "baodium-manuscript-src");
+  extractZip(zipPath, extractRoot);
+
+  const texFiles = walkTexFiles(extractRoot);
+  if (texFiles.length === 0) {
+    writeReport("# LaTeX conversion report\n\n**Status:** failed — no `.tex` files in zip.\n");
+    process.exit(1);
+  }
+
+  const mainTex = findMainTex(extractRoot, texFiles);
+  const chapterFiles = collectIncludes(mainTex, extractRoot);
+
+  fs.rmSync(OUT_DIR, { recursive: true, force: true });
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  fs.mkdirSync(PUBLIC_BOOK, { recursive: true });
+  const mediaDir = path.join(PUBLIC_BOOK, "figures");
+
+  const counters = { chapter: 0, appendix: 0 };
+  const manifest = { generatedAt: new Date().toISOString(), zip: path.basename(zipPath), chapters: [] };
+  const unsupportedMacros = new Set();
+  const failedRefs = [];
+  const labelsGlobal = new Map();
+
+  for (const file of chapterFiles) {
+    const title = extractChapterTitle(fs.readFileSync(file, "utf8"));
+    const slug = slugForChapter(title, counters);
+    const { html, raw } = pandocToHtml(file, extractRoot, mediaDir);
+    const sections = extractSectionsFromHtml(html);
+
+    for (const [label] of extractLabels(raw)) labelsGlobal.set(label, slug);
+    const refs = extractRefs(raw);
+    for (const ref of refs) {
+      if (!labelsGlobal.has(ref)) failedRefs.push({ slug, ref });
+    }
+    for (const macro of findUnknownMacros(raw)) unsupportedMacros.add(macro);
+
+    const chapter = {
+      slug,
+      title,
+      sections,
+      html,
+    };
+    fs.writeFileSync(path.join(OUT_DIR, `${slug}.json`), JSON.stringify(chapter, null, 0));
+    manifest.chapters.push({ slug, title, sections: sections.map((s) => ({ id: s.id, title: s.title, level: s.level })) });
+  }
+
+  for (let i = 0; i < manifest.chapters.length; i++) {
+    manifest.chapters[i].prev = i > 0 ? manifest.chapters[i - 1].slug : null;
+    manifest.chapters[i].next = i < manifest.chapters.length - 1 ? manifest.chapters[i + 1].slug : null;
+  }
+
+  fs.writeFileSync(path.join(OUT_DIR, "manifest.json"), JSON.stringify(manifest, null, 2));
+  fs.writeFileSync(
+    path.join(process.cwd(), "src", "data", "book-toc.json"),
+    JSON.stringify(
+      manifest.chapters.map((c) => ({ slug: c.slug, title: c.title })),
+      null,
+      2,
+    ),
+  );
+
+  const searchIndex = manifest.chapters.map((ch) => {
+    const data = JSON.parse(fs.readFileSync(path.join(OUT_DIR, `${ch.slug}.json`), "utf8"));
+    const plain = data.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 8000);
+    return { slug: ch.slug, title: ch.title, excerpt: plain.slice(0, 400) };
+  });
+  fs.mkdirSync(path.join(process.cwd(), "public", "book"), { recursive: true });
+  fs.writeFileSync(path.join(process.cwd(), "public", "book", "search-index.json"), JSON.stringify(searchIndex));
+
+  const report = `# LaTeX conversion report
+
+**Status:** success  
+**Zip:** \`${zipPath}\`  
+**Main TeX:** \`${mainTex}\`  
+**Chapters converted:** ${manifest.chapters.length}  
+**Generated:** ${manifest.generatedAt}
+
+## Routes
+
+${manifest.chapters.map((c) => `- /system-design/${c.slug} — ${c.title}`).join("\n")}
+
+## Unsupported / unmapped macros (${unsupportedMacros.size})
+
+${unsupportedMacros.size ? [...unsupportedMacros].map((m) => `- \\\\${m}`).join("\n") : "_None flagged._"}
+
+## Failed references (${failedRefs.length})
+
+${failedRefs.length ? failedRefs.map((f) => `- \`${f.slug}\` → \\\\ref{${f.ref}}`).join("\n") : "_None._"}
+
+## Notes
+
+- Custom environments \`decision\`, \`fieldnote\`, and \`hiddenassumptions\` are mapped via preprocess + Lua filter.
+- Figures are copied to \`public/book/figures/\`.
+- Re-run \`node scripts/convert-manuscript.mjs\` after manuscript updates.
+`;
+
+  writeReport(report);
+  console.log(`[convert-manuscript] Converted ${manifest.chapters.length} chapters → ${OUT_DIR}`);
+}
+
+main();

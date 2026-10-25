@@ -457,3 +457,165 @@ html {
 .sig-pulse {
   animation-iteration-count: 1 !important;
 }
+
+/* ——— Online book reader ——— */
+html[data-reader-theme="light"] {
+  --reader-bg: #f6f1e7;
+  --reader-fg: #2b221d;
+  --reader-muted: rgba(43, 34, 29, 0.62);
+}
+
+html[data-reader-theme="dark"] {
+  --reader-bg: #1e1814;
+  --reader-fg: #f5efe5;
+  --reader-muted: rgba(245, 239, 229, 0.62);
+}
+
+html[data-reader-theme="paper"] {
+  --reader-bg: #f0e6d4;
+  --reader-fg: #2b221d;
+  --reader-muted: rgba(43, 34, 29, 0.58);
+}
+
+html[data-reader-scale="sm"] {
+  --reader-font-size: 1.02rem;
+}
+html[data-reader-scale="md"] {
+  --reader-font-size: 1.12rem;
+}
+html[data-reader-scale="lg"] {
+  --reader-font-size: 1.22rem;
+}
+
+html[data-reader-measure="narrow"] {
+  --reader-measure: 34rem;
+}
+html[data-reader-measure="comfortable"] {
+  --reader-measure: 40rem;
+}
+html[data-reader-measure="wide"] {
+  --reader-measure: 46rem;
+}
+
+.book-reader {
+  font-size: var(--reader-font-size, 1.12rem);
+}
+
+.book-prose {
+  font-family: var(--font-serif);
+  line-height: 1.75;
+  color: var(--reader-fg);
+}
+
+.book-prose h2,
+.book-prose h3,
+.book-prose h4 {
+  font-family: var(--font-serif);
+  scroll-margin-top: 5rem;
+  letter-spacing: -0.02em;
+}
+
+.book-prose h2 {
+  font-size: 1.55em;
+  margin-top: 2.2em;
+  margin-bottom: 0.6em;
+}
+
+.book-prose h3 {
+  font-size: 1.25em;
+  margin-top: 1.8em;
+}
+
+.book-prose p {
+  margin-top: 1em;
+}
+
+.book-prose pre {
+  position: relative;
+  overflow-x: auto;
+  margin: 1.25em 0;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(43, 34, 29, 0.12);
+  background: rgba(43, 34, 29, 0.06);
+  padding: 1rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  line-height: 1.55;
+}
+
+.book-prose pre.has-copy {
+  padding-right: 2.75rem;
+}
+
+.book-prose .code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(43, 34, 29, 0.15);
+  background: var(--reader-bg);
+  opacity: 0.85;
+}
+
+.book-prose .code-copy::after {
+  content: "Copy";
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.book-prose .code-copy.copied {
+  border-color: #1b5c40;
+}
+
+.book-prose img {
+  margin: 1.5em auto;
+  max-width: 100%;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(43, 34, 29, 0.1);
+}
+
+.book-decision,
+.book-fieldnote,
+.book-hiddenassumptions {
+  margin: 1.5em 0;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--cinnabar);
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: rgba(173, 79, 54, 0.08);
+}
+
+.book-fieldnote {
+  border-left-color: #1b5c40;
+  background: rgba(27, 92, 64, 0.08);
+}
+
+.book-hiddenassumptions {
+  border-left-color: #6f6359;
+  background: rgba(111, 99, 89, 0.1);
+}
+
+.book-chapter-scroll {
+  animation: chapter-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes chapter-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-chapter-scroll {
+    animation: none;
+  }
+}

@@ -5,8 +5,6 @@ export const book = {
   author: "Adewale Obadimu",
   href: "https://www.amazon.com/dp/B0H8KKBJRH",
   readPath: "/system-design",
-  driveHref: "https://drive.google.com/file/d/1SWgRV-XgDpmSmKngZWqsdoPTtLk1TurT/view?usp=sharing",
-  drivePreview: "https://drive.google.com/file/d/1SWgRV-XgDpmSmKngZWqsdoPTtLk1TurT/preview",
   cover: "/projects/practical-system-design.png",
 } as const;
 

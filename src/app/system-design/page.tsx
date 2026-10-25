@@ -1,23 +1,25 @@
-import type { Metadata } from "next";
-import { Footer } from "@/components/Footer";
-import { BookReader } from "@/components/book/BookReader";
-import { systemDesignPages } from "@/data/system-design-pages";
-import { book } from "@/data/writing";
+import { BookContents } from "@/components/book/reader/BookContents";
+import { getManifest } from "@/lib/book/catalog";
+import Link from "next/link";
 
-const description = `Read ${book.title}: ${book.subtitle}, by ${book.author}. Free to read online.`;
+export default function SystemDesignIndexPage() {
+  const manifest = getManifest();
 
-export const metadata: Metadata = {
-  title: `Read ${book.title}`,
-  description,
-  alternates: { canonical: book.readPath },
-  openGraph: { title: `Read ${book.title} for free`, description, url: book.readPath },
-};
+  if (!manifest || manifest.chapters.length === 0) {
+    return (
+      <div className="mx-auto max-w-lg py-16 text-center">
+        <h1 className="font-serif text-2xl">Reader is building</h1>
+        <p className="mt-4 text-[var(--reader-muted)]">
+          The manuscript source was not found during the last build. Add{" "}
+          <code className="text-sm">Baodium_System_Design_Final_Language_Pass_Web.zip</code> to{" "}
+          <code className="text-sm">manuscript/</code> and redeploy.
+        </p>
+        <Link href="/" className="mt-8 inline-block text-cinnabar underline">
+          Back to Baodium
+        </Link>
+      </div>
+    );
+  }
 
-export default function SystemDesignReader() {
-  return (
-    <>
-      <BookReader pages={systemDesignPages} />
-      <Footer />
-    </>
-  );
+  return <BookContents chapters={manifest.chapters} />;
 }

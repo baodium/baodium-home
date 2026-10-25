@@ -16,6 +16,7 @@ import { LatencyFigure } from "@/components/book/LatencyChart";
 import { Magnetic } from "@/components/Magnetic";
 import { Reveal } from "@/components/motion/Reveal";
 import { book } from "@/data/writing";
+import bookToc from "@/data/book-toc.json";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const titleLines = [
@@ -172,6 +173,32 @@ export function BookSection() {
               </div>
             </Link>
           </div>
+
+          <Reveal className="mt-10 border-t border-white/10 pt-8 md:mt-12 md:pt-10">
+            <p className="max-w-lg text-sm leading-relaxed text-cream/70">
+              Fourteen chapters on production failures and the design decisions behind reliable
+              systems.
+            </p>
+            <ol className="mt-6 columns-1 gap-x-10 text-sm text-cream/85 sm:columns-2">
+              {bookToc.slice(0, 8).map((entry) => (
+                <li key={entry.slug} className="mb-2 break-inside-avoid">
+                  <Link
+                    href={`/system-design/${entry.slug}`}
+                    className="transition-colors hover:text-white"
+                  >
+                    {entry.title}
+                  </Link>
+                </li>
+              ))}
+            </ol>
+            <Link
+              href="/system-design/chapter-1"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-cream underline decoration-cream/30 underline-offset-4 transition-colors hover:decoration-cream"
+            >
+              Read Chapter 1 online
+              <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          </Reveal>
 
           <Reveal className="mt-8 border-t border-white/10 pt-6 md:mt-10 md:pt-8">
             <LatencyFigure />
