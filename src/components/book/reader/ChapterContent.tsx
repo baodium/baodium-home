@@ -10,30 +10,60 @@ export function ChapterContent({ html }: { html: string }) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    const cleanups: Array<() => void> = [];
 
-    const pres = root.querySelectorAll("pre");
-    pres.forEach((pre: Element) => {
-      if (pre.querySelector(".code-copy")) return;
+    const bindCopy = (btn: HTMLButtonElement, getText: () => string) => {
+      if (btn.dataset.bound === "1") return;
+      btn.dataset.bound = "1";
+      const onClick = async () => {
+        await navigator.clipboard.writeText(getText());
+        btn.classList.add("copied");
+        const label = btn.querySelector(".code-copy-label");
+        if (label) label.textContent = "Copied";
+        window.setTimeout(() => {
+          btn.classList.remove("copied");
+          if (label) label.textContent = "Copy";
+        }, 1500);
+      };
+      btn.addEventListener("click", onClick);
+      cleanups.push(() => btn.removeEventListener("click", onClick));
+    };
+
+    root.querySelectorAll<HTMLButtonElement>("button.code-copy").forEach((btn) => {
+      bindCopy(btn, () => {
+        const frame = btn.closest(".book-listing-frame") ?? btn.closest("pre");
+        return (
+          frame?.querySelector("pre code")?.textContent ??
+          frame?.querySelector("code")?.textContent ??
+          ""
+        );
+      });
+    });
+
+    // Legacy bare <pre> without listing chrome.
+    root.querySelectorAll("pre:not(.shiki)").forEach((pre) => {
+      if (pre.closest(".book-listing") || pre.querySelector(".code-copy")) return;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "code-copy";
       btn.setAttribute("aria-label", "Copy code");
-      btn.innerHTML = `<span class="sr-only">Copy</span>`;
-      btn.addEventListener("click", async () => {
-        const code = pre.querySelector("code")?.textContent ?? pre.textContent ?? "";
-        await navigator.clipboard.writeText(code);
-        btn.classList.add("copied");
-        setTimeout(() => btn.classList.remove("copied"), 1500);
-      });
+      btn.innerHTML = `<span class="code-copy-label">Copy</span>`;
       pre.classList.add("has-copy");
       pre.appendChild(btn);
+      bindCopy(btn, () => pre.querySelector("code")?.textContent ?? pre.textContent ?? "");
     });
 
-    const imgs = root.querySelectorAll<HTMLImageElement>("img[data-zoomable], img");
-    imgs.forEach((img) => {
+    const onImg = (event: Event) => {
+      const img = event.currentTarget as HTMLImageElement;
+      setZoomSrc(img.src);
+    };
+    root.querySelectorAll<HTMLImageElement>("img[data-zoomable], img").forEach((img) => {
       img.style.cursor = "zoom-in";
-      img.addEventListener("click", () => setZoomSrc(img.src));
+      img.addEventListener("click", onImg);
+      cleanups.push(() => img.removeEventListener("click", onImg));
     });
+
+    return () => cleanups.forEach((fn) => fn());
   }, [html]);
 
   useEffect(() => {

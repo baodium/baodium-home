@@ -17,12 +17,24 @@ export const defaultReaderPrefs: ReaderPrefs = {
   measure: "comfortable",
 };
 
+const THEME_ALIASES: Record<string, ReaderTheme> = {
+  light: "light",
+  dark: "dark",
+  paper: "paper",
+  // Discarded redesign keys → cream/copper paper theme
+  folio: "paper",
+  day: "light",
+  night: "dark",
+};
+
 export function loadReaderPrefs(): ReaderPrefs {
   if (typeof window === "undefined") return defaultReaderPrefs;
   try {
     const raw = localStorage.getItem(READER_STORAGE_KEY);
     if (!raw) return defaultReaderPrefs;
-    return { ...defaultReaderPrefs, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw) as Partial<ReaderPrefs> & { theme?: string };
+    const theme = THEME_ALIASES[parsed.theme ?? ""] ?? defaultReaderPrefs.theme;
+    return { ...defaultReaderPrefs, ...parsed, theme };
   } catch {
     return defaultReaderPrefs;
   }

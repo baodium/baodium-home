@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "prebuild": "node scripts/convert-manuscript.mjs",
+    "prebuild": "node scripts/convert-manuscript.mjs && node scripts/enhance-book-html.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "convert-book": "node scripts/convert-manuscript.mjs"
+    "convert-book": "node scripts/convert-manuscript.mjs",
+    "enhance-book": "node scripts/enhance-book-html.mjs"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

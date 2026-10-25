@@ -286,7 +286,7 @@ cursor:
   fs.writeFileSync(REPORT_PATH, frontmatter + report);
 }
 
-function main() {
+async function main() {
   const zipPath = findZip();
   const existingManifest = path.join(OUT_DIR, "manifest.json");
   if (!zipPath && fs.existsSync(existingManifest)) {
@@ -417,6 +417,12 @@ ${failedRefs.length ? failedRefs.map((f) => `- \`${f.slug}\` → \\\\ref{${f.ref
 
   writeReport(report);
   console.log(`[convert-manuscript] Converted ${manifest.chapters.length} chapters → ${OUT_DIR}`);
+
+  const { enhanceAllChapters } = await import("./enhance-book-html.mjs");
+  await enhanceAllChapters();
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
