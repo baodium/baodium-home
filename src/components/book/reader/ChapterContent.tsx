@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
 
 export function ChapterContent({ html }: { html: string }) {
-  const rootRef = useRef<article>(null);
+  const rootRef = useRef<HTMLElement>(null);
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export function ChapterContent({ html }: { html: string }) {
     if (!root) return;
 
     const pres = root.querySelectorAll("pre");
-    pres.forEach((pre) => {
+    pres.forEach((pre: Element) => {
       if (pre.querySelector(".code-copy")) return;
       const btn = document.createElement("button");
       btn.type = "button";

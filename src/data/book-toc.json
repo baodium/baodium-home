@@ -1,16 +1,102 @@
 [
-  { "slug": "chapter-1", "title": "Resource Contention in Production" },
-  { "slug": "chapter-2", "title": "Modeling Requests, Latency, and Throughput" },
-  { "slug": "chapter-3", "title": "State, Identity, and the Cost of Uncertainty" },
-  { "slug": "chapter-4", "title": "Service Communication and Cascading Failure" },
-  { "slug": "chapter-5", "title": "Caching and the Cost of Remembering" },
-  { "slug": "chapter-6", "title": "Containers and the Reproducible Deployment" },
-  { "slug": "chapter-7", "title": "Replicas, Partitions, and Shards" },
-  { "slug": "chapter-8", "title": "Observability and Path Health" },
-  { "slug": "chapter-9", "title": "Guardrails and Failure Containment" },
-  { "slug": "chapter-10", "title": "Deployments as Controlled Experiments" },
-  { "slug": "chapter-11", "title": "Service Decomposition" },
-  { "slug": "chapter-12", "title": "Event-Driven Systems and Stream Processing" },
-  { "slug": "chapter-13", "title": "Machine Learning Systems in Production" },
-  { "slug": "chapter-14", "title": "Designing From Production Experience" }
+  {
+    "slug": "preface",
+    "title": "Preface"
+  },
+  {
+    "slug": "acknowledgements",
+    "title": "Acknowledgements"
+  },
+  {
+    "slug": "chapter-1",
+    "title": "Resource Contention in Production"
+  },
+  {
+    "slug": "chapter-2",
+    "title": "Modeling Requests, Latency, and Throughput"
+  },
+  {
+    "slug": "chapter-3",
+    "title": "State, Identity, and the Cost of Uncertainty"
+  },
+  {
+    "slug": "chapter-4",
+    "title": "Service Communication and Cascading Failure"
+  },
+  {
+    "slug": "chapter-5",
+    "title": "Caching and the Cost of Remembering"
+  },
+  {
+    "slug": "chapter-6",
+    "title": "Containers and the Reproducible Deployment"
+  },
+  {
+    "slug": "chapter-7",
+    "title": "Replicas, Partitions, and Shards"
+  },
+  {
+    "slug": "chapter-8",
+    "title": "Observability and Path Health"
+  },
+  {
+    "slug": "chapter-9",
+    "title": "Guardrails and Failure Containment"
+  },
+  {
+    "slug": "chapter-10",
+    "title": "Deployments as Controlled Experiments"
+  },
+  {
+    "slug": "chapter-11",
+    "title": "Service Decomposition"
+  },
+  {
+    "slug": "chapter-12",
+    "title": "Event-Driven Systems and Stream Processing"
+  },
+  {
+    "slug": "chapter-13",
+    "title": "Machine Learning Systems in Production"
+  },
+  {
+    "slug": "chapter-14",
+    "title": "Designing From Production Experience"
+  },
+  {
+    "slug": "epilogue",
+    "title": "Epilogue"
+  },
+  {
+    "slug": "appendix-a",
+    "title": "Appendix A: Recovery Instrumentation and Auditing"
+  },
+  {
+    "slug": "appendix-b",
+    "title": "Appendix B: Three Classic Designs"
+  },
+  {
+    "slug": "appendix-c",
+    "title": "Appendix C: Security, Privacy, and Cost Review"
+  },
+  {
+    "slug": "worksheet",
+    "title": "Hidden Assumptions: A Blank Worksheet"
+  },
+  {
+    "slug": "glossary",
+    "title": "Glossary"
+  },
+  {
+    "slug": "further-reading",
+    "title": "Further Reading"
+  },
+  {
+    "slug": "index",
+    "title": "Concept Guide"
+  },
+  {
+    "slug": "about-the-author",
+    "title": "About the Author"
+  }
 ]

@@ -13,6 +13,7 @@ import {
   extractLabels,
   extractRefs,
   findUnknownMacros,
+  loadFigureMacroExpansions,
 } from "./preprocess-latex.mjs";
 
 const ZIP_NAME = "Baodium_System_Design_Final_Language_Pass_Web.zip";
@@ -92,12 +93,46 @@ function resolveTexPath(root, ref) {
   return null;
 }
 
+const SKIP_INPUT_REFS = new Set([
+  "frontmatter/title",
+  "frontmatter/copyright",
+  "frontmatter/dedication",
+]);
+
+function slugFromTexFile(filePath) {
+  const base = path.basename(filePath, ".tex");
+  const chapterMatch = base.match(/^ch(\d+)_/i);
+  if (chapterMatch) return `chapter-${Number(chapterMatch[1])}`;
+
+  const staticSlugs = {
+    preface: "preface",
+    acknowledgements: "acknowledgements",
+    epilogue: "epilogue",
+    appendix_a: "appendix-a",
+    appendix_b: "appendix-b",
+    appendix_c: "appendix-c",
+    worksheet: "worksheet",
+    glossary: "glossary",
+    further_reading: "further-reading",
+    index: "index",
+    about_author: "about-the-author",
+  };
+  return staticSlugs[base] ?? null;
+}
+
 function collectIncludes(mainFile, root) {
   const text = fs.readFileSync(mainFile, "utf8");
+  const docMatch = text.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/);
+  const body = docMatch ? docMatch[1] : text;
+  const skipRoots = new Set(["preamble", "macros", "figures"]);
   const order = [];
   const re = /\\(?:include|input)\{([^}]+)\}/g;
   let match;
-  while ((match = re.exec(text))) {
+  while ((match = re.exec(body))) {
+    const ref = match[1].replace(/\.tex$/, "");
+    const base = path.basename(ref);
+    if (skipRoots.has(base)) continue;
+    if (SKIP_INPUT_REFS.has(ref)) continue;
     const resolved = resolveTexPath(path.dirname(mainFile), match[1]);
     if (resolved) order.push(resolved);
   }
@@ -125,17 +160,64 @@ function slugForChapter(title, counters) {
   return `chapter-${counters.chapter}`;
 }
 
-function extractChapterTitle(tex) {
-  const m = tex.match(/\\chapter\*?(?:\[[^\]]*\])?\{([^}]+)\}/);
-  if (m) return m[1].replace(/\s+/g, " ").trim();
-  const s = tex.match(/\\section\*?(?:\[[^\]]*\])?\{([^}]+)\}/);
-  if (s) return s[1].replace(/\s+/g, " ").trim();
-  return path.basename(tex, ".tex").replace(/[-_]/g, " ");
+function extractChapterTitle(tex, filePath) {
+  const chapter = tex.match(/\\chapter\*?(?:\[[^\]]*\])?\{([^}]+)\}/);
+  if (chapter) return chapter[1].replace(/\s+/g, " ").trim();
+  const section = tex.match(/\\section\*?(?:\[[^\]]*\])?\{([^}]+)\}/);
+  if (section) return section[1].replace(/\s+/g, " ").trim();
+
+  const staticTitles = {
+    preface: "Preface",
+    acknowledgements: "Acknowledgements",
+    epilogue: "Epilogue",
+    appendix_a: "Appendix A: Recovery Instrumentation and Auditing",
+    appendix_b: "Appendix B: Three Classic Designs",
+    appendix_c: "Appendix C: Security, Privacy, and Cost Review",
+    worksheet: "Hidden Assumptions: A Blank Worksheet",
+    glossary: "Glossary",
+    further_reading: "Further Reading",
+    index: "Concept Guide",
+    about_author: "About the Author",
+  };
+  const base = path.basename(filePath, ".tex");
+  if (staticTitles[base]) return staticTitles[base];
+
+  return path.basename(filePath, ".tex").replace(/[-_]/g, " ");
 }
 
-function pandocToHtml(texPath, extractRoot, mediaDir) {
+function copyFigureAssets(extractRoot, mediaDir) {
+  fs.mkdirSync(mediaDir, { recursive: true });
+  for (const dirName of ["final_image", "figures"]) {
+    const srcDir = path.join(extractRoot, dirName);
+    if (!fs.existsSync(srcDir)) continue;
+    for (const name of fs.readdirSync(srcDir)) {
+      const src = path.join(srcDir, name);
+      if (!fs.statSync(src).isFile()) continue;
+      fs.copyFileSync(src, path.join(mediaDir, name));
+    }
+  }
+}
+
+function resolveFigureOnDisk(extractRoot, texDir, src) {
+  const base = path.basename(src);
+  const stem = base.replace(/\.(png|webp|jpg|jpeg)$/i, "");
+  const candidates = [
+    path.join(extractRoot, "final_image", base),
+    path.join(extractRoot, "final_image", `${stem}.webp`),
+    path.join(extractRoot, "final_image", `${stem}.png`),
+    path.join(extractRoot, "figures", base),
+    path.join(texDir, src),
+    path.join(texDir, base),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return null;
+}
+
+function pandocToHtml(texPath, extractRoot, mediaDir, figureExpansions) {
   const raw = fs.readFileSync(texPath, "utf8");
-  const processed = preprocessLatex(raw);
+  const processed = preprocessLatex(raw, { figureExpansions });
   const tmp = path.join(os.tmpdir(), `baodium-${path.basename(texPath)}`);
   fs.writeFileSync(tmp, processed);
 
@@ -162,23 +244,18 @@ function pandocToHtml(texPath, extractRoot, mediaDir) {
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
   let body = bodyMatch ? bodyMatch[1] : html;
 
-  body = body.replace(
-    /src="([^"]+)"/g,
-    (_, src) => {
-      if (src.startsWith("http") || src.startsWith("/book/")) return `src="${src}"`;
-      const base = path.basename(src);
-      const fromFigures = path.join(extractRoot, "figures", base);
-      const fromDir = path.join(path.dirname(texPath), src);
-      let source = fs.existsSync(fromFigures) ? fromFigures : fs.existsSync(fromDir) ? fromDir : null;
-      if (source) {
-        fs.mkdirSync(mediaDir, { recursive: true });
-        const dest = path.join(mediaDir, base);
-        if (!fs.existsSync(dest)) fs.copyFileSync(source, dest);
-        return `src="/book/figures/${base}"`;
-      }
-      return `src="${src}"`;
-    },
-  );
+  body = body.replace(/src="([^"]+)"/g, (_, src) => {
+    if (src.startsWith("http") || src.startsWith("/book/")) return `src="${src}"`;
+    const source = resolveFigureOnDisk(extractRoot, path.dirname(texPath), src);
+    if (source) {
+      const destName = path.basename(source);
+      fs.mkdirSync(mediaDir, { recursive: true });
+      const dest = path.join(mediaDir, destName);
+      if (!fs.existsSync(dest)) fs.copyFileSync(source, dest);
+      return `src="/book/figures/${destName}"`;
+    }
+    return `src="${src}"`;
+  });
 
   return { html: body.trim(), raw, processed };
 }
@@ -202,7 +279,7 @@ function writeReport(report) {
   fs.mkdirSync(dir, { recursive: true });
   const frontmatter = `---
 cursor:
-  subagentId: "bc-caf13647-9b84-5838-9085-917c00211ff1"
+  subagentId: "bc-3bf7069c-f698-5543-85ed-8e856fdb1f2f"
 ---
 
 `;
@@ -245,12 +322,18 @@ Place \`${ZIP_NAME}\` in \`manuscript/\` at the repo root (gitignored) or set \`
   }
 
   const mainTex = findMainTex(extractRoot, texFiles);
-  const chapterFiles = collectIncludes(mainTex, extractRoot);
+  const manuscriptDir = path.dirname(mainTex);
+  const chapterFiles = collectIncludes(mainTex, manuscriptDir);
+  const figuresTexPath = path.join(manuscriptDir, "figures.tex");
+  const figureExpansions = fs.existsSync(figuresTexPath)
+    ? loadFigureMacroExpansions(fs.readFileSync(figuresTexPath, "utf8"))
+    : new Map();
 
   fs.rmSync(OUT_DIR, { recursive: true, force: true });
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.mkdirSync(PUBLIC_BOOK, { recursive: true });
   const mediaDir = path.join(PUBLIC_BOOK, "figures");
+  copyFigureAssets(extractRoot, mediaDir);
 
   const counters = { chapter: 0, appendix: 0 };
   const manifest = { generatedAt: new Date().toISOString(), zip: path.basename(zipPath), chapters: [] };
@@ -259,9 +342,10 @@ Place \`${ZIP_NAME}\` in \`manuscript/\` at the repo root (gitignored) or set \`
   const labelsGlobal = new Map();
 
   for (const file of chapterFiles) {
-    const title = extractChapterTitle(fs.readFileSync(file, "utf8"));
-    const slug = slugForChapter(title, counters);
-    const { html, raw } = pandocToHtml(file, extractRoot, mediaDir);
+    const rawText = fs.readFileSync(file, "utf8");
+    const title = extractChapterTitle(rawText, file);
+    const slug = slugFromTexFile(file) ?? slugForChapter(title, counters);
+    const { html, raw } = pandocToHtml(file, extractRoot, mediaDir, figureExpansions);
     const sections = extractSectionsFromHtml(html);
 
     for (const [label] of extractLabels(raw)) labelsGlobal.set(label, slug);

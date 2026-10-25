@@ -1,0 +1,1860 @@
+{
+  "generatedAt": "2026-10-25T16:04:35.277Z",
+  "zip": "Baodium_System_Design_Final_Language_Pass_Web.zip",
+  "chapters": [
+    {
+      "slug": "preface",
+      "title": "Preface",
+      "sections": [],
+      "prev": null,
+      "next": "acknowledgements"
+    },
+    {
+      "slug": "acknowledgements",
+      "title": "Acknowledgements",
+      "sections": [],
+      "prev": "preface",
+      "next": "chapter-1"
+    },
+    {
+      "slug": "chapter-1",
+      "title": "Resource Contention in Production",
+      "sections": [
+        {
+          "id": "synchronous-dependencies",
+          "title": "Synchronous Dependencies",
+          "level": 2
+        },
+        {
+          "id": "design-options-for-the-recommendation-call",
+          "title": "Design Options for the Recommendation Call",
+          "level": 3
+        },
+        {
+          "id": "connection-pool-measurements",
+          "title": "Connection-Pool Measurements",
+          "level": 2
+        },
+        {
+          "id": "connection-demand-and-utilization",
+          "title": "Connection Demand and Utilization",
+          "level": 2
+        },
+        {
+          "id": "queueing-across-service-boundaries",
+          "title": "Queueing Across Service Boundaries",
+          "level": 2
+        },
+        {
+          "id": "timeouts-and-retry-traffic",
+          "title": "Timeouts and Retry Traffic",
+          "level": 2
+        },
+        {
+          "id": "sec:ch01-bounded",
+          "title": "Bounded Lookup and Degradation",
+          "level": 2
+        },
+        {
+          "id": "canary-load-and-release-validation",
+          "title": "Canary Load and Release Validation",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "acknowledgements",
+      "next": "chapter-2"
+    },
+    {
+      "slug": "chapter-2",
+      "title": "Modeling Requests, Latency, and Throughput",
+      "sections": [
+        {
+          "id": "request-rates-and-downstream-work",
+          "title": "Request Rates and Downstream Work",
+          "level": 2
+        },
+        {
+          "id": "average-concurrency",
+          "title": "Average Concurrency",
+          "level": 2
+        },
+        {
+          "id": "applying-it-to-a-sizing-decision",
+          "title": "Applying It to a Sizing Decision",
+          "level": 3
+        },
+        {
+          "id": "choosing-the-measurements",
+          "title": "Choosing the Measurements",
+          "level": 3
+        },
+        {
+          "id": "resources-used-by-one-request",
+          "title": "Resources Used by One Request",
+          "level": 2
+        },
+        {
+          "id": "reducing-connection-occupancy",
+          "title": "Reducing Connection Occupancy",
+          "level": 3
+        },
+        {
+          "id": "sec:ch02-variation",
+          "title": "Workload Variation",
+          "level": 2
+        },
+        {
+          "id": "sec:ch02-failure-capacity",
+          "title": "Failure Capacity and Shared Limits",
+          "level": 2
+        },
+        {
+          "id": "local-pools-and-fleet-capacity",
+          "title": "Local Pools and Fleet Capacity",
+          "level": 3
+        },
+        {
+          "id": "reading-a-load-test",
+          "title": "Reading a Load Test",
+          "level": 2
+        },
+        {
+          "id": "queue-wait-and-recovery-time",
+          "title": "Queue Wait and Recovery Time",
+          "level": 2
+        },
+        {
+          "id": "retries-in-the-workload-estimate",
+          "title": "Retries in the Workload Estimate",
+          "level": 2
+        },
+        {
+          "id": "comparing-design-changes",
+          "title": "Comparing Design Changes",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-1",
+      "next": "chapter-3"
+    },
+    {
+      "slug": "chapter-3",
+      "title": "State, Identity, and the Cost of Uncertainty",
+      "sections": [
+        {
+          "id": "payment-outcomes-after-timeout",
+          "title": "Payment Outcomes After Timeout",
+          "level": 2
+        },
+        {
+          "id": "operation-record-and-message-identity",
+          "title": "Operation, Record, and Message Identity",
+          "level": 2
+        },
+        {
+          "id": "a-durable-payment-operation",
+          "title": "A Durable Payment Operation",
+          "level": 2
+        },
+        {
+          "id": "repeated-requests-and-conflicting-details",
+          "title": "Repeated Requests and Conflicting Details",
+          "level": 3
+        },
+        {
+          "id": "concurrent-submissions",
+          "title": "Concurrent Submissions",
+          "level": 3
+        },
+        {
+          "id": "sec:ch03-provider-guarantees",
+          "title": "Provider Guarantees",
+          "level": 3
+        },
+        {
+          "id": "recording-the-outcome",
+          "title": "Recording the Outcome",
+          "level": 2
+        },
+        {
+          "id": "state-transitions-and-delayed-results",
+          "title": "State Transitions and Delayed Results",
+          "level": 2
+        },
+        {
+          "id": "provider-reconciliation",
+          "title": "Provider Reconciliation",
+          "level": 2
+        },
+        {
+          "id": "interpreting-a-missing-result",
+          "title": "Interpreting a Missing Result",
+          "level": 3
+        },
+        {
+          "id": "retention-and-recovery-deadlines",
+          "title": "Retention and Recovery Deadlines",
+          "level": 3
+        },
+        {
+          "id": "recovery-workers",
+          "title": "Recovery Workers",
+          "level": 3
+        },
+        {
+          "id": "compensation-after-partial-completion",
+          "title": "Compensation After Partial Completion",
+          "level": 2
+        },
+        {
+          "id": "events-and-the-transactional-outbox",
+          "title": "Events and the Transactional Outbox",
+          "level": 2
+        },
+        {
+          "id": "recovery-in-production",
+          "title": "Recovery in Production",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-2",
+      "next": "chapter-4"
+    },
+    {
+      "slug": "chapter-4",
+      "title": "Service Communication and Cascading Failure",
+      "sections": [
+        {
+          "id": "how-a-failure-crosses-service-boundaries",
+          "title": "How a Failure Crosses Service Boundaries",
+          "level": 2
+        },
+        {
+          "id": "diagnosis-before-configuration-changes",
+          "title": "Diagnosis Before Configuration Changes",
+          "level": 3
+        },
+        {
+          "id": "required-results-and-deferred-work",
+          "title": "Required Results and Deferred Work",
+          "level": 2
+        },
+        {
+          "id": "admission-before-the-outbound-call",
+          "title": "Admission Before the Outbound Call",
+          "level": 2
+        },
+        {
+          "id": "queueing-and-rejection",
+          "title": "Queueing and Rejection",
+          "level": 3
+        },
+        {
+          "id": "choosing-the-allocation",
+          "title": "Choosing the Allocation",
+          "level": 3
+        },
+        {
+          "id": "deadlines-for-the-whole-call",
+          "title": "Deadlines for the Whole Call",
+          "level": 2
+        },
+        {
+          "id": "deadlines-and-attempt-timeouts",
+          "title": "Deadlines and Attempt Timeouts",
+          "level": 3
+        },
+        {
+          "id": "deadlines-between-services",
+          "title": "Deadlines Between Services",
+          "level": 3
+        },
+        {
+          "id": "cancellation-and-continuing-work",
+          "title": "Cancellation and Continuing Work",
+          "level": 2
+        },
+        {
+          "id": "retry-eligibility-and-ownership",
+          "title": "Retry Eligibility and Ownership",
+          "level": 2
+        },
+        {
+          "id": "checkout-integration",
+          "title": "Checkout Integration",
+          "level": 2
+        },
+        {
+          "id": "deferred-checkout-and-customer-expectations",
+          "title": "Deferred Checkout and Customer Expectations",
+          "level": 2
+        },
+        {
+          "id": "verifying-behavior-during-slowdown-and-recovery",
+          "title": "Verifying Behavior During Slowdown and Recovery",
+          "level": 2
+        },
+        {
+          "id": "production-measurements",
+          "title": "Production Measurements",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-3",
+      "next": "chapter-5"
+    },
+    {
+      "slug": "chapter-5",
+      "title": "Caching and the Cost of Remembering",
+      "sections": [
+        {
+          "id": "repeated-reads-and-reusable-results",
+          "title": "Repeated Reads and Reusable Results",
+          "level": 2
+        },
+        {
+          "id": "sec:ch05-authoritative",
+          "title": "Cache Eligibility and Freshness",
+          "level": 2
+        },
+        {
+          "id": "the-cache-aside-read-path",
+          "title": "The Cache-Aside Read Path",
+          "level": 2
+        },
+        {
+          "id": "cache-keys-and-representations",
+          "title": "Cache Keys and Representations",
+          "level": 3
+        },
+        {
+          "id": "cache-placement",
+          "title": "Cache Placement",
+          "level": 3
+        },
+        {
+          "id": "sec:ch05-ttl-age",
+          "title": "Expiration and Data Age",
+          "level": 2
+        },
+        {
+          "id": "source-updates-and-cache-invalidation",
+          "title": "Source Updates and Cache Invalidation",
+          "level": 2
+        },
+        {
+          "id": "overlapping-reads-and-writes",
+          "title": "Overlapping Reads and Writes",
+          "level": 3
+        },
+        {
+          "id": "version-metadata-and-recovery",
+          "title": "Version Metadata and Recovery",
+          "level": 3
+        },
+        {
+          "id": "concurrent-misses-and-refresh-work",
+          "title": "Concurrent Misses and Refresh Work",
+          "level": 2
+        },
+        {
+          "id": "expiration-distribution",
+          "title": "Expiration Distribution",
+          "level": 3
+        },
+        {
+          "id": "serving-a-copy-during-refresh",
+          "title": "Serving a Copy During Refresh",
+          "level": 3
+        },
+        {
+          "id": "confirmed-absence-and-negative-entries",
+          "title": "Confirmed Absence and Negative Entries",
+          "level": 2
+        },
+        {
+          "id": "cold-caches-and-cache-failure",
+          "title": "Cold Caches and Cache Failure",
+          "level": 2
+        },
+        {
+          "id": "warming-and-recovery",
+          "title": "Warming and Recovery",
+          "level": 3
+        },
+        {
+          "id": "memory-and-popular-keys",
+          "title": "Memory and Popular Keys",
+          "level": 2
+        },
+        {
+          "id": "verification-and-production-measurements",
+          "title": "Verification and Production Measurements",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-4",
+      "next": "chapter-6"
+    },
+    {
+      "slug": "chapter-6",
+      "title": "Containers and the Reproducible Deployment",
+      "sections": [
+        {
+          "id": "application-source-and-runtime-inputs",
+          "title": "Application Source and Runtime Inputs",
+          "level": 2
+        },
+        {
+          "id": "building-the-deployable-artifact",
+          "title": "Building the Deployable Artifact",
+          "level": 2
+        },
+        {
+          "id": "build-inputs-and-updates",
+          "title": "Build Inputs and Updates",
+          "level": 3
+        },
+        {
+          "id": "artifact-promotion",
+          "title": "Artifact Promotion",
+          "level": 2
+        },
+        {
+          "id": "configuration-outside-the-image",
+          "title": "Configuration Outside the Image",
+          "level": 2
+        },
+        {
+          "id": "secrets-and-configuration-changes",
+          "title": "Secrets and Configuration Changes",
+          "level": 3
+        },
+        {
+          "id": "isolation-and-writable-state",
+          "title": "Isolation and Writable State",
+          "level": 2
+        },
+        {
+          "id": "sec:ch06-limits-config",
+          "title": "CPU and Memory Configuration",
+          "level": 2
+        },
+        {
+          "id": "cpu-throttling",
+          "title": "CPU Throttling",
+          "level": 3
+        },
+        {
+          "id": "memory-exhaustion",
+          "title": "Memory Exhaustion",
+          "level": 3
+        },
+        {
+          "id": "startup-readiness-and-liveness",
+          "title": "Startup, Readiness, and Liveness",
+          "level": 2
+        },
+        {
+          "id": "warm-up-and-initial-traffic",
+          "title": "Warm-Up and Initial Traffic",
+          "level": 2
+        },
+        {
+          "id": "shutdown-and-in-flight-requests",
+          "title": "Shutdown and In-Flight Requests",
+          "level": 2
+        },
+        {
+          "id": "rollback-and-external-state",
+          "title": "Rollback and External State",
+          "level": 2
+        },
+        {
+          "id": "deployment-evidence-and-failure-investigation",
+          "title": "Deployment Evidence and Failure Investigation",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-5",
+      "next": "chapter-7"
+    },
+    {
+      "slug": "chapter-7",
+      "title": "Replicas, Partitions, and Shards",
+      "sections": [
+        {
+          "id": "finding-the-binding-constraint",
+          "title": "Finding the Binding Constraint",
+          "level": 2
+        },
+        {
+          "id": "read-replicas-and-the-write-ahead-log",
+          "title": "Read Replicas and the Write-Ahead Log",
+          "level": 2
+        },
+        {
+          "id": "what-each-read-requires",
+          "title": "What Each Read Requires",
+          "level": 2
+        },
+        {
+          "id": "sec:ch07-authoritative",
+          "title": "Authoritative Reads and Transactions",
+          "level": 3
+        },
+        {
+          "id": "read-your-writes",
+          "title": "Read-Your-Writes",
+          "level": 3
+        },
+        {
+          "id": "replica-eligibility-and-fallback",
+          "title": "Replica Eligibility and Fallback",
+          "level": 2
+        },
+        {
+          "id": "interpreting-lag-measurements",
+          "title": "Interpreting Lag Measurements",
+          "level": 3
+        },
+        {
+          "id": "bounded-primary-fallback",
+          "title": "Bounded Primary Fallback",
+          "level": 3
+        },
+        {
+          "id": "replication-failover-and-recovery",
+          "title": "Replication, Failover, and Recovery",
+          "level": 2
+        },
+        {
+          "id": "table-partitioning",
+          "title": "Table Partitioning",
+          "level": 2
+        },
+        {
+          "id": "identity-and-constraints",
+          "title": "Identity and Constraints",
+          "level": 3
+        },
+        {
+          "id": "partition-operations",
+          "title": "Partition Operations",
+          "level": 3
+        },
+        {
+          "id": "sharding-and-data-ownership",
+          "title": "Sharding and Data Ownership",
+          "level": 2
+        },
+        {
+          "id": "choosing-the-shard-key",
+          "title": "Choosing the Shard Key",
+          "level": 3
+        },
+        {
+          "id": "routing-and-shard-assignment",
+          "title": "Routing and Shard Assignment",
+          "level": 3
+        },
+        {
+          "id": "sec:ch07-uneven",
+          "title": "Uneven Load Across Shards",
+          "level": 3
+        },
+        {
+          "id": "cross-shard-queries",
+          "title": "Cross-Shard Queries",
+          "level": 2
+        },
+        {
+          "id": "when-to-stop-fanning-out",
+          "title": "When to Stop Fanning Out",
+          "level": 3
+        },
+        {
+          "id": "resharding-and-ownership-transfer",
+          "title": "Resharding and Ownership Transfer",
+          "level": 2
+        },
+        {
+          "id": "validation-and-operating-evidence",
+          "title": "Validation and Operating Evidence",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-6",
+      "next": "chapter-8"
+    },
+    {
+      "slug": "chapter-8",
+      "title": "Observability and Path Health",
+      "sections": [
+        {
+          "id": "where-a-request-can-be-observed",
+          "title": "Where a Request Can Be Observed",
+          "level": 2
+        },
+        {
+          "id": "metrics-logs-and-distributed-traces",
+          "title": "Metrics, Logs, and Distributed Traces",
+          "level": 2
+        },
+        {
+          "id": "telemetry-collection-and-storage",
+          "title": "Telemetry Collection and Storage",
+          "level": 2
+        },
+        {
+          "id": "service-health-and-monitoring-coverage",
+          "title": "Service Health and Monitoring Coverage",
+          "level": 2
+        },
+        {
+          "id": "request-metrics-and-latency-distributions",
+          "title": "Request Metrics and Latency Distributions",
+          "level": 2
+        },
+        {
+          "id": "labels-and-cardinality",
+          "title": "Labels and Cardinality",
+          "level": 3
+        },
+        {
+          "id": "latency-histograms",
+          "title": "Latency Histograms",
+          "level": 3
+        },
+        {
+          "id": "distributed-tracing-and-latency-diagnosis",
+          "title": "Distributed Tracing and Latency Diagnosis",
+          "level": 2
+        },
+        {
+          "id": "connection-pool-wait-and-occupancy",
+          "title": "Connection Pool Wait and Occupancy",
+          "level": 3
+        },
+        {
+          "id": "span-timing-and-critical-path-analysis",
+          "title": "Span Timing and Critical-Path Analysis",
+          "level": 3
+        },
+        {
+          "id": "opentelemetry-instrumentation",
+          "title": "OpenTelemetry Instrumentation",
+          "level": 2
+        },
+        {
+          "id": "trace-context-propagation",
+          "title": "Trace Context Propagation",
+          "level": 3
+        },
+        {
+          "id": "correlating-requests-and-operations",
+          "title": "Correlating Requests and Operations",
+          "level": 2
+        },
+        {
+          "id": "incident-reconstruction",
+          "title": "Incident Reconstruction",
+          "level": 3
+        },
+        {
+          "id": "sensitive-data-in-telemetry",
+          "title": "Sensitive Data in Telemetry",
+          "level": 3
+        },
+        {
+          "id": "telemetry-cost-and-sampling",
+          "title": "Telemetry Cost and Sampling",
+          "level": 2
+        },
+        {
+          "id": "slis-slos-and-outcome-accounting",
+          "title": "SLIs, SLOs, and Outcome Accounting",
+          "level": 2
+        },
+        {
+          "id": "response-status-and-resolution-slis",
+          "title": "Response, Status, and Resolution SLIs",
+          "level": 3
+        },
+        {
+          "id": "eligibility-and-missing-completions",
+          "title": "Eligibility and Missing Completions",
+          "level": 3
+        },
+        {
+          "id": "coverage-gaps",
+          "title": "Coverage Gaps",
+          "level": 3
+        },
+        {
+          "id": "computing-the-indicators",
+          "title": "Computing the Indicators",
+          "level": 3
+        },
+        {
+          "id": "error-budgets-and-alerting",
+          "title": "Error Budgets and Alerting",
+          "level": 2
+        },
+        {
+          "id": "measuring-release-impact",
+          "title": "Measuring Release Impact",
+          "level": 2
+        },
+        {
+          "id": "testing-monitoring-coverage",
+          "title": "Testing Monitoring Coverage",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-7",
+      "next": "chapter-9"
+    },
+    {
+      "slug": "chapter-9",
+      "title": "Guardrails and Failure Containment",
+      "sections": [
+        {
+          "id": "workload-separation",
+          "title": "Workload Separation",
+          "level": 2
+        },
+        {
+          "id": "bulkheads-and-resource-reservations",
+          "title": "Bulkheads and Resource Reservations",
+          "level": 2
+        },
+        {
+          "id": "choosing-a-first-limit",
+          "title": "Choosing a First Limit",
+          "level": 3
+        },
+        {
+          "id": "limits-across-the-fleet",
+          "title": "Limits Across the Fleet",
+          "level": 3
+        },
+        {
+          "id": "queueing-and-deferred-work",
+          "title": "Queueing and Deferred Work",
+          "level": 2
+        },
+        {
+          "id": "circuit-breakers",
+          "title": "Circuit Breakers",
+          "level": 2
+        },
+        {
+          "id": "choosing-thresholds",
+          "title": "Choosing Thresholds",
+          "level": 3
+        },
+        {
+          "id": "half-open-probes-and-recovery",
+          "title": "Half-Open Probes and Recovery",
+          "level": 3
+        },
+        {
+          "id": "rate-limits-and-retry-budgets",
+          "title": "Rate Limits and Retry Budgets",
+          "level": 2
+        },
+        {
+          "id": "burst-allowance",
+          "title": "Burst Allowance",
+          "level": 3
+        },
+        {
+          "id": "choosing-the-rate-limit-key",
+          "title": "Choosing the Rate-Limit Key",
+          "level": 3
+        },
+        {
+          "id": "retries-as-additional-load",
+          "title": "Retries as Additional Load",
+          "level": 3
+        },
+        {
+          "id": "fallbacks-and-load-shedding",
+          "title": "Fallbacks and Load Shedding",
+          "level": 2
+        },
+        {
+          "id": "implementing-admission-checks",
+          "title": "Implementing Admission Checks",
+          "level": 2
+        },
+        {
+          "id": "state-changing-operations",
+          "title": "State-Changing Operations",
+          "level": 2
+        },
+        {
+          "id": "calibration-and-recovery-testing",
+          "title": "Calibration and Recovery Testing",
+          "level": 2
+        },
+        {
+          "id": "a-practical-test-plan",
+          "title": "A Practical Test Plan",
+          "level": 3
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-8",
+      "next": "chapter-10"
+    },
+    {
+      "slug": "chapter-10",
+      "title": "Deployments as Controlled Experiments",
+      "sections": [
+        {
+          "id": "the-release-hypothesis",
+          "title": "The Release Hypothesis",
+          "level": 2
+        },
+        {
+          "id": "deployment-and-exposure",
+          "title": "Deployment and Exposure",
+          "level": 2
+        },
+        {
+          "id": "rolling-updates",
+          "title": "Rolling Updates",
+          "level": 3
+        },
+        {
+          "id": "blue-green-environments",
+          "title": "Blue-Green Environments",
+          "level": 3
+        },
+        {
+          "id": "a-representative-canary",
+          "title": "A Representative Canary",
+          "level": 2
+        },
+        {
+          "id": "cohort-selection",
+          "title": "Cohort Selection",
+          "level": 3
+        },
+        {
+          "id": "startup-and-warm-state",
+          "title": "Startup and Warm State",
+          "level": 3
+        },
+        {
+          "id": "shared-dependencies",
+          "title": "Shared Dependencies",
+          "level": 3
+        },
+        {
+          "id": "evaluation-gates",
+          "title": "Evaluation Gates",
+          "level": 2
+        },
+        {
+          "id": "a-sample-release-plan",
+          "title": "A Sample Release Plan",
+          "level": 3
+        },
+        {
+          "id": "deriving-the-gate-values",
+          "title": "Deriving the Gate Values",
+          "level": 3
+        },
+        {
+          "id": "observation-windows",
+          "title": "Observation Windows",
+          "level": 3
+        },
+        {
+          "id": "telemetry-for-the-decision",
+          "title": "Telemetry for the Decision",
+          "level": 3
+        },
+        {
+          "id": "promotion-beyond-the-first-stage",
+          "title": "Promotion Beyond the First Stage",
+          "level": 2
+        },
+        {
+          "id": "feature-flags",
+          "title": "Feature Flags",
+          "level": 2
+        },
+        {
+          "id": "rollback-and-data-compatibility",
+          "title": "Rollback and Data Compatibility",
+          "level": 2
+        },
+        {
+          "id": "expansion-and-compatible-writers",
+          "title": "Expansion and Compatible Writers",
+          "level": 3
+        },
+        {
+          "id": "backfill-and-verification",
+          "title": "Backfill and Verification",
+          "level": 3
+        },
+        {
+          "id": "contraction",
+          "title": "Contraction",
+          "level": 3
+        },
+        {
+          "id": "api-and-event-compatibility",
+          "title": "API and Event Compatibility",
+          "level": 2
+        },
+        {
+          "id": "restoration-as-an-operating-procedure",
+          "title": "Restoration as an Operating Procedure",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-9",
+      "next": "chapter-11"
+    },
+    {
+      "slug": "chapter-11",
+      "title": "Service Decomposition",
+      "sections": [
+        {
+          "id": "fixing-the-migration-first",
+          "title": "Fixing the Migration First",
+          "level": 2
+        },
+        {
+          "id": "release-runtime-and-data-boundaries",
+          "title": "Release, Runtime, and Data Boundaries",
+          "level": 2
+        },
+        {
+          "id": "the-modular-monolith",
+          "title": "The Modular Monolith",
+          "level": 3
+        },
+        {
+          "id": "domain-ownership",
+          "title": "Domain Ownership",
+          "level": 2
+        },
+        {
+          "id": "transaction-boundaries",
+          "title": "Transaction Boundaries",
+          "level": 3
+        },
+        {
+          "id": "consumer-contracts",
+          "title": "Consumer Contracts",
+          "level": 2
+        },
+        {
+          "id": "required-synchronous-decisions",
+          "title": "Required Synchronous Decisions",
+          "level": 3
+        },
+        {
+          "id": "local-copies",
+          "title": "Local Copies",
+          "level": 3
+        },
+        {
+          "id": "incremental-extraction",
+          "title": "Incremental Extraction",
+          "level": 2
+        },
+        {
+          "id": "dependency-inventory",
+          "title": "Dependency Inventory",
+          "level": 3
+        },
+        {
+          "id": "sec:ch11-authority",
+          "title": "Data Authority Transfer",
+          "level": 2
+        },
+        {
+          "id": "snapshot-and-change-capture",
+          "title": "Snapshot and Change Capture",
+          "level": 3
+        },
+        {
+          "id": "write-cutover",
+          "title": "Write Cutover",
+          "level": 3
+        },
+        {
+          "id": "legacy-retirement",
+          "title": "Legacy Retirement",
+          "level": 3
+        },
+        {
+          "id": "event-driven-projections",
+          "title": "Event-Driven Projections",
+          "level": 2
+        },
+        {
+          "id": "extraction-cost-and-order",
+          "title": "Extraction Cost and Order",
+          "level": 2
+        },
+        {
+          "id": "the-next-extraction",
+          "title": "The Next Extraction",
+          "level": 3
+        },
+        {
+          "id": "boundary-verification",
+          "title": "Boundary Verification",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-10",
+      "next": "chapter-12"
+    },
+    {
+      "slug": "chapter-12",
+      "title": "Event-Driven Systems and Stream Processing",
+      "sections": [
+        {
+          "id": "the-notification-pipeline",
+          "title": "The Notification Pipeline",
+          "level": 2
+        },
+        {
+          "id": "the-transactional-outbox",
+          "title": "The Transactional Outbox",
+          "level": 3
+        },
+        {
+          "id": "the-promotion-incident",
+          "title": "The Promotion Incident",
+          "level": 3
+        },
+        {
+          "id": "completion-semantics",
+          "title": "Completion Semantics",
+          "level": 2
+        },
+        {
+          "id": "backlog-dynamics",
+          "title": "Backlog Dynamics",
+          "level": 2
+        },
+        {
+          "id": "backlog-size-and-backlog-age",
+          "title": "Backlog Size and Backlog Age",
+          "level": 3
+        },
+        {
+          "id": "queues-logs-and-retention",
+          "title": "Queues, Logs, and Retention",
+          "level": 2
+        },
+        {
+          "id": "retention-and-compaction",
+          "title": "Retention and Compaction",
+          "level": 3
+        },
+        {
+          "id": "retention-sizing",
+          "title": "Retention Sizing",
+          "level": 3
+        },
+        {
+          "id": "partitions-offsets-and-consumer-groups",
+          "title": "Partitions, Offsets, and Consumer Groups",
+          "level": 2
+        },
+        {
+          "id": "message-keys-and-ordering",
+          "title": "Message Keys and Ordering",
+          "level": 3
+        },
+        {
+          "id": "out-of-order-delivery",
+          "title": "Out-of-Order Delivery",
+          "level": 3
+        },
+        {
+          "id": "event-publication",
+          "title": "Event Publication",
+          "level": 2
+        },
+        {
+          "id": "the-relay-loop",
+          "title": "The Relay Loop",
+          "level": 3
+        },
+        {
+          "id": "relay-sharding",
+          "title": "Relay Sharding",
+          "level": 3
+        },
+        {
+          "id": "producer-acknowledgments-and-durability",
+          "title": "Producer Acknowledgments and Durability",
+          "level": 3
+        },
+        {
+          "id": "delivery-semantics",
+          "title": "Delivery Semantics",
+          "level": 2
+        },
+        {
+          "id": "at-most-once-and-at-least-once",
+          "title": "At-Most-Once and At-Least-Once",
+          "level": 3
+        },
+        {
+          "id": "consumer-configuration",
+          "title": "Consumer Configuration",
+          "level": 3
+        },
+        {
+          "id": "idempotent-consumers",
+          "title": "Idempotent Consumers",
+          "level": 2
+        },
+        {
+          "id": "external-side-effects",
+          "title": "External Side Effects",
+          "level": 2
+        },
+        {
+          "id": "task-states-and-leases",
+          "title": "Task States and Leases",
+          "level": 3
+        },
+        {
+          "id": "exponential-backoff-and-jitter",
+          "title": "Exponential Backoff and Jitter",
+          "level": 3
+        },
+        {
+          "id": "exactly-once-semantics",
+          "title": "Exactly-Once Semantics",
+          "level": 3
+        },
+        {
+          "id": "backlog-diagnosis",
+          "title": "Backlog Diagnosis",
+          "level": 2
+        },
+        {
+          "id": "capacity-scaling",
+          "title": "Capacity Scaling",
+          "level": 2
+        },
+        {
+          "id": "consumer-rebalancing",
+          "title": "Consumer Rebalancing",
+          "level": 2
+        },
+        {
+          "id": "failure-handling",
+          "title": "Failure Handling",
+          "level": 2
+        },
+        {
+          "id": "dead-letter-topics",
+          "title": "Dead-Letter Topics",
+          "level": 3
+        },
+        {
+          "id": "ordering-after-failure",
+          "title": "Ordering After Failure",
+          "level": 3
+        },
+        {
+          "id": "replay-and-schema-evolution",
+          "title": "Replay and Schema Evolution",
+          "level": 2
+        },
+        {
+          "id": "schema-evolution",
+          "title": "Schema Evolution",
+          "level": 3
+        },
+        {
+          "id": "stateful-stream-processing",
+          "title": "Stateful Stream Processing",
+          "level": 2
+        },
+        {
+          "id": "event-time-and-watermarks",
+          "title": "Event Time and Watermarks",
+          "level": 3
+        },
+        {
+          "id": "failure-testing",
+          "title": "Failure Testing",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-11",
+      "next": "chapter-13"
+    },
+    {
+      "slug": "chapter-13",
+      "title": "Machine Learning Systems in Production",
+      "sections": [
+        {
+          "id": "the-recommendation-decline",
+          "title": "The Recommendation Decline",
+          "level": 2
+        },
+        {
+          "id": "the-product-contract",
+          "title": "The Product Contract",
+          "level": 2
+        },
+        {
+          "id": "model-fundamentals",
+          "title": "Model Fundamentals",
+          "level": 2
+        },
+        {
+          "id": "batch-streaming-and-request-time-processing",
+          "title": "Batch, Streaming, and Request-Time Processing",
+          "level": 3
+        },
+        {
+          "id": "historical-storage",
+          "title": "Historical Storage",
+          "level": 3
+        },
+        {
+          "id": "point-in-time-correctness",
+          "title": "Point-in-Time Correctness",
+          "level": 2
+        },
+        {
+          "id": "labels-and-observation-periods",
+          "title": "Labels and Observation Periods",
+          "level": 3
+        },
+        {
+          "id": "training-serving-skew",
+          "title": "Training-Serving Skew",
+          "level": 3
+        },
+        {
+          "id": "model-lineage",
+          "title": "Model Lineage",
+          "level": 2
+        },
+        {
+          "id": "training-resources",
+          "title": "Training Resources",
+          "level": 3
+        },
+        {
+          "id": "checkpoints-and-reproducibility",
+          "title": "Checkpoints and Reproducibility",
+          "level": 3
+        },
+        {
+          "id": "diagnosing-quality-degradation",
+          "title": "Diagnosing Quality Degradation",
+          "level": 2
+        },
+        {
+          "id": "exposure-and-cold-start",
+          "title": "Exposure and Cold Start",
+          "level": 3
+        },
+        {
+          "id": "release-evaluation",
+          "title": "Release Evaluation",
+          "level": 3
+        },
+        {
+          "id": "generative-inference",
+          "title": "Generative Inference",
+          "level": 2
+        },
+        {
+          "id": "prefill-and-decode",
+          "title": "Prefill and Decode",
+          "level": 3
+        },
+        {
+          "id": "throughput-and-per-request-latency",
+          "title": "Throughput and Per-Request Latency",
+          "level": 3
+        },
+        {
+          "id": "capacity-testing",
+          "title": "Capacity Testing",
+          "level": 3
+        },
+        {
+          "id": "memory-and-the-kv-cache",
+          "title": "Memory and the KV Cache",
+          "level": 2
+        },
+        {
+          "id": "token-based-admission",
+          "title": "Token-Based Admission",
+          "level": 3
+        },
+        {
+          "id": "scheduling-and-cancellation",
+          "title": "Scheduling and Cancellation",
+          "level": 3
+        },
+        {
+          "id": "optimization-and-provisioning",
+          "title": "Optimization and Provisioning",
+          "level": 3
+        },
+        {
+          "id": "the-shopping-assistant",
+          "title": "The Shopping Assistant",
+          "level": 2
+        },
+        {
+          "id": "hybrid-retrieval",
+          "title": "Hybrid Retrieval",
+          "level": 3
+        },
+        {
+          "id": "agent-execution-budgets",
+          "title": "Agent Execution Budgets",
+          "level": 2
+        },
+        {
+          "id": "context-and-partial-results",
+          "title": "Context and Partial Results",
+          "level": 3
+        },
+        {
+          "id": "tool-authority-and-action-identity",
+          "title": "Tool Authority and Action Identity",
+          "level": 2
+        },
+        {
+          "id": "intent-and-retry-identity",
+          "title": "Intent and Retry Identity",
+          "level": 3
+        },
+        {
+          "id": "untrusted-content",
+          "title": "Untrusted Content",
+          "level": 3
+        },
+        {
+          "id": "evaluation-and-operations",
+          "title": "Evaluation and Operations",
+          "level": 2
+        },
+        {
+          "id": "hosted-model-providers",
+          "title": "Hosted Model Providers",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-12",
+      "next": "chapter-14"
+    },
+    {
+      "slug": "chapter-14",
+      "title": "Designing From Production Experience",
+      "sections": [
+        {
+          "id": "launch-scope-and-checkout-outcomes",
+          "title": "Launch Scope and Checkout Outcomes",
+          "level": 2
+        },
+        {
+          "id": "service-objectives-and-denominators",
+          "title": "Service Objectives and Denominators",
+          "level": 3
+        },
+        {
+          "id": "the-regional-request-path",
+          "title": "The Regional Request Path",
+          "level": 2
+        },
+        {
+          "id": "checkout-workflow-state",
+          "title": "Checkout Workflow State",
+          "level": 2
+        },
+        {
+          "id": "partial-failure-recovery",
+          "title": "Partial Failure Recovery",
+          "level": 3
+        },
+        {
+          "id": "connection-pool-sizing",
+          "title": "Connection Pool Sizing",
+          "level": 2
+        },
+        {
+          "id": "capacity-claim-scope",
+          "title": "Capacity Claim Scope",
+          "level": 3
+        },
+        {
+          "id": "sec:ch14-provider-capacity",
+          "title": "Provider Capacity and Recovery Reserves",
+          "level": 2
+        },
+        {
+          "id": "shared-admission-control",
+          "title": "Shared Admission Control",
+          "level": 3
+        },
+        {
+          "id": "attempt-accounting",
+          "title": "Attempt Accounting",
+          "level": 3
+        },
+        {
+          "id": "retry-budgets-and-rejection",
+          "title": "Retry Budgets and Rejection",
+          "level": 3
+        },
+        {
+          "id": "deadline-propagation-and-dependency-budgets",
+          "title": "Deadline Propagation and Dependency Budgets",
+          "level": 2
+        },
+        {
+          "id": "regional-write-ownership",
+          "title": "Regional Write Ownership",
+          "level": 2
+        },
+        {
+          "id": "planned-ownership-transfer",
+          "title": "Planned Ownership Transfer",
+          "level": 3
+        },
+        {
+          "id": "unplanned-failover-and-data-loss",
+          "title": "Unplanned Failover and Data Loss",
+          "level": 3
+        },
+        {
+          "id": "cross-region-payment-identity",
+          "title": "Cross-Region Payment Identity",
+          "level": 3
+        },
+        {
+          "id": "asynchronous-work-and-recovery-throughput",
+          "title": "Asynchronous Work and Recovery Throughput",
+          "level": 2
+        },
+        {
+          "id": "release-gates",
+          "title": "Release Gates",
+          "level": 2
+        },
+        {
+          "id": "launch-rehearsal",
+          "title": "Launch Rehearsal",
+          "level": 2
+        },
+        {
+          "id": "post-launch-measurements",
+          "title": "Post-Launch Measurements",
+          "level": 2
+        },
+        {
+          "id": "design-review-framework",
+          "title": "Design Review Framework",
+          "level": 2
+        },
+        {
+          "id": "summary",
+          "title": "Summary",
+          "level": 2
+        },
+        {
+          "id": "hidden-assumptions-in-this-design",
+          "title": "Hidden Assumptions in This Design",
+          "level": 2
+        }
+      ],
+      "prev": "chapter-13",
+      "next": "epilogue"
+    },
+    {
+      "slug": "epilogue",
+      "title": "Epilogue",
+      "sections": [],
+      "prev": "chapter-14",
+      "next": "appendix-a"
+    },
+    {
+      "slug": "appendix-a",
+      "title": "Appendix A: Recovery Instrumentation and Auditing",
+      "sections": [
+        {
+          "id": "recovery-measurements",
+          "title": "Recovery Measurements",
+          "level": 2
+        },
+        {
+          "id": "measurement-collection",
+          "title": "Measurement Collection",
+          "level": 2
+        },
+        {
+          "id": "operation-evidence",
+          "title": "Operation Evidence",
+          "level": 2
+        },
+        {
+          "id": "independent-audits",
+          "title": "Independent Audits",
+          "level": 2
+        },
+        {
+          "id": "applying-recovery-evidence",
+          "title": "Applying Recovery Evidence",
+          "level": 2
+        },
+        {
+          "id": "alerts-and-operator-actions",
+          "title": "Alerts and Operator Actions",
+          "level": 2
+        }
+      ],
+      "prev": "epilogue",
+      "next": "appendix-b"
+    },
+    {
+      "slug": "appendix-b",
+      "title": "Appendix B: Three Classic Designs",
+      "sections": [
+        {
+          "id": "a-method-for-any-design",
+          "title": "A Method for Any Design",
+          "level": 2
+        },
+        {
+          "id": "doing-the-arithmetic-in-code",
+          "title": "Doing the Arithmetic in Code",
+          "level": 3
+        },
+        {
+          "id": "a-url-shortener",
+          "title": "A URL Shortener",
+          "level": 2
+        },
+        {
+          "id": "what-the-service-promises",
+          "title": "What the Service Promises",
+          "level": 3
+        },
+        {
+          "id": "sizing-the-service",
+          "title": "Sizing the Service",
+          "level": 3
+        },
+        {
+          "id": "where-capacity-runs-out",
+          "title": "Where Capacity Runs Out",
+          "level": 3
+        },
+        {
+          "id": "generating-short-codes",
+          "title": "Generating Short Codes",
+          "level": 3
+        },
+        {
+          "id": "how-the-shortener-fails",
+          "title": "How the Shortener Fails",
+          "level": 3
+        },
+        {
+          "id": "a-social-timeline",
+          "title": "A Social Timeline",
+          "level": 2
+        },
+        {
+          "id": "what-the-timeline-promises",
+          "title": "What the Timeline Promises",
+          "level": 3
+        },
+        {
+          "id": "sizing-the-timeline",
+          "title": "Sizing the Timeline",
+          "level": 3
+        },
+        {
+          "id": "the-fan-out-bottleneck",
+          "title": "The Fan-Out Bottleneck",
+          "level": 3
+        },
+        {
+          "id": "choosing-between-push-pull-and-both",
+          "title": "Choosing Between Push, Pull, and Both",
+          "level": 3
+        },
+        {
+          "id": "the-write-and-read-paths",
+          "title": "The Write and Read Paths",
+          "level": 3
+        },
+        {
+          "id": "visibility-and-deletion",
+          "title": "Visibility and Deletion",
+          "level": 3
+        },
+        {
+          "id": "how-the-timeline-fails",
+          "title": "How the Timeline Fails",
+          "level": 3
+        },
+        {
+          "id": "a-notification-service",
+          "title": "A Notification Service",
+          "level": 2
+        },
+        {
+          "id": "what-each-message-promises",
+          "title": "What Each Message Promises",
+          "level": 3
+        },
+        {
+          "id": "sizing-the-service-1",
+          "title": "Sizing the Service",
+          "level": 3
+        },
+        {
+          "id": "the-providers-limit",
+          "title": "The Provider’s Limit",
+          "level": 3
+        },
+        {
+          "id": "separating-message-classes",
+          "title": "Separating Message Classes",
+          "level": 3
+        },
+        {
+          "id": "duplicates-losses-and-preferences",
+          "title": "Duplicates, Losses, and Preferences",
+          "level": 3
+        },
+        {
+          "id": "how-the-notification-service-fails",
+          "title": "How the Notification Service Fails",
+          "level": 3
+        },
+        {
+          "id": "what-the-designs-have-in-common",
+          "title": "What the Designs Have in Common",
+          "level": 2
+        }
+      ],
+      "prev": "appendix-a",
+      "next": "appendix-c"
+    },
+    {
+      "slug": "appendix-c",
+      "title": "Appendix C: Security, Privacy, and Cost Review",
+      "sections": [
+        {
+          "id": "security",
+          "title": "Security",
+          "level": 2
+        },
+        {
+          "id": "privacy-and-the-life-of-personal-data",
+          "title": "Privacy and the Life of Personal Data",
+          "level": 2
+        },
+        {
+          "id": "cost",
+          "title": "Cost",
+          "level": 2
+        },
+        {
+          "id": "a-one-page-review",
+          "title": "A One-Page Review",
+          "level": 2
+        }
+      ],
+      "prev": "appendix-b",
+      "next": "worksheet"
+    },
+    {
+      "slug": "worksheet",
+      "title": "Hidden Assumptions: A Blank Worksheet",
+      "sections": [
+        {
+          "id": "what-each-field-asks-for",
+          "title": "What Each Field Asks For",
+          "level": 2
+        },
+        {
+          "id": "blank-worksheet",
+          "title": "Blank Worksheet",
+          "level": 2
+        }
+      ],
+      "prev": "appendix-c",
+      "next": "glossary"
+    },
+    {
+      "slug": "glossary",
+      "title": "Glossary",
+      "sections": [],
+      "prev": "worksheet",
+      "next": "further-reading"
+    },
+    {
+      "slug": "further-reading",
+      "title": "Further Reading",
+      "sections": [
+        {
+          "id": "primary-documentation",
+          "title": "Primary Documentation",
+          "level": 2
+        },
+        {
+          "id": "capacity-and-performance",
+          "title": "Capacity and Performance",
+          "level": 2
+        },
+        {
+          "id": "distributed-state-and-data-systems",
+          "title": "Distributed State and Data Systems",
+          "level": 2
+        },
+        {
+          "id": "production-reliability",
+          "title": "Production Reliability",
+          "level": 2
+        },
+        {
+          "id": "observability",
+          "title": "Observability",
+          "level": 2
+        },
+        {
+          "id": "deployment-and-delivery",
+          "title": "Deployment and Delivery",
+          "level": 2
+        },
+        {
+          "id": "service-boundaries",
+          "title": "Service Boundaries",
+          "level": 2
+        },
+        {
+          "id": "event-processing",
+          "title": "Event Processing",
+          "level": 2
+        },
+        {
+          "id": "machine-learning-and-ai-applications",
+          "title": "Machine Learning and AI Applications",
+          "level": 2
+        },
+        {
+          "id": "research-and-case-studies",
+          "title": "Research and Case Studies",
+          "level": 2
+        },
+        {
+          "id": "sources-for-the-public-postmortems",
+          "title": "Sources for the Public Postmortems",
+          "level": 2
+        }
+      ],
+      "prev": "glossary",
+      "next": "index"
+    },
+    {
+      "slug": "index",
+      "title": "Concept Guide",
+      "sections": [],
+      "prev": "further-reading",
+      "next": "about-the-author"
+    },
+    {
+      "slug": "about-the-author",
+      "title": "About the Author",
+      "sections": [],
+      "prev": "index",
+      "next": null
+    }
+  ]
+}
