@@ -246,12 +246,12 @@ function buildResult(
   const chapter =
     state.cascade || snap.cascadeRisk > 0.75
       ? {
-          href: "https://baodium.com/system-design/chapter-6",
-          label: "Ch.6 — Service communication and cascading failure",
+          href: "/system-design/chapter-4",
+          label: "Ch.4 — Service communication and cascading failure",
         }
       : {
-          href: "https://baodium.com/system-design/chapter-3",
-          label: "Ch.3 — Resource contention in production",
+          href: "/system-design/chapter-1",
+          label: "Ch.1 — Resource contention in production",
         };
 
   const reason =

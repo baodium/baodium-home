@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { SloWatchGame } from "@/components/SloWatchGame";
 import { site } from "@/data/site";
+import { book } from "@/data/writing";
 
 export const metadata: Metadata = {
   title: "SLO Watch",
@@ -20,19 +21,24 @@ export const metadata: Metadata = {
 export default function PlayPage() {
   return (
     <>
-      <header className="border-b border-line">
-        <div className="shell flex items-center justify-between gap-4 py-4">
-          <Link href="/" className="text-[0.78rem] tracking-[0.24em] text-ink">
+      <header className="border-b border-ink/10 bg-cream">
+        <div className="shell flex items-center justify-between gap-4 py-4 text-ink">
+          <Link href="/" className="font-mono text-[0.72rem] tracking-[0.28em]">
             BAODIUM
           </Link>
-          <Link href="/#book" className="text-[0.84rem] text-bronze hover:text-ink">
+          <Link
+            href={book.readPath}
+            className="text-[0.84rem] text-cinnabar transition-colors hover:text-ink"
+          >
             Free book →
           </Link>
         </div>
       </header>
-      <main id="main" className="section">
+      <main id="main" className="bg-cream pb-16 pt-10 text-ink md:pb-24 md:pt-14">
         <div className="shell">
-          <SloWatchGame compact />
+          <div className="grain overflow-hidden rounded-[2rem] bg-ember p-5 text-cream md:rounded-[3rem] md:p-10">
+            <SloWatchGame compact />
+          </div>
         </div>
       </main>
       <Footer />

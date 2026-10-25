@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   motion,
   useMotionValue,
@@ -17,7 +18,7 @@ import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const line =
-  "I build software, systems, and products around reliability, infrastructure, AI, and how people work.";
+  "Baodium is an independent studio for products and technical publishing — Interview Coach, UpTo, and Practical System Design.";
 
 /** The trace finishes drawing into "Engineer" at LOCK_MS; that is when the word locks in. */
 const TRACE_DELAY = 1.15;
@@ -167,20 +168,29 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             className="mt-6 flex flex-wrap items-center gap-3 md:mt-9"
           >
             <Magnetic>
-              <a
-                href="#project"
+              <Link
+                href="/system-design"
                 className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.6)]"
               >
                 <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="relative">See the project</span>
+                <span className="relative">Read the book free</span>
                 <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
-              </a>
+              </Link>
             </Magnetic>
             <a
-              href="#book"
+              href="https://www.amazon.com/dp/B0H8KKBJRH"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-[0.95rem] text-cream transition-colors hover:border-white/35 hover:bg-white/[0.05]"
             >
-              Read the book
+              Amazon
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a
+              href="#play"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-[0.95rem] text-cream/80 transition-colors hover:border-white/35 hover:bg-white/[0.05] hover:text-cream"
+            >
+              Play SLO Watch
             </a>
           </motion.div>
         </motion.div>

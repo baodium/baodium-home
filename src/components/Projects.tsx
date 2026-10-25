@@ -9,8 +9,8 @@ export function Projects() {
 
   return (
     <section
-      id="project"
-      aria-labelledby="project-heading"
+      id="products"
+      aria-labelledby="products-heading"
       className="relative overflow-hidden bg-cream pb-14 pt-8 text-ink md:pb-20 md:pt-12"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -20,7 +20,7 @@ export function Projects() {
       <div className="shell relative z-[2]">
         <Reveal y={12}>
           <div className="flex items-center gap-4">
-            <h2 id="project-heading" className="kicker text-cinnabar">Project</h2>
+            <h2 id="products-heading" className="kicker text-cinnabar">Products</h2>
             <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-cinnabar/30 to-transparent" />
           </div>
         </Reveal>

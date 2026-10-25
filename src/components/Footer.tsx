@@ -11,10 +11,11 @@ import { book } from "@/data/writing";
 type Link = { label: string; href: string };
 
 const elsewhere: Link[] = [
+  { label: "Email", href: site.email },
   { label: "LinkedIn", href: site.linkedin },
   { label: "Book on Amazon", href: book.href },
+  { label: "obadimu.com", href: site.personal },
   { label: "GitHub", href: site.github },
-  { label: "Email", href: site.email },
 ].filter((link) => link.href.length > 0);
 
 export function Footer() {
