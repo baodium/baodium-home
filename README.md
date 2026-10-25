@@ -10,9 +10,12 @@ Next.js (App Router) + TypeScript + Tailwind CSS v4. Motion is built with [`moti
 
 ```bash
 npm install
+# Place Baodium_System_Design_Final_Language_Pass_Web.zip in manuscript/ (see manuscript/README.md)
 npm run dev
 npm run build
 ```
+
+`npm run build` runs `scripts/convert-manuscript.mjs` first (Pandoc + Lua filters). Generated chapters live in `src/generated/book/` and are not committed until a conversion has been run on a machine with the zip.
 
 ## Deploy
 
