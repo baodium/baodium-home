@@ -47,7 +47,7 @@ function Meter({
 }) {
   const ratio = max === 0 ? 0 : Math.min(1.15, value / max);
   const tone =
-    ratio >= dangerAt ? "bg-cinnabar" : ratio >= warnAt ? "bg-bronze" : "bg-cream/70";
+    ratio >= dangerAt ? "bg-cinnabar" : ratio >= warnAt ? "bg-amber" : "bg-cream/70";
   return (
     <div>
       <div className="flex justify-between text-[0.72rem] tracking-wide text-cream/45">
