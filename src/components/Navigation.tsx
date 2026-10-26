@@ -6,8 +6,9 @@ import { ArrowUpRight } from "lucide-react";
 import { book, writing } from "@/data/writing";
 
 const links = [
-  { id: "project", label: "Project" },
+  { id: "products", label: "Products" },
   { id: "book", label: "Book" },
+  { id: "play", label: "Play" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing" }] : []),
   { id: "about", label: "About" },
 ];
@@ -114,18 +115,15 @@ export function Navigation() {
 
         <div className="flex items-center gap-1.5">
           <a
-            href={book.href}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={book.readPath}
             className="group inline-flex min-h-10 items-center gap-1.5 rounded-full bg-cream px-4 text-[0.82rem] font-medium text-ink transition-colors hover:bg-white"
           >
-            Get the book
+            Free read
             <ArrowUpRight
               aria-hidden="true"
               className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               strokeWidth={2}
             />
-            <span className="sr-only"> (opens Amazon in a new tab)</span>
           </a>
           <button
             type="button"

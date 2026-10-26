@@ -8,7 +8,7 @@ import { Reveal } from "@/components/motion/Reveal";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const statement =
-  "Adewale Obadimu is a reliability engineer and technical leader. Today he builds AI products at Baodium and writes about running systems in production.";
+  "Baodium is Adewale Obadimu’s independent home for products and technical publishing. Today he builds AI products and writes about running systems in production.";
 const words = statement.split(" ");
 const accent = new Set(["reliability", "AI", "production."]);
 /** Which focus area each word belongs to, so pointing at an area lights its words in the sentence. */
@@ -62,6 +62,24 @@ export function About() {
                 );
               })}
             </p>
+
+          <p className="mt-8 max-w-2xl text-[1.02rem] leading-relaxed text-muted">
+            Personal writing and life notes live on{" "}
+            <a
+              href="https://obadimu.com"
+              className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              obadimu.com
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            . Reach the studio at{" "}
+            <a href="mailto:hello@baodium.com" className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink">
+              hello@baodium.com
+            </a>
+            .
+          </p>
 
           <ul className="mt-10 grid grid-cols-2 gap-3 md:mt-12 md:gap-4 lg:grid-cols-4" onPointerLeave={() => setFocus(null)}>
             {areas.map((area, index) => {

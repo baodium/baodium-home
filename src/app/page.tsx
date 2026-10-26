@@ -3,6 +3,7 @@ import { BookSection } from "@/components/book/BookSection";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { Navigation } from "@/components/Navigation";
+import { PlaySection } from "@/components/PlaySection";
 import { Projects } from "@/components/Projects";
 import { Writing } from "@/components/Writing";
 
@@ -16,6 +17,7 @@ export default function Home() {
           <Projects />
         </div>
         <BookSection />
+        <PlaySection />
         <Writing />
         <About />
       </main>

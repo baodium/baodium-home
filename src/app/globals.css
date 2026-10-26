@@ -751,3 +751,62 @@ html[data-reader-measure="wide"] {
     animation: none;
   }
 }
+
+
+/* SLO Watch — scoped to the ember game panel */
+.slo-game .slo-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--cinnabar);
+  color: #fff;
+  padding: 0.72rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.slo-game .slo-btn-primary:hover {
+  background: #974031;
+}
+.slo-game .slo-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(245, 239, 229, 0.22);
+  color: rgba(245, 239, 229, 0.88);
+  padding: 0.72rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+.slo-game .slo-btn-secondary:hover {
+  border-color: rgba(245, 239, 229, 0.45);
+  color: #fff;
+}
+.slo-game .slo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: rgba(245, 239, 229, 0.28);
+  outline: none;
+}
+.slo-game .slo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--amber);
+  border: 2px solid var(--ember);
+  cursor: grab;
+}
+.slo-game .slo-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--amber);
+  border: 2px solid var(--ember);
+  cursor: grab;
+}
