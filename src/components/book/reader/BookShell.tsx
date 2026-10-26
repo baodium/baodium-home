@@ -71,6 +71,8 @@ function ShellBody({
           </div>
           <div
             id="book-reader-scroll"
+            data-lenis-prevent
+            data-lenis-prevent-wheel
             className="relative z-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-3 md:px-8 md:pb-14 lg:px-10"
           >
             {children}

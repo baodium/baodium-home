@@ -76,7 +76,11 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         </div>
-        <nav className="flex-1 overflow-y-auto px-2 pb-4 pt-1">
+        <nav
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          className="flex-1 overflow-y-auto px-2 pb-4 pt-1"
+        >
           <ol className="space-y-0.5 text-[0.8125rem]">
             <li>
               <Link
