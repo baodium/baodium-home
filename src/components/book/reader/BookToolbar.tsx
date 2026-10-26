@@ -30,6 +30,7 @@ const exploreLinks = [
   { href: "/", label: "Home" },
   { href: "/#products", label: "Products" },
   { href: "/system-design", label: "Book overview" },
+  { href: "/system-design/experience", label: "Experience lab" },
   { href: "/play", label: "Play" },
 ] as const;
 

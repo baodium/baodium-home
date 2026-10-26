@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, FlaskConical } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
@@ -46,15 +46,24 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
             required.
           </p>
 
-          {start ? (
+          <div className="mt-8 flex flex-wrap gap-3">
+            {start ? (
+              <Link
+                href={`/system-design/${start.slug}`}
+                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-sm font-medium text-[var(--reader-page)] transition-opacity hover:opacity-90"
+              >
+                <BookOpen className="h-4 w-4" aria-hidden="true" />
+                Start {start.slug === "chapter-1" ? "Chapter 1" : start.title}
+              </Link>
+            ) : null}
             <Link
-              href={`/system-design/${start.slug}`}
-              className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-sm font-medium text-[var(--reader-page)] transition-opacity hover:opacity-90"
+              href="/system-design/experience/chapter-1"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_18%,transparent)] px-6 text-sm font-medium text-[var(--reader-fg)] transition-colors hover:border-cinnabar hover:text-cinnabar"
             >
-              <BookOpen className="h-4 w-4" aria-hidden="true" />
-              Start {start.slug === "chapter-1" ? "Chapter 1" : start.title}
+              <FlaskConical className="h-4 w-4" aria-hidden="true" />
+              Operate this incident
             </Link>
-          ) : null}
+          </div>
 
           <div className="mt-12 border-t border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] pt-8">
             <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-[var(--reader-muted)]">
