@@ -7,12 +7,12 @@ import { ArrowUp, ArrowUpRight } from "lucide-react";
 import { site } from "@/data/site";
 import { book } from "@/data/writing";
 
-
 type Link = { label: string; href: string };
 
 const elsewhere: Link[] = [
   { label: "Email", href: site.email },
   { label: "LinkedIn", href: site.linkedin },
+  { label: "Google Scholar", href: site.scholar },
   { label: "Book on Amazon", href: book.href },
   { label: "obadimu.com", href: site.personal },
   { label: "GitHub", href: site.github },
@@ -28,10 +28,10 @@ export function Footer() {
 
   return (
     <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
-      <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pt-14 md:rounded-[3rem] md:pt-20">
+      <div className="grain relative overflow-hidden rounded-[1.75rem] bg-ember pt-8 md:rounded-[2.25rem] md:pt-10">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[50%]"
         >
           <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.45),rgba(151,64,49,0.12)_50%,transparent)] blur-3xl" />
         </div>
@@ -39,14 +39,14 @@ export function Footer() {
         <div className="shell relative z-[2]">
           <div className="flex">
             <nav aria-label="Elsewhere">
-              <ul className="flex flex-wrap gap-x-7 text-[0.95rem]">
+              <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[0.9rem]">
                 {elsewhere.map((link) => {
                   const external = link.href.startsWith("http");
                   return (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="group inline-flex min-h-11 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
+                        className="group inline-flex min-h-10 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
                         {...(external
                           ? { target: "_blank", rel: "noopener noreferrer" }
                           : {})}
@@ -71,7 +71,7 @@ export function Footer() {
 
           <div
             ref={markRef}
-            className="wordmark relative mb-4 mt-10 md:mb-6 md:mt-14"
+            className="wordmark relative mb-1 mt-5 md:mb-2 md:mt-7"
             onPointerMove={(event) => {
               const el = markRef.current;
               if (!el || event.pointerType !== "mouse") return;
@@ -83,7 +83,7 @@ export function Footer() {
             <span className="sr-only">{site.brand}</span>
             <p
               aria-hidden="true"
-              className="flex select-none justify-between text-[clamp(3.5rem,19.4vw,18.5rem)] font-semibold leading-[0.8] tracking-[-0.05em]"
+              className="flex select-none justify-between text-[clamp(1.65rem,7.2vw,4.75rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
             >
               {letters.map((letter, index) => (
                 <RisingLetter key={index} letter={letter} index={index} progress={scrollYProgress} />
@@ -91,7 +91,7 @@ export function Footer() {
             </p>
             <p
               aria-hidden="true"
-              className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(3.5rem,19.4vw,18.5rem)] font-semibold leading-[0.8] tracking-[-0.05em]"
+              className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(1.65rem,7.2vw,4.75rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
             >
               {letters.map((letter, index) => (
                 <span
@@ -104,14 +104,14 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-cream/60 md:py-7">
+          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-4 text-sm text-cream/60 md:py-5">
             <p>© {year} Baodium</p>
             <a
               href="#main"
-              className="group inline-flex min-h-11 items-center gap-2 text-cream/70 transition-colors hover:text-cream"
+              className="group inline-flex min-h-10 items-center gap-2 text-cream/70 transition-colors hover:text-cream"
             >
               Back to top
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-colors group-hover:border-transparent group-hover:bg-cream group-hover:text-ink">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 transition-colors group-hover:border-transparent group-hover:bg-cream group-hover:text-ink">
                 <ArrowUp
                   aria-hidden="true"
                   className="h-4 w-4 transition-transform group-hover:-translate-y-0.5"

@@ -2,6 +2,7 @@
 
 import type { RefObject } from "react";
 import { motion } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 export const roles = [
   { word: "Engineer" },
@@ -35,6 +36,7 @@ export function KineticRoles({
   wordRefs: RefObject<Array<HTMLSpanElement | null>>;
   onSelect: (index: number) => void;
 }) {
+  const reduce = usePrefersReducedMotion();
   return (
     <>
       <span className="relative mt-5 flex flex-col gap-[0.07em] max-lg:pl-5 md:mt-6">
@@ -44,7 +46,7 @@ export function KineticRoles({
           aria-hidden="true"
           initial={false}
           animate={{ top: `${(Math.max(active, 0) * 100) / roles.length + 100 / roles.length / 2}%`, opacity: active >= 0 ? 1 : 0 }}
-          transition={{ type: "spring", stiffness: 180, damping: 24 }}
+          transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 180, damping: 24 }}
           className="pointer-events-none absolute -left-0.5 mt-1 flex -translate-y-1/2 items-center lg:hidden"
         >
           <span className="h-2 w-2 rounded-full bg-cinnabar shadow-[0_0_0_5px_rgba(173,79,54,0.18)]" />
@@ -82,16 +84,22 @@ export function KineticRoles({
                     <motion.span
                       key={k}
                       className={`inline-block ${dim ? "group-hover/role:!text-[rgba(245,239,229,0.78)]" : ""}`}
-                      initial={{ y: "105%", rotate: 6 }}
+                      initial={reduce ? false : { y: "105%", rotate: 6 }}
                       animate={{ y: "0%", rotate: 0 }}
-                      transition={{ duration: 0.9, delay: 0.55 + line * 0.14 + k * 0.035, ease }}
+                      transition={{
+                        duration: reduce ? 0 : 0.9,
+                        delay: reduce ? 0 : 0.55 + line * 0.14 + k * 0.035,
+                        ease,
+                      }}
                       style={{
                         color: isActive
                           ? flameAt(k / Math.max(letters.length - 1, 1))
                           : dim
                             ? "rgba(245,239,229,0.62)"
                             : "#f5efe5",
-                        transition: `color 0.28s ease ${isActive ? (letters.length - 1 - k) * 0.018 : 0}s`,
+                        transition: reduce
+                          ? undefined
+                          : `color 0.28s ease ${isActive ? (letters.length - 1 - k) * 0.018 : 0}s`,
                       }}
                     >
                       {letter}

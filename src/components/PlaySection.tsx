@@ -47,7 +47,16 @@ export function PlaySection() {
           <div className="relative z-[2] mx-auto w-full max-w-[84rem]">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="kicker text-amber">Play · Games</p>
+                <p className="kicker inline-flex items-center gap-2.5 text-amber">
+                  <span
+                    aria-hidden="true"
+                    className="play-cue relative inline-flex h-2 w-2"
+                  >
+                    <span className="absolute inset-0 rounded-full bg-amber" />
+                    <span className="play-cue-ring absolute inset-0 rounded-full bg-amber" />
+                  </span>
+                  Play · Games
+                </p>
                 <h2
                   id="play-heading"
                   className="mt-4 max-w-2xl font-serif text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.03em]"
@@ -61,19 +70,34 @@ export function PlaySection() {
               </div>
               <Link
                 href="/play"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-[0.9rem] text-cream/80 transition-colors hover:border-amber/50 hover:text-cream"
+                className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-[0.9rem] text-cream/80 transition-colors hover:border-amber/50 hover:text-cream"
               >
                 Open play hub
-                <span aria-hidden="true">↗</span>
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+                >
+                  ↗
+                </span>
               </Link>
             </div>
 
             <ul className="slo-game mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {playGames.map((game) => (
-                <li key={game.slug}>
+              {playGames.map((game, index) => (
+                <motion.li
+                  key={game.slug}
+                  initial={reduce ? false : { opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "0px 0px 10% 0px" }}
+                  transition={{
+                    duration: reduce ? 0 : 0.5,
+                    delay: reduce ? 0 : 0.06 + index * 0.05,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
                   <Link
                     href={`/play/${game.slug}`}
-                    className="group flex h-full flex-col border border-white/12 bg-night/35 p-4 transition-[border-color,background] duration-300 hover:border-amber/40 hover:bg-night/50 md:p-5"
+                    className="group flex h-full flex-col border border-white/12 bg-night/35 p-4 transition-[border-color,background,transform] duration-300 hover:border-amber/40 hover:bg-night/50 hover:-translate-y-0.5 md:p-5"
                   >
                     <span className="text-[0.68rem] uppercase tracking-[0.16em] text-cream/45">
                       {difficultyLabel(game.difficulty)} · {game.minutes}
@@ -88,7 +112,7 @@ export function PlaySection() {
                       Enter →
                     </span>
                   </Link>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
