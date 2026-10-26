@@ -14,6 +14,12 @@ export function Providers({ children }: { children: ReactNode }) {
       lerp: 0.18,
       wheelMultiplier: 1,
       anchors: { offset: -88 },
+      // Reader (and game panels) use nested overflow scrollers; without this
+      // Lenis preventDefault on window.wheel leaves those panes stuck.
+      allowNestedScroll: true,
+      prevent: (node) =>
+        node.id === "book-reader-scroll" ||
+        Boolean(node.closest?.(".book-reader #book-reader-scroll, .book-reader .book-sidebar nav")),
     });
     let frame = requestAnimationFrame(function raf(time) {
       lenis.raf(time);
