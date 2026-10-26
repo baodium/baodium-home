@@ -19,9 +19,9 @@ function subscribeNowhere() {
 }
 
 const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
-  { id: "light", label: "Light", swatch: "#f6f1e7" },
-  { id: "paper", label: "Paper", swatch: "#f0e6d4" },
-  { id: "dark", label: "Dark", swatch: "#1e1814" },
+  { id: "light", label: "Light", swatch: "#ffffff" },
+  { id: "paper", label: "Paper", swatch: "#f3e8d4" },
+  { id: "dark", label: "Dark", swatch: "#0a0908" },
 ];
 
 const scales: { id: ReaderFontScale; label: string }[] = [

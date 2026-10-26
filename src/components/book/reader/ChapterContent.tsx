@@ -53,6 +53,39 @@ export function ChapterContent({ html }: { html: string }) {
       bindCopy(btn, () => pre.querySelector("code")?.textContent ?? pre.textContent ?? "");
     });
 
+    root.querySelectorAll<HTMLHeadingElement>("h2[id], h3[id]").forEach((heading) => {
+      if (heading.dataset.linkBound === "1") return;
+      heading.dataset.linkBound = "1";
+      heading.classList.add("book-heading-anchor");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "book-section-link";
+      btn.setAttribute("aria-label", `Copy link to ${heading.textContent ?? "section"}`);
+      btn.textContent = "#";
+      const onClick = async (event: MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const url = `${window.location.origin}${window.location.pathname}#${heading.id}`;
+        try {
+          await navigator.clipboard.writeText(url);
+          btn.textContent = "✓";
+          btn.classList.add("copied");
+          window.setTimeout(() => {
+            btn.textContent = "#";
+            btn.classList.remove("copied");
+          }, 1400);
+        } catch {
+          window.prompt("Copy section link", url);
+        }
+      };
+      btn.addEventListener("click", onClick);
+      heading.appendChild(btn);
+      cleanups.push(() => {
+        btn.removeEventListener("click", onClick);
+        btn.remove();
+      });
+    });
+
     const onImg = (event: Event) => {
       const img = event.currentTarget as HTMLImageElement;
       setZoomSrc(img.src);

@@ -4,16 +4,18 @@ import { BookOpen } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
+import { BookResume } from "@/components/book/reader/BookResume";
 
 export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
   const start = chapters.find((c) => c.slug === "chapter-1") ?? chapters[0];
 
   return (
-    <div className="book-contents-wrap mx-auto w-full max-w-[calc(var(--reader-measure)+3rem)] pt-16 md:pt-20">
+    <div className="book-contents-wrap mx-auto w-full max-w-[calc(var(--reader-measure)+3rem)] pt-[4.75rem] md:pt-[5.25rem]">
       <div className="book-page relative overflow-hidden rounded-[1.15rem] px-5 py-9 sm:px-9 sm:py-11 md:px-12">
         <div aria-hidden="true" className="book-page-gutter" />
         <div aria-hidden="true" className="book-page-grain" />
         <div className="relative z-[1]">
+          <BookResume chapters={chapters} />
           <div className="flex items-end gap-5">
             <div className="w-16 shrink-0 overflow-hidden rounded-[2px_6px_6px_2px] shadow-[0_16px_30px_-18px_rgba(70,40,20,0.55)] md:w-20">
               <Image

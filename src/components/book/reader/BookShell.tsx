@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { ReaderProvider, useReader } from "@/components/book/reader/ReaderProvider";
 import { BookSidebar } from "@/components/book/reader/BookSidebar";
@@ -16,6 +17,8 @@ function ShellBody({
 }) {
   const { prefs, setChromeVisible } = useReader();
   const [searchOpen, setSearchOpen] = useState(false);
+  const pathname = usePathname();
+  const active = chapters.find((c) => pathname === `/system-design/${c.slug}`);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -44,7 +47,7 @@ function ShellBody({
 
   useEffect(() => {
     const onMove = (event: MouseEvent) => {
-      if (event.clientY < 72) setChromeVisible(true);
+      if (event.clientY < 88) setChromeVisible(true);
     };
     window.addEventListener("mousemove", onMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMove);
@@ -54,7 +57,11 @@ function ShellBody({
     <div className="book-reader relative min-h-[100dvh] text-[var(--reader-fg)]">
       <div aria-hidden="true" className="book-reader-atmosphere" />
       <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <BookToolbar onOpenSearch={() => setSearchOpen(true)} />
+      <BookToolbar
+        onOpenSearch={() => setSearchOpen(true)}
+        chapterTitle={active?.title}
+        chapterSlug={active?.slug}
+      />
       <div className="relative mx-auto flex h-[100dvh] w-full max-w-6xl overflow-hidden">
         <BookSidebar chapters={chapters} />
         <div
