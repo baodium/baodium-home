@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowUpRight,
   ChevronDown,
@@ -26,6 +33,10 @@ const exploreLinks = [
   { href: "/play", label: "Play" },
 ] as const;
 
+function subscribeNowhere() {
+  return () => {};
+}
+
 export function BookToolbar({
   onOpenSearch,
   chapterTitle,
@@ -43,18 +54,40 @@ export function BookToolbar({
   } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
-  const exploreRef = useRef<HTMLDivElement>(null);
+  const exploreBtnRef = useRef<HTMLButtonElement>(null);
+  const exploreMenuRef = useRef<HTMLDivElement>(null);
   const [exploreOpen, setExploreOpen] = useState(false);
+  const [explorePos, setExplorePos] = useState({ top: 64, left: 16 });
+  const mounted = useSyncExternalStore(subscribeNowhere, () => true, () => false);
+
+  useLayoutEffect(() => {
+    if (!exploreOpen) return;
+    const update = () => {
+      const rect = exploreBtnRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setExplorePos({ top: rect.bottom + 8, left: rect.left });
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [exploreOpen]);
 
   useEffect(() => {
     if (!exploreOpen) return;
     const onPointer = (event: PointerEvent) => {
-      if (!exploreRef.current?.contains(event.target as Node)) setExploreOpen(false);
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (exploreBtnRef.current?.contains(target)) return;
+      if (exploreMenuRef.current?.contains(target)) return;
+      setExploreOpen(false);
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setExploreOpen(false);
     };
-    // Defer so the opening click does not immediately close the menu.
     const timer = window.setTimeout(() => {
       window.addEventListener("pointerdown", onPointer);
     }, 0);
@@ -75,6 +108,54 @@ export function BookToolbar({
           url: `https://baodium.com/system-design/${chapterSlug}`,
         })
       : `mailto:baodium@gmail.com?subject=${encodeURIComponent("Book feedback")}`;
+
+  const exploreMenu =
+    mounted &&
+    createPortal(
+      <AnimatePresence>
+        {exploreOpen ? (
+          <motion.div
+            ref={exploreMenuRef}
+            role="menu"
+            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2, ease }}
+            className="fixed z-[90] min-w-[12rem] overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] py-1 shadow-[0_18px_40px_-24px_rgba(28,22,16,0.5)]"
+            style={{ top: explorePos.top, left: explorePos.left }}
+          >
+            {exploreLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                role="menuitem"
+                onClick={() => setExploreOpen(false)}
+                className="block px-3.5 py-2.5 text-sm text-[var(--reader-fg)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)]"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div
+              aria-hidden="true"
+              className="my-1 border-t border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)]"
+            />
+            <a
+              href={book.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              role="menuitem"
+              onClick={() => setExploreOpen(false)}
+              className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)] hover:text-[var(--reader-fg)]"
+            >
+              Amazon
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>,
+      document.body,
+    );
 
   return (
     <div
@@ -121,8 +202,9 @@ export function BookToolbar({
                   BAODIUM
                 </span>
               </Link>
-              <div ref={exploreRef} className="relative hidden sm:block">
+              <div className="relative hidden sm:block">
                 <button
+                  ref={exploreBtnRef}
                   type="button"
                   onClick={() => setExploreOpen((v) => !v)}
                   className="inline-flex h-9 items-center gap-1 rounded-full px-2 text-sm text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
@@ -132,46 +214,6 @@ export function BookToolbar({
                   Explore
                   <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
-                <AnimatePresence>
-                  {exploreOpen ? (
-                    <motion.div
-                      role="menu"
-                      initial={reduceMotion ? false : { opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.2, ease }}
-                      className="absolute left-0 top-[calc(100%+0.4rem)] z-50 min-w-[12rem] overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] py-1 shadow-[0_18px_40px_-24px_rgba(28,22,16,0.5)]"
-                    >
-                      {exploreLinks.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          role="menuitem"
-                          onClick={() => setExploreOpen(false)}
-                          className="block px-3.5 py-2.5 text-sm text-[var(--reader-fg)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)]"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                      <div
-                        aria-hidden="true"
-                        className="my-1 border-t border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)]"
-                      />
-                      <a
-                        href={book.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        role="menuitem"
-                        onClick={() => setExploreOpen(false)}
-                        className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)] hover:text-[var(--reader-fg)]"
-                      >
-                        Amazon
-                        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span className="sr-only"> (opens in a new tab)</span>
-                      </a>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
               </div>
             </div>
 
@@ -217,6 +259,7 @@ export function BookToolbar({
           <div className="h-2" aria-hidden="true" />
         )}
       </AnimatePresence>
+      {exploreMenu}
       <BookSettings anchorRef={settingsBtnRef} />
     </div>
   );
