@@ -22,14 +22,14 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-[60] bg-ink/40 backdrop-blur-sm transition-opacity lg:hidden ${
           sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-hidden={!sidebarOpen}
         onClick={() => setSidebarOpen(false)}
       />
       <aside
-        className={`book-sidebar fixed inset-y-0 left-0 z-50 flex w-[min(100%,19rem)] flex-col border-r border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-chrome)] text-[var(--reader-fg)] transition-transform duration-300 lg:static lg:z-0 lg:h-full lg:w-[17.5rem] lg:translate-x-0 lg:shrink-0 ${
+        className={`book-sidebar fixed inset-y-0 left-0 z-[70] flex w-[min(100%,19rem)] flex-col border-r border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-chrome)] text-[var(--reader-fg)] transition-transform duration-300 lg:static lg:z-0 lg:h-full lg:w-[17.5rem] lg:translate-x-0 lg:shrink-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Table of contents"

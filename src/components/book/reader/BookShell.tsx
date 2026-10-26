@@ -53,13 +53,13 @@ function ShellBody({
   return (
     <div className="book-reader relative min-h-[100dvh] text-[var(--reader-fg)]">
       <div aria-hidden="true" className="book-reader-atmosphere" />
-      <BookToolbar onOpenSearch={() => setSearchOpen(true)} />
       <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <div className="relative z-[1] mx-auto flex h-[100dvh] w-full max-w-6xl overflow-hidden">
+      <BookToolbar onOpenSearch={() => setSearchOpen(true)} />
+      <div className="relative mx-auto flex h-[100dvh] w-full max-w-6xl overflow-hidden">
         <BookSidebar chapters={chapters} />
         <div
           id="book-reader-scroll"
-          className="book-reader-stage min-w-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-2 md:px-6 md:pb-14"
+          className="book-reader-stage relative z-[1] min-w-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-2 md:px-6 md:pb-14"
         >
           {children}
         </div>
