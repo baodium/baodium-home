@@ -43,9 +43,12 @@ export function Projects() {
               />
             </Link>
           </div>
+          <p className="mt-4 max-w-xl font-serif text-[clamp(1.35rem,2.2vw,1.75rem)] italic leading-snug tracking-[-0.02em] text-ink/80">
+            Live tools — interview practice and a status page that stays true.
+          </p>
         </Reveal>
 
-        <div className="mt-5 grid gap-8 md:mt-6 lg:grid-cols-2 lg:gap-6">
+        <div className="mt-6 grid gap-8 md:mt-8 lg:grid-cols-2 lg:gap-6">
           {ordered.map((project, index) => (
             <Reveal key={project.slug} delay={index * 0.12} y={22}>
               <ProjectCard project={project} />

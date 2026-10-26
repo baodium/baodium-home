@@ -9,8 +9,9 @@ import { book } from "@/data/writing";
 
 type Link = { label: string; href: string };
 
+/** Lean elsewhere — Scholar once here as footer nav; music lives in Also. */
 const elsewhere: Link[] = [
-  { label: "Email", href: site.email },
+  { label: site.emailLabel, href: site.email },
   { label: "LinkedIn", href: site.linkedin },
   { label: "Google Scholar", href: site.scholar },
   { label: "Book on Amazon", href: book.href },
@@ -28,7 +29,7 @@ export function Footer() {
 
   return (
     <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
-      <div className="grain relative overflow-hidden rounded-[1.75rem] bg-ember pt-8 md:rounded-[2.25rem] md:pt-10">
+      <div className="grain relative overflow-hidden rounded-[1.5rem] bg-ember pt-7 md:rounded-[2rem] md:pt-9">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[50%]"
@@ -37,7 +38,7 @@ export function Footer() {
         </div>
 
         <div className="shell relative z-[2]">
-          <div className="flex">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <nav aria-label="Elsewhere">
               <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[0.9rem]">
                 {elsewhere.map((link) => {
@@ -71,7 +72,7 @@ export function Footer() {
 
           <div
             ref={markRef}
-            className="wordmark relative mb-1 mt-5 md:mb-2 md:mt-7"
+            className="wordmark relative mb-0.5 mt-4 md:mb-1 md:mt-5"
             onPointerMove={(event) => {
               const el = markRef.current;
               if (!el || event.pointerType !== "mouse") return;
@@ -83,7 +84,7 @@ export function Footer() {
             <span className="sr-only">{site.brand}</span>
             <p
               aria-hidden="true"
-              className="flex select-none justify-between text-[clamp(1.65rem,7.2vw,4.75rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
+              className="flex select-none justify-between text-[clamp(1.35rem,5.5vw,3.35rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
             >
               {letters.map((letter, index) => (
                 <RisingLetter key={index} letter={letter} index={index} progress={scrollYProgress} />
@@ -91,7 +92,7 @@ export function Footer() {
             </p>
             <p
               aria-hidden="true"
-              className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(1.65rem,7.2vw,4.75rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
+              className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(1.35rem,5.5vw,3.35rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
             >
               {letters.map((letter, index) => (
                 <span
@@ -104,7 +105,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-4 text-sm text-cream/60 md:py-5">
+          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-3.5 text-sm text-cream/60 md:py-4">
             <p>© {year} Baodium</p>
             <a
               href="#main"

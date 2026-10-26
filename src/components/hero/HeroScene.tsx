@@ -14,6 +14,7 @@ import { ArrowRight } from "lucide-react";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
+import { site } from "@/data/site";
 import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -157,11 +158,20 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
           </h1>
 
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.35, ease }}
+            className="mt-6 max-w-[26rem] text-[1.02rem] leading-snug text-cream/72 md:mt-7 md:text-[1.08rem]"
+          >
+            {site.tagline}
+          </motion.p>
+
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.55, ease }}
-            className="mt-7 flex flex-wrap items-center gap-3 md:mt-9"
+            className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
           >
             <Magnetic>
               <Link

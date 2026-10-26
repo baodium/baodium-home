@@ -64,8 +64,8 @@ export function PlaySection() {
                   Feel the failure mode.
                 </h2>
                 <p className="mt-4 max-w-xl text-[1.02rem] leading-relaxed text-cream/72">
-                  SLO Watch, traffic surges, cascades, cache stampedes — short drills
-                  from the book. Pick one and learn by doing.
+                  Short reliability drills from the book — surges, cascades, stampedes.
+                  Pick one. Keep the page alive.
                 </p>
               </div>
               <Link
