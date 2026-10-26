@@ -7,8 +7,6 @@ import type { BookChapter } from "@/lib/book/types";
 import { ChapterContent } from "@/components/book/reader/ChapterContent";
 import { BookChapterNav } from "@/components/book/reader/BookChapterNav";
 import { BookFeedback } from "@/components/book/reader/BookFeedback";
-import { BookShareBar } from "@/components/book/reader/BookShareBar";
-import { BookProgress } from "@/components/book/reader/BookProgress";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
@@ -31,7 +29,7 @@ export function BookChapterView({
   const scrollRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerStart = useRef<{ x: number; y: number; t: number } | null>(null);
-  const { flipDirection, setFlipDirection, setChromeVisible, chromeVisible } = useReader();
+  const { flipDirection, setFlipDirection, setChromeVisible } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const dragX = useMotionValue(0);
   const pageShade = useTransform(dragX, [-160, 0, 160], [0.18, 0, 0.18]);
@@ -150,11 +148,8 @@ export function BookChapterView({
   return (
     <div
       ref={scrollRef}
-      className={`book-chapter-scroll mx-auto w-full max-w-[calc(var(--reader-measure)+4.5rem)] ${
-        chromeVisible ? "pt-[4.75rem] md:pt-[5.25rem]" : "pt-8 md:pt-10"
-      } pb-16 transition-[padding] duration-300`}
+      className="book-chapter-scroll relative mx-auto w-full max-w-[calc(var(--reader-measure)+4.5rem)] pb-16 pt-2 md:pt-3"
     >
-      <BookProgress slug={chapter.slug} />
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={chapter.slug}
@@ -208,7 +203,7 @@ export function BookChapterView({
               <div aria-hidden="true" className="book-page-gutter" />
               <div aria-hidden="true" className="book-page-grain" />
               <div className="relative z-[1] px-5 py-8 sm:px-9 sm:py-11 md:px-12 md:py-12">
-                <header className="mb-8 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] pb-6">
+                <header className="mb-8 border-b border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pb-6">
                   <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-cinnabar">
                     <span className="mr-2 inline-block min-w-[1.6rem]">
                       {chapterNumberLabel(chapter.slug)}
@@ -218,10 +213,6 @@ export function BookChapterView({
                   <h1 className="mt-3 font-serif text-[clamp(1.75rem,3.5vw,2.45rem)] leading-[1.08] tracking-[-0.02em]">
                     {chapter.title}
                   </h1>
-                  <p className="mt-3 text-sm text-[var(--reader-muted)]">
-                    Swipe or use ← → to flip chapters
-                  </p>
-                  <BookShareBar chapterTitle={chapter.title} chapterSlug={chapter.slug} />
                 </header>
                 <ChapterContent html={chapter.html} />
                 <BookFeedback chapterTitle={chapter.title} chapterSlug={chapter.slug} />
