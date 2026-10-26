@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
-import { SloWatchGame } from "@/components/SloWatchGame";
 import { Reveal } from "@/components/motion/Reveal";
+import {
+  difficultyLabel,
+  playGames,
+} from "@/data/play-games";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 /**
- * Play stage: layered ember composition (depth + soft parallax), Baodium copper/cream.
- * Polish cues from frvky.online / oyin.design — composition and motion only, not branding.
+ * Play stage: multi-game hub teaser — copper/cream Baodium craft.
  */
 export function PlaySection() {
   const ref = useRef<HTMLElement>(null);
@@ -33,7 +35,6 @@ export function PlaySection() {
           style={{ y: panelY }}
           className="grain relative overflow-hidden rounded-[2rem] bg-ember px-5 py-10 text-cream md:rounded-[3rem] md:px-10 md:py-14"
         >
-          {/* Layered atmosphere — warm fields, not purple glow */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <motion.div
               style={{ y: glowY }}
@@ -46,29 +47,50 @@ export function PlaySection() {
           <div className="relative z-[2] mx-auto w-full max-w-[84rem]">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="kicker text-amber">Play · SLO Watch</p>
+                <p className="kicker text-amber">Play · Games</p>
                 <h2
                   id="play-heading"
                   className="mt-4 max-w-2xl font-serif text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.03em]"
                 >
-                  Keep checkout inside the SLO.
+                  Feel the failure mode.
                 </h2>
                 <p className="mt-4 max-w-xl text-[1.02rem] leading-relaxed text-cream/72">
-                  A reliability game from the book — size the pool, survive the spike, then read the
-                  chapter that teaches what just happened.
+                  SLO Watch, traffic surges, cascades, cache stampedes — short drills
+                  from the book. Pick one and learn by doing.
                 </p>
               </div>
               <Link
                 href="/play"
                 className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-[0.9rem] text-cream/80 transition-colors hover:border-amber/50 hover:text-cream"
               >
-                Open full stage
+                Open play hub
                 <span aria-hidden="true">↗</span>
               </Link>
             </div>
-            <div className="mt-8">
-              <SloWatchGame embedded />
-            </div>
+
+            <ul className="slo-game mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {playGames.map((game) => (
+                <li key={game.slug}>
+                  <Link
+                    href={`/play/${game.slug}`}
+                    className="group flex h-full flex-col border border-white/12 bg-night/35 p-4 transition-[border-color,background] duration-300 hover:border-amber/40 hover:bg-night/50 md:p-5"
+                  >
+                    <span className="text-[0.68rem] uppercase tracking-[0.16em] text-cream/45">
+                      {difficultyLabel(game.difficulty)} · {game.minutes}
+                    </span>
+                    <span className="mt-3 font-serif text-xl tracking-[-0.02em] text-cream">
+                      {game.title}
+                    </span>
+                    <span className="mt-2 flex-1 text-[0.9rem] leading-relaxed text-cream/65">
+                      {game.feel}
+                    </span>
+                    <span className="mt-4 text-[0.85rem] text-amber transition-transform duration-300 group-hover:translate-x-0.5">
+                      Enter →
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </motion.div>
       </Reveal>

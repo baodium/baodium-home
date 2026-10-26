@@ -263,8 +263,8 @@ function buildResult(
 
   const shareText =
     outcome === "won"
-      ? `I held the SLO in Baodium’s SLO Watch (score ${score}). Pool under fire, no cascade. Try it: https://baodium.com/play`
-      : `SLO Watch got me — ${state.cascade ? "retry cascade" : "error budget gone"} at wave ${wave}. Can you hold it? https://baodium.com/play`;
+      ? `I held the SLO in Baodium’s SLO Watch (score ${score}). Pool under fire, no cascade. Try it: https://baodium.com/play/slo-watch`
+      : `SLO Watch got me — ${state.cascade ? "retry cascade" : "error budget gone"} at wave ${wave}. Can you hold it? https://baodium.com/play/slo-watch`;
 
   return {
     outcome,

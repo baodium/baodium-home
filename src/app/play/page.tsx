@@ -1,47 +1,25 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Footer } from "@/components/Footer";
-import { SloWatchGame } from "@/components/SloWatchGame";
+import { PlayChrome } from "@/components/play/PlayChrome";
+import { PlayHub } from "@/components/play/PlayHub";
 import { site } from "@/data/site";
-import { book } from "@/data/writing";
 
 export const metadata: Metadata = {
-  title: "SLO Watch",
+  title: "Play",
   description:
-    "Keep Baodium checkout inside the SLO through traffic spikes, pool saturation, and retry storms. A reliability game from Practical System Design.",
+    "Choose a Baodium reliability game — SLO Watch, Traffic Surge, Cascade, Cache Roulette, Tail Latency. Learn system design by doing.",
   alternates: { canonical: `${site.url}/play` },
   openGraph: {
-    title: "SLO Watch — Baodium",
+    title: "Play — Baodium",
     description:
-      "Hold the SLO under load. Size the pool, pick retries, survive the cascade — then read the chapter.",
+      "Pick a game. Feel the failure mode. Short SRE drills from Practical System Design.",
     url: `${site.url}/play`,
   },
 };
 
 export default function PlayPage() {
   return (
-    <>
-      <header className="border-b border-ink/10 bg-cream">
-        <div className="shell flex items-center justify-between gap-4 py-4 text-ink">
-          <Link href="/" className="font-mono text-[0.72rem] tracking-[0.28em]">
-            BAODIUM
-          </Link>
-          <Link
-            href={book.readPath}
-            className="text-[0.84rem] text-cinnabar transition-colors hover:text-ink"
-          >
-            Free book →
-          </Link>
-        </div>
-      </header>
-      <main id="main" className="bg-cream pb-16 pt-10 text-ink md:pb-24 md:pt-14">
-        <div className="shell">
-          <div className="grain overflow-hidden rounded-[2rem] bg-ember p-5 text-cream md:rounded-[3rem] md:p-10">
-            <SloWatchGame compact />
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </>
+    <PlayChrome>
+      <PlayHub />
+    </PlayChrome>
   );
 }
