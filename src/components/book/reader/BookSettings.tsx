@@ -1,12 +1,15 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef } from "react";
 import { useReader } from "@/components/book/reader/ReaderProvider";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import type { ReaderFontScale, ReaderTheme } from "@/lib/book/reader-styles";
 
-const themes: { id: ReaderTheme; label: string }[] = [
-  { id: "light", label: "Light" },
-  { id: "dark", label: "Dark" },
-  { id: "paper", label: "Paper" },
+const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
+  { id: "light", label: "Light", swatch: "#f6f1e7" },
+  { id: "paper", label: "Paper", swatch: "#f0e6d4" },
+  { id: "dark", label: "Dark", swatch: "#1e1814" },
 ];
 
 const scales: { id: ReaderFontScale; label: string }[] = [
@@ -15,65 +18,137 @@ const scales: { id: ReaderFontScale; label: string }[] = [
   { id: "lg", label: "A+" },
 ];
 
+const measures: { id: "narrow" | "comfortable" | "wide"; label: string }[] = [
+  { id: "narrow", label: "Narrow" },
+  { id: "comfortable", label: "Comfort" },
+  { id: "wide", label: "Wide" },
+];
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export function BookSettings() {
-  const { prefs, setPrefs } = useReader();
+  const { prefs, setPrefs, settingsOpen, setSettingsOpen } = useReader();
+  const reduceMotion = usePrefersReducedMotion();
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!settingsOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSettingsOpen(false);
+    };
+    const onPointer = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (!panelRef.current || !target) return;
+      if (panelRef.current.contains(target)) return;
+      const trigger = (event.target as HTMLElement | null)?.closest?.(
+        "[data-reader-settings-trigger]",
+      );
+      if (trigger) return;
+      setSettingsOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("mousedown", onPointer);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onPointer);
+    };
+  }, [settingsOpen, setSettingsOpen]);
 
   return (
-    <div
-      className="flex flex-wrap items-center gap-2 border-t border-ink/10 px-4 py-3 text-xs text-[var(--reader-muted)] md:px-0"
-      aria-label="Reading settings"
-    >
-      <span className="font-mono uppercase tracking-[0.16em]">Theme</span>
-      <div className="flex gap-1" role="group" aria-label="Color theme">
-        {themes.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setPrefs({ theme: t.id })}
-            className={`rounded-full px-3 py-1.5 transition-colors ${
-              prefs.theme === t.id
-                ? "bg-ink text-[var(--reader-bg)]"
-                : "border border-ink/15 hover:border-ink/30"
-            }`}
-            aria-pressed={prefs.theme === t.id}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-      <span className="mx-1 hidden h-4 w-px bg-ink/15 sm:inline" aria-hidden="true" />
-      <span className="font-mono uppercase tracking-[0.16em]">Size</span>
-      <div className="flex gap-1" role="group" aria-label="Font size">
-        {scales.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => setPrefs({ fontScale: s.id })}
-            className={`rounded-full px-3 py-1.5 transition-colors ${
-              prefs.fontScale === s.id
-                ? "bg-ink text-[var(--reader-bg)]"
-                : "border border-ink/15 hover:border-ink/30"
-            }`}
-            aria-pressed={prefs.fontScale === s.id}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-      <span className="mx-1 hidden h-4 w-px bg-ink/15 sm:inline" aria-hidden="true" />
-      <span className="font-mono uppercase tracking-[0.16em]">Measure</span>
-      <select
-        value={prefs.measure}
-        onChange={(e) =>
-          setPrefs({ measure: e.target.value as "narrow" | "comfortable" | "wide" })
-        }
-        className="rounded-full border border-ink/15 bg-transparent px-3 py-1.5"
-        aria-label="Line length"
-      >
-        <option value="narrow">Narrow</option>
-        <option value="comfortable">Comfortable</option>
-        <option value="wide">Wide</option>
-      </select>
-    </div>
+    <AnimatePresence>
+      {settingsOpen ? (
+        <motion.div
+          ref={panelRef}
+          role="dialog"
+          aria-label="Reading settings"
+          aria-modal="false"
+          initial={reduceMotion ? false : { opacity: 0, y: -8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98 }}
+          transition={{ duration: reduceMotion ? 0.01 : 0.28, ease }}
+          className="book-settings-panel absolute right-0 top-[calc(100%+0.55rem)] z-40 w-[min(100vw-1.5rem,18.5rem)] overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[var(--reader-page)] p-3 shadow-[0_24px_50px_-28px_rgba(40,24,12,0.55)]"
+        >
+          <p className="px-1 pb-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
+            Reading
+          </p>
+
+          <div className="space-y-3">
+            <fieldset>
+              <legend className="mb-1.5 px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+                Theme
+              </legend>
+              <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Color theme">
+                {themes.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setPrefs({ theme: t.id })}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 text-[0.72rem] transition-colors ${
+                      prefs.theme === t.id
+                        ? "border-cinnabar/50 bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)]"
+                        : "border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] hover:border-[color-mix(in_srgb,var(--reader-fg)_28%,transparent)]"
+                    }`}
+                    aria-pressed={prefs.theme === t.id}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="h-5 w-5 rounded-full border border-ink/15 shadow-inner"
+                      style={{ background: t.swatch }}
+                    />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend className="mb-1.5 px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+                Size
+              </legend>
+              <div className="flex gap-1" role="group" aria-label="Font size">
+                {scales.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setPrefs({ fontScale: s.id })}
+                    className={`min-h-10 flex-1 rounded-full text-sm transition-colors ${
+                      prefs.fontScale === s.id
+                        ? "bg-ink text-[var(--reader-page)]"
+                        : "border border-[color-mix(in_srgb,var(--reader-fg)_14%,transparent)] hover:border-[color-mix(in_srgb,var(--reader-fg)_30%,transparent)]"
+                    }`}
+                    aria-pressed={prefs.fontScale === s.id}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend className="mb-1.5 px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+                Measure
+              </legend>
+              <div className="flex gap-1" role="group" aria-label="Line length">
+                {measures.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setPrefs({ measure: m.id })}
+                    className={`min-h-10 flex-1 rounded-full px-2 text-[0.72rem] transition-colors ${
+                      prefs.measure === m.id
+                        ? "bg-ink text-[var(--reader-page)]"
+                        : "border border-[color-mix(in_srgb,var(--reader-fg)_14%,transparent)] hover:border-[color-mix(in_srgb,var(--reader-fg)_30%,transparent)]"
+                    }`}
+                    aria-pressed={prefs.measure === m.id}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }
