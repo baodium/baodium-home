@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BookShell } from "@/components/book/reader/BookShell";
 import { getManifest } from "@/lib/book/catalog";
 import { book } from "@/data/writing";
+import "katex/dist/katex.min.css";
 
 const description = `Read ${book.title}: ${book.subtitle}, by ${book.author}. Free to read online.`;
 

@@ -176,8 +176,8 @@ export function BookSection() {
 
           <Reveal className="mt-10 border-t border-white/10 pt-8 md:mt-12 md:pt-10">
             <p className="max-w-lg text-sm leading-relaxed text-cream/70">
-              Fourteen chapters on production failures and the design decisions behind reliable
-              systems.
+              Fourteen chapters of illustrative production failures and the design decisions behind
+              reliable systems. Baodium in the stories is fictional.
             </p>
             <ol className="mt-6 columns-1 gap-x-10 text-sm text-cream/85 sm:columns-2">
               {bookToc.slice(0, 8).map((entry) => (
