@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useMotionValue, useTransform } from "motion/react";
 import type { BookChapter } from "@/lib/book/types";
@@ -213,6 +214,15 @@ export function BookChapterView({
                   <h1 className="mt-3 font-serif text-[clamp(1.75rem,3.5vw,2.45rem)] leading-[1.08] tracking-[-0.02em]">
                     {chapter.title}
                   </h1>
+                  {chapter.slug === "chapter-1" ? (
+                    <Link
+                      href="/system-design/experience/chapter-1"
+                      className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--cinnabar)_45%,transparent)] bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] px-4 text-sm font-medium text-cinnabar transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_18%,transparent)]"
+                    >
+                      Operate this incident
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  ) : null}
                 </header>
                 <ChapterContent html={chapter.html} />
                 <BookFeedback chapterTitle={chapter.title} chapterSlug={chapter.slug} />
