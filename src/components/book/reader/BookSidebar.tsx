@@ -48,6 +48,20 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
+        <div className="flex flex-wrap gap-x-3 gap-y-1 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-4 py-2.5 text-xs sm:hidden">
+          <Link href="/" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Home
+          </Link>
+          <Link href="/#products" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Products
+          </Link>
+          <Link href="/system-design" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Overview
+          </Link>
+          <Link href="/play" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Play
+          </Link>
+        </div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
           {activeChapter && activeChapter.sections.length > 1 ? (
             <div className="mb-3 rounded-xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_55%,transparent)] pb-1 pt-1">

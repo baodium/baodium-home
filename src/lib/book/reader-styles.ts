@@ -9,10 +9,14 @@ export type ReaderPrefs = {
   measure: "narrow" | "comfortable" | "wide";
   lastSlug?: string;
   scrollTops?: Record<string, number>;
+  /** 0–1 progress within lastSlug, for resume UI */
+  progressBySlug?: Record<string, number>;
+  feedbackDismissedAt?: number;
 };
 
+/** Light = white page (default). Paper stays optional cream. */
 export const defaultReaderPrefs: ReaderPrefs = {
-  theme: "paper",
+  theme: "light",
   fontScale: "md",
   measure: "comfortable",
 };
@@ -21,7 +25,6 @@ const THEME_ALIASES: Record<string, ReaderTheme> = {
   light: "light",
   dark: "dark",
   paper: "paper",
-  // Discarded redesign keys → cream/copper paper theme
   folio: "paper",
   day: "light",
   night: "dark",
