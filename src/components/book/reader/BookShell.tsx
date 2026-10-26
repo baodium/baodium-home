@@ -6,7 +6,6 @@ import { ReaderProvider, useReader } from "@/components/book/reader/ReaderProvid
 import { BookSidebar } from "@/components/book/reader/BookSidebar";
 import { BookToolbar } from "@/components/book/reader/BookToolbar";
 import { BookSearch } from "@/components/book/reader/BookSearch";
-import { BookSettings } from "@/components/book/reader/BookSettings";
 
 function ShellBody({
   chapters,
@@ -15,7 +14,7 @@ function ShellBody({
   chapters: BookChapterMeta[];
   children: ReactNode;
 }) {
-  const { prefs } = useReader();
+  const { prefs, setChromeVisible } = useReader();
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -43,17 +42,26 @@ function ShellBody({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    const onMove = (event: MouseEvent) => {
+      if (event.clientY < 72) setChromeVisible(true);
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [setChromeVisible]);
+
   return (
-    <div className="book-reader min-h-[100dvh] bg-[var(--reader-bg)] text-[var(--reader-fg)]">
-      <BookToolbar onOpenSearch={() => setSearchOpen(true)} />
+    <div className="book-reader relative min-h-[100dvh] text-[var(--reader-fg)]">
+      <div aria-hidden="true" className="book-reader-atmosphere" />
       <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <div className="mx-auto flex w-full max-w-6xl lg:min-h-[calc(100dvh-3.25rem)]">
+      <BookToolbar onOpenSearch={() => setSearchOpen(true)} />
+      <div className="relative mx-auto flex h-[100dvh] w-full max-w-6xl overflow-hidden">
         <BookSidebar chapters={chapters} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex-1 px-4 py-8 md:px-8 md:py-12">{children}</div>
-          <div className="border-t border-ink/10 px-4 md:px-8">
-            <BookSettings />
-          </div>
+        <div
+          id="book-reader-scroll"
+          className="book-reader-stage relative z-[1] min-w-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-2 md:px-6 md:pb-14"
+        >
+          {children}
         </div>
       </div>
     </div>

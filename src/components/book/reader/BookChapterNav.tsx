@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useReader } from "@/components/book/reader/ReaderProvider";
+import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
 
 export function BookChapterNav({
   prev,
@@ -10,35 +11,55 @@ export function BookChapterNav({
   prev: { slug: string; title: string } | null;
   next: { slug: string; title: string } | null;
 }) {
+  const { setFlipDirection } = useReader();
+
   return (
     <nav
-      className="mt-12 flex flex-col gap-4 border-t border-ink/10 pt-8 sm:flex-row sm:items-stretch sm:justify-between"
+      className="book-flip-nav mt-14 grid gap-3 border-t border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] pt-8 sm:grid-cols-2"
       aria-label="Chapter navigation"
     >
       {prev ? (
         <Link
           href={`/system-design/${prev.slug}`}
-          className="group flex min-h-12 flex-1 flex-col rounded-xl border border-ink/10 px-4 py-3 transition-colors hover:border-ink/25 hover:bg-ink/[0.03] sm:max-w-[48%]"
+          onClick={() => setFlipDirection(-1)}
+          className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_70%,var(--reader-chrome))] px-4 py-4 transition-[transform,border-color,box-shadow] hover:-translate-x-0.5 hover:border-cinnabar/35 hover:shadow-[0_18px_36px_-28px_rgba(40,24,12,0.55)]"
         >
-          <span className="flex items-center gap-1 text-xs font-mono uppercase tracking-[0.14em] text-[var(--reader-muted)]">
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-            Previous
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-amber/50 via-cinnabar/40 to-transparent opacity-70"
+          />
+          <span className="flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+            <span aria-hidden="true" className="text-base leading-none">‹</span>
+            Flip back
           </span>
-          <span className="mt-1 font-serif text-lg leading-snug">{prev.title}</span>
+          <span className="mt-2 flex items-baseline gap-2.5">
+            <span className="font-mono text-xs text-cinnabar">{chapterNumberLabel(prev.slug)}</span>
+            <span className="font-serif text-lg leading-snug">{chapterKicker(prev.slug, prev.title)}</span>
+          </span>
+          <span className="mt-1 block text-sm text-[var(--reader-muted)]">{prev.title}</span>
         </Link>
       ) : (
-        <span className="hidden flex-1 sm:block" />
+        <span className="hidden sm:block" />
       )}
       {next ? (
         <Link
           href={`/system-design/${next.slug}`}
-          className="group flex min-h-12 flex-1 flex-col rounded-xl border border-ink/10 px-4 py-3 text-right transition-colors hover:border-ink/25 hover:bg-ink/[0.03] sm:max-w-[48%]"
+          onClick={() => setFlipDirection(1)}
+          className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_70%,var(--reader-chrome))] px-4 py-4 text-right transition-[transform,border-color,box-shadow] hover:translate-x-0.5 hover:border-cinnabar/35 hover:shadow-[0_18px_36px_-28px_rgba(40,24,12,0.55)] sm:justify-self-stretch"
         >
-          <span className="flex items-center justify-end gap-1 text-xs font-mono uppercase tracking-[0.14em] text-[var(--reader-muted)]">
-            Next
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 w-1.5 bg-gradient-to-b from-amber/50 via-cinnabar/40 to-transparent opacity-70"
+          />
+          <span className="flex items-center justify-end gap-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+            Flip ahead
+            <span aria-hidden="true" className="text-base leading-none">›</span>
           </span>
-          <span className="mt-1 font-serif text-lg leading-snug">{next.title}</span>
+          <span className="mt-2 flex items-baseline justify-end gap-2.5">
+            <span className="font-serif text-lg leading-snug">{chapterKicker(next.slug, next.title)}</span>
+            <span className="font-mono text-xs text-cinnabar">{chapterNumberLabel(next.slug)}</span>
+          </span>
+          <span className="mt-1 block text-sm text-[var(--reader-muted)]">{next.title}</span>
         </Link>
       ) : null}
     </nav>

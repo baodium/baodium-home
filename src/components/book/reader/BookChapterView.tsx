@@ -2,10 +2,17 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { motion, useMotionValue, useTransform } from "motion/react";
 import type { BookChapter } from "@/lib/book/types";
 import { ChapterContent } from "@/components/book/reader/ChapterContent";
 import { BookChapterNav } from "@/components/book/reader/BookChapterNav";
+import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
+import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+const SWIPE_THRESHOLD = 72;
 
 export function BookChapterView({
   chapter,
@@ -18,50 +25,175 @@ export function BookChapterView({
 }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const pointerStart = useRef<{ x: number; y: number; t: number } | null>(null);
+  const { flipDirection, setFlipDirection, setChromeVisible, chromeVisible } = useReader();
+  const reduceMotion = usePrefersReducedMotion();
+  const dragX = useMotionValue(0);
+  const pageShade = useTransform(dragX, [-140, 0, 140], [0.1, 0, 0.1]);
+  const pageRotate = useTransform(dragX, [-180, 0, 180], [3.5, 0, -3.5]);
 
   useEffect(() => {
+    const scroller =
+      (document.getElementById("book-reader-scroll") as HTMLElement | null) ??
+      scrollRef.current;
     const prefs = loadReaderPrefs();
     const top = prefs.scrollTops?.[chapter.slug];
-    if (scrollRef.current && typeof top === "number") {
-      scrollRef.current.scrollTop = top;
+    if (scroller) {
+      scroller.scrollTop = typeof top === "number" ? top : 0;
     }
     saveReaderPrefs({ ...prefs, lastSlug: chapter.slug });
-  }, [chapter.slug]);
+    setChromeVisible(true);
+  }, [chapter.slug, setChromeVisible]);
 
   useEffect(() => {
-    const el = scrollRef.current;
+    const el =
+      (document.getElementById("book-reader-scroll") as HTMLElement | null) ??
+      scrollRef.current;
     if (!el) return;
+    let last = el.scrollTop;
     const onScroll = () => {
       const prefs = loadReaderPrefs();
       saveReaderPrefs({
         ...prefs,
         scrollTops: { ...prefs.scrollTops, [chapter.slug]: el.scrollTop },
       });
+      const y = el.scrollTop;
+      const delta = y - last;
+      if (Math.abs(delta) < 8) return;
+      setChromeVisible(delta < 0 || y < 48);
+      last = y;
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [chapter.slug]);
+  }, [chapter.slug, setChromeVisible]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const tag = (event.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (event.key === "ArrowRight" && next) router.push(`/system-design/${next.slug}`);
-      if (event.key === "ArrowLeft" && prev) router.push(`/system-design/${prev.slug}`);
+      if (event.key === "ArrowRight" && next) {
+        setFlipDirection(1);
+        router.push(`/system-design/${next.slug}`);
+      }
+      if (event.key === "ArrowLeft" && prev) {
+        setFlipDirection(-1);
+        router.push(`/system-design/${prev.slug}`);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [next, prev, router]);
+  }, [next, prev, router, setFlipDirection]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("a, button, input, textarea, pre, .book-listing")) return;
+      pointerStart.current = { x: event.clientX, y: event.clientY, t: Date.now() };
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      const start = pointerStart.current;
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      if (Math.abs(dx) < Math.abs(dy)) {
+        dragX.set(0);
+        return;
+      }
+      if (!reduceMotion) dragX.set(dx * 0.35);
+    };
+
+    const finishPointer = (event: PointerEvent) => {
+      const start = pointerStart.current;
+      pointerStart.current = null;
+      dragX.set(0);
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      const dt = Date.now() - start.t;
+      if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+      if (dt > 900) return;
+      if (dx < 0 && next) {
+        setFlipDirection(1);
+        router.push(`/system-design/${next.slug}`);
+      } else if (dx > 0 && prev) {
+        setFlipDirection(-1);
+        router.push(`/system-design/${prev.slug}`);
+      }
+    };
+
+    stage.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", finishPointer);
+    window.addEventListener("pointercancel", finishPointer);
+    return () => {
+      stage.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", finishPointer);
+      window.removeEventListener("pointercancel", finishPointer);
+    };
+  }, [dragX, next, prev, reduceMotion, router, setFlipDirection]);
+
+  const enterX = reduceMotion ? 0 : flipDirection >= 0 ? 56 : -56;
+  const enterRotate = reduceMotion ? 0 : flipDirection >= 0 ? -7 : 7;
 
   return (
-    <div ref={scrollRef} className="book-chapter-scroll mx-auto w-full max-w-[var(--reader-measure)]">
-      <header className="mb-8 border-b border-ink/10 pb-6">
-        <h1 className="font-serif text-[clamp(1.75rem,3.5vw,2.35rem)] leading-[1.08] tracking-[-0.02em]">
-          {chapter.title}
-        </h1>
-      </header>
-      <ChapterContent html={chapter.html} />
-      <BookChapterNav prev={prev} next={next} />
+    <div
+      ref={scrollRef}
+      className={`book-chapter-scroll mx-auto w-full max-w-[calc(var(--reader-measure)+4.5rem)] ${
+        chromeVisible ? "pt-16 md:pt-20" : "pt-6 md:pt-8"
+      } pb-16 transition-[padding] duration-300`}
+    >
+      <motion.div
+        key={chapter.slug}
+        className="book-page-stage relative touch-pan-y [perspective:1400px]"
+        initial={
+          reduceMotion
+            ? { opacity: 1 }
+            : { opacity: 0, x: enterX, rotateY: enterRotate, filter: "blur(2px)" }
+        }
+        animate={{ opacity: 1, x: 0, rotateY: 0, filter: "blur(0px)" }}
+        transition={{ duration: reduceMotion ? 0.01 : 0.55, ease }}
+      >
+        <motion.div
+          ref={stageRef}
+          className="relative"
+          style={{ x: dragX, rotateY: pageRotate, transformStyle: "preserve-3d" }}
+        >
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[2] rounded-[1.15rem] bg-ink"
+            style={{ opacity: pageShade }}
+          />
+          <article className="book-page relative overflow-hidden rounded-[1.15rem]">
+            <div aria-hidden="true" className="book-page-gutter" />
+            <div aria-hidden="true" className="book-page-grain" />
+            <div className="relative z-[1] px-5 py-8 sm:px-9 sm:py-11 md:px-12 md:py-12">
+              <header className="mb-8 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] pb-6">
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-cinnabar">
+                  <span className="mr-2 inline-block min-w-[1.6rem]">
+                    {chapterNumberLabel(chapter.slug)}
+                  </span>
+                  {chapterKicker(chapter.slug, chapter.title)}
+                </p>
+                <h1 className="mt-3 font-serif text-[clamp(1.75rem,3.5vw,2.45rem)] leading-[1.08] tracking-[-0.02em]">
+                  {chapter.title}
+                </h1>
+                <p className="mt-3 text-sm text-[var(--reader-muted)]">
+                  Swipe or use ← → to flip chapters
+                </p>
+              </header>
+              <ChapterContent html={chapter.html} />
+              <BookChapterNav prev={prev} next={next} />
+            </div>
+          </article>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

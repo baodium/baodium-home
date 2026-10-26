@@ -460,21 +460,36 @@ html {
 
 /* ——— Online book reader ——— */
 html[data-reader-theme="light"] {
-  --reader-bg: #f6f1e7;
+  --reader-bg: #ebe3d4;
+  --reader-chrome: #e4dac8;
+  --reader-page: #faf6ee;
   --reader-fg: #2b221d;
   --reader-muted: rgba(43, 34, 29, 0.62);
+  --reader-desk:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 248, 236, 0.55), transparent 55%),
+    linear-gradient(165deg, #efe6d6 0%, #e3d8c4 48%, #dccfb8 100%);
 }
 
 html[data-reader-theme="dark"] {
-  --reader-bg: #1e1814;
+  --reader-bg: #171310;
+  --reader-chrome: #1a1512;
+  --reader-page: #241c17;
   --reader-fg: #f5efe5;
   --reader-muted: rgba(245, 239, 229, 0.62);
+  --reader-desk:
+    radial-gradient(110% 70% at 50% -8%, rgba(90, 58, 42, 0.28), transparent 50%),
+    linear-gradient(165deg, #1c1612 0%, #14100d 55%, #100d0b 100%);
 }
 
 html[data-reader-theme="paper"] {
-  --reader-bg: #f0e6d4;
+  --reader-bg: #e8dcc8;
+  --reader-chrome: #dfd0b8;
+  --reader-page: #f3e8d4;
   --reader-fg: #2b221d;
   --reader-muted: rgba(43, 34, 29, 0.58);
+  --reader-desk:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 244, 226, 0.5), transparent 55%),
+    linear-gradient(165deg, #eadfca 0%, #dfd0b6 45%, #d5c4a8 100%);
 }
 
 html[data-reader-scale="sm"] {
@@ -499,14 +514,89 @@ html[data-reader-measure="wide"] {
 
 .book-reader {
   /* Fallbacks before client theme attribute hydrates */
-  --reader-bg: #f0e6d4;
+  --reader-bg: #e8dcc8;
+  --reader-chrome: #dfd0b8;
+  --reader-page: #f3e8d4;
   --reader-fg: #2b221d;
   --reader-muted: rgba(43, 34, 29, 0.58);
   --reader-font-size: 1.12rem;
   --reader-measure: 40rem;
+  --reader-desk:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 244, 226, 0.5), transparent 55%),
+    linear-gradient(165deg, #eadfca 0%, #dfd0b6 45%, #d5c4a8 100%);
+  position: relative;
+  isolation: isolate;
   font-size: var(--reader-font-size, 1.12rem);
-  background: var(--reader-bg);
+  background: var(--reader-desk);
   color: var(--reader-fg);
+}
+
+.book-reader-atmosphere {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 40%, rgba(40, 24, 12, 0.14) 100%),
+    radial-gradient(ellipse 45% 35% at 12% 88%, rgba(173, 79, 54, 0.07), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 90% 12%, rgba(222, 162, 124, 0.1), transparent 65%);
+}
+
+.book-reader-stage {
+  position: relative;
+}
+
+.book-page {
+  background:
+    linear-gradient(90deg, rgba(40, 24, 12, 0.045) 0%, transparent 1.1rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--reader-page) 94%, white) 0%, var(--reader-page) 100%);
+  color: var(--reader-fg);
+  box-shadow:
+    0 1px 0 rgba(255, 252, 245, 0.55) inset,
+    0 28px 60px -36px rgba(40, 24, 12, 0.55),
+    0 8px 24px -16px rgba(40, 24, 12, 0.35),
+    -10px 0 28px -22px rgba(40, 24, 12, 0.28);
+}
+
+.book-page-gutter {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1.15rem;
+  background: linear-gradient(
+    90deg,
+    rgba(40, 24, 12, 0.09) 0%,
+    rgba(40, 24, 12, 0.03) 45%,
+    transparent 100%
+  );
+}
+
+.book-page-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+html[data-reader-theme="dark"] .book-page {
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0%, transparent 1.1rem),
+    linear-gradient(180deg, #2a211b 0%, var(--reader-page) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 245, 230, 0.04) inset,
+    0 28px 60px -32px rgba(0, 0, 0, 0.7),
+    -10px 0 28px -20px rgba(0, 0, 0, 0.55);
+}
+
+html[data-reader-theme="dark"] .book-page-grain {
+  opacity: 0.07;
+  mix-blend-mode: soft-light;
+}
+
+html[data-reader-theme="dark"] .book-reader-atmosphere {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 35%, rgba(0, 0, 0, 0.45) 100%),
+    radial-gradient(ellipse 40% 30% at 85% 15%, rgba(173, 79, 54, 0.12), transparent 65%);
 }
 
 .book-prose {
@@ -731,25 +821,32 @@ html[data-reader-measure="wide"] {
   background: rgba(111, 99, 89, 0.1);
 }
 
-.book-chapter-scroll {
-  animation: chapter-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+.book-page-stage {
+  transform-origin: left center;
 }
 
-@keyframes chapter-enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.book-flip-card {
+  min-height: 6.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .book-chapter-scroll {
-    animation: none;
+  .book-page-stage,
+  .book-flip-card {
+    transition: none !important;
   }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Keep reader chrome stable if a browser view-transition ever fires */
+::view-transition-group(reader-hud),
+::view-transition-group(reader-sidebar) {
+  animation: none;
+  z-index: 40;
 }
 
 
