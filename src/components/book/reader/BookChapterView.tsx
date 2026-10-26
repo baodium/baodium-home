@@ -12,6 +12,7 @@ import { BookProgress } from "@/components/book/reader/BookProgress";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
+import { flipNavigate } from "@/lib/book/flip-navigate";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -78,11 +79,11 @@ export function BookChapterView({
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (event.key === "ArrowRight" && next) {
         setFlipDirection(1);
-        router.push(`/system-design/${next.slug}`);
+        flipNavigate(router, `/system-design/${next.slug}`, 1);
       }
       if (event.key === "ArrowLeft" && prev) {
         setFlipDirection(-1);
-        router.push(`/system-design/${prev.slug}`);
+        flipNavigate(router, `/system-design/${prev.slug}`, -1);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -124,10 +125,10 @@ export function BookChapterView({
       if (dt > 1000) return;
       if (dx < 0 && next) {
         setFlipDirection(1);
-        router.push(`/system-design/${next.slug}`);
+        flipNavigate(router, `/system-design/${next.slug}`, 1);
       } else if (dx > 0 && prev) {
         setFlipDirection(-1);
-        router.push(`/system-design/${prev.slug}`);
+        flipNavigate(router, `/system-design/${prev.slug}`, -1);
       }
     };
 

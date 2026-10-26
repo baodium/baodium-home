@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
+import { flipNavigate } from "@/lib/book/flip-navigate";
 
 export function BookChapterNav({
   prev,
@@ -11,6 +13,7 @@ export function BookChapterNav({
   prev: { slug: string; title: string } | null;
   next: { slug: string; title: string } | null;
 }) {
+  const router = useRouter();
   const { setFlipDirection } = useReader();
 
   return (
@@ -21,7 +24,11 @@ export function BookChapterNav({
       {prev ? (
         <Link
           href={`/system-design/${prev.slug}`}
-          onClick={() => setFlipDirection(-1)}
+          onClick={(event) => {
+            event.preventDefault();
+            setFlipDirection(-1);
+            flipNavigate(router, `/system-design/${prev.slug}`, -1);
+          }}
           className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_70%,var(--reader-chrome))] px-4 py-4 transition-[transform,border-color,box-shadow] hover:-translate-x-0.5 hover:border-cinnabar/35 hover:shadow-[0_18px_36px_-28px_rgba(40,24,12,0.55)]"
         >
           <span
@@ -44,7 +51,11 @@ export function BookChapterNav({
       {next ? (
         <Link
           href={`/system-design/${next.slug}`}
-          onClick={() => setFlipDirection(1)}
+          onClick={(event) => {
+            event.preventDefault();
+            setFlipDirection(1);
+            flipNavigate(router, `/system-design/${next.slug}`, 1);
+          }}
           className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_70%,var(--reader-chrome))] px-4 py-4 text-right transition-[transform,border-color,box-shadow] hover:translate-x-0.5 hover:border-cinnabar/35 hover:shadow-[0_18px_36px_-28px_rgba(40,24,12,0.55)] sm:justify-self-stretch"
         >
           <span
