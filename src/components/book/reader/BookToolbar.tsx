@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { ArrowLeft, ArrowUpRight, List, Search, Type } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { book } from "@/data/writing";
@@ -22,6 +23,7 @@ export function BookToolbar({
     setSettingsOpen,
   } = useReader();
   const reduceMotion = usePrefersReducedMotion();
+  const settingsBtnRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-5 md:pt-4">
@@ -71,6 +73,7 @@ export function BookToolbar({
                 <Search className="h-4 w-4" aria-hidden="true" />
               </button>
               <button
+                ref={settingsBtnRef}
                 type="button"
                 data-reader-settings-trigger
                 onClick={() => setSettingsOpen(!settingsOpen)}
@@ -81,6 +84,7 @@ export function BookToolbar({
                 }`}
                 aria-label="Reading settings"
                 aria-expanded={settingsOpen}
+                aria-controls="reader-settings-panel"
               >
                 <Type className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -94,11 +98,11 @@ export function BookToolbar({
                 <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
-              <BookSettings />
             </div>
           </motion.header>
         ) : null}
       </AnimatePresence>
+      <BookSettings anchorRef={settingsBtnRef} />
     </div>
   );
 }

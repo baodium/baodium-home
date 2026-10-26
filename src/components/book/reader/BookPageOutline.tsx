@@ -30,8 +30,8 @@ export function BookPageOutline({ sections }: { sections: BookSection[] }) {
   if (headings.length < 2) return null;
 
   return (
-    <nav className="book-page-outline mt-5 border-t border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] pt-4" aria-label="On this page">
-      <p className="mb-2 px-3 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
+    <nav className="book-page-outline" aria-label="On this page">
+      <p className="mb-2 px-3 pt-2 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
         On this page
       </p>
       <ol className="space-y-0.5 text-[0.78rem] leading-snug">

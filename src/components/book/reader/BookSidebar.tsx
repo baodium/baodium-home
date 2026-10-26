@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
@@ -12,6 +13,11 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
   const pathname = usePathname();
   const { sidebarOpen, setSidebarOpen, setFlipDirection } = useReader();
   const activeChapter = chapters.find((c) => pathname === `/system-design/${c.slug}`);
+  const activeRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: "nearest" });
+  }, [pathname]);
 
   return (
     <>
@@ -43,6 +49,11 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
+          {activeChapter && activeChapter.sections.length > 1 ? (
+            <div className="mb-3 rounded-xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_55%,transparent)] pb-1 pt-1">
+              <BookPageOutline sections={activeChapter.sections} />
+            </div>
+          ) : null}
           <ol className="space-y-0.5 text-sm">
             <li>
               <Link
@@ -70,6 +81,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               return (
                 <li key={chapter.slug}>
                   <Link
+                    ref={active ? activeRef : undefined}
                     href={href}
                     className={`flex items-baseline gap-3 rounded-lg px-3 py-2 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
                       active
@@ -101,7 +113,6 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               );
             })}
           </ol>
-          {activeChapter ? <BookPageOutline sections={activeChapter.sections} /> : null}
         </nav>
       </aside>
     </>

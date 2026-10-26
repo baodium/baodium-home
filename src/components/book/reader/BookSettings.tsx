@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import type { ReaderFontScale, ReaderTheme } from "@/lib/book/reader-styles";
@@ -26,39 +27,55 @@ const measures: { id: "narrow" | "comfortable" | "wide"; label: string }[] = [
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function BookSettings() {
+export function BookSettings({
+  anchorRef,
+}: {
+  anchorRef: RefObject<HTMLElement | null>;
+}) {
   const { prefs, setPrefs, settingsOpen, setSettingsOpen } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     if (!settingsOpen) return;
+
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSettingsOpen(false);
     };
-    const onPointer = (event: MouseEvent) => {
+
+    const onPointer = (event: PointerEvent) => {
       const target = event.target as Node | null;
-      if (!panelRef.current || !target) return;
-      if (panelRef.current.contains(target)) return;
-      const trigger = (event.target as HTMLElement | null)?.closest?.(
-        "[data-reader-settings-trigger]",
-      );
-      if (trigger) return;
+      if (!target) return;
+      if (panelRef.current?.contains(target)) return;
+      if (anchorRef.current?.contains(target)) return;
       setSettingsOpen(false);
     };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("mousedown", onPointer);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("mousedown", onPointer);
-    };
-  }, [settingsOpen, setSettingsOpen]);
 
-  return (
+    // Defer so the opening click does not immediately dismiss.
+    const timer = window.setTimeout(() => {
+      window.addEventListener("pointerdown", onPointer);
+    }, 0);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onPointer);
+    };
+  }, [settingsOpen, setSettingsOpen, anchorRef]);
+
+  if (typeof document === "undefined") return null;
+
+  const rect = anchorRef.current?.getBoundingClientRect();
+  const top = rect ? rect.bottom + 10 : 64;
+  const right = rect ? Math.max(12, window.innerWidth - rect.right) : 16;
+
+  return createPortal(
     <AnimatePresence>
       {settingsOpen ? (
         <motion.div
           ref={panelRef}
+          id={titleId}
           role="dialog"
           aria-label="Reading settings"
           aria-modal="false"
@@ -66,7 +83,8 @@ export function BookSettings() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98 }}
           transition={{ duration: reduceMotion ? 0.01 : 0.28, ease }}
-          className="book-settings-panel absolute right-0 top-[calc(100%+0.55rem)] z-40 w-[min(100vw-1.5rem,18.5rem)] overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[var(--reader-page)] p-3 shadow-[0_24px_50px_-28px_rgba(40,24,12,0.55)]"
+          className="book-settings-panel fixed z-[80] w-[min(100vw-1.5rem,18.5rem)] overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[var(--reader-page)] p-3 text-[var(--reader-fg)] shadow-[0_24px_50px_-28px_rgba(40,24,12,0.55)]"
+          style={{ top, right }}
         >
           <p className="px-1 pb-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
             Reading
@@ -149,6 +167,7 @@ export function BookSettings() {
           </div>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
