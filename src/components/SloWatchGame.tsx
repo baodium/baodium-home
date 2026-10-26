@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { GameResultPanel } from "@/components/play/GameResultPanel";
 import {
   createEngine,
   tick,
@@ -15,6 +16,7 @@ import {
   type TickSnapshot,
 } from "@/lib/slo-watch";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { getPlayGame } from "@/data/play-games";
 
 const initialSnap: TickSnapshot = {
   t: 0,
@@ -54,7 +56,7 @@ function Meter({
         <span>{label}</span>
         <span className="tabular-nums text-cream">{format(value)}</span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden bg-line">
+      <div className="mt-2 h-1.5 overflow-hidden bg-white/15">
         <div
           className={`h-full ${tone}`}
           style={{ width: `${Math.min(100, ratio * 100)}%` }}
@@ -136,8 +138,14 @@ export function SloWatchGame({
 
   const share = async () => {
     if (!result) return;
-    const url = typeof window !== "undefined" ? `${window.location.origin}/play` : "https://baodium.com/play";
-    const text = result.shareText.replace("https://baodium.com/play", url);
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/play/slo-watch`
+        : "https://baodium.com/play/slo-watch";
+    const text = result.shareText.replaceAll(
+      "https://baodium.com/play/slo-watch",
+      url,
+    );
     try {
       if (navigator.share) {
         await navigator.share({ title: "SLO Watch — Baodium", text, url });
@@ -245,37 +253,20 @@ export function SloWatchGame({
           </div>
 
           {(phase === "won" || phase === "lost") && result ? (
-            <div
-              className={`mt-6 border p-5 ${
-                result.outcome === "won" ? "border-amber" : "border-cinnabar"
-              }`}
-              role="status"
-            >
-              <p className="text-[0.72rem] uppercase tracking-[0.18em] text-amber">
-                {result.outcome === "won" ? "You held the SLO" : "SLO breached"}
-              </p>
-              <p className="mt-3 font-serif text-2xl tracking-[-0.02em] text-cream">
-                Score {result.score}
-              </p>
-              <p className="mt-2 text-[0.95rem] leading-relaxed text-cream/65">{result.reason}</p>
-              <p className="mt-4 text-sm text-cream/65">
-                Read next:{" "}
-                <a
-                  href={result.chapterHref}
-                  className="text-amber hover:text-cream"
-                >
-                  {result.chapterLabel}
-                </a>
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <button type="button" className="slo-btn-primary" onClick={start}>
-                  Play again
-                </button>
-                <button type="button" className="slo-btn-secondary" onClick={share}>
-                  {copied ? "Copied" : "Share result"}
-                </button>
-              </div>
-            </div>
+            <GameResultPanel
+              outcome={result.outcome}
+              score={result.score}
+              reason={result.reason}
+              takeaway={
+                getPlayGame("slo-watch")?.takeaway ??
+                "Capacity and retries are coupled under saturation."
+              }
+              chapterHref={result.chapterHref}
+              chapterLabel={result.chapterLabel}
+              onAgain={start}
+              onShare={share}
+              copied={copied}
+            />
           ) : null}
         </div>
 
@@ -405,11 +396,9 @@ export function SloWatchGame({
                 ) : null}
               </>
             )}
-            {!compact && !embedded ? (
-              <Link href="/play" className="slo-btn-secondary">
-                Open full play page
-              </Link>
-            ) : null}
+            <Link href="/play" className="slo-btn-secondary">
+              All games
+            </Link>
           </div>
 
           <details className="border border-white/12 p-3 text-sm leading-relaxed text-cream/65">

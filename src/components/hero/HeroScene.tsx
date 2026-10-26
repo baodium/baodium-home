@@ -190,7 +190,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               href="#play"
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-[0.95rem] text-cream/80 transition-colors hover:border-white/35 hover:bg-white/[0.05] hover:text-cream"
             >
-              Play SLO Watch
+              Play games
             </a>
           </motion.div>
         </motion.div>
