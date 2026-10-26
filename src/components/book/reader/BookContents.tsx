@@ -10,7 +10,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
   const start = chapters.find((c) => c.slug === "chapter-1") ?? chapters[0];
 
   return (
-    <div className="book-contents-wrap mx-auto w-full max-w-[calc(var(--reader-measure)+3rem)] pt-[4.75rem] md:pt-[5.25rem]">
+    <div className="book-contents-wrap mx-auto w-full max-w-[calc(var(--reader-measure)+3rem)] pt-2 md:pt-3">
       <div className="book-page relative overflow-hidden rounded-[1.15rem] px-5 py-9 sm:px-9 sm:py-11 md:px-12">
         <div aria-hidden="true" className="book-page-gutter" />
         <div aria-hidden="true" className="book-page-grain" />

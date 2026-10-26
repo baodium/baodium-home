@@ -5,7 +5,8 @@ import type { BookSection } from "@/lib/book/types";
 
 export function BookPageOutline({ sections }: { sections: BookSection[] }) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const headings = sections.filter((s) => s.level <= 3);
+  // Prefer section-level headings so the outline stays light against CONTENTS.
+  const headings = sections.filter((s) => s.level === 2).slice(0, 6);
 
   useEffect(() => {
     if (headings.length === 0) return;
@@ -30,23 +31,24 @@ export function BookPageOutline({ sections }: { sections: BookSection[] }) {
   if (headings.length < 2) return null;
 
   return (
-    <nav className="book-page-outline" aria-label="On this page">
-      <p className="mb-2 px-3 pt-2 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
+    <details className="book-page-outline group/outline mt-0.5" aria-label="On this page">
+      <summary className="cursor-pointer list-none rounded-md px-2.5 py-1 font-mono text-[0.55rem] uppercase tracking-[0.16em] text-[color-mix(in_srgb,var(--reader-muted)_85%,transparent)] transition-colors hover:text-[var(--reader-muted)] [&::-webkit-details-marker]:hidden">
         On this page
-      </p>
-      <ol className="space-y-0.5 text-[0.78rem] leading-snug">
+        <span aria-hidden="true" className="ml-1 opacity-60 group-open/outline:hidden">
+          · {headings.length}
+        </span>
+      </summary>
+      <ol className="mt-0.5 space-y-px pb-1 text-[0.7rem] leading-snug">
         {headings.map((section) => {
           const active = activeId === section.id;
           return (
             <li key={section.id}>
               <a
                 href={`#${section.id}`}
-                className={`block rounded-md py-1.5 transition-colors hover:text-[var(--reader-fg)] ${
-                  section.level >= 3 ? "pl-5" : "pl-3"
-                } ${
+                className={`block rounded-md border-l-2 py-1 pl-2.5 transition-colors hover:text-[var(--reader-fg)] ${
                   active
-                    ? "bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] font-medium text-[var(--reader-fg)]"
-                    : "text-[var(--reader-muted)]"
+                    ? "border-cinnabar/70 font-medium text-[var(--reader-fg)]"
+                    : "border-transparent text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]"
                 }`}
               >
                 {section.title}
@@ -55,6 +57,6 @@ export function BookPageOutline({ sections }: { sections: BookSection[] }) {
           );
         })}
       </ol>
-    </nav>
+    </details>
   );
 }

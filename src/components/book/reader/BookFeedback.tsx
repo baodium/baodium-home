@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageCircleHeart, Flag } from "lucide-react";
+import { MessageCircleHeart, Flag, Share2, Check } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { buildReaderMailto } from "@/lib/book/feedback";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
@@ -19,6 +19,7 @@ export function BookFeedback({
 }) {
   const reduceMotion = usePrefersReducedMotion();
   const [prompt, setPrompt] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const prefs = loadReaderPrefs();
@@ -28,10 +29,7 @@ export function BookFeedback({
     return () => window.clearTimeout(timer);
   }, [chapterSlug]);
 
-  const url =
-    typeof window !== "undefined"
-      ? window.location.href
-      : `https://baodium.com/system-design/${chapterSlug}`;
+  const url = `https://baodium.com/system-design/${chapterSlug}`;
 
   const enjoyHref = buildReaderMailto({
     kind: "enjoy",
@@ -52,30 +50,65 @@ export function BookFeedback({
     saveReaderPrefs({ ...prefs, feedbackDismissedAt: Date.now() });
   };
 
+  const shareChapter = async () => {
+    const shareUrl =
+      typeof window !== "undefined" ? window.location.href : url;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: chapterTitle, url: shareUrl });
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      window.prompt("Copy chapter link", shareUrl);
+    }
+  };
+
   return (
     <>
-      <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] pt-6">
-        <p className="mr-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+      <div className="mt-12 border-t border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pt-7">
+        <p className="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
           Feedback
         </p>
-        <a
-          href={enjoyHref}
-          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_14%,transparent)] px-3.5 text-sm text-[var(--reader-fg)] transition-colors hover:border-cinnabar/40 hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)]"
-        >
-          <MessageCircleHeart className="h-4 w-4 text-cinnabar" aria-hidden="true" />
-          Enjoying this?
-        </a>
-        <a
-          href={correctionHref}
-          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_14%,transparent)] px-3.5 text-sm text-[var(--reader-muted)] transition-colors hover:border-[color-mix(in_srgb,var(--reader-fg)_28%,transparent)] hover:text-[var(--reader-fg)]"
-        >
-          <Flag className="h-3.5 w-3.5" aria-hidden="true" />
-          Report a correction
-        </a>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <a
+            href={enjoyHref}
+            className="inline-flex min-h-9 items-center gap-2 text-sm text-[var(--reader-fg)] transition-colors hover:text-cinnabar"
+          >
+            <MessageCircleHeart className="h-4 w-4 text-cinnabar" aria-hidden="true" />
+            Enjoying this?
+          </a>
+          <a
+            href={correctionHref}
+            className="inline-flex min-h-9 items-center gap-2 text-sm text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
+          >
+            <Flag className="h-3.5 w-3.5" aria-hidden="true" />
+            Report a correction
+          </a>
+          <button
+            type="button"
+            onClick={shareChapter}
+            className="inline-flex min-h-9 items-center gap-1.5 text-sm text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
+            aria-label={copied ? "Chapter link copied" : "Share chapter"}
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-cinnabar" aria-hidden="true" />
+            ) : (
+              <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+            {copied ? "Link copied" : "Share"}
+          </button>
+        </div>
+        <p className="mt-4 text-[0.7rem] leading-relaxed text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]">
+          ← → flip · ⌘/Ctrl K search · baodium@gmail.com
+        </p>
       </div>
-      <p className="mt-3 text-xs text-[var(--reader-muted)]">
-        ← → flip chapters · ⌘/Ctrl K search · notes go to baodium@gmail.com
-      </p>
 
       <AnimatePresence>
         {prompt ? (
@@ -84,7 +117,7 @@ export function BookFeedback({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
             transition={{ duration: reduceMotion ? 0.01 : 0.35, ease }}
-            className="pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-[55] w-[min(100vw-1.5rem,18rem)] rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[var(--reader-page)] p-3.5 shadow-[0_22px_48px_-24px_rgba(40,24,12,0.55)]"
+            className="pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-[55] w-[min(100vw-1.5rem,18rem)] rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] p-3.5 shadow-[0_22px_48px_-24px_rgba(28,22,16,0.5)]"
             role="dialog"
             aria-label="Enjoying this chapter?"
           >

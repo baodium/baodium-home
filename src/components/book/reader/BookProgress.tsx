@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 
-/** Thin reading progress for the current chapter scroll container. */
+/** Thin reading progress anchored under the reading chrome. */
 export function BookProgress({ slug }: { slug: string }) {
   const { chromeVisible } = useReader();
   const [progress, setProgress] = useState(0);
@@ -35,8 +35,8 @@ export function BookProgress({ slug }: { slug: string }) {
 
   return (
     <div
-      className={`pointer-events-none fixed inset-x-0 top-0 z-[45] h-[3px] transition-opacity duration-300 ${
-        chromeVisible ? "opacity-100" : "opacity-70"
+      className={`pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[2px] transition-opacity duration-300 ${
+        chromeVisible ? "opacity-100" : "opacity-55"
       }`}
       role="progressbar"
       aria-label="Chapter reading progress"

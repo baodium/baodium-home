@@ -459,38 +459,38 @@ html {
 }
 
 /* ——— Online book reader ——— */
-/* Light: white page on copper/cream desk. Dark: near-black page. Paper: optional cream. */
+/* Light: white page on calm desk. Dark: near-black page. Paper: optional cream. */
 html[data-reader-theme="light"] {
-  --reader-bg: #e8dfd0;
-  --reader-chrome: #e2d6c4;
+  --reader-bg: #c9c8c3;
+  --reader-chrome: #c2c1bc;
   --reader-page: #ffffff;
-  --reader-fg: #1a1612;
-  --reader-muted: rgba(26, 22, 18, 0.58);
+  --reader-fg: #121110;
+  --reader-muted: rgba(18, 17, 16, 0.48);
   --reader-desk:
-    radial-gradient(120% 80% at 50% -10%, rgba(255, 248, 236, 0.55), transparent 55%),
-    linear-gradient(165deg, #efe6d6 0%, #e3d8c4 48%, #d8c9b2 100%);
+    radial-gradient(80% 50% at 50% 0%, rgba(255, 255, 255, 0.22), transparent 62%),
+    linear-gradient(180deg, #d4d3ce 0%, #c8c7c1 55%, #c1c0ba 100%);
 }
 
 html[data-reader-theme="dark"] {
-  --reader-bg: #12100e;
-  --reader-chrome: #1a1512;
-  --reader-page: #0a0908;
-  --reader-fg: #f5efe5;
-  --reader-muted: rgba(245, 239, 229, 0.62);
+  --reader-bg: #0e0d0c;
+  --reader-chrome: #151311;
+  --reader-page: #080707;
+  --reader-fg: #f3eee6;
+  --reader-muted: rgba(243, 238, 230, 0.58);
   --reader-desk:
-    radial-gradient(110% 70% at 50% -8%, rgba(90, 58, 42, 0.28), transparent 50%),
-    linear-gradient(165deg, #1c1612 0%, #14100d 55%, #100d0b 100%);
+    radial-gradient(80% 50% at 50% 0%, rgba(70, 48, 36, 0.18), transparent 55%),
+    linear-gradient(180deg, #161310 0%, #100e0c 55%, #0c0b0a 100%);
 }
 
 html[data-reader-theme="paper"] {
-  --reader-bg: #e8dcc8;
-  --reader-chrome: #dfd0b8;
-  --reader-page: #f3e8d4;
+  --reader-bg: #e4d9c6;
+  --reader-chrome: #dbd0bb;
+  --reader-page: #f6edd9;
   --reader-fg: #2b221d;
-  --reader-muted: rgba(43, 34, 29, 0.58);
+  --reader-muted: rgba(43, 34, 29, 0.56);
   --reader-desk:
-    radial-gradient(120% 80% at 50% -10%, rgba(255, 244, 226, 0.5), transparent 55%),
-    linear-gradient(165deg, #eadfca 0%, #dfd0b6 45%, #d5c4a8 100%);
+    radial-gradient(90% 60% at 50% 0%, rgba(255, 248, 230, 0.4), transparent 58%),
+    linear-gradient(180deg, #e8dfcc 0%, #ddd2bc 55%, #d6caba 100%);
 }
 
 html[data-reader-scale="sm"] {
@@ -515,16 +515,16 @@ html[data-reader-measure="wide"] {
 
 .book-reader {
   /* Fallbacks before client theme attribute hydrates — light/white page default */
-  --reader-bg: #e8dfd0;
-  --reader-chrome: #e2d6c4;
+  --reader-bg: #c9c8c3;
+  --reader-chrome: #c2c1bc;
   --reader-page: #ffffff;
-  --reader-fg: #1a1612;
-  --reader-muted: rgba(26, 22, 18, 0.58);
+  --reader-fg: #121110;
+  --reader-muted: rgba(18, 17, 16, 0.48);
   --reader-font-size: 1.12rem;
   --reader-measure: 40rem;
   --reader-desk:
-    radial-gradient(120% 80% at 50% -10%, rgba(255, 248, 236, 0.55), transparent 55%),
-    linear-gradient(165deg, #efe6d6 0%, #e3d8c4 48%, #d8c9b2 100%);
+    radial-gradient(80% 50% at 50% 0%, rgba(255, 255, 255, 0.22), transparent 62%),
+    linear-gradient(180deg, #d4d3ce 0%, #c8c7c1 55%, #c1c0ba 100%);
   position: relative;
   isolation: isolate;
   font-size: var(--reader-font-size, 1.12rem);
@@ -538,25 +538,42 @@ html[data-reader-measure="wide"] {
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 40%, rgba(40, 24, 12, 0.14) 100%),
-    radial-gradient(ellipse 45% 35% at 12% 88%, rgba(173, 79, 54, 0.07), transparent 70%),
-    radial-gradient(ellipse 40% 30% at 90% 12%, rgba(222, 162, 124, 0.1), transparent 65%);
+    radial-gradient(ellipse 70% 55% at 50% 40%, transparent 48%, rgba(20, 18, 16, 0.12) 100%);
 }
 
 .book-reader-stage {
   position: relative;
 }
 
+@media (min-width: 1024px) {
+  .book-reader-stage {
+    /* Keep reading column clearly separated from TOC */
+    border-left: 1px solid color-mix(in srgb, var(--reader-fg) 6%, transparent);
+  }
+}
+
+.book-sidebar {
+  background: transparent;
+}
+
 .book-page {
   background:
-    linear-gradient(90deg, rgba(40, 24, 12, 0.05) 0%, transparent 1.15rem),
+    linear-gradient(90deg, rgba(20, 18, 16, 0.03) 0%, transparent 0.9rem),
     var(--reader-page);
   color: var(--reader-fg);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 32px 64px -34px rgba(40, 24, 12, 0.55),
-    0 10px 28px -16px rgba(40, 24, 12, 0.35),
-    -12px 0 32px -20px rgba(40, 24, 12, 0.3);
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 0 0 1px rgba(20, 18, 16, 0.04),
+    0 2px 4px rgba(20, 18, 16, 0.03),
+    0 24px 48px -20px rgba(20, 18, 16, 0.38),
+    0 14px 28px -18px rgba(20, 18, 16, 0.22);
+}
+
+/* Quieter scrollbars so chrome stays calm */
+.book-reader #book-reader-scroll,
+.book-reader .book-sidebar nav {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--reader-fg) 22%, transparent) transparent;
 }
 
 .book-page-curl {
@@ -591,12 +608,13 @@ html[data-reader-measure="wide"] {
 
 html[data-reader-theme="dark"] .book-page {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, transparent 1.15rem),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, transparent 1rem),
     var(--reader-page);
   box-shadow:
-    0 1px 0 rgba(255, 245, 230, 0.04) inset,
-    0 32px 64px -30px rgba(0, 0, 0, 0.75),
-    -12px 0 32px -18px rgba(0, 0, 0, 0.6);
+    0 1px 0 rgba(255, 245, 230, 0.035) inset,
+    0 28px 56px -24px rgba(0, 0, 0, 0.78),
+    0 10px 22px -14px rgba(0, 0, 0, 0.55),
+    -1px 0 0 rgba(255, 255, 255, 0.03);
 }
 
 html[data-reader-theme="dark"] .book-page-curl {
@@ -653,8 +671,8 @@ html[data-reader-theme="dark"] .book-page-grain {
 
 html[data-reader-theme="dark"] .book-reader-atmosphere {
   background:
-    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 35%, rgba(0, 0, 0, 0.45) 100%),
-    radial-gradient(ellipse 40% 30% at 85% 15%, rgba(173, 79, 54, 0.12), transparent 65%);
+    radial-gradient(ellipse 65% 50% at 50% 38%, transparent 40%, rgba(0, 0, 0, 0.4) 100%),
+    radial-gradient(ellipse 36% 28% at 88% 10%, rgba(173, 79, 54, 0.08), transparent 70%);
 }
 
 .book-prose {

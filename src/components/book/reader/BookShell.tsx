@@ -7,6 +7,7 @@ import { ReaderProvider, useReader } from "@/components/book/reader/ReaderProvid
 import { BookSidebar } from "@/components/book/reader/BookSidebar";
 import { BookToolbar } from "@/components/book/reader/BookToolbar";
 import { BookSearch } from "@/components/book/reader/BookSearch";
+import { BookProgress } from "@/components/book/reader/BookProgress";
 
 function ShellBody({
   chapters,
@@ -57,18 +58,23 @@ function ShellBody({
     <div className="book-reader relative min-h-[100dvh] text-[var(--reader-fg)]">
       <div aria-hidden="true" className="book-reader-atmosphere" />
       <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <BookToolbar
-        onOpenSearch={() => setSearchOpen(true)}
-        chapterTitle={active?.title}
-        chapterSlug={active?.slug}
-      />
-      <div className="relative mx-auto flex h-[100dvh] w-full max-w-6xl overflow-hidden">
+      <div className="relative z-[1] mx-auto flex h-[100dvh] w-full max-w-[92rem]">
         <BookSidebar chapters={chapters} />
-        <div
-          id="book-reader-scroll"
-          className="book-reader-stage relative z-[1] min-w-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-2 md:px-6 md:pb-14"
-        >
-          {children}
+        <div className="book-reader-stage relative z-0 flex min-w-0 flex-1 flex-col">
+          <div className="relative z-50 shrink-0">
+            <BookToolbar
+              onOpenSearch={() => setSearchOpen(true)}
+              chapterTitle={active?.title}
+              chapterSlug={active?.slug}
+            />
+            {active ? <BookProgress slug={active.slug} /> : null}
+          </div>
+          <div
+            id="book-reader-scroll"
+            className="relative z-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-3 md:px-8 md:pb-14 lg:px-10"
+          >
+            {children}
+          </div>
         </div>
       </div>
     </div>
