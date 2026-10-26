@@ -1,11 +1,22 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useId, useRef, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import type { ReaderFontScale, ReaderTheme } from "@/lib/book/reader-styles";
+
+function subscribeNowhere() {
+  return () => {};
+}
 
 const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
   { id: "light", label: "Light", swatch: "#f6f1e7" },
@@ -35,7 +46,23 @@ export function BookSettings({
   const { prefs, setPrefs, settingsOpen, setSettingsOpen } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
-  const titleId = useId();
+  const mounted = useSyncExternalStore(subscribeNowhere, () => true, () => false);
+  const [pos, setPos] = useState({ top: 64, right: 16 });
+
+  useLayoutEffect(() => {
+    if (!settingsOpen) return;
+    const update = () => {
+      const rect = anchorRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setPos({
+        top: rect.bottom + 10,
+        right: Math.max(12, window.innerWidth - rect.right),
+      });
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [settingsOpen, anchorRef]);
 
   useEffect(() => {
     if (!settingsOpen) return;
@@ -52,7 +79,6 @@ export function BookSettings({
       setSettingsOpen(false);
     };
 
-    // Defer so the opening click does not immediately dismiss.
     const timer = window.setTimeout(() => {
       window.addEventListener("pointerdown", onPointer);
     }, 0);
@@ -64,18 +90,13 @@ export function BookSettings({
     };
   }, [settingsOpen, setSettingsOpen, anchorRef]);
 
-  if (typeof document === "undefined") return null;
-
-  const rect = anchorRef.current?.getBoundingClientRect();
-  const top = rect ? rect.bottom + 10 : 64;
-  const right = rect ? Math.max(12, window.innerWidth - rect.right) : 16;
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
       {settingsOpen ? (
         <motion.div
           ref={panelRef}
-          id={titleId}
           role="dialog"
           aria-label="Reading settings"
           aria-modal="false"
@@ -84,7 +105,7 @@ export function BookSettings({
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98 }}
           transition={{ duration: reduceMotion ? 0.01 : 0.28, ease }}
           className="book-settings-panel fixed z-[80] w-[min(100vw-1.5rem,18.5rem)] overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[var(--reader-page)] p-3 text-[var(--reader-fg)] shadow-[0_24px_50px_-28px_rgba(40,24,12,0.55)]"
-          style={{ top, right }}
+          style={{ top: pos.top, right: pos.right }}
         >
           <p className="px-1 pb-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
             Reading
