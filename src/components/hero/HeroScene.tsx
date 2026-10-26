@@ -17,8 +17,6 @@ import { Magnetic } from "@/components/Magnetic";
 import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const line =
-  "Baodium is an independent studio for products and technical publishing — Interview Coach, UpTo, and Practical System Design.";
 
 /** The trace finishes drawing into "Engineer" at LOCK_MS; that is when the word locks in. */
 const TRACE_DELAY = 1.15;
@@ -141,31 +139,29 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         <motion.div style={{ x: typeX, y: typeY }} className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
           <h1>
             <motion.span
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.4, ease }}
-              className="block font-serif text-[clamp(1.6rem,2.4vw,2.25rem)] italic leading-none text-cream/90"
+              initial={reduce ? false : { opacity: 0, y: 18, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: reduce ? 0 : 1.05, delay: reduce ? 0 : 0.25, ease }}
+              className="block font-mono text-[0.78rem] tracking-[0.42em] text-amber md:text-[0.85rem]"
             >
-              Adewale Obadimu
+              BAODIUM
+            </motion.span>
+            <motion.span
+              initial={reduce ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.9, delay: reduce ? 0 : 0.45, ease }}
+              className="mt-3 block font-serif text-[clamp(1.35rem,2.1vw,1.85rem)] italic leading-none text-cream/85"
+            >
+              Adewale Obadimu, PhD
             </motion.span>
             <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 1.5, ease }}
-            data-hero-line=""
-            className="mt-7 max-w-[28rem] text-[1.05rem] leading-[1.65] text-cream/78 md:mt-9 md:text-lg"
-          >
-            {line}
-          </motion.p>
-
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.75, ease }}
-            className="mt-6 flex flex-wrap items-center gap-3 md:mt-9"
+            transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.55, ease }}
+            className="mt-7 flex flex-wrap items-center gap-3 md:mt-9"
           >
             <Magnetic>
               <Link

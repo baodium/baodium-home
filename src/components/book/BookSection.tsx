@@ -10,13 +10,12 @@ import {
 } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen } from "lucide-react";
+import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
 import { LatencyFigure } from "@/components/book/LatencyChart";
 import { Magnetic } from "@/components/Magnetic";
 import { Reveal } from "@/components/motion/Reveal";
 import { book } from "@/data/writing";
-import bookToc from "@/data/book-toc.json";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const titleLines = [
@@ -81,7 +80,7 @@ export function BookSection() {
                   initial="hidden"
                   whileInView="shown"
                   viewport={{ once: true, margin: "0px 0px 18% 0px" }}
-                  transition={{ staggerChildren: 0.04 }}
+                  transition={{ staggerChildren: reduce ? 0 : 0.04 }}
                 >
                   {titleLines.map((line) => (
                     <span
@@ -91,10 +90,10 @@ export function BookSection() {
                       <motion.span
                         className={`block ${line.flame ? "text-flame-animated" : ""}`}
                         variants={{
-                          hidden: { y: "105%" },
+                          hidden: { y: reduce ? "0%" : "105%" },
                           shown: {
                             y: "0%",
-                                                        transition: { duration: 0.45, ease },
+                            transition: { duration: reduce ? 0 : 0.45, ease },
                           },
                         }}
                       >
@@ -105,48 +104,61 @@ export function BookSection() {
                 </motion.span>
               </h2>
               <Reveal delay={0.05}>
-                <p className="mt-8 max-w-lg font-serif text-[clamp(1.6rem,2.6vw,2.25rem)] italic leading-[1.12] text-cream/85">
-                  {book.subtitle}
+                <p className="mt-8 max-w-lg font-serif text-[clamp(1.45rem,2.4vw,2rem)] italic leading-[1.15] text-cream/88">
+                  Production failures, written so you can design against them.
                 </p>
-                <p className="mt-5 flex items-center gap-3 text-sm text-cream/60">
-                  by {book.author}
-                </p>
+                <p className="mt-4 text-sm text-cream/55">by {book.author}</p>
               </Reveal>
               <Reveal delay={0.1}>
-                <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
+                <div className="mt-9 flex flex-wrap items-center gap-3 sm:gap-4">
                   <Magnetic>
-                    <a
-                      href={book.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      href={book.readPath}
                       className="group relative inline-flex min-h-14 items-center gap-3 overflow-hidden rounded-full bg-cream py-2 pl-7 pr-2 text-base font-medium text-ink shadow-[0_18px_50px_-12px_rgba(173,79,54,0.55)]"
                     >
                       <span className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                       <span className="relative transition-colors duration-500 group-hover:text-white">
-                        Get it on Amazon
+                        Read for free
                       </span>
-                      <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-ember text-cream transition-transform duration-500 group-hover:rotate-45">
-                        <ArrowUpRight
+                      <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-ember text-cream transition-transform duration-500 group-hover:translate-x-0.5">
+                        <BookOpen
                           aria-hidden="true"
                           className="h-4 w-4"
                           strokeWidth={2}
                         />
                       </span>
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>
+                    </Link>
                   </Magnetic>
                   <Magnetic>
                     <Link
-                      href={book.readPath}
+                      href="/system-design/experience"
                       className="group relative inline-flex min-h-14 items-center gap-3 rounded-full border border-cream/30 py-2 pl-7 pr-2 text-base font-medium text-cream transition-colors duration-500 hover:border-cream/60 hover:bg-white/[0.06]"
                     >
-                      Read for free
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#cf7752] via-cinnabar to-crimson text-white transition-transform duration-500 group-hover:translate-x-0.5">
-                        <BookOpen aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+                      Experience lab
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#cf7752] via-cinnabar to-crimson text-white transition-transform duration-500 group-hover:rotate-6">
+                        <FlaskConical aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                       </span>
                     </Link>
                   </Magnetic>
+                  <a
+                    href={book.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                  >
+                    Amazon
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
                 </div>
+                <p className="mt-5">
+                  <Link
+                    href="/system-design"
+                    className="text-sm text-cream/55 transition-colors hover:text-cream"
+                  >
+                    Full contents on the book page →
+                  </Link>
+                </p>
               </Reveal>
             </div>
 
@@ -173,32 +185,6 @@ export function BookSection() {
               </div>
             </Link>
           </div>
-
-          <Reveal className="mt-10 border-t border-white/10 pt-8 md:mt-12 md:pt-10">
-            <p className="max-w-lg text-sm leading-relaxed text-cream/70">
-              Fourteen chapters of illustrative production failures and the design decisions behind
-              reliable systems. Baodium in the stories is fictional.
-            </p>
-            <ol className="mt-6 columns-1 gap-x-10 text-sm text-cream/85 sm:columns-2">
-              {bookToc.slice(0, 8).map((entry) => (
-                <li key={entry.slug} className="mb-2 break-inside-avoid">
-                  <Link
-                    href={`/system-design/${entry.slug}`}
-                    className="transition-colors hover:text-white"
-                  >
-                    {entry.title}
-                  </Link>
-                </li>
-              ))}
-            </ol>
-            <Link
-              href="/system-design/chapter-1"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-cream underline decoration-cream/30 underline-offset-4 transition-colors hover:decoration-cream"
-            >
-              Read Chapter 1 online
-              <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-          </Reveal>
 
           <Reveal className="mt-8 border-t border-white/10 pt-6 md:mt-10 md:pt-8">
             <LatencyFigure />

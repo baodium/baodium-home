@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -16,13 +17,14 @@ export function Reveal({
   delay?: number;
   y?: number;
 }) {
+  const reduce = usePrefersReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y }}
+      initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px 12% 0px" }}
-      transition={{ duration: 0.45, delay, ease }}
+      transition={{ duration: reduce ? 0 : 0.55, delay: reduce ? 0 : delay, ease }}
     >
       {children}
     </motion.div>
@@ -48,14 +50,15 @@ export function SplitHeading({
   delay?: number;
 }) {
   const words = text.split(" ");
+  const reduce = usePrefersReducedMotion();
   return (
     <Tag id={id} className={className}>
       <motion.span
         className="block"
-        initial={{ opacity: 0, y: 18 }}
+        initial={reduce ? false : { opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-        transition={{ duration: 0.8, delay, ease }}
+        transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : delay, ease }}
       >
         {words.map((word, index) => (
           <span key={`${word}-${index}`}>

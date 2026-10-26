@@ -2,8 +2,11 @@
 
 import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
-import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { ArrowUpRight } from "lucide-react";
+import { AlsoStrip } from "@/components/AlsoStrip";
 import { Reveal } from "@/components/motion/Reveal";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { site } from "@/data/site";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -40,33 +43,55 @@ export function About() {
               About
             </h2>
           </Reveal>
-            <p ref={statementRef} className="mt-6 max-w-[60rem] text-[clamp(2rem,4.2vw,3.75rem)] font-semibold leading-[1.12] tracking-[-0.04em]">
-              {words.map((word, index) => {
-                const lit = focus !== null && linked[word] === focus;
-                return (
-                  <span key={`${word}-${index}`}>
-                    <span className="relative inline-block">
-                      <span
-                        aria-hidden="true"
-                        className={`absolute inset-x-[-0.06em] bottom-[0.06em] h-[0.34em] origin-left rounded-sm bg-cinnabar/20 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${lit ? "scale-x-100" : "scale-x-0"}`}
-                      />
-                      <ScrollWord
-                        word={word}
-                        index={index}
-                        total={words.length}
-                        progress={scrollYProgress}
-                        className={`relative transition-colors duration-500 ${accent.has(word) ? "font-serif font-normal italic text-cinnabar" : lit ? "text-cinnabar" : ""}`}
-                      />
-                    </span>{" "}
-                  </span>
-                );
-              })}
+
+          <Reveal y={10} delay={0.04}>
+            <p className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="font-serif text-[clamp(1.55rem,2.6vw,2.15rem)] italic tracking-[-0.02em] text-ink">
+                {site.credit}
+              </span>
+              <a
+                href={site.scholar}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1 text-[0.9rem] text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
+              >
+                Google Scholar
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
             </p>
+          </Reveal>
+
+          <p ref={statementRef} className="mt-6 max-w-[60rem] text-[clamp(2rem,4.2vw,3.75rem)] font-semibold leading-[1.12] tracking-[-0.04em]">
+            {words.map((word, index) => {
+              const lit = focus !== null && linked[word] === focus;
+              return (
+                <span key={`${word}-${index}`}>
+                  <span className="relative inline-block">
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-x-[-0.06em] bottom-[0.06em] h-[0.34em] origin-left rounded-sm bg-cinnabar/20 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${lit ? "scale-x-100" : "scale-x-0"}`}
+                    />
+                    <ScrollWord
+                      word={word}
+                      index={index}
+                      total={words.length}
+                      progress={scrollYProgress}
+                      className={`relative transition-colors duration-500 ${accent.has(word) ? "font-serif font-normal italic text-cinnabar" : lit ? "text-cinnabar" : ""}`}
+                    />
+                  </span>{" "}
+                </span>
+              );
+            })}
+          </p>
 
           <p className="mt-8 max-w-2xl text-[1.02rem] leading-relaxed text-muted">
             Personal writing and life notes live on{" "}
             <a
-              href="https://obadimu.com"
+              href={site.personal}
               className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
               target="_blank"
               rel="noopener noreferrer"
@@ -113,6 +138,8 @@ export function About() {
               );
             })}
           </ul>
+
+          <AlsoStrip />
         </div>
       </div>
     </section>

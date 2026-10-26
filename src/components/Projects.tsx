@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Reveal } from "@/components/motion/Reveal";
 import { projects } from "@/data/projects";
@@ -19,15 +21,33 @@ export function Projects() {
 
       <div className="shell relative z-[2]">
         <Reveal y={12}>
-          <div className="flex items-center gap-4">
-            <h2 id="products-heading" className="kicker text-cinnabar">Products</h2>
-            <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-cinnabar/30 to-transparent" />
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
+              <h2 id="products-heading" className="kicker text-cinnabar">
+                Products
+              </h2>
+              <span
+                aria-hidden="true"
+                className="h-px flex-1 bg-gradient-to-r from-cinnabar/30 to-transparent"
+              />
+            </div>
+            {/* Compact Project destination (Experience lab) — not a full homepage section. */}
+            <Link
+              href="/system-design/experience"
+              className="group inline-flex min-h-10 shrink-0 items-center gap-1.5 text-[0.88rem] text-muted transition-colors hover:text-cinnabar"
+            >
+              Project
+              <ArrowUpRight
+                aria-hidden="true"
+                className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </Link>
           </div>
         </Reveal>
 
         <div className="mt-5 grid gap-8 md:mt-6 lg:grid-cols-2 lg:gap-6">
           {ordered.map((project, index) => (
-            <Reveal key={project.slug} delay={index * 0.1} >
+            <Reveal key={project.slug} delay={index * 0.12} y={22}>
               <ProjectCard project={project} />
             </Reveal>
           ))}
