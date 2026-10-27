@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { BookChapterView } from "@/components/book/reader/BookChapterView";
+import { BookPageTransition } from "@/components/book/reader/BookPageTransition";
 import { getAllSlugs, getChapter, getManifest } from "@/lib/book/catalog";
 import type { Metadata } from "next";
 import { book } from "@/data/writing";
@@ -35,10 +36,12 @@ export default async function SystemDesignChapterPage({ params }: Props) {
     : null;
 
   return (
-    <BookChapterView
-      chapter={chapter}
-      prev={prev ? { slug: prev.slug, title: prev.title } : null}
-      next={next ? { slug: next.slug, title: next.title } : null}
-    />
+    <BookPageTransition>
+      <BookChapterView
+        chapter={chapter}
+        prev={prev ? { slug: prev.slug, title: prev.title } : null}
+        next={next ? { slug: next.slug, title: next.title } : null}
+      />
+    </BookPageTransition>
   );
 }

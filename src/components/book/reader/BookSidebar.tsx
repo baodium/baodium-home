@@ -9,11 +9,15 @@ import { book } from "@/data/writing";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { BookPageOutline } from "@/components/book/reader/BookPageOutline";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
+import { flipTransitionTypes } from "@/lib/book/flip-navigate";
 
 export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
   const pathname = usePathname();
-  const { sidebarOpen, setSidebarOpen, setFlipDirection } = useReader();
+  const { sidebarOpen, setSidebarOpen } = useReader();
   const activeChapter = chapters.find((c) => pathname === `/system-design/${c.slug}`);
+  const activeIndex = activeChapter
+    ? chapters.findIndex((c) => c.slug === activeChapter.slug)
+    : -1;
   const activeRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
@@ -104,30 +108,25 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                 Overview
               </Link>
             </li>
-            {chapters.map((chapter) => {
+            {chapters.map((chapter, to) => {
               const href = `/system-design/${chapter.slug}`;
               const active = pathname === href;
               const number = chapterNumberLabel(chapter.slug);
+              const direction: 1 | -1 =
+                activeIndex < 0 ? 1 : to >= activeIndex ? 1 : -1;
               return (
                 <li key={chapter.slug}>
                   <Link
                     ref={active ? activeRef : undefined}
                     href={href}
+                    prefetch
+                    transitionTypes={active ? undefined : flipTransitionTypes(direction)}
                     className={`flex items-baseline gap-2.5 rounded-lg px-2.5 py-1.5 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
                       active
                         ? "bg-[color-mix(in_srgb,var(--cinnabar)_9%,transparent)] font-medium text-[var(--reader-fg)]"
                         : "text-[var(--reader-muted)]"
                     }`}
-                    onClick={() => {
-                      if (activeChapter) {
-                        const from = chapters.findIndex((c) => c.slug === activeChapter.slug);
-                        const to = chapters.findIndex((c) => c.slug === chapter.slug);
-                        setFlipDirection(to >= from ? 1 : -1);
-                      } else {
-                        setFlipDirection(1);
-                      }
-                      setSidebarOpen(false);
-                    }}
+                    onClick={() => setSidebarOpen(false)}
                   >
                     <span
                       aria-hidden="true"

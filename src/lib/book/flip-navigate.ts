@@ -1,46 +1,25 @@
 "use client";
 
+export type FlipDirection = 1 | -1;
+
+export const FLIP_FORWARD = "nav-forward";
+export const FLIP_BACK = "nav-back";
+
 type FlipRouter = {
-  push: (href: string) => void;
+  push: (href: string, options?: { transitionTypes?: string[] }) => void;
 };
 
-/** Navigate with a browser view-transition when motion is allowed. */
+/** Chapter flip via Next.js transitionTypes → React ViewTransition. */
 export function flipNavigate(
   router: FlipRouter,
   href: string,
-  direction: 1 | -1,
+  direction: FlipDirection,
 ) {
-  if (typeof document === "undefined") {
-    router.push(href);
-    return;
-  }
+  router.push(href, {
+    transitionTypes: [direction >= 0 ? FLIP_FORWARD : FLIP_BACK],
+  });
+}
 
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const root = document.documentElement;
-  root.dataset.flipDir = direction >= 0 ? "forward" : "back";
-  root.dataset.flipping = "1";
-
-  const clear = () => {
-    delete root.dataset.flipDir;
-    delete root.dataset.flipping;
-  };
-
-  const go = () => router.push(href);
-
-  const doc = document as Document & {
-    startViewTransition?: (cb: () => void) => { finished: Promise<void> };
-  };
-
-  if (!reduce && typeof doc.startViewTransition === "function") {
-    try {
-      const transition = doc.startViewTransition(go);
-      transition.finished.finally(clear);
-      return;
-    } catch {
-      /* fall through */
-    }
-  }
-
-  go();
-  window.setTimeout(clear, reduce ? 80 : 650);
+export function flipTransitionTypes(direction: FlipDirection): string[] {
+  return [direction >= 0 ? FLIP_FORWARD : FLIP_BACK];
 }

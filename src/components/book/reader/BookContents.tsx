@@ -50,6 +50,8 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
             {start ? (
               <Link
                 href={`/system-design/${start.slug}`}
+                prefetch
+                transitionTypes={["nav-forward"]}
                 className="inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-sm font-medium text-[var(--reader-page)] transition-opacity hover:opacity-90"
               >
                 <BookOpen className="h-4 w-4" aria-hidden="true" />
@@ -84,6 +86,8 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                 <li key={chapter.slug}>
                   <Link
                     href={`/system-design/${chapter.slug}`}
+                    prefetch
+                    transitionTypes={["nav-forward"]}
                     className="group grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-baseline gap-3 rounded-lg py-1.5 transition-colors hover:text-cinnabar"
                   >
                     <span className="font-mono text-xs tracking-[0.08em] text-[var(--reader-muted)] group-hover:text-cinnabar">

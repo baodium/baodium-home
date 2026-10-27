@@ -18,6 +18,7 @@ import {
   Search,
   Share2,
   Type,
+  BookMarked,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { book } from "@/data/writing";
@@ -256,11 +257,20 @@ export function BookToolbar({
             </p>
 
             <div className="ml-auto flex shrink-0 items-center gap-0.5">
+              <span
+                className="hidden h-9 items-center gap-1 rounded-full px-2 text-[var(--reader-muted)] sm:inline-flex"
+                title="Swipe the page or press ← → to flip chapters"
+                aria-label="Swipe or arrow keys flip chapters"
+              >
+                <BookMarked className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="font-mono text-[0.62rem] tracking-[0.08em]">← →</span>
+              </span>
               <button
                 type="button"
                 onClick={onOpenSearch}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)]"
                 aria-label="Search book"
+                title="Search · ⌘/Ctrl K"
               >
                 <Search className="h-4 w-4" aria-hidden="true" />
               </button>

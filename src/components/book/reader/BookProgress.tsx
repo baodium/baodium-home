@@ -5,7 +5,7 @@ import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
 
-/** Reading progress under the chrome — chapter position + scroll fill. */
+/** Reading progress under the chrome — book position + chapter scroll. */
 export function BookProgress({
   slug,
   index,
@@ -43,10 +43,15 @@ export function BookProgress({
   }, [slug]);
 
   const pct = Math.round(progress * 100);
-  const label =
-    typeof index === "number" && typeof total === "number" && total > 0
-      ? `${chapterNumberLabel(slug)} · ${pct}%`
-      : `${pct}%`;
+  const hasBookPos =
+    typeof index === "number" && typeof total === "number" && total > 0;
+  const bookPct = hasBookPos
+    ? Math.min(100, Math.round(((index + progress) / total) * 100))
+    : pct;
+  const label = hasBookPos
+    ? `${chapterNumberLabel(slug)} · ${index + 1}/${total} · ${pct}%`
+    : `${pct}%`;
+  const fill = hasBookPos ? (index + progress) / total : progress;
 
   return (
     <div
@@ -55,27 +60,34 @@ export function BookProgress({
       }`}
     >
       <div
-        className={`mx-auto mb-0.5 flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] justify-end px-3 transition-[opacity,transform] duration-300 ${
-          chromeVisible && pct > 0
-            ? "translate-y-0 opacity-100"
-            : "translate-y-1 opacity-0"
+        className={`mx-auto mb-0.5 flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] items-center justify-between gap-3 px-3 transition-[opacity,transform] duration-300 ${
+          chromeVisible ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
         }`}
       >
-        <span className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm">
+        <span
+          className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm"
+          title="Swipe the page or press ← → to flip chapters"
+        >
+          Swipe · ← →
+        </span>
+        <span
+          className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm"
+          title={hasBookPos ? `Book ${bookPct}% complete` : undefined}
+        >
           {label}
         </span>
       </div>
       <div
-        className="h-[2.5px] w-full"
+        className="h-[3px] w-full bg-[color-mix(in_srgb,var(--reader-fg)_7%,transparent)]"
         role="progressbar"
-        aria-label="Chapter reading progress"
+        aria-label="Book reading progress"
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-valuenow={pct}
+        aria-valuenow={bookPct}
       >
         <div
           className="book-progress-fill h-full origin-left bg-gradient-to-r from-cinnabar via-amber to-cinnabar transition-[width] duration-150 ease-out"
-          style={{ width: `${progress * 100}%` }}
+          style={{ width: `${fill * 100}%` }}
         />
       </div>
     </div>
