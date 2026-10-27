@@ -129,11 +129,35 @@ type Phase = "rest" | "calm" | "drift" | "breach";
 
 const phaseAt = (t: number): Phase => (t >= breachT ? "breach" : t >= DRIFT_T ? "drift" : "calm");
 
+const PHASE_TEACH: Record<Phase, { kicker: string; body: string; why: string }> = {
+  rest: {
+    kicker: "What you’re seeing",
+    body: "p50 is the median — half of requests finish faster. p99 is the slow 1%. Drag the timeline to watch them diverge.",
+    why: "A system can feel fine for most users and still miss its reliability goal.",
+  },
+  calm: {
+    kicker: "Calm window",
+    body: "Both lines sit under the 300 ms SLO. Median and tail agree — the fleet looks healthy.",
+    why: "Early minutes rarely tell the whole story; tails often hide until load or contention rises.",
+  },
+  drift: {
+    kicker: "Tail drift",
+    body: "A small fraction of slow requests pulls p99 up while p50 barely moves. Most users still feel fine.",
+    why: "Averages and medians hide the pain that SLO burn and user complaints actually track.",
+  },
+  breach: {
+    kicker: "Tail breach",
+    body: "p99 crossed the 300 ms SLO. The service can pass for most users and still fail its reliability contract.",
+    why: "Act on the shared resource or the slow path — not only on the happy median.",
+  },
+};
+
 function Figure({ g }: { g: Geometry }) {
   const { WIDTH, HEIGHT, X0, X1, TOP, BASE, SLO, font, stroke, p50, p99, breachX, points50, points99 } = g;
   const ref = useRef<HTMLDivElement>(null);
   const reduce = usePrefersReducedMotion();
   const [phase, setPhase] = useState<Phase>("rest");
+  const [drawPhase, setDrawPhase] = useState<Phase>(reduce ? "breach" : "rest");
   const [second, setSecond] = useState(0);
 
   const toMs = (y: number) => Math.max(0, Math.round(((BASE - y) / (BASE - SLO)) * SLO_MS));
@@ -178,6 +202,12 @@ function Figure({ g }: { g: Geometry }) {
     setPhase((current) => (current === next ? current : next));
     const sec = t > 0.985 ? 0 : -Math.round((1 - t) * 60);
     setSecond((current) => (current === sec ? current : sec));
+  });
+
+  useMotionValueEvent(progress, "change", (v) => {
+    if (shown.get() > 0) return;
+    const next = v < 0.02 ? "rest" : phaseAt(v);
+    setDrawPhase((current) => (current === next ? current : next));
   });
 
   const moveTo = (clientX: number) => {
@@ -229,6 +259,9 @@ function Figure({ g }: { g: Geometry }) {
     setPhase(phaseAt(t));
     setSecond(t > 0.985 ? 0 : -Math.round((1 - t) * 60));
   };
+
+  const lessonKey: Phase = phase !== "rest" ? phase : drawPhase === "rest" ? (inView || reduce ? "calm" : "rest") : drawPhase;
+  const lesson = PHASE_TEACH[lessonKey];
 
   return (
     <figure>
@@ -412,10 +445,26 @@ function Figure({ g }: { g: Geometry }) {
           </motion.g>
         </svg>
       </div>
+      <motion.aside
+        key={lessonKey}
+        role="note"
+        aria-live="polite"
+        initial={reduce ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduce ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-5 grid gap-3 rounded-2xl border border-cream/12 bg-night/45 p-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] sm:gap-6 sm:p-5"
+      >
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-amber">{lesson.kicker}</p>
+          <p className="mt-2 text-[0.95rem] leading-relaxed text-cream/82">{lesson.body}</p>
+        </div>
+        <div className="border-t border-cream/10 pt-3 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-cream/45">Why it matters</p>
+          <p className="mt-2 text-sm leading-relaxed text-cream/65">{lesson.why}</p>
+        </div>
+      </motion.aside>
       <p className="mt-4 text-[0.88rem] leading-relaxed text-cream/60">
-        Drag across the minute. Notice the spread open before the label fires —
-        a small fraction of slow requests is enough to pull p99 through the SLO
-        while p50 still looks fine.{" "}
+        Drag across the minute — scrub to read p50 vs p99 at any second.{" "}
         <Link
           href="/system-design/chapter-2"
           className="text-cream/80 underline decoration-cream/25 underline-offset-2 transition-colors hover:text-cream"
