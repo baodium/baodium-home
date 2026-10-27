@@ -15,7 +15,7 @@ import { flipNavigate } from "@/lib/book/flip-navigate";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const SWIPE_THRESHOLD = 64;
+const SWIPE_THRESHOLD = 56;
 
 export function BookChapterView({
   chapter,
@@ -33,9 +33,11 @@ export function BookChapterView({
   const { flipDirection, setFlipDirection, setChromeVisible } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const dragX = useMotionValue(0);
-  const pageShade = useTransform(dragX, [-160, 0, 160], [0.18, 0, 0.18]);
-  const pageRotate = useTransform(dragX, [-220, 0, 220], [9, 0, -9]);
-  const pageScale = useTransform(dragX, [-220, 0, 220], [0.985, 1, 0.985]);
+  const pageShade = useTransform(dragX, [-200, 0, 200], [0.32, 0, 0.32]);
+  const pageRotate = useTransform(dragX, [-260, 0, 260], [14, 0, -14]);
+  const pageScale = useTransform(dragX, [-260, 0, 260], [0.972, 1, 0.972]);
+  const liftY = useTransform(dragX, [-260, 0, 260], [-6, 0, -6]);
+  const peelOpacity = useTransform(dragX, [-160, -40, 0, 40, 160], [0.55, 0.12, 0, 0.12, 0.55]);
 
   useEffect(() => {
     const scroller =
@@ -109,7 +111,7 @@ export function BookChapterView({
         dragX.set(0);
         return;
       }
-      if (!reduceMotion) dragX.set(Math.max(-180, Math.min(180, dx * 0.55)));
+      if (!reduceMotion) dragX.set(Math.max(-220, Math.min(220, dx * 0.62)));
     };
 
     const finishPointer = (event: PointerEvent) => {
@@ -143,8 +145,10 @@ export function BookChapterView({
     };
   }, [dragX, next, prev, reduceMotion, router, setFlipDirection]);
 
-  const enterX = reduceMotion ? 0 : flipDirection >= 0 ? 72 : -72;
-  const enterRotate = reduceMotion ? 0 : flipDirection >= 0 ? -12 : 12;
+  const enterX = reduceMotion ? 0 : flipDirection >= 0 ? 96 : -96;
+  const enterRotate = reduceMotion ? 0 : flipDirection >= 0 ? -18 : 18;
+  const exitX = reduceMotion ? 0 : flipDirection >= 0 ? -72 : 72;
+  const exitRotate = reduceMotion ? 0 : flipDirection >= 0 ? 12 : -12;
 
   return (
     <div
@@ -154,7 +158,7 @@ export function BookChapterView({
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={chapter.slug}
-          className="book-page-stage relative touch-pan-y [perspective:1600px]"
+          className="book-page-stage relative touch-pan-y [perspective:1800px]"
           initial={
             reduceMotion
               ? { opacity: 1 }
@@ -162,8 +166,8 @@ export function BookChapterView({
                   opacity: 0,
                   x: enterX,
                   rotateY: enterRotate,
-                  scale: 0.97,
-                  filter: "blur(3px)",
+                  scale: 0.94,
+                  filter: "blur(5px)",
                 }
           }
           animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1, filter: "blur(0px)" }}
@@ -172,19 +176,29 @@ export function BookChapterView({
               ? { opacity: 0 }
               : {
                   opacity: 0,
-                  x: flipDirection >= 0 ? -48 : 48,
-                  rotateY: flipDirection >= 0 ? 8 : -8,
-                  scale: 0.98,
-                  filter: "blur(2px)",
+                  x: exitX,
+                  rotateY: exitRotate,
+                  scale: 0.96,
+                  filter: "blur(3px)",
                 }
           }
-          transition={{ duration: reduceMotion ? 0.01 : 0.58, ease }}
+          transition={{ duration: reduceMotion ? 0.01 : 0.68, ease }}
         >
+          {!reduceMotion ? (
+            <motion.div
+              aria-hidden="true"
+              className="book-flip-flash pointer-events-none absolute -inset-6 z-0 rounded-[1.6rem]"
+              initial={{ opacity: 0.55 }}
+              animate={{ opacity: 0 }}
+              transition={{ duration: 0.7, ease }}
+            />
+          ) : null}
           <motion.div
             ref={stageRef}
             className="relative"
             style={{
               x: dragX,
+              y: reduceMotion ? 0 : liftY,
               rotateY: pageRotate,
               scale: pageScale,
               transformStyle: "preserve-3d",
@@ -192,13 +206,18 @@ export function BookChapterView({
           >
             <motion.div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-3 -left-2 z-0 w-3 rounded-l-lg bg-[color-mix(in_srgb,var(--reader-fg)_18%,transparent)] blur-[1px]"
+              className="pointer-events-none absolute inset-y-2 -left-3 z-0 w-4 rounded-l-lg bg-[color-mix(in_srgb,var(--reader-fg)_22%,transparent)] blur-[1.5px]"
               style={{ opacity: pageShade }}
             />
             <motion.div
               aria-hidden="true"
               className="book-page-curl pointer-events-none absolute inset-0 z-[2] rounded-[1.15rem]"
               style={{ opacity: pageShade }}
+            />
+            <motion.div
+              aria-hidden="true"
+              className="book-page-peel pointer-events-none absolute inset-y-0 right-0 z-[3] w-[42%] rounded-r-[1.15rem]"
+              style={{ opacity: peelOpacity }}
             />
             <article className="book-page relative overflow-hidden rounded-[1.15rem]">
               <div aria-hidden="true" className="book-page-gutter" />

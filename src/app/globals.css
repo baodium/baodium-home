@@ -583,6 +583,18 @@ html[data-reader-measure="wide"] {
   z-index: 0;
   background:
     radial-gradient(ellipse 70% 55% at 50% 40%, transparent 48%, rgba(20, 18, 16, 0.12) 100%);
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-flipping="1"] .book-reader-atmosphere {
+    opacity: 0.72;
+    filter: saturate(0.92) brightness(0.97);
+  }
+
+  html[data-flipping="1"] .book-reader-stage {
+    filter: drop-shadow(0 18px 40px rgba(28, 22, 16, 0.18));
+  }
 }
 
 .book-reader-stage {
@@ -623,11 +635,30 @@ html[data-reader-measure="wide"] {
 .book-page-curl {
   background: linear-gradient(
     105deg,
-    transparent 55%,
-    rgba(40, 24, 12, 0.08) 72%,
-    rgba(40, 24, 12, 0.16) 100%
+    transparent 48%,
+    rgba(40, 24, 12, 0.06) 68%,
+    rgba(40, 24, 12, 0.14) 86%,
+    rgba(40, 24, 12, 0.22) 100%
   );
   mix-blend-mode: multiply;
+}
+
+.book-page-peel {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 252, 246, 0.08) 38%,
+    rgba(40, 24, 12, 0.1) 72%,
+    rgba(40, 24, 12, 0.2) 100%
+  );
+  mix-blend-mode: multiply;
+  transform-origin: right center;
+}
+
+.book-flip-flash {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(255, 248, 235, 0.55), transparent 72%),
+    linear-gradient(90deg, rgba(173, 79, 54, 0.08), transparent 40%, rgba(173, 79, 54, 0.08));
 }
 
 .book-page-gutter {
@@ -664,11 +695,29 @@ html[data-reader-theme="dark"] .book-page {
 html[data-reader-theme="dark"] .book-page-curl {
   background: linear-gradient(
     105deg,
-    transparent 55%,
-    rgba(255, 255, 255, 0.04) 72%,
-    rgba(255, 255, 255, 0.1) 100%
+    transparent 48%,
+    rgba(255, 255, 255, 0.03) 68%,
+    rgba(255, 255, 255, 0.08) 86%,
+    rgba(255, 255, 255, 0.14) 100%
   );
   mix-blend-mode: screen;
+}
+
+html[data-reader-theme="dark"] .book-page-peel {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 38%,
+    rgba(255, 255, 255, 0.08) 72%,
+    rgba(255, 255, 255, 0.14) 100%
+  );
+  mix-blend-mode: screen;
+}
+
+html[data-reader-theme="dark"] .book-flip-flash {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(255, 236, 210, 0.12), transparent 72%),
+    linear-gradient(90deg, rgba(173, 79, 54, 0.12), transparent 40%, rgba(173, 79, 54, 0.12));
 }
 
 html[data-reader-theme="light"] .book-page-grain {
@@ -953,8 +1002,8 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 @keyframes book-page-enter {
   from {
     opacity: 0;
-    transform: translateX(36px) rotateY(-8deg) scale(0.985);
-    filter: blur(2px);
+    transform: translateX(64px) rotateY(-16deg) scale(0.94);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
@@ -965,7 +1014,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 @media (prefers-reduced-motion: no-preference) {
   .book-page-stage {
-    animation: book-page-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: book-page-enter 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   html[data-flip-dir="back"] .book-page-stage {
@@ -975,8 +1024,8 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   @keyframes book-page-enter-back {
     from {
       opacity: 0;
-      transform: translateX(-36px) rotateY(8deg) scale(0.985);
-      filter: blur(2px);
+      transform: translateX(-64px) rotateY(16deg) scale(0.94);
+      filter: blur(4px);
     }
     to {
       opacity: 1;
@@ -986,53 +1035,88 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   }
 
   html[data-flip-dir="forward"]::view-transition-old(book-page-stage) {
-    animation: 280ms ease-in both book-vt-out-left;
+    animation: 340ms cubic-bezier(0.4, 0, 1, 1) both book-vt-out-left;
+    transform-origin: left center;
   }
   html[data-flip-dir="forward"]::view-transition-new(book-page-stage) {
-    animation: 420ms cubic-bezier(0.22, 1, 0.36, 1) both book-vt-in-right;
+    animation: 560ms cubic-bezier(0.22, 1, 0.36, 1) both book-vt-in-right;
+    transform-origin: right center;
   }
   html[data-flip-dir="back"]::view-transition-old(book-page-stage) {
-    animation: 280ms ease-in both book-vt-out-right;
+    animation: 340ms cubic-bezier(0.4, 0, 1, 1) both book-vt-out-right;
+    transform-origin: right center;
   }
   html[data-flip-dir="back"]::view-transition-new(book-page-stage) {
-    animation: 420ms cubic-bezier(0.22, 1, 0.36, 1) both book-vt-in-left;
+    animation: 560ms cubic-bezier(0.22, 1, 0.36, 1) both book-vt-in-left;
+    transform-origin: left center;
   }
 
   @keyframes book-vt-out-left {
     to {
       opacity: 0;
-      transform: translateX(-48px) rotateY(10deg);
-      filter: blur(2px);
+      transform: translateX(-72px) rotateY(18deg) scale(0.96);
+      filter: blur(3px);
     }
   }
   @keyframes book-vt-in-right {
     from {
       opacity: 0;
-      transform: translateX(56px) rotateY(-10deg);
-      filter: blur(2px);
+      transform: translateX(88px) rotateY(-18deg) scale(0.94);
+      filter: blur(4px);
     }
   }
   @keyframes book-vt-out-right {
     to {
       opacity: 0;
-      transform: translateX(48px) rotateY(-10deg);
-      filter: blur(2px);
+      transform: translateX(72px) rotateY(-18deg) scale(0.96);
+      filter: blur(3px);
     }
   }
   @keyframes book-vt-in-left {
     from {
       opacity: 0;
-      transform: translateX(-56px) rotateY(10deg);
-      filter: blur(2px);
+      transform: translateX(-88px) rotateY(18deg) scale(0.94);
+      filter: blur(4px);
     }
+  }
+
+  .book-flip-card:hover {
+    box-shadow: 0 22px 44px -26px rgba(28, 22, 16, 0.55);
+  }
+
+  .book-flip-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 55%,
+      rgba(255, 248, 235, 0.18) 78%,
+      rgba(40, 24, 12, 0.08) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .book-flip-card:hover::after {
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .book-page-stage,
-  .book-flip-card {
+  .book-flip-card,
+  .book-flip-flash,
+  .book-page-peel,
+  .book-page-curl {
     animation: none !important;
     transition: none !important;
+  }
+
+  .book-flip-flash,
+  .book-page-peel {
+    opacity: 0 !important;
   }
 
   ::view-transition-group(*),

@@ -11,17 +11,19 @@ import {
 import { createPortal } from "react-dom";
 import {
   ArrowUpRight,
+  Check,
   ChevronDown,
   List,
   MessageCircleHeart,
   Search,
+  Share2,
   Type,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { book } from "@/data/writing";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { BookSettings } from "@/components/book/reader/BookSettings";
-import { buildReaderMailto } from "@/lib/book/feedback";
+import { amazonReviewUrl } from "@/lib/book/feedback";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -29,6 +31,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 const exploreLinks = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Projects" },
+  { href: "/about", label: "About" },
   { href: "/system-design", label: "Book overview" },
   { href: "/system-design/experience", label: "Experience lab" },
   { href: "/play", label: "Play" },
@@ -59,6 +62,7 @@ export function BookToolbar({
   const exploreMenuRef = useRef<HTMLDivElement>(null);
   const [exploreOpen, setExploreOpen] = useState(false);
   const [explorePos, setExplorePos] = useState({ top: 64, left: 16 });
+  const [copied, setCopied] = useState(false);
   const mounted = useSyncExternalStore(subscribeNowhere, () => true, () => false);
 
   useLayoutEffect(() => {
@@ -100,15 +104,32 @@ export function BookToolbar({
     };
   }, [exploreOpen]);
 
-  const feedbackHref =
-    chapterTitle && chapterSlug
-      ? buildReaderMailto({
-          kind: "enjoy",
-          chapterTitle,
-          chapterSlug,
-          url: `https://baodium.com/system-design/${chapterSlug}`,
-        })
-      : `mailto:baodium@gmail.com?subject=${encodeURIComponent("Book feedback")}`;
+  const reviewHref = amazonReviewUrl();
+
+  const shareChapter = async () => {
+    const shareUrl =
+      typeof window !== "undefined"
+        ? window.location.href
+        : chapterSlug
+          ? `https://baodium.com/system-design/${chapterSlug}`
+          : "https://baodium.com/system-design";
+    const title = chapterTitle ?? book.title;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title, url: shareUrl });
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      window.prompt("Copy chapter link", shareUrl);
+    }
+  };
 
   const exploreMenu =
     mounted &&
@@ -151,6 +172,18 @@ export function BookToolbar({
               Amazon
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a
+              href={reviewHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              role="menuitem"
+              onClick={() => setExploreOpen(false)}
+              className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)] hover:text-[var(--reader-fg)]"
+            >
+              Rate the book
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="sr-only"> on Amazon (opens in a new tab)</span>
             </a>
           </motion.div>
         ) : null}
@@ -246,13 +279,29 @@ export function BookToolbar({
               >
                 <Type className="h-4 w-4" aria-hidden="true" />
               </button>
+              <button
+                type="button"
+                onClick={shareChapter}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)]"
+                aria-label={copied ? "Chapter link copied" : "Share chapter"}
+                title={copied ? "Copied" : "Share"}
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-cinnabar" aria-hidden="true" />
+                ) : (
+                  <Share2 className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
               <a
-                href={feedbackHref}
+                href={reviewHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-cinnabar"
-                aria-label="Send feedback to baodium@gmail.com"
-                title="Feedback"
+                aria-label="Rate Practical System Design on Amazon"
+                title="Rate on Amazon"
               >
                 <MessageCircleHeart className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </div>
           </motion.header>

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, FlaskConical } from "lucide-react";
+import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
@@ -63,6 +63,16 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
               <FlaskConical className="h-4 w-4" aria-hidden="true" />
               Operate this incident
             </Link>
+            <a
+              href={book.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-12 items-center gap-1.5 rounded-full px-3 text-sm text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
+            >
+              Amazon
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
           </div>
 
           <div className="mt-12 border-t border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] pt-8">
@@ -91,6 +101,20 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
               ))}
             </ol>
           </div>
+
+          <p className="mt-10 border-t border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pt-6 text-sm text-[var(--reader-muted)]">
+            Enjoying the free read?{" "}
+            <a
+              href={book.amazonReviewHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[var(--reader-fg)] underline-offset-4 hover:text-cinnabar hover:underline"
+            >
+              Rate it on Amazon
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </p>
         </div>
       </div>
     </div>
