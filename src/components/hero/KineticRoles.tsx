@@ -71,7 +71,7 @@ export function KineticRoles({
               >
                 0{line + 1}
               </motion.span>
-              <span className="block overflow-hidden pb-[0.08em] text-[clamp(3.1rem,6.1vw,6.15rem)] font-semibold leading-[1.02] tracking-[-0.05em]">
+              <span className="block overflow-hidden pb-[0.08em] text-[clamp(2.45rem,5.1vw,4.85rem)] font-semibold leading-[1.02] tracking-[-0.05em]">
                 <span className="sr-only">{role.word}.</span>
                 <span
                   aria-hidden="true"

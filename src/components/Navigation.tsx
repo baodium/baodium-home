@@ -10,7 +10,7 @@ const links = [
   { id: "book", label: "Book" },
   { id: "play", label: "Play" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing" }] : []),
-  { id: "about", label: "About" },
+  { id: "about", label: "Founder" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;

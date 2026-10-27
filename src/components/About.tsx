@@ -1,170 +1,120 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { AlsoStrip } from "@/components/AlsoStrip";
 import { Reveal } from "@/components/motion/Reveal";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { site } from "@/data/site";
 
-const ease = [0.22, 1, 0.36, 1] as const;
-
-const statement =
-  "Baodium is Adewale Obadimu’s independent home for products and technical publishing. Today he builds AI products and writes about running systems in production.";
-const words = statement.split(" ");
-const accent = new Set(["reliability", "AI", "production."]);
-/** Which focus area each word belongs to, so pointing at an area lights its words in the sentence. */
-const linked: Record<string, number> = { reliability: 0, AI: 1, running: 2, systems: 2, writes: 3 };
-
-const areas = [
-  { title: "Reliability Engineering" },
-  { title: "AI Products" },
-  { title: "Infrastructure" },
-  { title: "Technical Writing" },
-];
-
+/**
+ * Founder bridge — editorial letter, not a chip board:
+ * name → one sharp line → Scholar as research thread → contact as ink → quiet Also.
+ */
 export function About() {
-  const [focus, setFocus] = useState<number | null>(null);
-  const statementRef = useRef<HTMLParagraphElement>(null);
-  /** Words come up to full ink as the sentence rises into reading position. */
-  const { scrollYProgress } = useScroll({ target: statementRef, offset: ["start 0.9", "start 0.52"] });
+  const reduce = usePrefersReducedMotion();
+  const bridgeRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: bridgeRef,
+    offset: ["start 0.92", "start 0.45"],
+  });
+  const ruleScale = useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [0.08, 1]);
+  const ruleOpacity = useTransform(scrollYProgress, [0, 0.4, 1], reduce ? [1, 1, 1] : [0.15, 0.8, 1]);
 
   return (
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative bg-cream pb-14 text-ink md:pb-20"
+      className="relative overflow-hidden bg-cream pb-16 text-ink md:pb-24"
     >
-      <div className="shell">
-        <div className="pt-12 md:pt-16">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute right-[-18%] top-[8%] h-[42vmax] w-[42vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.1),transparent)] blur-2xl" />
+        <div className="absolute bottom-[-20%] left-[-12%] h-[36vmax] w-[36vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.16),transparent)] blur-3xl" />
+      </div>
+
+      <div className="shell relative z-[2]">
+        <div ref={bridgeRef} className="pt-14 md:pt-20">
           <Reveal y={12}>
-            <h2 id="about-heading" className="kicker text-cinnabar">
-              About
+            <p className="kicker text-cinnabar">Founder</p>
+            <h2
+              id="about-heading"
+              className="mt-5 max-w-[18ch] font-serif text-[clamp(2.35rem,5vw,4.5rem)] italic leading-[1.02] tracking-[-0.03em] text-ink"
+            >
+              {site.credit}
             </h2>
           </Reveal>
 
-          <Reveal y={10} delay={0.04}>
-            <p className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-serif text-[clamp(1.55rem,2.6vw,2.15rem)] italic tracking-[-0.02em] text-ink">
-                {site.credit}
-              </span>
+          <Reveal y={10} delay={0.06}>
+            <p className="mt-7 max-w-[34rem] text-[clamp(1.12rem,1.65vw,1.32rem)] leading-relaxed text-ink/88">
+              Baodium is his home for shipping products and writing production
+              failures into design practice — not a studio pitch deck.
+            </p>
+          </Reveal>
+
+          <Reveal y={12} delay={0.1} className="mt-9 max-w-[38rem] md:mt-11">
+            <p className="text-[1.05rem] leading-relaxed text-muted">
+              The research thread — misinformation, platforms, systems under
+              pressure — lives on{" "}
               <a
                 href={site.scholar}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-1 text-[0.9rem] text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
+                className="group inline-flex items-baseline gap-1.5 font-medium text-ink underline decoration-cinnabar/40 underline-offset-[0.22em] transition-colors hover:text-cinnabar hover:decoration-cinnabar"
               >
                 Google Scholar
+                <span className="font-mono text-[0.68rem] font-normal uppercase tracking-[0.12em] text-cinnabar">
+                  {site.scholarCitations} citations
+                </span>
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  className="h-3.5 w-3.5 translate-y-0.5 text-cinnabar/70 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
+              .
             </p>
           </Reveal>
 
-          <p ref={statementRef} className="mt-6 max-w-[60rem] text-[clamp(2rem,4.2vw,3.75rem)] font-semibold leading-[1.12] tracking-[-0.04em]">
-            {words.map((word, index) => {
-              const lit = focus !== null && linked[word] === focus;
-              return (
-                <span key={`${word}-${index}`}>
-                  <span className="relative inline-block">
-                    <span
-                      aria-hidden="true"
-                      className={`absolute inset-x-[-0.06em] bottom-[0.06em] h-[0.34em] origin-left rounded-sm bg-cinnabar/20 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${lit ? "scale-x-100" : "scale-x-0"}`}
-                    />
-                    <ScrollWord
-                      word={word}
-                      index={index}
-                      total={words.length}
-                      progress={scrollYProgress}
-                      className={`relative transition-colors duration-500 ${accent.has(word) ? "font-serif font-normal italic text-cinnabar" : lit ? "text-cinnabar" : ""}`}
-                    />
-                  </span>{" "}
-                </span>
-              );
-            })}
-          </p>
+          <motion.div
+            aria-hidden="true"
+            style={{ scaleX: ruleScale, opacity: ruleOpacity }}
+            className="mt-10 h-px origin-left bg-gradient-to-r from-cinnabar/55 via-cinnabar/20 to-transparent md:mt-12"
+          />
 
-          <p className="mt-8 max-w-2xl text-[1.02rem] leading-relaxed text-muted">
-            Personal writing and life notes live on{" "}
+          <Reveal y={12} delay={0.05} className="mt-9 md:mt-11">
+            <p className="kicker text-muted">Write Baodium</p>
             <a
-              href={site.personal}
-              className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={site.email}
+              className="group mt-4 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1"
             >
-              obadimu.com
-              <span className="sr-only"> (opens in a new tab)</span>
+              <span className="font-mono text-[clamp(1.35rem,2.8vw,2.15rem)] tracking-[-0.03em] text-ink transition-colors group-hover:text-cinnabar">
+                {site.emailLabel}
+              </span>
+              <ArrowUpRight
+                aria-hidden="true"
+                className="h-5 w-5 text-cinnabar transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
             </a>
-            . Reach the studio at{" "}
-            <a href="mailto:hello@baodium.com" className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink">
-              hello@baodium.com
-            </a>
-            .
-          </p>
-
-          <ul className="mt-10 grid grid-cols-2 gap-3 md:mt-12 md:gap-4 lg:grid-cols-4" onPointerLeave={() => setFocus(null)}>
-            {areas.map((area, index) => {
-              const on = focus === index;
-              return (
-                <motion.li
-                  key={area.title}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px 12% 0px" }}
-                  transition={{ duration: 0.7, delay: (index % 2) * 0.06, ease }}
-                >
-                  <button
-                    type="button"
-                    aria-pressed={on}
-                    onPointerEnter={(event) => event.pointerType === "mouse" && setFocus(index)}
-                    onFocus={() => setFocus(index)}
-                    onBlur={() => setFocus(null)}
-                    onClick={() => setFocus(on ? null : index)}
-                    className={`group block w-full rounded-2xl border px-4 py-5 text-left outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-cinnabar/50 md:px-5 md:py-6 ${on ? "border-cinnabar/30 bg-[#f6e4d4]" : "border-ink/10 bg-[#fbf7f1] hover:border-cinnabar/20 hover:bg-[#f8efe6]"}`}
-                  >
-                    <span className="flex items-start gap-2.5 text-[clamp(1.05rem,1.5vw,1.35rem)] font-semibold leading-tight tracking-[-0.03em]">
-                      <span
-                        aria-hidden="true"
-                        className={`mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-300 ${on ? "scale-150 bg-cinnabar" : "bg-cinnabar/35"}`}
-                      />
-                      <span className={`transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${on ? "translate-x-1 text-cinnabar" : ""}`}>{area.title}</span>
-                    </span>
-                  </button>
-                </motion.li>
-              );
-            })}
-          </ul>
+            <p className="mt-4 max-w-md text-[0.98rem] leading-relaxed text-muted">
+              Products, the book, Play, or a note — that address reaches him.
+              Personal writing lives on{" "}
+              <a
+                href={site.personal}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
+              >
+                obadimu.com
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+              .
+            </p>
+          </Reveal>
 
           <AlsoStrip />
         </div>
       </div>
     </section>
-  );
-}
-
-function ScrollWord({
-  word,
-  index,
-  total,
-  progress,
-  className,
-}: {
-  word: string;
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
-  className: string;
-}) {
-  const reduce = usePrefersReducedMotion();
-  const at = index / total;
-  const opacity = useTransform(progress, [at * 0.45, at * 0.45 + 0.22], reduce ? [1, 1] : [0.74, 1]);
-  return (
-    <motion.span style={{ opacity }} className={className}>
-      {word}
-    </motion.span>
   );
 }

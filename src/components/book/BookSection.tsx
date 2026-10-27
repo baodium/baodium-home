@@ -105,7 +105,7 @@ export function BookSection() {
               </h2>
               <Reveal delay={0.05}>
                 <p className="mt-8 max-w-lg font-serif text-[clamp(1.45rem,2.4vw,2rem)] italic leading-[1.15] text-cream/88">
-                  Production failures, written so you can design against them.
+                  Failures from production, written so the next design holds.
                 </p>
                 <p className="mt-4 text-sm text-cream/55">by {book.author}</p>
               </Reveal>
