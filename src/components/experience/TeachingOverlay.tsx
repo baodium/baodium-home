@@ -66,6 +66,16 @@ export function TeachingOverlay({
                 <dd className="mt-1 text-[color:var(--exp-amber)]">{lesson.next}</dd>
               </div>
             ) : null}
+            {lesson.prod ? (
+              <div>
+                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
+                  In production
+                </dt>
+                <dd className="mt-1 text-xs leading-relaxed text-[color:var(--exp-muted)]">
+                  {lesson.prod}
+                </dd>
+              </div>
+            ) : null}
           </dl>
         </div>
       </motion.aside>

@@ -35,9 +35,9 @@ export function ExperienceHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.08, ease }}
         >
-          Read the book for the reasoning. Run the experience to feel the pool fill, the flag
-          flip, and the tradeoff under your hands — with overlays that name what you&apos;re
-          seeing.
+          Read the book for the reasoning. Run Chapter 1 like an on-call drill: pool.* metrics,
+          acquire waits, mitigations, and a kill switch that doesn&apos;t kill in-flight work —
+          with overlays that name what you&apos;re seeing.
         </motion.p>
         <motion.div
           className="mt-6 flex flex-wrap gap-3"
@@ -102,7 +102,7 @@ export function ExperienceHub() {
                 </p>
                 {ready ? (
                   <p className="relative mt-4 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-accent)]">
-                    Guided · sandbox · teaching overlays →
+                    Guided · ops metrics · mitigations →
                   </p>
                 ) : null}
               </Link>
