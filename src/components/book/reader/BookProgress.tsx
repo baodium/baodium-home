@@ -3,9 +3,18 @@
 import { useEffect, useState } from "react";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
+import { chapterNumberLabel } from "@/lib/book/chapter-label";
 
-/** Thin reading progress anchored under the reading chrome. */
-export function BookProgress({ slug }: { slug: string }) {
+/** Reading progress under the chrome — chapter position + scroll fill. */
+export function BookProgress({
+  slug,
+  index,
+  total,
+}: {
+  slug: string;
+  index?: number;
+  total?: number;
+}) {
   const { chromeVisible } = useReader();
   const [progress, setProgress] = useState(0);
 
@@ -33,21 +42,42 @@ export function BookProgress({ slug }: { slug: string }) {
     };
   }, [slug]);
 
+  const pct = Math.round(progress * 100);
+  const label =
+    typeof index === "number" && typeof total === "number" && total > 0
+      ? `${chapterNumberLabel(slug)} · ${pct}%`
+      : `${pct}%`;
+
   return (
     <div
-      className={`pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[2px] transition-opacity duration-300 ${
-        chromeVisible ? "opacity-100" : "opacity-55"
+      className={`pointer-events-none absolute inset-x-0 bottom-0 z-[1] transition-opacity duration-300 ${
+        chromeVisible ? "opacity-100" : "opacity-70"
       }`}
-      role="progressbar"
-      aria-label="Chapter reading progress"
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={Math.round(progress * 100)}
     >
       <div
-        className="h-full origin-left bg-gradient-to-r from-cinnabar via-amber to-cinnabar transition-[width] duration-150 ease-out"
-        style={{ width: `${progress * 100}%` }}
-      />
+        className={`mx-auto mb-0.5 flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] justify-end px-3 transition-[opacity,transform] duration-300 ${
+          chromeVisible && pct > 0
+            ? "translate-y-0 opacity-100"
+            : "translate-y-1 opacity-0"
+        }`}
+      >
+        <span className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm">
+          {label}
+        </span>
+      </div>
+      <div
+        className="h-[2.5px] w-full"
+        role="progressbar"
+        aria-label="Chapter reading progress"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+      >
+        <div
+          className="book-progress-fill h-full origin-left bg-gradient-to-r from-cinnabar via-amber to-cinnabar transition-[width] duration-150 ease-out"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
     </div>
   );
 }

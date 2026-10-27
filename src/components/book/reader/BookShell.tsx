@@ -19,7 +19,10 @@ function ShellBody({
   const { prefs, setChromeVisible } = useReader();
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
-  const active = chapters.find((c) => pathname === `/system-design/${c.slug}`);
+  const activeIndex = chapters.findIndex(
+    (c) => pathname === `/system-design/${c.slug}`,
+  );
+  const active = activeIndex >= 0 ? chapters[activeIndex] : undefined;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -67,7 +70,13 @@ function ShellBody({
               chapterTitle={active?.title}
               chapterSlug={active?.slug}
             />
-            {active ? <BookProgress slug={active.slug} /> : null}
+            {active ? (
+              <BookProgress
+                slug={active.slug}
+                index={activeIndex}
+                total={chapters.length}
+              />
+            ) : null}
           </div>
           <div
             id="book-reader-scroll"

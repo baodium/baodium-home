@@ -18,6 +18,12 @@ export function flipNavigate(
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const root = document.documentElement;
   root.dataset.flipDir = direction >= 0 ? "forward" : "back";
+  root.dataset.flipping = "1";
+
+  const clear = () => {
+    delete root.dataset.flipDir;
+    delete root.dataset.flipping;
+  };
 
   const go = () => router.push(href);
 
@@ -28,9 +34,7 @@ export function flipNavigate(
   if (!reduce && typeof doc.startViewTransition === "function") {
     try {
       const transition = doc.startViewTransition(go);
-      transition.finished.finally(() => {
-        delete root.dataset.flipDir;
-      });
+      transition.finished.finally(clear);
       return;
     } catch {
       /* fall through */
@@ -38,7 +42,5 @@ export function flipNavigate(
   }
 
   go();
-  window.setTimeout(() => {
-    delete root.dataset.flipDir;
-  }, 500);
+  window.setTimeout(clear, reduce ? 80 : 650);
 }

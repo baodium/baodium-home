@@ -29,7 +29,7 @@ export function BookChapterNav({
             setFlipDirection(-1);
             flipNavigate(router, `/system-design/${prev.slug}`, -1);
           }}
-          className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_82%,transparent)] px-4 py-4 transition-[transform,border-color,box-shadow] hover:-translate-x-0.5 hover:border-cinnabar/35 hover:shadow-[0_18px_36px_-28px_rgba(28,22,16,0.45)]"
+          className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_82%,transparent)] px-4 py-4 transition-[transform,border-color,box-shadow] hover:-translate-x-1 hover:border-cinnabar/40 hover:shadow-[0_22px_44px_-26px_rgba(28,22,16,0.5)]"
         >
           <span
             aria-hidden="true"
@@ -56,7 +56,7 @@ export function BookChapterNav({
             setFlipDirection(1);
             flipNavigate(router, `/system-design/${next.slug}`, 1);
           }}
-          className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_82%,transparent)] px-4 py-4 text-right transition-[transform,border-color,box-shadow] hover:translate-x-0.5 hover:border-cinnabar/35 hover:shadow-[0_18px_36px_-28px_rgba(28,22,16,0.45)] sm:justify-self-stretch"
+          className="book-flip-card group relative overflow-hidden rounded-[1.1rem] border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_82%,transparent)] px-4 py-4 text-right transition-[transform,border-color,box-shadow] hover:translate-x-1 hover:border-cinnabar/40 hover:shadow-[0_22px_44px_-26px_rgba(28,22,16,0.5)] sm:justify-self-stretch"
         >
           <span
             aria-hidden="true"

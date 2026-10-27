@@ -4,6 +4,9 @@ export const book = {
   subtitle: "Building Reliable Systems Through Production Failures",
   author: "Adewale Obadimu",
   href: "https://www.amazon.com/dp/B0H8KKBJRH",
+  /** Deep-link to Amazon’s rate/review form (ASIN from href). */
+  amazonReviewHref:
+    "https://www.amazon.com/review/create-review?asin=B0H8KKBJRH",
   readPath: "/system-design",
   cover: "/projects/practical-system-design.png",
 } as const;
