@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 export const roles = [
   { word: "Engineer" },
-  { word: "Builder" },
+  { word: "Philanthropist" },
   { word: "Author" },
 ];
 

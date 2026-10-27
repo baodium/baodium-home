@@ -4,14 +4,14 @@ import { PlayHub } from "@/components/play/PlayHub";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Play",
+  title: "Play — Interactive hub",
   description:
-    "Choose a Baodium reliability game — SLO Watch, Traffic Surge, Cascade, Cache Roulette, Tail Latency. Learn system design by doing.",
+    "Baodium interactive hub — SLO Watch, Traffic Surge, Cascade, Cache Roulette, Tail Latency. Short reliability drills. Learn system design by doing.",
   alternates: { canonical: `${site.url}/play` },
   openGraph: {
-    title: "Play — Baodium",
+    title: "Play — Interactive hub · Baodium",
     description:
-      "Pick a game. Feel the failure mode. Short SRE drills from Practical System Design.",
+      "Pick a drill. Feel the failure mode. Short SRE drills from Practical System Design.",
     url: `${site.url}/play`,
   },
 };

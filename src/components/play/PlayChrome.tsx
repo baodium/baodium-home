@@ -49,7 +49,7 @@ export function PlayChrome({
               href="/play"
               className="text-muted transition-colors hover:text-ink"
             >
-              All games
+              All drills
             </Link>
             <Link
               href={book.readPath}

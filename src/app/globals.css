@@ -319,6 +319,23 @@ html {
   }
 }
 
+.play-orbit {
+  animation: play-orbit 18s linear infinite;
+}
+
+.play-orbit-slow {
+  animation: play-orbit 28s linear infinite reverse;
+}
+
+@keyframes play-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:not(.lenis) {
     scroll-behavior: auto;
@@ -333,6 +350,8 @@ html {
   .caret,
   .scroll-cue,
   .play-cue-ring,
+  .play-orbit,
+  .play-orbit-slow,
   .text-flame-animated {
     animation: none !important;
   }

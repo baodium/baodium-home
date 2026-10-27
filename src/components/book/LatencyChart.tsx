@@ -232,9 +232,50 @@ function Figure({ g }: { g: Geometry }) {
 
   return (
     <figure>
-      <figcaption className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
-        <p className="font-serif text-[clamp(1.35rem,2vw,1.7rem)] italic leading-tight text-cream/88">One minute of tail latency</p>
-        <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-cream/50">p50 holds. p99 crosses 300 ms.</p>
+      <figcaption className="mb-5 flex flex-col gap-4 md:mb-6">
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+          <div className="max-w-2xl">
+            <p className="font-serif text-[clamp(1.35rem,2vw,1.7rem)] italic leading-tight text-cream/88">
+              One minute of tail latency
+            </p>
+            <p className="mt-2 max-w-xl text-[0.95rem] leading-relaxed text-cream/65">
+              <strong className="font-medium text-cream/85">p50</strong> is the
+              median request — half of users are faster.{" "}
+              <strong className="font-medium text-cream/85">p99</strong> is the
+              slowest 1%. A calm median can hide a tail that already breached
+              the SLO.
+            </p>
+          </div>
+          <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-cream/50">
+            p50 holds. p99 crosses 300 ms.
+          </p>
+        </div>
+        <ul className="grid gap-3 sm:grid-cols-3">
+          <li className="rounded-xl border border-white/10 bg-black/20 px-3.5 py-3">
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-amber">
+              p50
+            </p>
+            <p className="mt-1.5 text-[0.88rem] leading-snug text-cream/70">
+              Typical experience. Here it stays flat near the floor.
+            </p>
+          </li>
+          <li className="rounded-xl border border-white/10 bg-black/20 px-3.5 py-3">
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-amber">
+              p99
+            </p>
+            <p className="mt-1.5 text-[0.88rem] leading-snug text-cream/70">
+              The tail users feel. Watch it climb away from p50.
+            </p>
+          </li>
+          <li className="rounded-xl border border-white/10 bg-black/20 px-3.5 py-3">
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-amber">
+              Breach
+            </p>
+            <p className="mt-1.5 text-[0.88rem] leading-snug text-cream/70">
+              Where p99 crosses the 300&nbsp;ms SLO — the minute is already lost.
+            </p>
+          </li>
+        </ul>
       </figcaption>
       <div
         ref={ref}
@@ -371,13 +412,22 @@ function Figure({ g }: { g: Geometry }) {
           </motion.g>
         </svg>
       </div>
-      <p className="mt-4 text-xs leading-relaxed text-cream/55">
-        Illustrative sample: a small fraction of slow requests pulls p99 away from p50.{" "}
+      <p className="mt-4 text-[0.88rem] leading-relaxed text-cream/60">
+        Drag across the minute. Notice the spread open before the label fires —
+        a small fraction of slow requests is enough to pull p99 through the SLO
+        while p50 still looks fine.{" "}
         <Link
           href="/system-design/chapter-2"
-          className="text-cream/75 underline decoration-cream/25 underline-offset-2 transition-colors hover:text-cream"
+          className="text-cream/80 underline decoration-cream/25 underline-offset-2 transition-colors hover:text-cream"
         >
           Modeling requests, latency, and throughput
+        </Link>
+        {" · "}
+        <Link
+          href="/play/tail-latency"
+          className="text-amber/90 underline decoration-amber/30 underline-offset-2 transition-colors hover:text-amber"
+        >
+          Feel it in the Tail Latency drill
         </Link>
       </p>
     </figure>

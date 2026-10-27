@@ -156,30 +156,21 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
           >
             <Magnetic>
-              <Link
-                href="/system-design"
+              <a
+                href="#play"
                 className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.6)]"
               >
                 <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="relative">Read the book free</span>
+                <span className="relative">Interactive hub</span>
                 <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
-              </Link>
+              </a>
             </Magnetic>
-            <a
-              href="https://www.amazon.com/dp/B0H8KKBJRH"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/projects"
               className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
             >
-              Amazon
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            <a
-              href="#play"
-              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
-            >
-              Play games
-            </a>
+              Side projects
+            </Link>
           </motion.div>
         </motion.div>
       </div>
