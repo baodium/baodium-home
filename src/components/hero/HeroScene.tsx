@@ -140,18 +140,18 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         <motion.div style={{ x: typeX, y: typeY }} className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
           <h1>
             <motion.span
-              initial={reduce ? false : { opacity: 0, y: 18, filter: "blur(6px)" }}
+              initial={reduce ? false : { opacity: 0, y: 22, filter: "blur(8px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: reduce ? 0 : 1.05, delay: reduce ? 0 : 0.25, ease }}
-              className="block font-mono text-[0.78rem] tracking-[0.42em] text-amber md:text-[0.85rem]"
+              transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : 0.2, ease }}
+              className="block text-[clamp(2.65rem,6.4vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
             >
-              BAODIUM
+              <span className="text-flame-animated">BAODIUM</span>
             </motion.span>
             <motion.span
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.9, delay: reduce ? 0 : 0.45, ease }}
-              className="mt-3 block font-serif text-[clamp(1.35rem,2.1vw,1.85rem)] italic leading-none text-cream/85"
+              className="mt-4 block font-serif text-[clamp(1.2rem,1.9vw,1.55rem)] italic leading-none text-cream/80"
             >
               Adewale Obadimu, PhD
             </motion.span>
@@ -162,7 +162,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             initial={reduce ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.35, ease }}
-            className="mt-6 max-w-[26rem] text-[1.02rem] leading-snug text-cream/72 md:mt-7 md:text-[1.08rem]"
+            className="mt-5 max-w-[28rem] font-serif text-[clamp(1.05rem,1.6vw,1.25rem)] italic leading-snug text-cream/70 md:mt-6"
           >
             {site.tagline}
           </motion.p>
@@ -187,14 +187,14 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               href="https://www.amazon.com/dp/B0H8KKBJRH"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-[0.95rem] text-cream transition-colors hover:border-white/35 hover:bg-white/[0.05]"
+              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
             >
               Amazon
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
             <a
               href="#play"
-              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-[0.95rem] text-cream/80 transition-colors hover:border-white/35 hover:bg-white/[0.05] hover:text-cream"
+              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
             >
               Play games
             </a>
