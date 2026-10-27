@@ -5,6 +5,7 @@ export function GameResultPanel({
   score,
   reason,
   takeaway,
+  debrief,
   chapterHref,
   chapterLabel,
   onAgain,
@@ -15,6 +16,7 @@ export function GameResultPanel({
   score: number;
   reason: string;
   takeaway: string;
+  debrief?: string;
   chapterHref: string;
   chapterLabel: string;
   onAgain: () => void;
@@ -35,6 +37,9 @@ export function GameResultPanel({
         Score {score}
       </p>
       <p className="mt-2 text-[0.95rem] leading-relaxed text-cream/65">{reason}</p>
+      {debrief ? (
+        <p className="mt-3 text-sm leading-relaxed text-cream/55">{debrief}</p>
+      ) : null}
       <p className="mt-4 border-t border-white/10 pt-4 text-[0.95rem] leading-relaxed text-cream">
         <span className="text-amber">Takeaway — </span>
         {takeaway}

@@ -9,6 +9,7 @@ import { getPlayGame } from "@/data/play-games";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   createTail,
+  emptyTailSnap,
   P99_BUDGET_MS,
   TAIL_DURATION_S,
   TAIL_TICK_MS,
@@ -20,15 +21,9 @@ import {
 
 const catalog = getPlayGame("tail-latency");
 
-const initial: TailSnap = {
-  t: 0,
-  p50: 55,
-  p95: 110,
-  p99: 180,
-  cost: 1,
-  goodput: 1,
-  message: "Quiet lane. Stragglers appear after 10s.",
-};
+const idleSnap: TailSnap = emptyTailSnap(
+  "Quiet lane. Stragglers appear after 10s.",
+);
 
 export function TailLatencyGame() {
   const reduced = usePrefersReducedMotion();
@@ -39,7 +34,7 @@ export function TailLatencyGame() {
     hedgeAfterMs: 120,
     timeoutMs: 500,
   });
-  const [snap, setSnap] = useState<TailSnap>(initial);
+  const [snap, setSnap] = useState<TailSnap>(idleSnap);
   const [result, setResult] = useState<TailResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
@@ -79,7 +74,7 @@ export function TailLatencyGame() {
     engineRef.current = createTail();
     setResult(null);
     setCopied(false);
-    setSnap(initial);
+    setSnap(emptyTailSnap("Collecting latency samples…"));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -259,6 +254,24 @@ export function TailLatencyGame() {
               warnAt={0.7}
               dangerAt={0.9}
             />
+            <PlayMeter
+              label="Worker util"
+              tip="Offered load vs worker pool. Above ~100% means queue wait dominates the tail."
+              value={snap.util}
+              max={1.2}
+              format={(n) => `${Math.round(n * 100)}%`}
+              warnAt={0.75}
+              dangerAt={0.95}
+            />
+            <PlayMeter
+              label="Queue depth"
+              tip="Requests waiting for a free worker. Undersized concurrency lifts everyone's p99."
+              value={snap.queueDepth}
+              max={40}
+              format={(n) => `${n.toFixed(0)}`}
+              warnAt={0.4}
+              dangerAt={0.7}
+            />
           </div>
           {(phase === "won" || phase === "lost") && result ? (
             <GameResultPanel
@@ -266,6 +279,7 @@ export function TailLatencyGame() {
               score={result.score}
               reason={result.reason}
               takeaway={result.takeaway}
+              debrief={result.debrief}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}
@@ -277,8 +291,8 @@ export function TailLatencyGame() {
 
         <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
           <p className="text-sm leading-relaxed text-cream/55">
-            <span className="text-cream/80">Concurrency</span> loads the lane.{" "}
-            <span className="text-cream/80">Hedge</span> races a duplicate after a delay.{" "}
+            <span className="text-cream/80">Workers</span> size the pool (queueing lifts the whole
+            tail). <span className="text-cream/80">Hedge</span> races a duplicate after a delay.{" "}
             <span className="text-cream/80">Timeout</span> cuts stuck work — too tight and you create false failures.
           </p>
           <label className="block">
@@ -394,6 +408,7 @@ export function TailLatencyGame() {
                 className="slo-btn-secondary"
                 onClick={() => {
                   stop();
+                  setSnap(idleSnap);
                   setPhase("intro");
                 }}
               >

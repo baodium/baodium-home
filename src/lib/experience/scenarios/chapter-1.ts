@@ -84,7 +84,7 @@ export const chapter1Scenario: ChapterScenario = {
     {
       id: "decide",
       title: "Decide",
-      body: "Pause exposure (cohort stops growing), disable for new traffic (baseline path; in-flight holds finish), or keep investigating. Your choice mutates this same system — then we debrief. In sandbox you can also try acquire timeout, shed-at-util, and cache.",
+      body: "Pause freezes exposure at the current % (traffic continues; cohort cannot grow). Disable routes new traffic to the baseline path while in-flight holds finish. Investigate leaves pressure running. Your choice mutates this same system — then we debrief. In sandbox you can also try acquire timeout, shed-at-util, and cache.",
       require: "decision",
     },
     {
@@ -102,7 +102,7 @@ export const chapter1Scenario: ChapterScenario = {
   ],
   debriefTemplates: {
     pause_exposure:
-      "You paused exposure at {exposure}%. New users stopped joining the recommendation cohort, but anyone already exposed kept hitting the extra lookup. Waiters {waiterOutcome}. The pool stayed the shared bottleneck — pausing slows growth of demand; it does not instantly drain in-flight holds. In production you’d still watch pool.pending and acquire.wait.p99 until the cohort ages out.",
+      "You paused exposure at {exposure}%. The rollout stopped raising the cohort — traffic kept arriving at that mix, so anyone hashed into the {exposure}% still hit the extra lookup. Waiters {waiterOutcome}. Pausing does not cut λ and does not kill in-flight holds; it only freezes further exposure increases. Disable (or shed/cache) is what drops recommendation demand. In production you’d still watch pool.pending and acquire.wait.p99.",
     disable_feature:
       "You disabled recommendations for new traffic. New requests took the baseline path (~12ms holds) and stopped acquiring connections for the extra query. In-flight recommendation requests kept their slots until they finished — disable does not kill work already holding a connection. Waiting drained as those holds completed and arrivals no longer needed the long path. Shared resource: the 40-slot connection pool. Ops signature: pool.pending ↓, acquire.timeouts stop rising, p99 falls toward baseline.",
     investigate:

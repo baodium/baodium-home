@@ -1,12 +1,13 @@
-/** Pure engine — Cache Roulette: hit/miss, TTL, stampede vs singleflight. */
+/** Pure engine — Cache Roulette: TTL expiry, fill latency, stampede vs singleflight. */
 
 export type CacheControls = {
+  /** Key lifetime before expiry (seconds). */
   ttlSec: number;
-  /** Coalesce concurrent misses on the same key. */
+  /** Coalesce concurrent misses on the same key into one origin fill. */
   singleflight: boolean;
-  /** Serve stale while revalidating. */
+  /** Serve stale while revalidating (SWR). */
   softTtl: boolean;
-  /** Origin workers available. */
+  /** Origin workers available to serve fills. */
   originWorkers: number;
 };
 
@@ -14,8 +15,11 @@ export type CacheSnap = {
   t: number;
   hitRate: number;
   originLoad: number;
+  peakOriginLoad: number;
   inFlightMisses: number;
   stampeded: boolean;
+  filling: boolean;
+  fillRemainingSec: number;
   rps: number;
   message: string;
 };
@@ -27,19 +31,29 @@ export type CacheResult = {
   chapterHref: string;
   chapterLabel: string;
   takeaway: string;
+  debrief: string;
 };
 
 export const CACHE_TICK_MS = 200;
 export const CACHE_DURATION_S = 34;
-export const ORIGIN_SAFE = 1.0;
+/** Origin fill latency for a cold key (seconds). */
+export const FILL_LATENCY_SEC = 1.4;
 
 export type CacheState = {
   t: number;
   hits: number;
   misses: number;
+  /** Work queued / in progress at origin (worker-seconds). */
   originBusy: number;
+  /** Age of the warm key; resets when a fill completes. */
   keyAge: number;
-  stampededTicks: number;
+  /** True while origin is refilling after expiry. */
+  filling: boolean;
+  fillRemaining: number;
+  /** Misses coalesced onto the in-flight fill (singleflight waiters). */
+  waitingOnFill: number;
+  stampededSec: number;
+  peakOriginLoad: number;
   lastMessage: string;
 };
 
@@ -50,9 +64,33 @@ export function createCache(): CacheState {
     misses: 0,
     originBusy: 0,
     keyAge: 4,
-    stampededTicks: 0,
+    filling: false,
+    fillRemaining: 0,
+    waitingOnFill: 0,
+    stampededSec: 0,
+    peakOriginLoad: 0,
     lastMessage: "Warm cache. Keys expire on a TTL — watch origin when they do.",
   };
+}
+
+export function emptyCacheSnap(message?: string): CacheSnap {
+  return {
+    t: 0,
+    hitRate: 0,
+    originLoad: 0,
+    peakOriginLoad: 0,
+    inFlightMisses: 0,
+    stampeded: false,
+    filling: false,
+    fillRemainingSec: 0,
+    rps: 0,
+    message: message ?? "Idle — start a run to see hit rate and origin load.",
+  };
+}
+
+function arrivalRps(t: number): number {
+  // Steady hot-key traffic with a mid-run bump.
+  return 120 + Math.sin(t * 0.7) * 25 + (t > 18 && t < 24 ? 80 : 0);
 }
 
 export function tickCache(
@@ -61,64 +99,105 @@ export function tickCache(
   dt = CACHE_TICK_MS / 1000,
 ): { state: CacheState; snap: CacheSnap; done: CacheResult | null } {
   const t = state.t + dt;
-  const rps = 120 + Math.sin(t * 0.7) * 25 + (t > 18 && t < 24 ? 80 : 0);
+  const rps = arrivalRps(t);
+  const ttl = Math.max(0.8, controls.ttlSec);
+  const workers = Math.max(1, controls.originWorkers);
 
-  let keyAge = state.keyAge + dt;
-  const expired = keyAge >= controls.ttlSec;
-  if (expired) keyAge = 0;
-
+  let keyAge = state.keyAge;
+  let filling = state.filling;
+  let fillRemaining = state.fillRemaining;
+  let waitingOnFill = state.waitingOnFill;
   let hits = state.hits;
   let misses = state.misses;
-  let originBusy = Math.max(0, state.originBusy - controls.originWorkers * dt);
-  let stampededTicks = state.stampededTicks;
+  let originBusy = Math.max(0, state.originBusy - workers * dt);
+  let stampededSec = state.stampededSec;
+  let peakOriginLoad = state.peakOriginLoad;
+
+  // Advance key age only while warm (not mid-fill).
+  if (!filling) {
+    keyAge += dt;
+  }
+
+  const justExpired = !filling && keyAge >= ttl;
+  if (justExpired) {
+    filling = true;
+    // Fill time grows slightly when origin is already hot.
+    const heat = Math.min(1.5, originBusy / workers);
+    fillRemaining = FILL_LATENCY_SEC * (1 + 0.35 * heat);
+    waitingOnFill = 0;
+    keyAge = ttl; // mark expired until fill completes
+  }
+
   let inFlightMisses = 0;
   let stampeded = false;
 
-  const softServe = expired && controls.softTtl;
-  if (!expired || softServe) {
-    hits += rps * dt * (softServe ? 0.85 : 1);
-  }
+  if (filling) {
+    if (controls.softTtl) {
+      // Stale-while-revalidate: clients still get hits; one (or a herd) revalidates.
+      hits += rps * dt;
+    }
 
-  if (expired) {
     if (controls.singleflight) {
-      inFlightMisses = 1;
-      originBusy += 1.2 * dt;
-      misses += 1 * dt;
-      if (softServe) {
-        // revalidate in background — mild load
+      // One leader fills; others wait on the same future without punching origin.
+      inFlightMisses = 1 + waitingOnFill;
+      waitingOnFill = Math.min(rps * 2, waitingOnFill + rps * dt * 0.15);
+      originBusy += 1.0 * dt; // one fill job
+      if (!controls.softTtl) {
+        // Waiters block → counted as brief misses until fill lands.
+        misses += Math.min(rps, 1 + waitingOnFill * 0.05) * dt;
       } else {
-        // brief miss window for the leader only
-        misses += rps * dt * 0.05;
+        misses += 1 * dt; // revalidation miss only
       }
     } else {
-      inFlightMisses = Math.round(rps * 0.35);
-      originBusy += inFlightMisses * 0.08;
-      misses += rps * dt;
-      stampeded = originBusy > controls.originWorkers * 0.9;
-      if (stampeded) stampededTicks += dt;
+      // Thundering herd: every arrival during fill hits origin.
+      inFlightMisses = Math.round(rps);
+      const herd = rps * dt;
+      misses += herd;
+      // Each miss costs ~fillRemaining worth of origin work, amortized.
+      originBusy += herd * Math.min(0.25, fillRemaining * 0.35);
+      stampeded = originBusy > workers * 0.85;
+      if (stampeded) stampededSec += dt;
     }
+
+    fillRemaining -= dt;
+    if (fillRemaining <= 0) {
+      filling = false;
+      fillRemaining = 0;
+      waitingOnFill = 0;
+      keyAge = 0; // warm again
+      // Completing the fill frees some origin backlog.
+      originBusy = Math.max(0, originBusy - workers * 0.4);
+    }
+  } else {
+    // Warm cache — full hits.
+    hits += rps * dt;
   }
 
-  const originLoad = originBusy / Math.max(1, controls.originWorkers);
-  if (originLoad > 1.2) {
-    // Origin saturation → more misses / timeouts counted as misses
-    misses += rps * dt * 0.2;
+  const originLoad = originBusy / workers;
+  peakOriginLoad = Math.max(peakOriginLoad, originLoad);
+
+  // Origin saturation → timeouts counted as extra misses.
+  if (originLoad > 1.15) {
+    misses += rps * dt * Math.min(0.45, (originLoad - 1.15) * 0.5);
   }
 
   const total = hits + misses;
-  const hitRate = total === 0 ? 1 : hits / total;
+  const hitRate = total <= 1e-9 ? 1 : hits / total;
 
   let message = state.lastMessage;
-  if (expired && !controls.singleflight && stampeded)
-    message = "Thundering herd — every client is fetching origin at once.";
-  else if (expired && controls.singleflight && controls.softTtl)
-    message = "Serving stale; one revalidate in flight. Origin calm.";
-  else if (expired && controls.singleflight)
-    message = "Singleflight: one miss leader, others wait for the result.";
-  else if (controls.ttlSec < 3)
-    message = "Short TTL — more expiry storms, more origin pressure.";
-  else if (t > 18 && t < 24) message = "Traffic bump on the hot key.";
-  else if (hitRate > 0.9) message = "Most reads are cache hits.";
+  if (filling && !controls.singleflight && stampeded) {
+    message = `Herd on origin — ~${inFlightMisses} concurrent misses while key refills (${fillRemaining.toFixed(1)}s left).`;
+  } else if (filling && controls.singleflight && controls.softTtl) {
+    message = "Stale served; one revalidate in flight. Herd calm.";
+  } else if (filling && controls.singleflight) {
+    message = "Singleflight: one miss leader, others wait on the same fill.";
+  } else if (ttl < 3) {
+    message = "Tiny TTL — expiry storms every few seconds; origin never cools.";
+  } else if (t > 18 && t < 24) {
+    message = "Traffic bump on the hot key — expiry here hurts more.";
+  } else if (hitRate > 0.92 && !filling) {
+    message = "Cache earning its keep. Watch the next TTL edge.";
+  }
 
   const next: CacheState = {
     t,
@@ -126,30 +205,42 @@ export function tickCache(
     misses,
     originBusy,
     keyAge,
-    stampededTicks,
+    filling,
+    fillRemaining: Math.max(0, fillRemaining),
+    waitingOnFill,
+    stampededSec,
+    peakOriginLoad,
     lastMessage: message,
   };
 
   const snap: CacheSnap = {
     t,
     hitRate,
-    originLoad: Math.min(2, originLoad),
+    originLoad: Math.min(2.5, originLoad),
+    peakOriginLoad: Math.min(2.5, peakOriginLoad),
     inFlightMisses,
     stampeded,
+    filling,
+    fillRemainingSec: Math.max(0, fillRemaining),
     rps,
     message,
   };
 
   if (t >= CACHE_DURATION_S) {
-    const peakSafe = stampededTicks < 2.5 && originLoad < 1.35;
-    const won = hitRate >= 0.72 && peakSafe;
+    const peakSafe = stampededSec < 2.2 && peakOriginLoad < 1.45;
+    const won = hitRate >= 0.7 && peakSafe;
     const score = Math.round(
-      hitRate * 450 +
-        Math.max(0, 120 - stampededTicks * 40) +
-        (controls.singleflight ? 100 : 0) +
-        (controls.softTtl ? 70 : 0) +
-        (won ? 160 : 25),
+      hitRate * 420 +
+        Math.max(0, 140 - stampededSec * 45) +
+        Math.max(0, 100 - peakOriginLoad * 55) +
+        (controls.singleflight ? 90 : 0) +
+        (controls.softTtl ? 60 : 0) +
+        (won ? 150 : 20),
     );
+    const debrief = won
+      ? `Hit rate ${(hitRate * 100).toFixed(0)}%, peak origin ${peakOriginLoad.toFixed(2)}×, stampede ${stampededSec.toFixed(1)}s. ${controls.singleflight ? "Singleflight kept fill concurrency ≈ 1." : "You got lucky — try without singleflight and compare peak load."} ${controls.softTtl ? "SWR hid the miss window from clients." : "Without SWR, waiters felt the fill."}`
+      : `Hit rate ${(hitRate * 100).toFixed(0)}%, peak origin ${peakOriginLoad.toFixed(2)}×, stampede ${stampededSec.toFixed(1)}s. TTL=${ttl.toFixed(1)}s, workers=${workers}. ${!controls.singleflight ? "Without coalescing, every expiry multiplies origin work by RPS×fill_latency." : "Singleflight was on but origin still overheated — raise workers or TTL, or enable SWR."}`;
+
     return {
       state: next,
       snap,
@@ -157,14 +248,17 @@ export function tickCache(
         outcome: won ? "won" : "lost",
         score,
         reason: won
-          ? "Origin held — coalesced misses kept the refresh under control."
-          : stampededTicks >= 2.5
-            ? "TTL expiry became a thundering herd on origin."
-            : "Hit rate too low; the cache spent more than it saved.",
+          ? "Origin lived — coalesced fills beat the roulette wheel."
+          : stampededSec >= 2.2
+            ? "Stampede won — TTL expiry became a thundering herd."
+            : peakOriginLoad >= 1.45
+              ? "Origin peaked over capacity during a fill window."
+              : "Hit rate too low; cache spent more than it saved.",
         chapterHref: "/system-design/chapter-5",
         chapterLabel: "Ch.5 — Caching and the cost of remembering",
         takeaway:
-          "Without request coalescing, a TTL expiry becomes an origin stampede.",
+          "Without request coalescing, a TTL expiry becomes an origin stampede that lasts the whole fill — not one tick.",
+        debrief,
       },
     };
   }

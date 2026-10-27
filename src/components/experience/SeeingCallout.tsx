@@ -68,7 +68,7 @@ function liveInsight(snap: EngineSnapshot): { title: string; body: string } | nu
   if (snap.controls.paused) {
     return {
       title: "Live reading",
-      body: "Exposure is paused — the cohort stops growing. Anyone already exposed can still hit the long path until you disable.",
+      body: `Exposure frozen at ${snap.controls.exposurePct}% — traffic continues at that mix. Pausing does not drain the pool; disable or shed to cut recommendation demand.`,
     };
   }
   return null;

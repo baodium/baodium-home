@@ -7,6 +7,7 @@ import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import {
   createEngine,
+  emptySloSnap,
   tick,
   TICK_MS,
   DURATION_S,
@@ -22,19 +23,9 @@ import { getPlayGame } from "@/data/play-games";
 
 const catalog = getPlayGame("slo-watch");
 
-const initialSnap: TickSnapshot = {
-  t: 0,
-  wave: 1,
-  arrivals: 40,
-  inFlight: 0,
-  poolUtil: 0,
-  successRate: 1,
-  errorBudget: 100,
-  successes: 0,
-  failures: 0,
-  cascadeRisk: 0,
-  message: "Warm traffic. Defaults won’t survive Wave 3 — size up.",
-};
+const initialSnap: TickSnapshot = emptySloSnap(
+  "Warm traffic. Defaults won’t survive Wave 3 — size up.",
+);
 
 function Meter({
   label,
@@ -302,16 +293,25 @@ export function SloWatchGame({
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <Meter
               label="Pool utilization"
-              tip="How full the worker/connection pool is. Near 100% means new work waits or fails."
+              tip="How full the connection pool is. Near 100% means new work waits for a free hold."
               value={snap.poolUtil}
               format={(n) => `${Math.round(n * 100)}%`}
             />
             <Meter
-              label="Arrivals"
-              tip="Incoming request rate. Retries add to this number under saturation."
+              label="Pending (awaiting conn)"
+              tip="Admitted work waiting for a free pool slot. Shows up when concurrency ≫ pool size."
+              value={snap.pending}
+              max={Math.max(20, controls.poolSize)}
+              format={(n) => `${n.toFixed(0)}`}
+              warnAt={0.35}
+              dangerAt={0.7}
+            />
+            <Meter
+              label="Arrivals (w/ retries)"
+              tip="Incoming request rate including retry amplification. Aggressive retries multiply this under saturation."
               value={snap.arrivals}
               max={280}
-              format={(n) => `${n.toFixed(0)} req/s`}
+              format={(n) => `${n.toFixed(0)} req/s · ${snap.retryAmp.toFixed(2)}×`}
               warnAt={0.55}
               dangerAt={0.75}
             />
@@ -333,6 +333,14 @@ export function SloWatchGame({
               warnAt={0.45}
               dangerAt={0.75}
             />
+            <Meter
+              label="Concurrency util"
+              tip="Admission fill vs concurrency limit (in-flight + pending). Separate from pool util."
+              value={snap.concurrencyUtil}
+              format={(n) => `${Math.round(n * 100)}%`}
+              warnAt={0.8}
+              dangerAt={0.95}
+            />
           </div>
 
           <div className="mt-6 h-16 overflow-hidden border border-white/12 bg-night">
@@ -345,9 +353,11 @@ export function SloWatchGame({
               score={result.score}
               reason={result.reason}
               takeaway={
-                getPlayGame("slo-watch")?.takeaway ??
+                result.takeaway ||
+                getPlayGame("slo-watch")?.takeaway ||
                 "Capacity and retries are coupled under saturation."
               }
+              debrief={result.debrief}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}
@@ -361,7 +371,7 @@ export function SloWatchGame({
           <label className="block">
             <DrillControlLabel
               label="Pool size"
-              tip="How many workers/connections checkout can hold at once. Effective capacity is min(pool size, concurrency limit)."
+              tip="How many workers/connections checkout can hold at once. Pool caps holds; concurrency caps admission — they are different levers."
               value={controls.poolSize}
             />
             <input
@@ -517,8 +527,8 @@ export function SloWatchGame({
             <ul className="mt-3 list-disc space-y-2 pl-5">
               <li>Synthetic checkout traffic — not production telemetry.</li>
               <li>
-                Capacity is min(pool size, concurrency limit). Occupancy stretches as
-                utilization rises (contention).
+                Pool size caps concurrent connection holds. Concurrency limit caps
+                admission (in-flight + pending). When concurrency ≫ pool, pending grows.
               </li>
               <li>
                 Aggressive retries multiply arrivals under saturation and can cascade —

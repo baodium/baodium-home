@@ -9,6 +9,7 @@ import { getPlayGame } from "@/data/play-games";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   createSurge,
+  emptySurgeSnap,
   P95_LIMIT_MS,
   SURGE_DURATION_S,
   SURGE_TICK_MS,
@@ -20,18 +21,9 @@ import {
 
 const catalog = getPlayGame("traffic-surge");
 
-const initial: SurgeSnap = {
-  t: 0,
-  arrivals: 40,
-  admitted: 40,
-  served: 0,
-  shed: 0,
-  queue: 0,
-  p95: 60,
-  successRate: 1,
-  happyMs: 0,
-  message: "Calm morning. Spike lands around 12s — decide who waits.",
-};
+const idleSnap: SurgeSnap = emptySurgeSnap(
+  "Calm morning. Spike lands around 12s — decide who waits.",
+);
 
 export function TrafficSurgeGame() {
   const reduced = usePrefersReducedMotion();
@@ -41,7 +33,7 @@ export function TrafficSurgeGame() {
     queueCap: 120,
     vipFirst: true,
   });
-  const [snap, setSnap] = useState<SurgeSnap>(initial);
+  const [snap, setSnap] = useState<SurgeSnap>(idleSnap);
   const [result, setResult] = useState<SurgeResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
@@ -78,7 +70,7 @@ export function TrafficSurgeGame() {
     engineRef.current = createSurge();
     setResult(null);
     setCopied(false);
-    setSnap(initial);
+    setSnap(emptySurgeSnap("Spike incoming — decide admit rate before 12s."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -232,21 +224,34 @@ export function TrafficSurgeGame() {
               dangerAt={1}
             />
             <PlayMeter
-              label="Success rate"
-              tip="Share of requests that complete without being shed or timing out. Shedding spends some success to protect latency."
-              value={Math.max(0, 1 - snap.successRate)}
+              label={controls.vipFirst ? "VIP success" : "Success rate"}
+              tip={
+                controls.vipFirst
+                  ? "VIP-priority lane success. Shed the rest first so checkout stays short while overall admit drops."
+                  : "Share of requests that complete without being shed or timing out. Shedding spends some success to protect latency."
+              }
+              value={Math.max(0, 1 - (controls.vipFirst ? snap.vipSuccessRate : snap.successRate))}
               max={0.4}
-              format={() => `${(snap.successRate * 100).toFixed(0)}%`}
+              format={() =>
+                `${((controls.vipFirst ? snap.vipSuccessRate : snap.successRate) * 100).toFixed(0)}%`
+              }
               warnAt={0.35}
               dangerAt={0.7}
             />
           </div>
+          {phase === "running" ? (
+            <p className="mt-4 text-sm text-cream/45">
+              Under budget {snap.underBudgetSec.toFixed(1)}s · shed {snap.shed.toFixed(0)}
+              {controls.vipFirst ? ` · VIP queue ${snap.vipQueue.toFixed(0)}` : ""}
+            </p>
+          ) : null}
           {(phase === "won" || phase === "lost") && result ? (
             <GameResultPanel
               outcome={result.outcome}
               score={result.score}
               reason={result.reason}
               takeaway={result.takeaway}
+              debrief={result.debrief}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}
@@ -341,6 +346,7 @@ export function TrafficSurgeGame() {
                 className="slo-btn-secondary"
                 onClick={() => {
                   stop();
+                  setSnap(idleSnap);
                   setPhase("intro");
                 }}
               >
