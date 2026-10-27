@@ -1,4 +1,5 @@
 import { BookContents } from "@/components/book/reader/BookContents";
+import { BookPageTransition } from "@/components/book/reader/BookPageTransition";
 import { getManifest } from "@/lib/book/catalog";
 import Link from "next/link";
 
@@ -21,5 +22,9 @@ export default function SystemDesignIndexPage() {
     );
   }
 
-  return <BookContents chapters={manifest.chapters} />;
+  return (
+    <BookPageTransition>
+      <BookContents chapters={manifest.chapters} />
+    </BookPageTransition>
+  );
 }

@@ -105,8 +105,11 @@ export function BookFeedback({
             {copied ? "Link copied" : "Share"}
           </button>
         </div>
-        <p className="mt-4 text-[0.7rem] leading-relaxed text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]">
-          ← → flip chapters · ⌘/Ctrl K search
+        <p
+          className="mt-4 text-[0.7rem] leading-relaxed text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]"
+          title="Swipe the page or press arrow keys to flip chapters"
+        >
+          Swipe or ← → flip chapters · ⌘/Ctrl K search
         </p>
       </div>
 

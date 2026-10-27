@@ -40,6 +40,8 @@ export function BookResume({ chapters }: { chapters: BookChapterMeta[] }) {
       </p>
       <Link
         href={`/system-design/${slug}`}
+        prefetch
+        transitionTypes={["nav-forward"]}
         className="mt-1.5 inline-flex flex-wrap items-baseline gap-x-2 font-serif text-lg leading-snug text-[var(--reader-fg)] underline-offset-4 hover:underline"
       >
         <span>{chapter.title}</span>

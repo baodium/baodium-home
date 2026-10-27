@@ -12,6 +12,8 @@ export type ReaderPrefs = {
   /** 0–1 progress within lastSlug, for resume UI */
   progressBySlug?: Record<string, number>;
   feedbackDismissedAt?: number;
+  /** Coach mark for swipe / ←→ chapter flips */
+  flipHintDismissedAt?: number;
 };
 
 /** Light = white page (default). Paper stays optional cream. */
