@@ -123,8 +123,8 @@ export function MetricsStrip({
         >
           <defs>
             <linearGradient id="exp-lat-fill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stopColor="#ad4f36" stopOpacity="0.28" />
-              <stop offset="1" stopColor="#ad4f36" stopOpacity="0" />
+              <stop offset="0" stopColor="#2f7a7e" stopOpacity="0.28" />
+              <stop offset="1" stopColor="#2f7a7e" stopOpacity="0" />
             </linearGradient>
           </defs>
           {chart ? (
@@ -133,15 +133,15 @@ export function MetricsStrip({
               <path
                 d={chart.waitPath}
                 fill="none"
-                stroke="#dea27c"
+                stroke="#94a8c4"
                 strokeWidth="1.25"
                 strokeLinecap="round"
-                opacity={0.85}
+                opacity={0.9}
               />
               <path
                 d={chart.totalPath}
                 fill="none"
-                stroke="#ad4f36"
+                stroke="#2f7a7e"
                 strokeWidth="2"
                 strokeLinecap="round"
                 className={!reducedMotion ? "exp-lat-draw" : undefined}
@@ -151,14 +151,14 @@ export function MetricsStrip({
                 x2={w - pad.r}
                 y1={chart.p50Y}
                 y2={chart.p50Y}
-                stroke="rgba(43,34,29,0.28)"
+                stroke="rgba(26,35,48,0.28)"
                 strokeDasharray="3 4"
               />
               <circle
                 cx={chart.lastX}
                 cy={chart.lastY}
                 r={3.2}
-                fill="#fffefb"
+                fill="#ffffff"
                 stroke="#ad4f36"
                 strokeWidth={1.6}
               />
@@ -174,8 +174,9 @@ export function MetricsStrip({
         {tailHot ? (
           <>
             <span className="font-medium text-[color:var(--exp-fg)]">p50 can look fine</span> while
-            p99 stretches — acquire wait on the copper path hits a minority hardest. Amber = wait;
-            copper = total. Pair with Ops <span className="font-mono">acquire.wait.p99</span>.
+            p99 stretches — acquire wait on the recommendations path hits a minority hardest. Slate
+            = wait; teal = total. Pair with Ops{" "}
+            <span className="font-mono">acquire.wait.p99</span>.
           </>
         ) : (
           <>

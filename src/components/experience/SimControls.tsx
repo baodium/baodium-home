@@ -56,7 +56,7 @@ export function SimControls({
             onClick={() => onSpeed(s)}
             className={`min-h-8 rounded-full px-2.5 font-mono text-[0.7rem] transition-colors ${
               speed === s
-                ? "bg-[color:var(--exp-fg)] text-[#f5efe5]"
+                ? "bg-[color:var(--exp-fg)] text-white"
                 : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
             }`}
           >

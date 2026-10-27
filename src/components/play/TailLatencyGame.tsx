@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillNarrator } from "@/components/play/DrillNarrator";
 import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
+import { narrateTailLatency } from "@/lib/play/narrator";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   createTail,
@@ -176,19 +178,19 @@ export function TailLatencyGame() {
     <div className="slo-game">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-amber">
+          <p className="drill-kicker">
             Play · Tail Latency
           </p>
           <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
             p50 can look fine while p99 is already broken.
           </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
+          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
             Stragglers hit after 10s.{" "}
             <DrillTip
               label="Hedge"
               tip="Send a duplicate request after a delay and take whichever finishes first. Helps the tail only when the extra work still fits in capacity."
             >
-              <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
                 Hedge
               </span>
             </DrillTip>{" "}
@@ -196,17 +198,30 @@ export function TailLatencyGame() {
             {TAIL_DURATION_S}s.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-cream/45">
-          Success <span className="text-cream">p99 ≤ {P99_BUDGET_MS}ms</span>
+        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
+          Success <span className="text-[color:var(--drill-fg)]">p99 ≤ {P99_BUDGET_MS}ms</span>
         </p>
       </div>
 
+      <DrillNarrator
+        frame={narrateTailLatency({
+          phase,
+          p50: snap.p50,
+          p99: snap.p99,
+          budget: P99_BUDGET_MS,
+          hedge: controls.hedge,
+          hedgeAfterMs: controls.hedgeAfterMs,
+          workers: controls.concurrency,
+          queueDepth: snap.queueDepth,
+          cost: snap.cost,
+        })}
+      />
       <DrillTeach lesson={lesson} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
-        <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
+        <div className="drill-panel p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
+            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"
                 ? "Ready"
                 : phase === "running"
@@ -215,7 +230,7 @@ export function TailLatencyGame() {
                     ? "Tail held"
                     : "Tail blew"}
             </p>
-            <p className="max-w-sm text-right text-sm text-cream/65">{snap.message}</p>
+            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
           </div>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
@@ -289,11 +304,11 @@ export function TailLatencyGame() {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
-          <p className="text-sm leading-relaxed text-cream/55">
-            <span className="text-cream/80">Workers</span> size the pool (queueing lifts the whole
-            tail). <span className="text-cream/80">Hedge</span> races a duplicate after a delay.{" "}
-            <span className="text-cream/80">Timeout</span> cuts stuck work — too tight and you create false failures.
+        <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
+          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
+            <span className="text-[color:var(--drill-fg)]">Workers</span> size the pool (queueing lifts the whole
+            tail). <span className="text-[color:var(--drill-fg)]">Hedge</span> races a duplicate after a delay.{" "}
+            <span className="text-[color:var(--drill-fg)]">Timeout</span> cuts stuck work — too tight and you create false failures.
           </p>
           <label className="block">
             <DrillControlLabel
@@ -337,7 +352,7 @@ export function TailLatencyGame() {
               }
             />
           </label>
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -351,7 +366,7 @@ export function TailLatencyGame() {
                 label="Hedge"
                 tip="Race a duplicate after a delay and keep the faster response. Helps only when the original was truly stuck."
               >
-                <span className="text-cream/80">Hedge slow requests</span>
+                <span className="text-[color:var(--drill-fg)]">Hedge slow requests</span>
               </DrillTip>
             </span>
           </label>
@@ -378,7 +393,7 @@ export function TailLatencyGame() {
               />
             </label>
           ) : null}
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="size-4 accent-[var(--cinnabar)]"
@@ -416,7 +431,7 @@ export function TailLatencyGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-cream/45">
+          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
             Modest concurrency + late hedges beat blasting duplicates on every
             request. A green p50 does not mean the SLO is safe.
           </p>

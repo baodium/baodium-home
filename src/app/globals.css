@@ -19,6 +19,18 @@
   --moss: #5c6b42;
   --moss-soft: #96a86e;
   --signal: #6b9e9a;
+  /* Play/lab light tokens (portaled tips inherit from :root) */
+  --drill-fg: #1a2330;
+  --drill-muted: #5b6778;
+  --drill-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
+  --drill-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
+  --drill-panel: #ffffff;
+  --drill-panel-soft: color-mix(in srgb, #f3f7fa 88%, #e8eef4 12%);
+  --drill-accent: #ad4f36;
+  --drill-signal: #2f7a7e;
+  --drill-warn: #b45309;
+  --drill-track: color-mix(in srgb, #1a2330 8%, transparent);
 }
 
 @theme inline {
@@ -1183,12 +1195,135 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 }
 
 
-/* SLO Watch — scoped to the ember game panel */
-.slo-game .slo-btn-primary {
+/* ——— Play drills — light airy stage (not ember brown) ——— */
+.drill-stage {
+  --drill-fg: #1a2330;
+  --drill-muted: #5b6778;
+  --drill-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
+  --drill-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
+  --drill-panel: #ffffff;
+  --drill-panel-soft: color-mix(in srgb, #f3f7fa 88%, #e8eef4 12%);
+  --drill-accent: #ad4f36;
+  --drill-signal: #2f7a7e;
+  --drill-warn: #b45309;
+  --drill-track: color-mix(in srgb, #1a2330 8%, transparent);
+  color-scheme: light;
+  color: var(--drill-fg);
+  background:
+    radial-gradient(ellipse 62% 48% at 6% -10%, rgba(47, 122, 126, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 96% 0%, rgba(173, 79, 54, 0.1), transparent 52%),
+    radial-gradient(ellipse 42% 28% at 70% 100%, rgba(61, 74, 92, 0.06), transparent 60%),
+    linear-gradient(168deg, #fbfcfe 0%, #f4f7fa 45%, #eef3f7 100%);
+  border: 1px solid var(--drill-line);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 80%, transparent),
+    0 36px 80px -48px rgba(26, 35, 48, 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+  .drill-stage {
+    --drill-fg: #e8edf4;
+    --drill-muted: #9aa6b8;
+    --drill-faint: color-mix(in srgb, #e8edf4 42%, transparent);
+    --drill-line: color-mix(in srgb, #e8edf4 12%, transparent);
+    --drill-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
+    --drill-panel: #12151a;
+    --drill-panel-soft: #181c22;
+    --drill-track: color-mix(in srgb, #e8edf4 10%, transparent);
+    color-scheme: dark;
+    background:
+      radial-gradient(ellipse 60% 45% at 8% -8%, rgba(47, 122, 126, 0.18), transparent 55%),
+      radial-gradient(ellipse 48% 36% at 94% 2%, rgba(173, 79, 54, 0.12), transparent 52%),
+      linear-gradient(168deg, #0a0c0f 0%, #0e1116 50%, #12151a 100%);
+    box-shadow: 0 36px 80px -48px rgba(0, 0, 0, 0.65);
+  }
+}
+
+.drill-panel {
+  border: 1px solid var(--drill-line);
+  background: color-mix(in srgb, var(--drill-panel) 82%, transparent);
+  border-radius: 1.15rem;
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 55%, transparent);
+}
+
+.drill-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--drill-signal);
+}
+
+.drill-narrator {
+  border: 1px solid color-mix(in srgb, var(--drill-signal) 28%, transparent);
+  background:
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--drill-signal) 8%, var(--drill-panel)) 0%,
+      color-mix(in srgb, var(--drill-panel) 92%, transparent) 100%
+    );
+  border-radius: 1rem;
+  padding: 0.85rem 1.05rem;
+  box-shadow: 0 14px 36px -28px rgba(26, 35, 48, 0.35);
+}
+
+.drill-narrator[data-tone="warn"] {
+  border-color: color-mix(in srgb, var(--drill-accent) 35%, transparent);
+  background:
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--drill-accent) 9%, var(--drill-panel)) 0%,
+      color-mix(in srgb, var(--drill-panel) 92%, transparent) 100%
+    );
+}
+
+.drill-narrator-chain {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--drill-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.drill-narrator-arrow {
+  color: var(--drill-faint);
+  margin-inline: 0.2em;
+}
+
+@keyframes drill-cue-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+.drill-live-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--drill-signal);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--drill-signal) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .drill-live-dot {
+    animation: drill-cue-pulse 2.2s ease-in-out infinite;
+  }
+}
+
+/* Buttons / sliders shared by all drills */
+.slo-game .slo-btn-primary,
+.drill-stage .slo-btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background: var(--cinnabar);
+  background: var(--drill-accent, var(--cinnabar));
   color: #fff;
   padding: 0.72rem 1.1rem;
   border-radius: 999px;
@@ -1196,81 +1331,131 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   font-weight: 500;
   transition: background 0.25s ease, transform 0.25s ease;
 }
-.slo-game .slo-btn-primary:hover {
+.slo-game .slo-btn-primary:hover,
+.drill-stage .slo-btn-primary:hover {
   background: #974031;
 }
-.slo-game .slo-btn-secondary {
+.slo-game .slo-btn-secondary,
+.drill-stage .slo-btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid rgba(245, 239, 229, 0.22);
-  color: rgba(245, 239, 229, 0.88);
+  border: 1px solid var(--drill-line-strong, color-mix(in srgb, #1a2330 18%, transparent));
+  color: var(--drill-fg, #1a2330);
   padding: 0.72rem 1.1rem;
   border-radius: 999px;
   font-size: 0.92rem;
-  transition: border-color 0.25s ease, color 0.25s ease;
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+  background: color-mix(in srgb, var(--drill-panel, #fff) 70%, transparent);
 }
-.slo-game .slo-btn-secondary:hover {
-  border-color: rgba(245, 239, 229, 0.45);
-  color: #fff;
+.slo-game .slo-btn-secondary:hover,
+.drill-stage .slo-btn-secondary:hover {
+  border-color: color-mix(in srgb, var(--drill-signal, #2f7a7e) 45%, transparent);
+  color: var(--drill-signal, #2f7a7e);
 }
-.slo-game .slo-slider {
+.slo-game .slo-slider,
+.drill-stage .slo-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 2px;
-  background: rgba(245, 239, 229, 0.28);
+  background: var(--drill-track, color-mix(in srgb, #1a2330 12%, transparent));
   outline: none;
 }
-.slo-game .slo-slider::-webkit-slider-thumb {
+.slo-game .slo-slider::-webkit-slider-thumb,
+.drill-stage .slo-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px;
   height: 16px;
   border-radius: 999px;
-  background: var(--amber);
-  border: 2px solid var(--ember);
+  background: var(--drill-signal, #2f7a7e);
+  border: 2px solid var(--drill-panel, #fff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--drill-signal, #2f7a7e) 35%, transparent);
   cursor: grab;
 }
-.slo-game .slo-slider::-moz-range-thumb {
+.slo-game .slo-slider::-moz-range-thumb,
+.drill-stage .slo-slider::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 999px;
-  background: var(--amber);
-  border: 2px solid var(--ember);
+  background: var(--drill-signal, #2f7a7e);
+  border: 2px solid var(--drill-panel, #fff);
   cursor: grab;
 }
 
-/* ——— System Design experience lab (cream / copper light desk) ——— */
+/* ——— System Design experience lab (light airy — not brown desk) ——— */
 .exp-root {
-  --exp-fg: #2b221d;
-  --exp-muted: #6f6359;
-  --exp-faint: color-mix(in srgb, #2b221d 38%, transparent);
-  --exp-line: color-mix(in srgb, #2b221d 12%, transparent);
-  --exp-line-strong: color-mix(in srgb, #2b221d 22%, transparent);
-  --exp-panel: color-mix(in srgb, #fffef9 88%, #ede5d7 12%);
-  --exp-panel-raise: #fffefb;
-  --exp-slot-free: color-mix(in srgb, #2b221d 7%, #f5efe5);
-  --exp-slot-base: #dea27c;
+  --exp-fg: #1a2330;
+  --exp-muted: #5b6778;
+  --exp-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --exp-line: color-mix(in srgb, #1a2330 10%, transparent);
+  --exp-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
+  --exp-panel: color-mix(in srgb, #ffffff 92%, #eef3f7 8%);
+  --exp-panel-raise: #ffffff;
+  --exp-slot-free: color-mix(in srgb, #1a2330 6%, #f4f7fa);
+  --exp-slot-base: #5ea8a8;
   --exp-slot-recs: #ad4f36;
   --exp-accent: #ad4f36;
-  --exp-amber: #c47a52;
+  --exp-amber: #2f7a7e;
+  --exp-signal: #2f7a7e;
   color-scheme: light;
   background:
-    radial-gradient(ellipse 70% 45% at 8% -8%, rgba(173, 79, 54, 0.14), transparent 55%),
-    radial-gradient(ellipse 55% 38% at 96% 4%, rgba(222, 162, 124, 0.22), transparent 52%),
-    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(173, 79, 54, 0.06), transparent 60%),
-    linear-gradient(168deg, #f7f1e7 0%, #f5efe5 38%, #efe6d8 100%);
+    radial-gradient(ellipse 70% 45% at 8% -8%, rgba(47, 122, 126, 0.13), transparent 55%),
+    radial-gradient(ellipse 55% 38% at 96% 4%, rgba(173, 79, 54, 0.09), transparent 52%),
+    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(61, 74, 92, 0.05), transparent 60%),
+    linear-gradient(168deg, #fbfcfe 0%, #f4f7fa 42%, #eef3f7 100%);
   color: var(--exp-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .exp-root {
+    --exp-fg: #e8edf4;
+    --exp-muted: #9aa6b8;
+    --exp-faint: color-mix(in srgb, #e8edf4 42%, transparent);
+    --exp-line: color-mix(in srgb, #e8edf4 12%, transparent);
+    --exp-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
+    --exp-panel: #12151a;
+    --exp-panel-raise: #181c22;
+    --exp-slot-free: color-mix(in srgb, #e8edf4 8%, #12151a);
+    color-scheme: dark;
+    background:
+      radial-gradient(ellipse 65% 42% at 8% -8%, rgba(47, 122, 126, 0.16), transparent 55%),
+      radial-gradient(ellipse 50% 36% at 96% 4%, rgba(173, 79, 54, 0.1), transparent 52%),
+      linear-gradient(168deg, #0a0c0f 0%, #0e1116 50%, #12151a 100%);
+  }
 }
 
 .exp-atmosphere {
   pointer-events: none;
   position: fixed;
   inset: 0;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.13  0 0 0 0 0.11  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.14  0 0 0 0 0.18  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   z-index: 0;
+}
+
+.exp-narrator {
+  border: 1px solid color-mix(in srgb, var(--exp-amber) 30%, transparent);
+  background:
+    linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--exp-amber) 9%, var(--exp-panel-raise)) 0%,
+      color-mix(in srgb, var(--exp-panel) 94%, transparent) 100%
+    );
+  border-radius: 1.05rem;
+  padding: 0.9rem 1.1rem;
+  box-shadow: 0 16px 40px -30px rgba(26, 35, 48, 0.32);
+}
+
+.exp-narrator[data-tone="warn"] {
+  border-color: color-mix(in srgb, var(--exp-accent) 38%, transparent);
+  background:
+    linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--exp-accent) 10%, var(--exp-panel-raise)) 0%,
+      color-mix(in srgb, var(--exp-panel) 94%, transparent) 100%
+    );
 }
 
 .exp-panel {
@@ -1337,7 +1522,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .exp-btn-primary {
   background: var(--exp-accent);
-  color: #f5efe5;
+  color: #ffffff;
 }
 
 .exp-btn-primary:hover:not(:disabled) {
@@ -1357,7 +1542,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .exp-btn-solid {
   background: var(--exp-fg);
-  color: #f5efe5;
+  color: #ffffff;
 }
 
 .exp-btn-solid:hover:not(:disabled) {
@@ -1385,7 +1570,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 }
 
 .exp-progress-dot[data-done="true"] {
-  background: color-mix(in srgb, var(--exp-accent) 55%, #dea27c);
+  background: color-mix(in srgb, var(--exp-accent) 55%, var(--exp-amber));
 }
 
 .exp-progress-dot[data-active="true"] {
@@ -1479,29 +1664,29 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   border: 1px solid var(--exp-line);
   border-radius: 0.9rem;
   background:
-    linear-gradient(180deg, #fffefb 0%, #f8f1e6 100%);
+    linear-gradient(180deg, #ffffff 0%, #f3f7fa 100%);
   overflow: hidden;
 }
 
 .exp-recs-rail {
   border-top: 1px solid color-mix(in srgb, var(--exp-accent) 35%, transparent);
-  background: color-mix(in srgb, var(--exp-accent) 8%, #fffefb);
+  background: color-mix(in srgb, var(--exp-accent) 7%, #ffffff);
 }
 
 .exp-teach {
   border-radius: 1.15rem;
   background:
-    linear-gradient(165deg, color-mix(in srgb, #fffefb 92%, #f3e8d8) 0%, var(--exp-panel) 100%);
+    linear-gradient(165deg, color-mix(in srgb, #ffffff 94%, #e8f2f2) 0%, var(--exp-panel) 100%);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 70%, transparent),
-    0 22px 48px -30px rgba(43, 34, 29, 0.34);
+    0 22px 48px -30px rgba(26, 35, 48, 0.28);
   padding: 1.05rem 1.15rem 1.15rem;
 }
 
 .exp-pool-callout {
   border-radius: 0.85rem;
   border: 1px solid color-mix(in srgb, var(--exp-accent) 28%, transparent);
-  background: color-mix(in srgb, var(--exp-accent) 7%, #fffefb);
+  background: color-mix(in srgb, var(--exp-accent) 6%, #ffffff);
   padding: 0.7rem 0.85rem;
 }
 

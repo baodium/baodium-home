@@ -55,7 +55,7 @@ export function DrillTip({
       <button
         ref={btnRef}
         type="button"
-        className="drill-tip-btn inline-flex size-[1.05rem] shrink-0 items-center justify-center rounded-full border border-white/25 font-mono text-[0.58rem] leading-none text-cream/70 transition-colors hover:border-amber/55 hover:text-amber focus-visible:border-amber focus-visible:text-amber focus-visible:outline-none"
+        className="drill-tip-btn inline-flex size-[1.05rem] shrink-0 items-center justify-center rounded-full border border-[color:var(--drill-line-strong)] font-mono text-[0.58rem] leading-none text-[color:var(--drill-muted)] transition-colors hover:border-[color:var(--drill-signal)] hover:text-[color:var(--drill-signal)] focus-visible:border-[color:var(--drill-signal)] focus-visible:text-[color:var(--drill-signal)] focus-visible:outline-none"
         aria-describedby={open ? id : undefined}
         aria-expanded={open}
         aria-label={label ? `About ${label}` : "What this means"}
@@ -76,7 +76,7 @@ export function DrillTip({
             <span
               id={id}
               role="tooltip"
-              className="pointer-events-none fixed z-[80] w-[min(18.5rem,calc(100vw-1.5rem))] rounded-xl border border-amber/30 bg-night px-3 py-2.5 text-left text-[0.78rem] leading-snug text-cream/85 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.85)]"
+              className="pointer-events-none fixed z-[80] w-[min(18.5rem,calc(100vw-1.5rem))] rounded-xl border border-[color-mix(in_srgb,var(--drill-signal)_35%,transparent)] bg-[color:var(--drill-panel)] px-3 py-2.5 text-left text-[0.78rem] leading-snug text-[color:var(--drill-fg)] shadow-[0_18px_40px_-22px_rgba(26,35,48,0.45)]"
               style={{
                 top: coords.top,
                 left: coords.left,
@@ -106,16 +106,16 @@ export function DrillControlLabel({
   value?: ReactNode;
 }) {
   return (
-    <span className="flex justify-between gap-3 text-[0.78rem] text-cream/45">
+    <span className="flex justify-between gap-3 text-[0.78rem] text-[color:var(--drill-muted)]">
       {tip ? (
         <DrillTip label={label} tip={tip}>
-          <span className="text-cream/55">{label}</span>
+          <span className="text-[color:var(--drill-muted)]">{label}</span>
         </DrillTip>
       ) : (
         <span>{label}</span>
       )}
       {value != null ? (
-        <span className="tabular-nums text-cream">{value}</span>
+        <span className="tabular-nums text-[color:var(--drill-fg)]">{value}</span>
       ) : null}
     </span>
   );

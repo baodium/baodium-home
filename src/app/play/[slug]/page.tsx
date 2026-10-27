@@ -56,7 +56,7 @@ export default async function PlayGamePage({ params }: Props) {
   return (
     <PlayChrome crumb={{ label: game.title }}>
       <div className="shell">
-        <div className="grain overflow-hidden rounded-[2rem] bg-ember p-5 text-cream md:rounded-[3rem] md:p-10">
+        <div className="drill-stage overflow-hidden rounded-[2rem] p-5 md:rounded-[3rem] md:p-10">
           <GameBySlug slug={slug} />
         </div>
       </div>
