@@ -89,7 +89,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       onPointerLeave={() => setSteering(false)}
       className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px]"
     >
-      {/* Far plane: one warm light */}
+      {/* Far plane: warm light that keeps drifting (hero look preserved) */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
           initial={{ opacity: 0 }}
@@ -97,6 +97,14 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
           transition={{ duration: 2.4, ease }}
           className="aurora absolute left-[34%] top-[8%] h-[72vmax] w-[72vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.34),rgba(151,64,49,0.1)_55%,transparent)] blur-2xl max-lg:left-[5%] max-lg:top-[-12%]"
         />
+        {!reduce ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.35, 0.7, 0.4, 0.65, 0.35] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+            className="aurora-slow absolute bottom-[-18%] left-[-8%] h-[48vmax] w-[48vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.18),transparent)] blur-3xl max-lg:hidden"
+          />
+        ) : null}
       </div>
       {/* Mid plane: the portrait, melted into the field */}
       <motion.div

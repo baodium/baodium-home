@@ -14,6 +14,8 @@ import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
 import { LatencyFigure } from "@/components/book/LatencyChart";
 import { Magnetic } from "@/components/Magnetic";
+import { AmbientField } from "@/components/motion/AmbientField";
+import { useIdleDrift } from "@/components/motion/IdleDrift";
 import { Reveal } from "@/components/motion/Reveal";
 import { book } from "@/data/writing";
 
@@ -42,11 +44,16 @@ export function BookSection() {
   const py = useMotionValue(0);
   const spx = useSpring(px, { stiffness: 120, damping: 16, mass: 0.5 });
   const spy = useSpring(py, { stiffness: 120, damping: 16, mass: 0.5 });
-  const rotateY = useTransform(() => scrollTurn.get() + spx.get() * 34);
-  const rotateX = useTransform(() => 4 + spy.get() * -22);
-  const sheen = useTransform(spx, [-0.5, 0.5], [110, -10]);
-  const glowX = useTransform(spx, (v) => v * 60);
-  const glowY = useTransform(spy, (v) => v * 40);
+  const { x: driftX, y: driftY } = useIdleDrift(spx, spy, {
+    ampX: reduce ? 0 : 0.14,
+    ampY: reduce ? 0 : 0.09,
+    periodMs: 6400,
+  });
+  const rotateY = useTransform(() => scrollTurn.get() + driftX.get() * 34);
+  const rotateX = useTransform(() => 4 + driftY.get() * -22);
+  const sheen = useTransform(driftX, [-0.5, 0.5], [110, -10]);
+  const glowX = useTransform(driftX, (v) => v * 60);
+  const glowY = useTransform(driftY, (v) => v * 40);
 
   return (
     <section
@@ -66,6 +73,15 @@ export function BookSection() {
       className="relative bg-cream px-3 md:px-5"
     >
       <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pb-10 pt-12 md:rounded-[3rem] md:pb-14 md:pt-20">
+        <AmbientField tone="warm" density={16} className="opacity-70" />
+        {!reduce ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-[18%] h-px overflow-hidden opacity-60"
+          >
+            <div className="signal-scan h-full w-1/3 bg-gradient-to-r from-transparent via-amber/70 to-transparent" />
+          </div>
+        ) : null}
         <div className="shell relative z-[2]">
           <div className="grid items-center gap-10 md:grid-cols-12 md:gap-8 lg:gap-10">
             <div className="md:col-span-7 lg:col-span-6">
