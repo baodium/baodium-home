@@ -39,6 +39,8 @@ import { ProductPreview } from "@/components/experience/ProductPreview";
 import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
 import { SimControls } from "@/components/experience/SimControls";
+import { LiveNarrator } from "@/components/experience/LiveNarrator";
+import { SeeingCallout } from "@/components/experience/SeeingCallout";
 import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
 import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
 
@@ -480,7 +482,7 @@ export function Chapter1Experience() {
               }}
               className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                 mode === "guided"
-                  ? "bg-[color:var(--exp-fg)] text-[#f5efe5]"
+                  ? "bg-[color:var(--exp-fg)] text-white"
                   : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
               }`}
             >
@@ -491,7 +493,7 @@ export function Chapter1Experience() {
               onClick={enterSandbox}
               className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                 mode === "sandbox"
-                  ? "bg-[color:var(--exp-fg)] text-[#f5efe5]"
+                  ? "bg-[color:var(--exp-fg)] text-white"
                   : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
               }`}
             >
@@ -515,7 +517,9 @@ export function Chapter1Experience() {
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)]">
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+          <LiveNarrator snap={snap} />
           <TeachingOverlay lesson={lesson} reducedMotion={reduced} />
+          <SeeingCallout stepId={stepId} mode={mode} snap={snap} />
 
           <AnimatePresence mode="wait">
             {mode === "guided" ? (
@@ -561,7 +565,7 @@ export function Chapter1Experience() {
                 {stepDef.prediction && predictionAnswered && stepId === "pressure" ? (
                   <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
                     <span className="text-[color:var(--exp-fg)]">Expected answer: </span>
-                    Disable stops <em>new</em> recommendation acquires; in-flight copper slots keep
+                    Disable stops <em>new</em> recommendation acquires; in-flight busy slots keep
                     their connections until release. pool.pending drains as those holds finish —
                     disable ≠ kill.
                   </p>

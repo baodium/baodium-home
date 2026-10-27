@@ -12,7 +12,7 @@ export function PlayChrome({
 }) {
   return (
     <>
-      <header className="border-b border-ink/10 bg-cream">
+      <header className="border-b border-ink/10 bg-[#fbfcfe]">
         <div className="shell flex flex-wrap items-center justify-between gap-3 py-4 text-ink">
           <div className="flex items-center gap-3">
             <Link
@@ -60,7 +60,10 @@ export function PlayChrome({
           </div>
         </div>
       </header>
-      <main id="main" className="bg-cream pb-16 pt-10 text-ink md:pb-24 md:pt-14">
+      <main
+        id="main"
+        className="bg-[linear-gradient(180deg,#fbfcfe_0%,#f4f7fa_55%,#eef3f7_100%)] pb-16 pt-10 text-ink md:pb-24 md:pt-14"
+      >
         {children}
       </main>
       <Footer />

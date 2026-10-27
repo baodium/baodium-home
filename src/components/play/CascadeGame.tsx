@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillNarrator } from "@/components/play/DrillNarrator";
 import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
+import { narrateCascade } from "@/lib/play/narrator";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   CASCADE_DURATION_S,
@@ -177,19 +179,19 @@ export function CascadeGame() {
     <div className="slo-game">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-amber">
+          <p className="drill-kicker">
             Play · Cascade
           </p>
           <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
             Keep one bad dependency from taking the site down.
           </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
+          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
             Auth and DB will wobble. Trip{" "}
             <DrillTip
               label="circuits"
               tip="A circuit breaker stops calling a failing dependency after enough errors, so callers fail fast instead of waiting."
             >
-              <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
                 circuits
               </span>
             </DrillTip>
@@ -198,24 +200,37 @@ export function CascadeGame() {
               label="bulkheads"
               tip="A bulkhead isolates a dependency onto its own pool of threads or connections so its waiters cannot starve the rest of the system."
             >
-              <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
                 bulkheads
               </span>
             </DrillTip>
             , fail fast — keep checkout alive for {CASCADE_DURATION_S}s.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-cream/45">
-          Success <span className="text-cream">checkout stays up</span>
+        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
+          Success <span className="text-[color:var(--drill-fg)]">checkout stays up</span>
         </p>
       </div>
 
+      <DrillNarrator
+        frame={narrateCascade({
+          phase,
+          edgeHealth: snap.health.edge,
+          authHealth: snap.health.auth,
+          dbHealth: snap.health.db,
+          payHealth: snap.health.pay,
+          circuitsOpen: Number(snap.circuitOpen.auth) + Number(snap.circuitOpen.pay) + Number(snap.circuitOpen.db),
+          bulkheadAuth: controls.bulkheadAuth,
+          bulkheadPay: controls.bulkheadPay,
+          cascadeRisk: snap.cascadeRisk,
+        })}
+      />
       <DrillTeach lesson={lesson} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
-        <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
+        <div className="drill-panel p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
+            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"
                 ? "Ready"
                 : phase === "running"
@@ -224,7 +239,7 @@ export function CascadeGame() {
                     ? "Contained"
                     : "Spread"}
             </p>
-            <p className="max-w-sm text-right text-sm text-cream/65">{snap.message}</p>
+            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
           </div>
 
           <div
@@ -243,17 +258,17 @@ export function CascadeGame() {
                     h < 0.45
                       ? "border-cinnabar/80 bg-cinnabar/15"
                       : h < 0.75
-                        ? "border-amber/50 bg-amber/10"
-                        : "border-white/12 bg-night/40"
+                        ? "border-[color:var(--drill-signal)]/50 bg-[color:var(--drill-warn)]/10"
+                        : "border-[color:var(--drill-line)] bg-[color:var(--drill-panel-soft)]/40"
                   }`}
                 >
-                  <p className="text-[0.68rem] uppercase tracking-[0.14em] text-cream/45">
+                  <p className="text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--drill-muted)]">
                     {node.label}
                     {open ? " · open" : ""}
                   </p>
-                  <p className="mt-2 font-serif text-2xl tabular-nums text-cream">
+                  <p className="mt-2 font-serif text-2xl tabular-nums text-[color:var(--drill-fg)]">
                     {Math.round(h * 100)}
-                    <span className="text-base text-cream/45">%</span>
+                    <span className="text-base text-[color:var(--drill-muted)]">%</span>
                   </p>
                 </div>
               );
@@ -322,7 +337,7 @@ export function CascadeGame() {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
+        <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
           <label className="block">
             <DrillControlLabel
               label="Trip circuit at"
@@ -362,7 +377,7 @@ export function CascadeGame() {
               }
             />
           </label>
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -376,11 +391,11 @@ export function CascadeGame() {
                 label="Bulkhead Auth"
                 tip="Give Auth its own connection/thread pool so Auth waiters cannot starve Pay, DB, or Edge work."
               >
-                <span className="text-cream/80">Bulkhead Auth</span>
+                <span className="text-[color:var(--drill-fg)]">Bulkhead Auth</span>
               </DrillTip>
             </span>
           </label>
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -394,11 +409,11 @@ export function CascadeGame() {
                 label="Bulkhead Pay"
                 tip="Isolate Pay the same way — useful when payment latency would otherwise consume the shared pool."
               >
-                <span className="text-cream/80">Bulkhead Pay</span>
+                <span className="text-[color:var(--drill-fg)]">Bulkhead Pay</span>
               </DrillTip>
             </span>
           </label>
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="size-4 accent-[var(--cinnabar)]"
@@ -436,7 +451,7 @@ export function CascadeGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-cream/45">
+          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
             Trip early and isolate Auth — shared pools turn one bad dependency
             into a site outage.
           </p>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillNarrator } from "@/components/play/DrillNarrator";
 import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import {
@@ -18,6 +19,7 @@ import {
   type RetryPolicy,
   type TickSnapshot,
 } from "@/lib/slo-watch";
+import { narrateSloWatch } from "@/lib/play/narrator";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { getPlayGame } from "@/data/play-games";
 
@@ -46,10 +48,10 @@ function Meter({
 }) {
   const ratio = max === 0 ? 0 : Math.min(1.15, value / max);
   const tone =
-    ratio >= dangerAt ? "bg-cinnabar" : ratio >= warnAt ? "bg-amber" : "bg-cream/70";
+    ratio >= dangerAt ? "bg-cinnabar" : ratio >= warnAt ? "bg-[color:var(--drill-warn)]" : "bg-[color:var(--drill-signal)]";
   return (
     <div>
-      <div className="flex justify-between gap-3 text-[0.72rem] tracking-wide text-cream/45">
+      <div className="flex justify-between gap-3 text-[0.72rem] tracking-wide text-[color:var(--drill-muted)]">
         {tip ? (
           <DrillTip label={label} tip={tip}>
             <span>{label}</span>
@@ -57,9 +59,9 @@ function Meter({
         ) : (
           <span>{label}</span>
         )}
-        <span className="tabular-nums text-cream">{format(value)}</span>
+        <span className="tabular-nums text-[color:var(--drill-fg)]">{format(value)}</span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden bg-white/15">
+      <div className="mt-2 h-1.5 overflow-hidden bg-[color:var(--drill-track)]">
         <div
           className={`h-full ${tone}`}
           style={{ width: `${Math.min(100, ratio * 100)}%` }}
@@ -227,35 +229,60 @@ export function SloWatchGame({
     snap.wave,
   ]);
 
+  const narrator = useMemo(
+    () =>
+      narrateSloWatch({
+        phase,
+        wave: snap.wave,
+        poolUtil: snap.poolUtil,
+        pending: snap.pending,
+        arrivals: snap.arrivals,
+        successRate: snap.successRate,
+        errorBudget: snap.errorBudget,
+        retries: controls.retries,
+        shedding: controls.shedding,
+        sloTarget: SLO_TARGET,
+      }),
+    [
+      controls.retries,
+      controls.shedding,
+      phase,
+      snap.arrivals,
+      snap.errorBudget,
+      snap.pending,
+      snap.poolUtil,
+      snap.successRate,
+      snap.wave,
+    ],
+  );
+
   return (
     <div className="slo-game">
       {!embedded ? (
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-amber">
-              Play · SLO Watch
-            </p>
-            <h2 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
+            <p className="drill-kicker">Play · SLO Watch</p>
+            <h2 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] text-[color:var(--drill-fg)] md:text-4xl">
               Keep checkout inside the SLO through three waves.
             </h2>
-            <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
+            <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
               Size the pool, cap concurrency, pick retries carefully, shed if you
               must. Empty the{" "}
               <DrillTip
                 label="error budget"
                 tip="The amount of unreliability an SLO still allows. When it hits zero, you have broken the promise for the window."
               >
-                <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+                <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
                   error budget
                 </span>
               </DrillTip>{" "}
               or cascade, and you lose.
             </p>
           </div>
-          <div className="text-right text-[0.78rem] tabular-nums text-cream/45">
+          <div className="text-right text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
             <p>
               Success{" "}
-              <span className="text-cream">
+              <span className="text-[color:var(--drill-fg)]">
                 ≥ {(SLO_TARGET * 100).toFixed(1)}% for {DURATION_S}s
               </span>
             </p>
@@ -263,22 +290,23 @@ export function SloWatchGame({
         </div>
       ) : (
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <p className="max-w-xl text-[0.95rem] leading-relaxed text-cream/65">
+          <p className="max-w-xl text-[0.95rem] leading-relaxed text-[color:var(--drill-muted)]">
             Three traffic waves. Defaults will not hold Wave 3 — size up, pick retries carefully,
             shed if you must.
           </p>
-          <p className="text-[0.78rem] tabular-nums text-cream/45">
+          <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
             SLO {(SLO_TARGET * 100).toFixed(1)}% · {DURATION_S}s
           </p>
         </div>
       )}
 
+      {!embedded ? <DrillNarrator frame={narrator} /> : null}
       {!embedded ? <DrillTeach lesson={lesson} /> : null}
 
       <div className={`grid gap-6 lg:grid-cols-12 ${embedded ? "mt-6" : "mt-8"}`}>
-        <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
+        <div className="drill-panel p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
+            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"
                 ? "Ready"
                 : phase === "running"
@@ -287,7 +315,7 @@ export function SloWatchGame({
                     ? "Held"
                     : "Breached"}
             </p>
-            <p className="max-w-sm text-right text-sm text-cream/65">{snap.message}</p>
+            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
           </div>
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -343,7 +371,7 @@ export function SloWatchGame({
             />
           </div>
 
-          <div className="mt-6 h-16 overflow-hidden border border-white/12 bg-night">
+          <div className="mt-6 h-16 overflow-hidden border border-[color:var(--drill-line)] bg-[color:var(--drill-panel-soft)]">
             <LatencyBars util={snap.poolUtil} risk={snap.cascadeRisk} reduced={reduced} />
           </div>
 
@@ -367,7 +395,7 @@ export function SloWatchGame({
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
+        <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
           <label className="block">
             <DrillControlLabel
               label="Pool size"
@@ -409,7 +437,7 @@ export function SloWatchGame({
           </label>
 
           <fieldset>
-            <legend className="flex items-center gap-2 text-[0.78rem] text-cream/45">
+            <legend className="flex items-center gap-2 text-[0.78rem] text-[color:var(--drill-muted)]">
               <DrillTip
                 label="Retries"
                 tip="How aggressively failed requests are retried. Aggressive retries under saturation multiply load and can cascade."
@@ -426,10 +454,10 @@ export function SloWatchGame({
                 <button
                   key={value}
                   type="button"
-                  className={`border px-3 py-2 text-sm transition-colors ${
+                  className={`rounded-full border px-3 py-2 text-sm transition-colors ${
                     controls.retries === value
-                      ? "border-amber text-amber"
-                      : "border-white/12 text-cream/65 hover:border-white/25 hover:text-cream"
+                      ? "border-[color:var(--drill-signal)] bg-[color-mix(in_srgb,var(--drill-signal)_10%,transparent)] text-[color:var(--drill-signal)]"
+                      : "border-[color:var(--drill-line)] text-[color:var(--drill-muted)] hover:border-[color:var(--drill-line-strong)] hover:text-[color:var(--drill-fg)]"
                   }`}
                   aria-pressed={controls.retries === value}
                   onClick={() => setRetry(value)}
@@ -440,7 +468,7 @@ export function SloWatchGame({
             </div>
           </fieldset>
 
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -454,15 +482,15 @@ export function SloWatchGame({
                 label="Shed load"
                 tip="Refuse some work with 503s so the pool can finish what it already accepted. Spends success rate to protect survivors."
               >
-                <span className="text-cream/80">Shed load</span>
+                <span className="text-[color:var(--drill-fg)]">Shed load</span>
               </DrillTip>
-              <span className="mt-0.5 block text-cream/45">
+              <span className="mt-0.5 block text-[color:var(--drill-muted)]">
                 Accept 503s to protect the pool
               </span>
             </span>
           </label>
 
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="size-4 accent-[var(--cinnabar)]"
@@ -476,7 +504,7 @@ export function SloWatchGame({
             >
               <span>Step mode</span>
             </DrillTip>
-            <span className="text-cream/45">(default when reduced motion is on)</span>
+            <span className="text-[color:var(--drill-muted)]">(default when reduced motion is on)</span>
           </label>
 
           <div className="mt-auto flex flex-wrap gap-3 pt-2">
@@ -522,8 +550,8 @@ export function SloWatchGame({
             </Link>
           </div>
 
-          <details className="border border-white/12 p-3 text-sm leading-relaxed text-cream/65">
-            <summary className="cursor-pointer text-cream">Assumptions</summary>
+          <details className="border border-[color:var(--drill-line)] p-3 text-sm leading-relaxed text-[color:var(--drill-muted)]">
+            <summary className="cursor-pointer text-[color:var(--drill-fg)]">Assumptions</summary>
             <ul className="mt-3 list-disc space-y-2 pl-5">
               <li>Synthetic checkout traffic — not production telemetry.</li>
               <li>
@@ -561,7 +589,7 @@ function LatencyBars({
         return (
           <span
             key={i}
-            className="flex-1 bg-amber/80"
+            className="flex-1 bg-[color:var(--drill-signal)]/80"
             style={{
               height: `${Math.min(100, h)}%`,
               opacity: 0.35 + util * 0.5,

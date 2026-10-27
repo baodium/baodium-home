@@ -36,42 +36,62 @@ export function OpsMetricsPanel({
           name="pool.active"
           value={`${snap.activeCount}`}
           hint={`/ ${snap.poolSize}`}
+          tip="Connections currently held. Never exceeds pool size — overflow waits instead of inventing a 41st slot."
+          good="Headroom under the cap (often aim ~60–70% busy under load)."
           hot={snap.activeCount >= snap.poolSize}
         />
-        <Gauge name="pool.idle" value={`${snap.idleCount}`} hint="free" />
+        <Gauge
+          name="pool.idle"
+          value={`${snap.idleCount}`}
+          hint="free"
+          tip="Slots available to acquire right now."
+          good="Some idle left so the next arrival does not queue."
+        />
         <Gauge
           name="pool.pending"
           value={`${snap.waitingCount}`}
           hint="waiters"
+          tip="Requests waiting for a free connection. Appears when demand (λ×W) exceeds the pool."
+          good="Near zero. Sustained pending = saturation, not a slow SQL string alone."
           hot={snap.waitingCount > 0}
         />
         <Gauge
           name="pool.util"
           value={`${utilPct.toFixed(0)}%`}
           hint="ρ"
+          tip="Busy ÷ pool size. Thin headroom means the next traffic bump creates waiters."
+          good="Usually keep under ~80% for bursty arrivals."
           hot={utilPct >= 85}
         />
         <Gauge
           name="acquire.wait.p50"
           value={`${acqP50.toFixed(0)}`}
           hint="ms"
+          tip="Median time spent waiting for a connection before the hold starts."
+          good="Near 0 ms when the pool has headroom."
         />
         <Gauge
           name="acquire.wait.p99"
           value={`${acqP99.toFixed(0)}`}
           hint="ms"
+          tip="Worst-case acquire wait. This stretches p99 latency first under contention."
+          good="Well below connectionTimeout; climbing toward it is the error cliff."
           hot={nearTimeout || acqP99 > 40}
         />
         <Gauge
           name="acquire.timeouts"
           value={`${snap.timeoutCount}`}
           hint={timeoutArmed ? `to ${timeoutMs.toFixed(0)}ms` : "disarmed"}
+          tip="Requests that exceeded connectionTimeout while waiting for a slot — hard failures."
+          good="Zero. Prefer shed/disable before relying on timeouts."
           hot={snap.timeoutCount > 0}
         />
         <Gauge
           name="throughput"
           value={snap.throughputRps.toFixed(0)}
           hint="rps"
+          tip="Completions per second right now (simulated)."
+          good="Stable under load; a drop with rising pending means the pool is the bottleneck."
         />
       </div>
 
@@ -156,19 +176,25 @@ function Gauge({
   name,
   value,
   hint,
+  tip,
+  good,
   hot,
 }: {
   name: string;
   value: string;
   hint: string;
+  tip?: string;
+  good?: string;
   hot?: boolean;
 }) {
+  const title = [tip, good ? `Good: ${good}` : null].filter(Boolean).join(" ");
   return (
     <div
+      title={title || undefined}
       className={`rounded-lg border px-2.5 py-2 ${
         hot
           ? "border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_7%,transparent)]"
-          : "border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_45%,transparent)]"
+          : "border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)]"
       }`}
     >
       <p className="truncate font-mono text-[0.55rem] uppercase tracking-[0.12em] text-[color:var(--exp-faint)]">
@@ -182,6 +208,11 @@ function Gauge({
         {value}
         <span className="ml-1 text-[0.6rem] text-[color:var(--exp-faint)]">{hint}</span>
       </p>
+      {tip ? (
+        <p className="mt-1.5 line-clamp-2 text-[0.62rem] leading-snug text-[color:var(--exp-muted)]">
+          {tip}
+        </p>
+      ) : null}
     </div>
   );
 }

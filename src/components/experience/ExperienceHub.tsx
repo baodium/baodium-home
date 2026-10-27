@@ -74,7 +74,7 @@ export function ExperienceHub() {
             >
               <Link
                 href={href}
-                className={`group relative block overflow-hidden rounded-[1.15rem] border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-5 shadow-[0_18px_40px_-28px_rgba(43,34,29,0.28)] transition-[border-color,transform] duration-300 ${
+                className={`group relative block overflow-hidden rounded-[1.15rem] border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-5 shadow-[0_18px_40px_-28px_rgba(26,35,48,0.22)] transition-[border-color,transform] duration-300 ${
                   ready
                     ? "hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)]"
                     : "opacity-75 hover:border-[color:var(--exp-line-strong)]"

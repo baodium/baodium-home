@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillNarrator } from "@/components/play/DrillNarrator";
 import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
+import { narrateTrafficSurge } from "@/lib/play/narrator";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   createSurge,
@@ -157,36 +159,50 @@ export function TrafficSurgeGame() {
     <div className="slo-game">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-amber">
+          <p className="drill-kicker">
             Play · Traffic Surge
           </p>
           <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
             Shape the spike so latency survives.
           </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
+          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
             Admit rate and queue caps decide who waits. Keep{" "}
             <DrillTip
               label="p95"
               tip="The 95th-percentile latency: 95% of requests are faster than this number. Budgets usually target a percentile, not the average."
             >
-              <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
                 p95
               </span>
             </DrillTip>{" "}
             under {P95_LIMIT_MS}ms for {SURGE_DURATION_S}s without starving the floor.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-cream/45">
-          Success <span className="text-cream">p95 ≤ {P95_LIMIT_MS}ms</span>
+        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
+          Success <span className="text-[color:var(--drill-fg)]">p95 ≤ {P95_LIMIT_MS}ms</span>
         </p>
       </div>
 
+      <DrillNarrator
+        frame={narrateTrafficSurge({
+          phase,
+          t: snap.t,
+          admit: controls.admit,
+          queue: snap.queue,
+          vipQueue: snap.vipQueue,
+          p95: snap.p95,
+          p95Limit: P95_LIMIT_MS,
+          successRate: snap.successRate,
+          shed: snap.shed,
+          vipFirst: controls.vipFirst,
+        })}
+      />
       <DrillTeach lesson={lesson} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
-        <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
+        <div className="drill-panel p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
+            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"
                 ? "Ready"
                 : phase === "running"
@@ -195,7 +211,7 @@ export function TrafficSurgeGame() {
                     ? "Held"
                     : "Breached"}
             </p>
-            <p className="max-w-sm text-right text-sm text-cream/65">{snap.message}</p>
+            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
           </div>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
@@ -240,7 +256,7 @@ export function TrafficSurgeGame() {
             />
           </div>
           {phase === "running" ? (
-            <p className="mt-4 text-sm text-cream/45">
+            <p className="mt-4 text-sm text-[color:var(--drill-muted)]">
               Under budget {snap.underBudgetSec.toFixed(1)}s · shed {snap.shed.toFixed(0)}
               {controls.vipFirst ? ` · VIP queue ${snap.vipQueue.toFixed(0)}` : ""}
             </p>
@@ -261,7 +277,7 @@ export function TrafficSurgeGame() {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
+        <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
           <label className="block">
             <DrillControlLabel
               label="Admit rate"
@@ -298,7 +314,7 @@ export function TrafficSurgeGame() {
               }
             />
           </label>
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -312,11 +328,11 @@ export function TrafficSurgeGame() {
                 label="VIP first"
                 tip="When shedding, prefer keeping higher-priority traffic. Protects critical customers while still cutting load."
               >
-                <span className="text-cream/80">VIP first when shedding</span>
+                <span className="text-[color:var(--drill-fg)]">VIP first when shedding</span>
               </DrillTip>
             </span>
           </label>
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="size-4 accent-[var(--cinnabar)]"
@@ -354,7 +370,7 @@ export function TrafficSurgeGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-cream/45">
+          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
             At peak (~200 rps) you cannot admit everyone. Shed before the queue
             pushes p95 past the budget.
           </p>

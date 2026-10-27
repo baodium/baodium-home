@@ -17,7 +17,7 @@ export type DrillLesson = {
 };
 
 /**
- * Ch.1-style Seeing / Why / Try pedagogy for play drills (dark ember chrome).
+ * Seeing / Why / Try pedagogy for play drills (light stage chrome).
  */
 export function DrillTeach({ lesson }: { lesson: DrillLesson }) {
   const reduced = usePrefersReducedMotion();
@@ -34,13 +34,13 @@ export function DrillTeach({ lesson }: { lesson: DrillLesson }) {
         animate={{ opacity: 1, y: 0 }}
         exit={reduced ? undefined : { opacity: 0, y: -4 }}
         transition={{ duration: reduced ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-8 overflow-hidden rounded-2xl border border-amber/25 bg-gradient-to-br from-cinnabar/15 via-night/45 to-transparent"
+        className="mt-7 overflow-hidden rounded-2xl border border-[color:var(--drill-line)] bg-[color:var(--drill-panel)] shadow-[0_18px_44px_-32px_rgba(26,35,48,0.3)]"
       >
-        <div className="border-b border-white/10 px-4 py-3.5 sm:px-5">
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-amber">
+        <div className="border-b border-[color:var(--drill-line)] bg-[color-mix(in_srgb,var(--drill-signal)_6%,transparent)] px-4 py-3.5 sm:px-5">
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
             This experiment
           </p>
-          <p className="mt-1.5 text-[0.95rem] leading-relaxed text-cream/88">
+          <p className="mt-1.5 text-[0.95rem] leading-relaxed text-[color:var(--drill-fg)]">
             {lesson.experiment}
           </p>
         </div>
@@ -73,17 +73,17 @@ function TeachCell({
   accent?: boolean;
 }) {
   return (
-    <div className="border-t border-white/10 px-4 py-3.5 sm:border-l sm:border-t-0 sm:px-5 sm:first:border-l-0">
-      <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-cream/45">
+    <div className="border-t border-[color:var(--drill-line)] px-4 py-3.5 sm:border-l sm:border-t-0 sm:px-5 sm:first:border-l-0">
+      <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
         {kicker}
       </dt>
       <dd
         className={`mt-1.5 text-sm leading-relaxed ${
           accent
-            ? "text-amber"
+            ? "text-[color:var(--drill-accent)]"
             : muted
-              ? "text-cream/65"
-              : "text-cream/82"
+              ? "text-[color:var(--drill-muted)]"
+              : "text-[color:var(--drill-fg)]"
         }`}
       >
         {body}

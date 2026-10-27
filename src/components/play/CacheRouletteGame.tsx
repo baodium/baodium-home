@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillNarrator } from "@/components/play/DrillNarrator";
 import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
+import { narrateCacheRoulette } from "@/lib/play/narrator";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   CACHE_DURATION_S,
@@ -188,19 +190,19 @@ export function CacheRouletteGame() {
     <div className="slo-game">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.22em] text-amber">
+          <p className="drill-kicker">
             Play · Cache Roulette
           </p>
           <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
             Stop a cache expiry from stampeding origin.
           </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
+          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
             Keys expire on a{" "}
             <DrillTip
               label="TTL"
               tip="Time-to-live: how long a cached key stays valid before it must be refreshed from origin."
             >
-              <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
                 TTL
               </span>
             </DrillTip>
@@ -208,20 +210,33 @@ export function CacheRouletteGame() {
             once for {CACHE_DURATION_S}s.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-cream/45">
+        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
           Success{" "}
-          <span className="text-cream">
+          <span className="text-[color:var(--drill-fg)]">
             hit rate ≥ 72% · no sustained stampede
           </span>
         </p>
       </div>
 
+      <DrillNarrator
+        frame={narrateCacheRoulette({
+          phase,
+          hitRate: snap.hitRate,
+          originLoad: snap.originLoad,
+          originWorkers: controls.originWorkers,
+          singleflight: controls.singleflight,
+          softTtl: controls.softTtl,
+          ttlSec: controls.ttlSec,
+          stampeded: snap.stampeded,
+          inFlightMisses: snap.inFlightMisses,
+        })}
+      />
       <DrillTeach lesson={lesson} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
-        <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
+        <div className="drill-panel p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
+            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"
                 ? "Ready"
                 : phase === "running"
@@ -230,7 +245,7 @@ export function CacheRouletteGame() {
                     ? "Coalesced"
                     : "Stampeded"}
             </p>
-            <p className="max-w-sm text-right text-sm text-cream/65">{snap.message}</p>
+            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
           </div>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
@@ -272,8 +287,8 @@ export function CacheRouletteGame() {
           </div>
           <div
             className={`mt-6 h-14 overflow-hidden border ${
-              snap.stampeded ? "border-cinnabar" : "border-white/12"
-            } bg-night`}
+              snap.stampeded ? "border-cinnabar" : "border-[color:var(--drill-line)]"
+            } bg-[color:var(--drill-panel-soft)]`}
             aria-hidden="true"
           >
             <HerdBars load={snap.originLoad} stampeded={snap.stampeded} reduced={reduced} />
@@ -294,7 +309,7 @@ export function CacheRouletteGame() {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
+        <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
           <label className="block">
             <DrillControlLabel
               label="TTL"
@@ -334,7 +349,7 @@ export function CacheRouletteGame() {
               }
             />
           </label>
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -348,14 +363,14 @@ export function CacheRouletteGame() {
                 label="Singleflight"
                 tip="Request coalescing: when many clients miss the same key, only one fetch goes to origin; the others wait for that result."
               >
-                <span className="text-cream/80">Singleflight</span>
+                <span className="text-[color:var(--drill-fg)]">Singleflight</span>
               </DrillTip>
-              <span className="mt-0.5 block text-cream/45">
+              <span className="mt-0.5 block text-[color:var(--drill-muted)]">
                 Coalesce concurrent misses into one origin fetch
               </span>
             </span>
           </label>
-          <label className="flex items-start gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-[var(--cinnabar)]"
@@ -369,14 +384,14 @@ export function CacheRouletteGame() {
                 label="Soft TTL"
                 tip="Stale-while-revalidate: after soft expiry, keep serving the old value while one background refresh updates the cache."
               >
-                <span className="text-cream/80">Soft TTL</span>
+                <span className="text-[color:var(--drill-fg)]">Soft TTL</span>
               </DrillTip>
-              <span className="mt-0.5 block text-cream/45">
+              <span className="mt-0.5 block text-[color:var(--drill-muted)]">
                 Serve stale while one revalidate runs
               </span>
             </span>
           </label>
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
               className="size-4 accent-[var(--cinnabar)]"
@@ -414,7 +429,7 @@ export function CacheRouletteGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-cream/45">
+          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
             Turn on singleflight before the first expiry. Soft TTL keeps users
             on a response while one revalidate runs.
           </p>
@@ -442,7 +457,7 @@ function HerdBars({
         return (
           <span
             key={i}
-            className={stampeded ? "flex-1 bg-cinnabar/80" : "flex-1 bg-amber/80"}
+            className={stampeded ? "flex-1 bg-cinnabar/80" : "flex-1 bg-[color:var(--drill-signal)]/80"}
             style={{
               height: `${Math.min(100, h)}%`,
               opacity: 0.35 + Math.min(1, load) * 0.5,

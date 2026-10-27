@@ -99,9 +99,9 @@ export function SeeingCallout({
         animate={{ opacity: 1, y: 0 }}
         exit={reduced ? undefined : { opacity: 0, y: -4 }}
         transition={{ duration: reduced ? 0 : 0.35, ease }}
-        className="rounded-2xl border border-[color-mix(in_srgb,var(--exp-accent)_32%,transparent)] bg-[color-mix(in_srgb,#fff_70%,var(--exp-accent)_6%)] px-4 py-3.5 shadow-[0_10px_28px_-18px_rgba(120,60,40,0.35)]"
+        className="rounded-2xl border border-[color-mix(in_srgb,var(--exp-amber)_30%,transparent)] bg-[color-mix(in_srgb,#fff_78%,var(--exp-amber)_6%)] px-4 py-3.5 shadow-[0_12px_32px_-20px_rgba(26,35,48,0.28)]"
       >
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--exp-accent)]">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--exp-amber)]">
           {shown.title}
         </p>
         <p className="mt-1.5 text-sm leading-relaxed text-[color:var(--exp-fg)]/88">
