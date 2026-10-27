@@ -163,7 +163,7 @@ export function tickTail(
         chapterHref: "/system-design/chapter-2",
         chapterLabel: "Ch.2 — Modeling requests, latency, and throughput",
         takeaway:
-          "Users feel the tail, not the mean — hedging helps only when the duplicate work fits.",
+          "Users notice the tail, not the mean — hedging helps only when the duplicate work fits.",
       },
     };
   }

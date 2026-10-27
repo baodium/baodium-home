@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import {
   createEngine,
@@ -17,6 +19,8 @@ import {
 } from "@/lib/slo-watch";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { getPlayGame } from "@/data/play-games";
+
+const catalog = getPlayGame("slo-watch");
 
 const initialSnap: TickSnapshot = {
   t: 0,
@@ -34,6 +38,7 @@ const initialSnap: TickSnapshot = {
 
 function Meter({
   label,
+  tip,
   value,
   max = 1,
   format,
@@ -41,6 +46,7 @@ function Meter({
   dangerAt = 0.95,
 }: {
   label: string;
+  tip?: string;
   value: number;
   max?: number;
   format: (n: number) => string;
@@ -52,8 +58,14 @@ function Meter({
     ratio >= dangerAt ? "bg-cinnabar" : ratio >= warnAt ? "bg-amber" : "bg-cream/70";
   return (
     <div>
-      <div className="flex justify-between text-[0.72rem] tracking-wide text-cream/45">
-        <span>{label}</span>
+      <div className="flex justify-between gap-3 text-[0.72rem] tracking-wide text-cream/45">
+        {tip ? (
+          <DrillTip label={label} tip={tip}>
+            <span>{label}</span>
+          </DrillTip>
+        ) : (
+          <span>{label}</span>
+        )}
         <span className="tabular-nums text-cream">{format(value)}</span>
       </div>
       <div className="mt-2 h-1.5 overflow-hidden bg-white/15">
@@ -162,6 +174,68 @@ export function SloWatchGame({
   const setRetry = (retries: RetryPolicy) =>
     setControls((c) => ({ ...c, retries }));
 
+  const lesson = useMemo((): DrillLesson => {
+    if (phase === "intro") {
+      return {
+        experiment:
+          "Three traffic waves hit checkout. Defaults will not hold Wave 3 — size capacity, pick retries, shed if you must.",
+        seeing:
+          "Pool utilization, arrivals, success rate, and remaining error budget. Wave labels mark each surge.",
+        why: "An SLO is a promise with a budget. Aggressive retries under saturation spend that budget twice and can cascade.",
+        tryNext: "Raise pool size before Wave 3, keep retries cautious, enable shedding if utilization saturates.",
+        success:
+          catalog?.success ??
+          `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`,
+      };
+    }
+    if (phase === "running") {
+      return {
+        experiment: `Wave ${snap.wave} is live — occupancy and retries decide whether the budget survives.`,
+        seeing: snap.message,
+        why:
+          controls.retries === "aggressive" && snap.poolUtil > 0.85
+            ? "Aggressive retries multiply arrivals while the pool is already full — that spends the budget twice."
+            : "Capacity and retries are coupled. Under saturation, more retries usually means more failures, not more recoveries.",
+        tryNext:
+          snap.errorBudget < 40
+            ? "Shed load or cut retries before the budget hits zero."
+            : "Watch utilization into the next wave; size up before it crests.",
+        success:
+          catalog?.success ??
+          `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`,
+      };
+    }
+    if (phase === "won") {
+      return {
+        experiment: "Checkout held inside the SLO for the full shift.",
+        seeing: result?.reason ?? "Error budget survived all three waves.",
+        why:
+          catalog?.takeaway ??
+          "Capacity and retries are coupled under saturation.",
+        success: "Win locked. Try aggressive retries once to see the budget burn faster.",
+      };
+    }
+    return {
+      experiment: "The budget emptied or the system cascaded.",
+      seeing: result?.reason ?? "SLO breached under the waves.",
+      why:
+        catalog?.takeaway ??
+        "Capacity and retries are coupled under saturation.",
+      tryNext: "Size the pool, keep retries cautious, and shed before Wave 3 saturates.",
+      success:
+        catalog?.success ??
+        `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`,
+    };
+  }, [
+    controls.retries,
+    phase,
+    result,
+    snap.errorBudget,
+    snap.message,
+    snap.poolUtil,
+    snap.wave,
+  ]);
+
   return (
     <div className="slo-game">
       {!embedded ? (
@@ -171,21 +245,28 @@ export function SloWatchGame({
               Play · SLO Watch
             </p>
             <h2 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
-              Keep checkout inside the SLO.
+              Keep checkout inside the SLO through three waves.
             </h2>
             <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
-              Three traffic waves hit checkout. The defaults will not hold Wave 3 — size the pool,
-              cap concurrency, pick retries carefully, shed if you must. Empty the error budget or
-              cascade, and you lose.
+              Size the pool, cap concurrency, pick retries carefully, shed if you
+              must. Empty the{" "}
+              <DrillTip
+                label="error budget"
+                tip="The amount of unreliability an SLO still allows. When it hits zero, you have broken the promise for the window."
+              >
+                <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+                  error budget
+                </span>
+              </DrillTip>{" "}
+              or cascade, and you lose.
             </p>
           </div>
           <div className="text-right text-[0.78rem] tabular-nums text-cream/45">
             <p>
-              Target SLO{" "}
-              <span className="text-cream">{(SLO_TARGET * 100).toFixed(1)}%</span>
-            </p>
-            <p className="mt-1">
-              Duration <span className="text-cream">{DURATION_S}s</span>
+              Success{" "}
+              <span className="text-cream">
+                ≥ {(SLO_TARGET * 100).toFixed(1)}% for {DURATION_S}s
+              </span>
             </p>
           </div>
         </div>
@@ -201,7 +282,9 @@ export function SloWatchGame({
         </div>
       )}
 
-      <div className={`grid gap-6 lg:grid-cols-12 ${embedded ? "mt-6" : "mt-10"}`}>
+      {!embedded ? <DrillTeach lesson={lesson} /> : null}
+
+      <div className={`grid gap-6 lg:grid-cols-12 ${embedded ? "mt-6" : "mt-8"}`}>
         <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
@@ -219,11 +302,13 @@ export function SloWatchGame({
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <Meter
               label="Pool utilization"
+              tip="How full the worker/connection pool is. Near 100% means new work waits or fails."
               value={snap.poolUtil}
               format={(n) => `${Math.round(n * 100)}%`}
             />
             <Meter
               label="Arrivals"
+              tip="Incoming request rate. Retries add to this number under saturation."
               value={snap.arrivals}
               max={280}
               format={(n) => `${n.toFixed(0)} req/s`}
@@ -232,6 +317,7 @@ export function SloWatchGame({
             />
             <Meter
               label="Success rate"
+              tip="Share of requests that complete successfully. Must stay at or above the SLO target."
               value={Math.max(0, 1 - snap.successRate)}
               max={0.05}
               format={() => `${(snap.successRate * 100).toFixed(2)}%`}
@@ -240,6 +326,7 @@ export function SloWatchGame({
             />
             <Meter
               label="Error budget left"
+              tip="Remaining allowed unreliability for this window. Hits zero when you have broken the SLO."
               value={100 - snap.errorBudget}
               max={100}
               format={() => `${snap.errorBudget.toFixed(0)}%`}
@@ -272,10 +359,11 @@ export function SloWatchGame({
 
         <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
           <label className="block">
-            <span className="flex justify-between text-[0.78rem] text-cream/45">
-              Pool size
-              <span className="tabular-nums text-cream">{controls.poolSize}</span>
-            </span>
+            <DrillControlLabel
+              label="Pool size"
+              tip="How many workers/connections checkout can hold at once. Effective capacity is min(pool size, concurrency limit)."
+              value={controls.poolSize}
+            />
             <input
               className="slo-slider mt-3"
               type="range"
@@ -289,10 +377,11 @@ export function SloWatchGame({
             />
           </label>
           <label className="block">
-            <span className="flex justify-between text-[0.78rem] text-cream/45">
-              Concurrency limit
-              <span className="tabular-nums text-cream">{controls.concurrencyLimit}</span>
-            </span>
+            <DrillControlLabel
+              label="Concurrency limit"
+              tip="Hard cap on in-flight work. Prevents the pool from accepting more than it can finish."
+              value={controls.concurrencyLimit}
+            />
             <input
               className="slo-slider mt-3"
               type="range"
@@ -310,7 +399,14 @@ export function SloWatchGame({
           </label>
 
           <fieldset>
-            <legend className="text-[0.78rem] text-cream/45">Retries</legend>
+            <legend className="flex items-center gap-2 text-[0.78rem] text-cream/45">
+              <DrillTip
+                label="Retries"
+                tip="How aggressively failed requests are retried. Aggressive retries under saturation multiply load and can cascade."
+              >
+                <span>Retries</span>
+              </DrillTip>
+            </legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {([
                 ["off", "Off"],
@@ -334,16 +430,26 @@ export function SloWatchGame({
             </div>
           </fieldset>
 
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-cream/65">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--cinnabar)]"
+              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
               checked={controls.shedding}
               onChange={(e) =>
                 setControls((c) => ({ ...c, shedding: e.target.checked }))
               }
             />
-            Shed load (accept 503s to protect the pool)
+            <span>
+              <DrillTip
+                label="Shed load"
+                tip="Refuse some work with 503s so the pool can finish what it already accepted. Spends success rate to protect survivors."
+              >
+                <span className="text-cream/80">Shed load</span>
+              </DrillTip>
+              <span className="mt-0.5 block text-cream/45">
+                Accept 503s to protect the pool
+              </span>
+            </span>
           </label>
 
           <label className="flex items-center gap-3 text-sm text-cream/65">
@@ -354,7 +460,12 @@ export function SloWatchGame({
               onChange={(e) => setStepOverride(e.target.checked)}
               disabled={phase === "running"}
             />
-            Step mode
+            <DrillTip
+              label="Step mode"
+              tip="Advance one simulation tick at a time. Default when reduced motion is on."
+            >
+              <span>Step mode</span>
+            </DrillTip>
             <span className="text-cream/45">(default when reduced motion is on)</span>
           </label>
 

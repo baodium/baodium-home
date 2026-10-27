@@ -476,7 +476,7 @@ function Figure({ g }: { g: Geometry }) {
           href="/play/tail-latency"
           className="text-amber/90 underline decoration-amber/30 underline-offset-2 transition-colors hover:text-amber"
         >
-          Feel it in the Tail Latency drill
+          Try it in the Tail Latency drill
         </Link>
       </p>
     </figure>
