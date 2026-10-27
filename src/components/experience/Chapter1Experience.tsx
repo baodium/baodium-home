@@ -369,9 +369,24 @@ export function Chapter1Experience() {
   const showProduct =
     stepId === "inspect" || stepId === "review" || mode === "sandbox";
   const showPool =
-    stepId !== "inspect" || mode === "sandbox" || snap.activeCount > 0 || snap.waitingCount > 0;
+    mode === "sandbox" ||
+    ["trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    snap.activeCount > 0 ||
+    snap.waitingCount > 0;
   const showFlag =
-    stepId !== "inspect" || mode === "sandbox" || snap.controls.featureEnabled;
+    mode === "sandbox" ||
+    ["review", "trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(
+      stepId,
+    ) ||
+    snap.controls.featureEnabled;
+  const showMetrics =
+    mode === "sandbox" ||
+    ["rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    snap.completedCount > 8;
+  const showTrace =
+    mode === "sandbox" ||
+    ["trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    focusedReq !== null;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
@@ -773,11 +788,13 @@ export function Chapter1Experience() {
               reducedMotion={reduced}
             />
           ) : null}
-          <div className="grid gap-4 md:grid-cols-2">
-            <LittlesLawCallout snap={snap} />
-            <MetricsStrip snap={snap} />
-          </div>
-          <RequestTrace req={tracedReq} now={snap.t} />
+          {showMetrics ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              <LittlesLawCallout snap={snap} />
+              <MetricsStrip snap={snap} />
+            </div>
+          ) : null}
+          {showTrace ? <RequestTrace req={tracedReq} now={snap.t} /> : null}
         </div>
       </div>
     </div>
