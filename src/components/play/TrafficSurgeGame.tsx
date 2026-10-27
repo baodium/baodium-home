@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
+import { getPlayGame } from "@/data/play-games";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   createSurge,
@@ -14,6 +17,8 @@ import {
   type SurgeResult,
   type SurgeSnap,
 } from "@/lib/play/traffic-surge";
+
+const catalog = getPlayGame("traffic-surge");
 
 const initial: SurgeSnap = {
   t: 0,
@@ -104,6 +109,58 @@ export function TrafficSurgeGame() {
     }
   };
 
+  const lesson = useMemo((): DrillLesson => {
+    if (phase === "intro") {
+      return {
+        experiment:
+          "Arrivals spike around 12s. Admit rate and queue cap decide who waits — and whether p95 survives.",
+        seeing: "Arrivals, queue depth, p95 latency, and success rate move together under the spike.",
+        why: "Serving everyone slowly serves no one. Early shedding protects the customers you can still help.",
+        tryNext: "Lower admit before the spike, or keep VIP-first shedding ready, then start.",
+        success:
+          catalog?.success ??
+          `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`,
+      };
+    }
+    if (phase === "running") {
+      return {
+        experiment:
+          snap.t < 12
+            ? "Calm traffic for now — the spike is coming. Set the dials before it lands."
+            : "Spike is live. Queue depth and p95 tell you whether shedding is early enough.",
+        seeing: snap.message,
+        why:
+          snap.p95 > P95_LIMIT_MS * 0.9
+            ? "A full queue turns wait time into latency. Shed load before p95 cooks past the budget."
+            : "Admit rate is load shedding by another name — refuse some work so the rest stays fast.",
+        tryNext:
+          snap.queue > controls.queueCap * 0.8
+            ? "Drop admit rate or lower the queue cap before latency breaches."
+            : "Hold the line through the peak; nudge VIP-first if success rate dips unevenly.",
+        success:
+          catalog?.success ??
+          `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`,
+      };
+    }
+    if (phase === "won") {
+      return {
+        experiment: "You shaped the spike — latency stayed inside the budget.",
+        seeing: result?.reason ?? "p95 held while enough traffic still got through.",
+        why: result?.takeaway ?? catalog?.takeaway ?? "",
+        success: "Win locked. Try a higher admit next run and see when the cliff returns.",
+      };
+    }
+    return {
+      experiment: "The spike won — p95 or success rate broke first.",
+      seeing: result?.reason ?? "Latency or errors escaped the budget.",
+      why: result?.takeaway ?? catalog?.takeaway ?? "",
+      tryNext: "Shed earlier at peak (~200 rps). You cannot admit everyone.",
+      success:
+        catalog?.success ??
+        `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`,
+    };
+  }, [controls.queueCap, phase, result, snap.message, snap.p95, snap.queue, snap.t]);
+
   return (
     <div className="slo-game">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -112,19 +169,29 @@ export function TrafficSurgeGame() {
             Play · Traffic Surge
           </p>
           <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
-            Shape the spike. Protect latency.
+            Shape the spike so latency survives.
           </h1>
           <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-cream/65">
-            Admissions and queue caps decide who waits. Keep p95 under {P95_LIMIT_MS}ms
-            for {SURGE_DURATION_S}s without starving the floor.
+            Admit rate and queue caps decide who waits. Keep{" "}
+            <DrillTip
+              label="p95"
+              tip="The 95th-percentile latency: 95% of requests are faster than this number. Budgets usually target a percentile, not the average."
+            >
+              <span className="underline decoration-dotted decoration-cream/35 underline-offset-2">
+                p95
+              </span>
+            </DrillTip>{" "}
+            under {P95_LIMIT_MS}ms for {SURGE_DURATION_S}s without starving the floor.
           </p>
         </div>
         <p className="text-[0.78rem] tabular-nums text-cream/45">
-          p95 budget <span className="text-cream">{P95_LIMIT_MS}ms</span>
+          Success <span className="text-cream">p95 ≤ {P95_LIMIT_MS}ms</span>
         </p>
       </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-12">
+      <DrillTeach lesson={lesson} />
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
@@ -141,6 +208,7 @@ export function TrafficSurgeGame() {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
               label="Arrivals"
+              tip="Incoming request rate. The spike peaks near ~200 rps — that is more than you can admit safely."
               value={snap.arrivals}
               max={240}
               format={(n) => `${n.toFixed(0)} rps`}
@@ -149,12 +217,14 @@ export function TrafficSurgeGame() {
             />
             <PlayMeter
               label="Queue"
+              tip="Requests waiting for service. A long queue turns into p95 latency even when the backend is still working."
               value={snap.queue}
               max={controls.queueCap}
               format={(n) => `${n.toFixed(0)}`}
             />
             <PlayMeter
               label="p95 latency"
+              tip="95th-percentile response time. Cross the budget and the drill fails even if the median still looks fine."
               value={snap.p95}
               max={P95_LIMIT_MS}
               format={(n) => `${n.toFixed(0)} ms`}
@@ -163,6 +233,7 @@ export function TrafficSurgeGame() {
             />
             <PlayMeter
               label="Success rate"
+              tip="Share of requests that complete without being shed or timing out. Shedding spends some success to protect latency."
               value={Math.max(0, 1 - snap.successRate)}
               max={0.4}
               format={() => `${(snap.successRate * 100).toFixed(0)}%`}
@@ -187,12 +258,11 @@ export function TrafficSurgeGame() {
 
         <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
           <label className="block">
-            <span className="flex justify-between text-[0.78rem] text-cream/45">
-              Admit rate
-              <span className="tabular-nums text-cream">
-                {Math.round(controls.admit * 100)}%
-              </span>
-            </span>
+            <DrillControlLabel
+              label="Admit rate"
+              tip="Fraction of arrivals allowed into the system. Lower this to shed load before the queue grows."
+              value={`${Math.round(controls.admit * 100)}%`}
+            />
             <input
               className="slo-slider mt-3"
               type="range"
@@ -206,10 +276,11 @@ export function TrafficSurgeGame() {
             />
           </label>
           <label className="block">
-            <span className="flex justify-between text-[0.78rem] text-cream/45">
-              Queue cap
-              <span className="tabular-nums text-cream">{controls.queueCap}</span>
-            </span>
+            <DrillControlLabel
+              label="Queue cap"
+              tip="Maximum waiting requests. Beyond this, new work is shed instead of waiting forever."
+              value={controls.queueCap}
+            />
             <input
               className="slo-slider mt-3"
               type="range"
@@ -222,16 +293,23 @@ export function TrafficSurgeGame() {
               }
             />
           </label>
-          <label className="flex items-center gap-3 text-sm text-cream/65">
+          <label className="flex items-start gap-3 text-sm text-cream/65">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--cinnabar)]"
+              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
               checked={controls.vipFirst}
               onChange={(e) =>
                 setControls((c) => ({ ...c, vipFirst: e.target.checked }))
               }
             />
-            VIP first when shedding
+            <span>
+              <DrillTip
+                label="VIP first"
+                tip="When shedding, prefer keeping higher-priority traffic. Protects critical customers while still cutting load."
+              >
+                <span className="text-cream/80">VIP first when shedding</span>
+              </DrillTip>
+            </span>
           </label>
           <label className="flex items-center gap-3 text-sm text-cream/65">
             <input
@@ -241,12 +319,17 @@ export function TrafficSurgeGame() {
               onChange={(e) => setStepOverride(e.target.checked)}
               disabled={phase === "running"}
             />
-            Step mode
+            <DrillTip
+              label="Step mode"
+              tip="Advance one simulation tick at a time. Default when reduced motion is on."
+            >
+              <span>Step mode</span>
+            </DrillTip>
           </label>
           <div className="mt-auto flex flex-wrap gap-3 pt-2">
             {phase !== "running" ? (
               <button type="button" className="slo-btn-primary" onClick={start}>
-                {phase === "intro" ? "Start surge" : "Play again"}
+                {phase === "intro" ? "Start drill" : "Play again"}
               </button>
             ) : stepMode ? (
               <button type="button" className="slo-btn-primary" onClick={applyTick}>
@@ -266,8 +349,8 @@ export function TrafficSurgeGame() {
             )}
           </div>
           <p className="text-sm leading-relaxed text-cream/45">
-            Hint: at peak (~200 rps) you cannot admit everyone. Shed before the
-            queue cooks p95.
+            At peak (~200 rps) you cannot admit everyone. Shed before the queue
+            pushes p95 past the budget.
           </p>
         </div>
       </div>

@@ -51,7 +51,7 @@ export function createCache(): CacheState {
     originBusy: 0,
     keyAge: 4,
     stampededTicks: 0,
-    lastMessage: "Warm cache. Keys expire — watch the herd.",
+    lastMessage: "Warm cache. Keys expire on a TTL — watch origin when they do.",
   };
 }
 
@@ -110,15 +110,15 @@ export function tickCache(
 
   let message = state.lastMessage;
   if (expired && !controls.singleflight && stampeded)
-    message = "Thundering herd — every client punched origin.";
+    message = "Thundering herd — every client is fetching origin at once.";
   else if (expired && controls.singleflight && controls.softTtl)
-    message = "Stale served; one revalidate in flight. Herd calm.";
+    message = "Serving stale; one revalidate in flight. Origin calm.";
   else if (expired && controls.singleflight)
-    message = "Singleflight: one miss leader, others wait.";
+    message = "Singleflight: one miss leader, others wait for the result.";
   else if (controls.ttlSec < 3)
-    message = "Tiny TTL — more expiry storms, more origin heat.";
-  else if (t > 18 && t < 24) message = "Traffic bump on hot key.";
-  else if (hitRate > 0.9) message = "Cache earning its keep.";
+    message = "Short TTL — more expiry storms, more origin pressure.";
+  else if (t > 18 && t < 24) message = "Traffic bump on the hot key.";
+  else if (hitRate > 0.9) message = "Most reads are cache hits.";
 
   const next: CacheState = {
     t,
@@ -157,10 +157,10 @@ export function tickCache(
         outcome: won ? "won" : "lost",
         score,
         reason: won
-          ? "Origin lived — coalesced misses beat the roulette wheel."
+          ? "Origin held — coalesced misses kept the refresh under control."
           : stampededTicks >= 2.5
-            ? "Stampede won — TTL expiry became a thundering herd."
-            : "Hit rate too low; cache spent more than it saved.",
+            ? "TTL expiry became a thundering herd on origin."
+            : "Hit rate too low; the cache spent more than it saved.",
         chapterHref: "/system-design/chapter-5",
         chapterLabel: "Ch.5 — Caching and the cost of remembering",
         takeaway:
