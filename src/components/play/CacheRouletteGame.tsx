@@ -11,6 +11,7 @@ import {
   CACHE_DURATION_S,
   CACHE_TICK_MS,
   createCache,
+  emptyCacheSnap,
   tickCache,
   type CacheControls,
   type CacheResult,
@@ -19,15 +20,9 @@ import {
 
 const catalog = getPlayGame("cache-roulette");
 
-const initial: CacheSnap = {
-  t: 0,
-  hitRate: 0.95,
-  originLoad: 0.1,
-  inFlightMisses: 0,
-  stampeded: false,
-  rps: 120,
-  message: "Warm cache. Keys expire on a TTL — watch origin when they do.",
-};
+const idleSnap: CacheSnap = emptyCacheSnap(
+  "Warm cache. Keys expire on a TTL — watch origin when they do.",
+);
 
 export function CacheRouletteGame() {
   const reduced = usePrefersReducedMotion();
@@ -38,7 +33,7 @@ export function CacheRouletteGame() {
     softTtl: false,
     originWorkers: 8,
   });
-  const [snap, setSnap] = useState<CacheSnap>(initial);
+  const [snap, setSnap] = useState<CacheSnap>(idleSnap);
   const [result, setResult] = useState<CacheResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
@@ -78,7 +73,7 @@ export function CacheRouletteGame() {
     engineRef.current = createCache();
     setResult(null);
     setCopied(false);
-    setSnap(initial);
+    setSnap(emptyCacheSnap("Run started — watch the next TTL edge."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -115,7 +110,7 @@ export function CacheRouletteGame() {
         experiment:
           "A hot key expires on a timer. Without coalescing, every waiting client fetches origin at once — a thundering herd.",
         seeing:
-          "Hit rate, origin load, and in-flight misses. The bar strip spikes when origin is stampeded.",
+          "Hit rate, origin load, peak origin, and in-flight misses during the fill window (~1.4s). The bar strip spikes when origin is stampeded.",
         why: "TTL expiry is normal. The outage comes from N identical refreshes competing for limited origin workers.",
         tryNext:
           "Turn on singleflight before you start. Optionally enable soft TTL, then run the drill.",
@@ -257,22 +252,22 @@ export function CacheRouletteGame() {
               dangerAt={1}
             />
             <PlayMeter
-              label="In-flight misses"
-              tip="Concurrent cache misses hitting origin right now. Singleflight keeps this near 1; a herd drives it into the dozens."
+              label="Peak origin"
+              tip="Highest origin load this run. Win/fail uses peak during fill windows, not the recovered end state."
+              value={snap.peakOriginLoad}
+              max={1.5}
+              format={(n) => `${(n * 100).toFixed(0)}%`}
+              warnAt={0.7}
+              dangerAt={0.9}
+            />
+            <PlayMeter
+              label={snap.filling ? `Fill · ${snap.fillRemainingSec.toFixed(1)}s` : "In-flight misses"}
+              tip="Concurrent cache misses hitting origin right now. During a fill, singleflight keeps this near 1; a herd drives it to ~RPS for the whole fill latency."
               value={snap.inFlightMisses}
               max={80}
               format={(n) => `${n}`}
               warnAt={0.2}
               dangerAt={0.5}
-            />
-            <PlayMeter
-              label="Request rate"
-              tip="Incoming reads on the hot key. A traffic bump around mid-run stresses expiry harder."
-              value={snap.rps}
-              max={220}
-              format={(n) => `${n.toFixed(0)} rps`}
-              warnAt={0.7}
-              dangerAt={0.9}
             />
           </div>
           <div
@@ -289,6 +284,7 @@ export function CacheRouletteGame() {
               score={result.score}
               reason={result.reason}
               takeaway={result.takeaway}
+              debrief={result.debrief}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}
@@ -410,6 +406,7 @@ export function CacheRouletteGame() {
                 className="slo-btn-secondary"
                 onClick={() => {
                   stop();
+                  setSnap(idleSnap);
                   setPhase("intro");
                 }}
               >

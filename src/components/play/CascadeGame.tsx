@@ -11,6 +11,7 @@ import {
   CASCADE_DURATION_S,
   CASCADE_TICK_MS,
   createCascade,
+  emptyCascadeSnap,
   tickCascade,
   type CascadeControls,
   type CascadeResult,
@@ -20,14 +21,9 @@ import {
 
 const catalog = getPlayGame("cascade");
 
-const initial: CascadeSnap = {
-  t: 0,
-  health: { edge: 1, auth: 1, pay: 1, db: 1 },
-  circuitOpen: { auth: false, pay: false, db: false },
-  checkoutOk: 0,
-  cascadeRisk: 0.1,
-  message: "All green. Auth starts wobbling around 8s.",
-};
+const idleSnap: CascadeSnap = emptyCascadeSnap(
+  "All green. Auth starts wobbling around 8s.",
+);
 
 const NODES: { id: NodeId; label: string }[] = [
   { id: "edge", label: "Edge" },
@@ -45,7 +41,7 @@ export function CascadeGame() {
     bulkheadPay: false,
     timeoutMs: 150,
   });
-  const [snap, setSnap] = useState<CascadeSnap>(initial);
+  const [snap, setSnap] = useState<CascadeSnap>(idleSnap);
   const [result, setResult] = useState<CascadeResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
@@ -85,7 +81,7 @@ export function CascadeGame() {
     engineRef.current = createCascade();
     setResult(null);
     setCopied(false);
-    setSnap(initial);
+    setSnap(emptyCascadeSnap("Faults inject at ~8s — trip early, isolate budgets."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -274,13 +270,39 @@ export function CascadeGame() {
               dangerAt={0.7}
             />
             <PlayMeter
-              label="Checkout ok"
-              tip="Successful checkout completions. The goal is to keep this moving even while a dependency is sick."
-              value={snap.checkoutOk}
-              max={2000}
-              format={(n) => `${n.toFixed(0)}`}
-              warnAt={0.3}
-              dangerAt={0.15}
+              label="Checkout ok rate"
+              tip="Successful checkouts over attempts. Circuits + bulkheads keep this up while a dependency is sick."
+              value={
+                snap.checkoutOk + snap.checkoutFail <= 0
+                  ? 0
+                  : 1 - snap.checkoutOk / (snap.checkoutOk + snap.checkoutFail)
+              }
+              max={0.5}
+              format={() => {
+                const total = snap.checkoutOk + snap.checkoutFail;
+                if (total <= 0) return "—";
+                return `${((snap.checkoutOk / total) * 100).toFixed(0)}%`;
+              }}
+              warnAt={0.35}
+              dangerAt={0.6}
+            />
+            <PlayMeter
+              label="Auth util"
+              tip="Auth concurrency budget fill. Without a bulkhead this shares the edge/pay pool."
+              value={snap.util.auth}
+              max={1}
+              format={(n) => `${Math.round(n * 100)}%`}
+              warnAt={0.75}
+              dangerAt={1}
+            />
+            <PlayMeter
+              label="Pay util"
+              tip="Pay concurrency budget fill. Isolation stops auth sickness from consuming these slots."
+              value={snap.util.pay}
+              max={1}
+              format={(n) => `${Math.round(n * 100)}%`}
+              warnAt={0.75}
+              dangerAt={1}
             />
           </div>
 
@@ -290,6 +312,7 @@ export function CascadeGame() {
               score={result.score}
               reason={result.reason}
               takeaway={result.takeaway}
+              debrief={result.debrief}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}
@@ -405,6 +428,7 @@ export function CascadeGame() {
                 className="slo-btn-secondary"
                 onClick={() => {
                   stop();
+                  setSnap(idleSnap);
                   setPhase("intro");
                 }}
               >

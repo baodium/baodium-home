@@ -56,7 +56,41 @@ export function selectPedagogyLesson(
     };
   }
 
-  if (snap.timeoutCount > 0 && controls.acquireTimeoutSec !== null) {
+  if (controls.paused && !controls.featureDisabledForNew) {
+    return {
+      id: "rollout-paused",
+      eyebrow: "What’s happening",
+      title: "Exposure frozen — demand continues",
+      seeing: `Rollout paused at ${controls.exposurePct}%. Busy ${snap.activeCount}/${snap.poolSize}, pending ${snap.waitingCount}. Traffic still arrives; the cohort just cannot grow.`,
+      why: "Pause stops raising exposure. It does not cut λ or kill in-flight holds — waiters clear only if demand (λ×W) falls under 40.",
+      next: "Compare with Disable: disable routes new traffic to the baseline path and drains recommendation demand.",
+      prod: "Pause/hold a progressive rollout at the current %. Watch pool.pending — it will not magically drop unless W or λ changes.",
+      tone: "insight",
+    };
+  }
+
+  // Prefer live saturation signals over sticky counters (timeouts/sheds persist forever).
+  if (snap.waitingCount > 0) {
+    return {
+      id: "waiters-wall",
+      eyebrow: "What’s happening",
+      title: "Demand hit the capacity wall",
+      seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${acqP99ms.toFixed(0)} ms. No 41st slot — excess sits in the waiter queue.`,
+      why: `Little’s Law estimates demand ≈ ${littles.L.toFixed(0)} (= λ × W). When that exceeds 40, correct code still waits because the pool is shared and finite.`,
+      next:
+        mode === "guided" && stepId === "pressure"
+          ? "Predict: disable vs pause — then decide in the next step."
+          : "Try disable, shed-at-util, or acquire timeout — compare new vs in-flight.",
+      prod: "pool.active ≈ max · pool.pending > 0 sustained = saturation. Size from λ×W with headroom, or cut W.",
+      tone: "warn",
+    };
+  }
+
+  if (
+    snap.timeoutCount > 0 &&
+    controls.acquireTimeoutSec !== null &&
+    snap.waitingCount === 0
+  ) {
     return {
       id: "acquire-timeouts",
       eyebrow: "What’s happening",
@@ -69,7 +103,11 @@ export function selectPedagogyLesson(
     };
   }
 
-  if (snap.shedCount > 8 && controls.shedAtUtil !== null) {
+  if (
+    snap.shedCount > 8 &&
+    controls.shedAtUtil !== null &&
+    snap.utilization >= controls.shedAtUtil - 0.05
+  ) {
     return {
       id: "load-shed",
       eyebrow: "What’s happening",
@@ -102,22 +140,6 @@ export function selectPedagogyLesson(
       why: "Saturation shows up in the tail first. Median can look fine while acquire wait stretches p99 past the budget.",
       next: "Open Ops metrics — check acquire.wait.p99 and pool.pending before blaming the SQL text.",
       prod: "Page on latency burn + pool.pending, not only CPU. connectionTimeout approaching = imminent errors.",
-      tone: "warn",
-    };
-  }
-
-  if (snap.waitingCount > 0) {
-    return {
-      id: "waiters-wall",
-      eyebrow: "What’s happening",
-      title: "Demand hit the capacity wall",
-      seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${acqP99ms.toFixed(0)} ms. No 41st slot — excess sits in the waiter queue.`,
-      why: `Little’s Law estimates demand ≈ ${littles.L.toFixed(0)} (= λ × W). When that exceeds 40, correct code still waits because the pool is shared and finite.`,
-      next:
-        mode === "guided" && stepId === "pressure"
-          ? "Predict: disable vs pause — then decide in the next step."
-          : "Try disable, shed-at-util, or acquire timeout — compare new vs in-flight.",
-      prod: "pool.active ≈ max · pool.pending > 0 sustained = saturation. Size from λ×W with headroom, or cut W.",
       tone: "warn",
     };
   }
@@ -266,7 +288,7 @@ export function selectPedagogyLesson(
         id: "step-decide",
         eyebrow: "Learn this",
         title: "Operate the incident",
-        seeing: "Pause slows cohort growth. Disable stops new recommendation holds. Investigate leaves pressure running.",
+        seeing: "Pause freezes exposure % (demand stays). Disable stops new recommendation holds. Investigate leaves pressure running.",
         why: "Your choice changes this same system — then the debrief names what actually happened to new vs in-flight work.",
         prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",
         tone: "insight",

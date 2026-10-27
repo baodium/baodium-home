@@ -206,9 +206,9 @@ export function Chapter1Experience() {
   const applyDecision = (kind: DecisionKind) => {
     setDecision(kind);
     if (kind === "pause_exposure") {
-      logAction(`Decision: pause exposure at ${engineRef.current.controls.exposurePct}%`);
+      logAction(`Decision: pause exposure at ${engineRef.current.controls.exposurePct}% (traffic continues; cohort frozen)`);
+      // Freeze exposure only — do not secretly cut λ (that taught the wrong lesson).
       setControls(engineRef.current, { paused: true });
-      setControls(engineRef.current, { arrivalRate: 120 }, false);
     } else if (kind === "disable_feature") {
       setControls(engineRef.current, {
         featureDisabledForNew: true,

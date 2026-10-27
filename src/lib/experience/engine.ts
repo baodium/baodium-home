@@ -323,7 +323,20 @@ function pruneDone(engine: Engine) {
 
 export function setControls(engine: Engine, patch: Partial<EngineControls>, log = true) {
   const prev = engine.controls;
-  engine.controls = { ...prev, ...patch };
+  const next = { ...prev, ...patch };
+
+  // Pause freezes the exposure cohort: ignore attempted increases while paused.
+  // Lowering exposure or disabling still works (incident controls).
+  if (
+    prev.paused &&
+    patch.paused !== false &&
+    patch.exposurePct !== undefined &&
+    patch.exposurePct > prev.exposurePct
+  ) {
+    next.exposurePct = prev.exposurePct;
+  }
+
+  engine.controls = next;
   if (!log) return;
   if (patch.featureEnabled !== undefined && patch.featureEnabled !== prev.featureEnabled) {
     engine.flagLog.push({
@@ -342,18 +355,31 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
         "Disable for new traffic: in-flight recommendations keep their connections; new arrivals take the baseline path.",
     });
   }
-  if (patch.exposurePct !== undefined && patch.exposurePct !== prev.exposurePct) {
+  if (
+    patch.exposurePct !== undefined &&
+    next.exposurePct !== prev.exposurePct
+  ) {
     engine.flagLog.push({
       t: engine.t,
       kind: "exposure",
-      detail: `Exposure set to ${patch.exposurePct}% (stable user hashing).`,
+      detail: `Exposure set to ${next.exposurePct}% (stable user hashing).`,
+    });
+  } else if (
+    patch.exposurePct !== undefined &&
+    prev.paused &&
+    patch.exposurePct > prev.exposurePct
+  ) {
+    engine.flagLog.push({
+      t: engine.t,
+      kind: "pause",
+      detail: `Exposure raise blocked — rollout paused at ${prev.exposurePct}%. Disable or unpause to change cohort size.`,
     });
   }
   if (patch.paused === true && !prev.paused) {
     engine.flagLog.push({
       t: engine.t,
       kind: "pause",
-      detail: "Rollout paused — exposure frozen; sim clock still runs unless you pause the clock.",
+      detail: `Rollout paused at ${next.exposurePct}% — cohort frozen; traffic and in-flight holds continue. Pausing does not drain the pool.`,
     });
   }
   if (
