@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Mail } from "lucide-react";
 import { AboutListen } from "@/components/about/AboutListen";
+import { AmbientField } from "@/components/motion/AmbientField";
 import { Reveal, SplitHeading } from "@/components/motion/Reveal";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { site } from "@/data/site";
@@ -210,17 +211,23 @@ export function AboutPageView() {
         className="relative overflow-hidden pb-20 pt-16 md:pb-28 md:pt-24"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute right-[-18%] top-[4%] h-[44vmax] w-[44vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.11),transparent)] blur-2xl" />
-          <div className="absolute bottom-[-24%] left-[-16%] h-[38vmax] w-[38vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.18),transparent)] blur-3xl" />
+          <AmbientField tone="moss" density={14} className="opacity-40" />
+          <div className="absolute right-[-18%] top-[4%] h-[44vmax] w-[44vmax] rounded-full bg-[radial-gradient(closest-side,rgba(92,107,66,0.16),transparent)] blur-2xl" />
+          <div className="absolute bottom-[-24%] left-[-16%] h-[38vmax] w-[38vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.14),transparent)] blur-3xl" />
+          {!reduce ? (
+            <span className="absolute inset-x-[18%] top-[22%] h-px overflow-hidden opacity-50">
+              <span className="signal-scan block h-full w-1/3 bg-gradient-to-r from-transparent via-moss-soft/70 to-transparent" />
+            </span>
+          ) : null}
         </div>
 
         <div ref={letterRef} className="shell relative z-[2]">
           <Reveal y={14}>
-            <p className="kicker text-cinnabar">Founder</p>
+            <p className="kicker text-moss">Founder</p>
             <SplitHeading
               id="about-letter-heading"
-              text="Products that ship. Failures that teach."
-              accent={["Failures", "teach."]}
+              text="Tools you can try. Failures you can study."
+              accent={["Failures", "study"]}
               className="mt-5 max-w-[15ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
               accentClassName="font-serif font-normal italic text-cinnabar"
               delay={0.04}
@@ -229,9 +236,9 @@ export function AboutPageView() {
 
           <Reveal y={12} delay={0.08} className="mt-8 max-w-[40rem]">
             <p className="text-[clamp(1.12rem,1.6vw,1.32rem)] leading-relaxed text-ink/88">
-              Not a studio pitch deck. Adewale ships tools and turns production
-              failures into design practice — labs and drills where reliability becomes
-              something you can operate, not only read.
+              Not a pitch deck. Adewale builds Interview Coach and UpTo, and turns
+              production failures into design practice — labs and drills where
+              reliability is something you operate, not only read.
             </p>
           </Reveal>
 

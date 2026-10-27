@@ -13,6 +13,8 @@ import {
   DrillPreview,
   previewKindForSlug,
 } from "@/components/play/DrillPreview";
+import { AmbientField } from "@/components/motion/AmbientField";
+import { DriftChip } from "@/components/motion/IdleDrift";
 import { useTilt } from "@/components/motion/useTilt";
 import {
   difficultyLabel,
@@ -63,28 +65,52 @@ export function PlaySection() {
         className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_100px_-56px_rgba(40,30,20,0.3)] md:rounded-[3.25rem]"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <AmbientField tone="slate" density={20} className="opacity-50 mix-blend-screen" />
           <motion.div
             style={{ y: glowY }}
             className="absolute -left-[20%] top-[-30%] h-[74%] w-[74%] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.18),transparent)] blur-3xl"
           />
           <motion.div
             style={{ y: glow2Y }}
-            className="absolute bottom-[-38%] right-[-18%] h-[72%] w-[58%] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.16),transparent)] blur-3xl"
+            className="absolute bottom-[-38%] right-[-18%] h-[72%] w-[58%] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.14),transparent)] blur-3xl"
           />
           <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-cream/90 to-transparent" />
           <motion.div
             style={{ x: sheenX }}
-            className="absolute inset-x-[6%] top-[11%] h-px bg-gradient-to-r from-transparent via-[color-mix(in_srgb,#3d7a8c_45%,transparent)] to-transparent"
+            className="absolute inset-x-[6%] top-[11%] h-px bg-gradient-to-r from-transparent via-signal/45 to-transparent"
           />
           {!reduce ? (
             <>
               <motion.div
                 animate={{ opacity: [0.2, 0.55, 0.2], scale: [1, 1.08, 1] }}
                 transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute left-[48%] top-[6%] h-52 w-52 rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.14),transparent)] blur-2xl"
+                className="absolute left-[48%] top-[6%] h-52 w-52 rounded-full bg-[radial-gradient(closest-side,rgba(148,168,196,0.22),transparent)] blur-2xl"
               />
-              <div className="play-orbit absolute right-[12%] top-[18%] h-24 w-24 rounded-full border border-[color-mix(in_srgb,#3d7a8c_20%,transparent)]" />
+              <motion.div
+                animate={{ opacity: [0.2, 0.5, 0.2], x: [0, 40, 0], y: [0, -20, 0] }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-[12%] left-[18%] h-36 w-36 rounded-full bg-[radial-gradient(closest-side,rgba(94,168,168,0.22),transparent)] blur-2xl"
+              />
+              <div className="play-orbit absolute right-[12%] top-[18%] h-24 w-24 rounded-full border border-signal/25" />
               <div className="play-orbit-slow absolute right-[10%] top-[16%] h-32 w-32 rounded-full border border-ink/8" />
+              <div className="play-orbit absolute bottom-[22%] left-[8%] h-16 w-16 rounded-full border border-cinnabar/20" />
+              <DriftChip
+                delay={0.2}
+                amp={16}
+                className="absolute left-[22%] top-[28%] font-mono text-[0.58rem] uppercase tracking-[0.22em] text-signal/55"
+              >
+                p99
+              </DriftChip>
+              <DriftChip
+                delay={1.1}
+                amp={12}
+                className="absolute bottom-[30%] right-[28%] font-mono text-[0.58rem] uppercase tracking-[0.22em] text-cinnabar/45"
+              >
+                slo
+              </DriftChip>
+              <span className="absolute inset-x-[10%] top-[42%] h-px overflow-hidden opacity-50">
+                <span className="signal-scan block h-full w-1/4 bg-gradient-to-r from-transparent via-signal/70 to-transparent" />
+              </span>
             </>
           ) : null}
         </div>

@@ -7,12 +7,12 @@ import { site } from "@/data/site";
 export const metadata: Metadata = {
   title: "Recent side projects",
   description:
-    "Interview Coach and UpTo — live Baodium side projects for interview practice and a status page that stays true.",
+    "Interview Coach and UpTo — open now. Interview practice that follows your answers, and a status page that stays true.",
   alternates: { canonical: `${site.url}/projects` },
   openGraph: {
     title: "Recent side projects — Baodium",
     description:
-      "Interview Coach and UpTo — live tools for interview practice and status that stays true.",
+      "Interview Coach and UpTo — open now. Interview practice that follows your answers, and a status page that stays true.",
     url: `${site.url}/projects`,
   },
 };

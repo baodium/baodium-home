@@ -14,6 +14,7 @@ const PAGE_WIDTH = 1200;
 const tones = {
   cinnabar: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(173,79,54,0.3),transparent_60%)]",
   amber: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(222,162,124,0.24),transparent_60%)]",
+  tide: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(61,122,126,0.32),transparent_60%)]",
 } as const;
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -32,6 +33,22 @@ export function ProjectCard({ project }: { project: Project }) {
   useEffect(() => still.set(reduce ? 1 : 0), [reduce, still]);
   const pointer = useMotionValue(0);
   const hovering = useMotionValue(0);
+  const idle = useMotionValue(0);
+  useEffect(() => {
+    if (reduce) {
+      idle.set(0);
+      return;
+    }
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = (now - start) / 9000;
+      idle.set((Math.sin(t * Math.PI * 2) * 0.5 + 0.5) * 0.18);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduce, idle]);
   const scroll = useTransform(() => {
     const hover = hovering.get();
     const frozen = still.get();
@@ -41,7 +58,7 @@ export function ProjectCard({ project }: { project: Project }) {
     const along = Math.min(Math.max((p - 0.06) / 0.78, 0), 1);
     if (hover) return pointerT;
     if (frozen) return origin;
-    return origin + (1 - origin) * along;
+    return Math.min(1, origin + (1 - origin) * along + idle.get());
   });
   const smooth = useSpring(scroll, { stiffness: 340, damping: 38, mass: 0.24 });
   const restTilt = useTransform(scrollYProgress, [0.05, 0.42, 0.86], reduce ? [0, 0, 0] : [5, 0, 2]);
