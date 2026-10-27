@@ -60,16 +60,10 @@ export function BookProgress({
       }`}
     >
       <div
-        className={`mx-auto mb-0.5 flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] items-center justify-between gap-3 px-3 transition-[opacity,transform] duration-300 ${
+        className={`mx-auto mb-0.5 flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] items-center justify-end gap-3 px-3 transition-[opacity,transform] duration-300 motion-reduce:transition-none ${
           chromeVisible ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
         }`}
       >
-        <span
-          className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm"
-          title="Swipe the page or press ← → to flip chapters"
-        >
-          Swipe · ← →
-        </span>
         <span
           className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm"
           title={hasBookPos ? `Book ${bookPct}% complete` : undefined}

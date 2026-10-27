@@ -66,7 +66,7 @@ export function KineticRoles({
                 aria-hidden="true"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 + line * 0.12, duration: 0.6 }}
+                transition={{ delay: reduce ? 0 : 1 + line * 0.12, duration: reduce ? 0 : 0.6 }}
                 className={`w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.1em] transition-colors duration-300 md:w-8 md:text-xs ${isActive ? "text-amber" : "text-cream/70 group-hover/role:text-cream"}`}
               >
                 0{line + 1}

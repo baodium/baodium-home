@@ -2,6 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 export function Magnetic({
   children,
@@ -12,11 +13,16 @@ export function Magnetic({
   strength?: number;
   className?: string;
 }) {
+  const reduce = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.4 });
   const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.4 });
+
+  if (reduce) {
+    return <div className={`inline-block ${className}`}>{children}</div>;
+  }
 
   return (
     <motion.div

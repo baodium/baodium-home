@@ -53,8 +53,16 @@ function ShellBody({
     const onMove = (event: MouseEvent) => {
       if (event.clientY < 88) setChromeVisible(true);
     };
+    const onTouch = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY;
+      if (y != null && y < 96) setChromeVisible(true);
+    };
     window.addEventListener("mousemove", onMove, { passive: true });
-    return () => window.removeEventListener("mousemove", onMove);
+    window.addEventListener("touchstart", onTouch, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchstart", onTouch);
+    };
   }, [setChromeVisible]);
 
   return (

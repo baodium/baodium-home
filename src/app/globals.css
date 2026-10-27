@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --night: #241c18;
   --ink: #2b221d;
   --ink-raise: #2f2620;
@@ -1464,7 +1464,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   background: var(--exp-panel);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 70%, transparent),
-    0 18px 40px -28px rgba(43, 34, 29, 0.28);
+    0 18px 40px -28px rgba(26, 35, 48, 0.22);
   padding: 1rem 1.1rem;
   color: var(--exp-fg);
 }

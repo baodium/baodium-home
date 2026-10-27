@@ -16,21 +16,28 @@ const DISMISS_MS = 1000 * 60 * 60 * 24 * 14; // 14 days
 export function BookFeedback({
   chapterTitle,
   chapterSlug,
+  suppressToast = false,
 }: {
   chapterTitle: string;
   chapterSlug: string;
+  /** Keep Enjoying toast off while the flip coach occupies the bottom band. */
+  suppressToast?: boolean;
 }) {
   const reduceMotion = usePrefersReducedMotion();
   const [prompt, setPrompt] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (suppressToast) {
+      setPrompt(false);
+      return;
+    }
     const prefs = loadReaderPrefs();
     const dismissed = prefs.feedbackDismissedAt ?? 0;
     if (Date.now() - dismissed < DISMISS_MS) return;
     const timer = window.setTimeout(() => setPrompt(true), 45000);
     return () => window.clearTimeout(timer);
-  }, [chapterSlug]);
+  }, [chapterSlug, suppressToast]);
 
   const url = `https://baodium.com/system-design/${chapterSlug}`;
   const reviewHref = amazonReviewUrl();
@@ -105,11 +112,8 @@ export function BookFeedback({
             {copied ? "Link copied" : "Share"}
           </button>
         </div>
-        <p
-          className="mt-4 text-[0.7rem] leading-relaxed text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]"
-          title="Swipe the page or press arrow keys to flip chapters"
-        >
-          Swipe or ← → flip chapters · ⌘/Ctrl K search
+        <p className="mt-4 text-[0.7rem] leading-relaxed text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]">
+          ⌘/Ctrl K to search
         </p>
       </div>
 

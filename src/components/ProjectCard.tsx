@@ -86,36 +86,36 @@ export function ProjectCard({ project }: { project: Project }) {
         hovering.set(0);
       }}
       style={{ rotateX, rotateY, transformPerspective: 1400 }}
-      className="group relative block h-full rounded-[1.75rem] p-px shadow-[0_40px_80px_-34px_rgba(70,30,15,0.45)] transition-shadow duration-700 hover:shadow-[0_60px_110px_-40px_rgba(70,30,15,0.6)] md:rounded-[2.25rem]"
+      className="group relative block h-full rounded-[1.75rem] p-px shadow-[0_36px_72px_-36px_rgba(26,35,48,0.28)] transition-shadow duration-700 hover:shadow-[0_48px_90px_-40px_rgba(26,35,48,0.36)] md:rounded-[2.25rem]"
     >
-      <span aria-hidden="true" className="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-white/20 via-white/[0.06] to-white/[0.02]" />
+      <span aria-hidden="true" className="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-white via-[#f4f7fa] to-[#e8eef1]" />
       <span aria-hidden="true" className="spotlight-border absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-      <span className="relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] bg-[#403229] text-cream md:rounded-[calc(2.25rem-1px)]">
+      <span className="relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] bg-[#fbfcfe] text-ink md:rounded-[calc(2.25rem-1px)]">
         <span aria-hidden="true" className={`absolute inset-0 ${tones[project.tone]}`} />
-        <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(90%_60%_at_0%_0%,rgba(243,214,190,0.1),transparent_60%)]" />
+        <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(90%_60%_at_0%_0%,rgba(61,122,140,0.08),transparent_60%)]" />
         <span aria-hidden="true" className="spotlight absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
         <span className="relative flex flex-col px-6 pb-5 pt-6 md:px-8 md:pb-6 md:pt-8">
           <span className="flex items-start justify-between gap-5">
             <span className="block text-[clamp(1.85rem,2.8vw,2.65rem)] font-semibold leading-[0.95] tracking-[-0.045em]">{project.name}</span>
-            <span className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 transition-colors duration-500 group-hover:border-transparent group-hover:bg-cream group-hover:text-ink">
+            <span className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-ink/12 transition-colors duration-500 group-hover:border-transparent group-hover:bg-cinnabar group-hover:text-cream">
               <ArrowUpRight aria-hidden="true" className="h-4.5 w-4.5 transition-transform duration-500 group-hover:rotate-45" strokeWidth={1.75} />
             </span>
           </span>
-          <span className="mt-3 block max-w-md text-[0.98rem] leading-relaxed text-cream/80 md:min-h-[3.4rem] md:text-[1.05rem]">{project.description}</span>
+          <span className="mt-3 block max-w-md text-[0.98rem] leading-relaxed text-muted md:min-h-[3.4rem] md:text-[1.05rem]">{project.description}</span>
           <span className="sr-only"> (opens {host} in a new tab)</span>
         </span>
 
         <span aria-hidden="true" className="relative mt-auto block px-5 [perspective:1600px] md:px-7">
           <motion.span style={{ rotateX: frameTilt }} className="relative block origin-[50%_100%]">
-            <span className="block overflow-hidden rounded-t-xl border border-b-0 border-white/15 bg-[#2a211c] shadow-[0_-20px_50px_-28px_rgba(173,79,54,0.55)]">
-              <span className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-2.5 font-mono text-xs tracking-[0.04em] text-cream/60">
+            <span className="block overflow-hidden rounded-t-xl border border-b-0 border-ink/10 bg-white shadow-[0_-16px_40px_-28px_rgba(26,35,48,0.35)]">
+              <span className="flex items-center justify-between gap-4 border-b border-ink/8 px-4 py-2.5 font-mono text-xs tracking-[0.04em] text-muted">
                 <span className="flex min-w-0 items-center gap-2.5">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8cc49a]" />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#3d7a8c]" />
                   <span className="truncate">{host}</span>
                 </span>
-                <span className="hidden shrink-0 text-cream/70 [@media(hover:hover)]:group-hover:inline">Move to scroll ↕</span>
+                <span className="hidden shrink-0 text-ink/55 [@media(hover:hover)]:group-hover:inline">Move to scroll ↕</span>
               </span>
               <span ref={frameRef} className="relative block aspect-[16/10] overflow-hidden">
                 <motion.span style={{ y: pageY }} className="block will-change-transform">
@@ -128,10 +128,9 @@ export function ProjectCard({ project }: { project: Project }) {
                     className="block h-auto w-full"
                   />
                 </motion.span>
-                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#c4a484]/15 mix-blend-multiply" />
-                <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#2a211c] to-transparent" />
-                <span className="absolute inset-y-2 right-1.5 w-[3px] rounded-full bg-white/15">
-                  <motion.span style={{ y: railY }} className="block h-1/5 w-full rounded-full bg-cinnabar shadow-[0_0_10px_rgba(173,79,54,0.65)]" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/90 to-transparent" />
+                <span className="absolute inset-y-2 right-1.5 w-[3px] rounded-full bg-ink/10">
+                  <motion.span style={{ y: railY }} className="block h-1/5 w-full rounded-full bg-cinnabar shadow-[0_0_10px_rgba(173,79,54,0.45)]" />
                 </span>
               </span>
             </span>

@@ -42,6 +42,13 @@ export function AboutPageView() {
     [0, 0.3, 1],
     reduce ? [1, 1, 1] : [0.1, 0.8, 1],
   );
+  const letterY = useTransform(letterProgress, [0, 1], reduce ? [0, 0] : [36, 0]);
+  const letterOpacity = useTransform(
+    letterProgress,
+    [0, 0.45],
+    reduce ? [1, 1] : [0.4, 1],
+  );
+  const listenY = useTransform(letterProgress, [0.35, 1], reduce ? [0, 0] : [28, 0]);
 
   return (
     <div className="relative overflow-hidden bg-cream text-ink">
@@ -222,86 +229,90 @@ export function AboutPageView() {
         </div>
 
         <div ref={letterRef} className="shell relative z-[2]">
-          <Reveal y={14}>
-            <p className="kicker text-moss">Founder</p>
-            <SplitHeading
-              id="about-letter-heading"
-              text="Tools you can try. Failures you can study."
-              accent={["Failures", "study"]}
-              className="mt-5 max-w-[15ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
-              accentClassName="font-serif font-normal italic text-cinnabar"
-              delay={0.04}
+          <motion.div style={{ y: letterY, opacity: letterOpacity }}>
+            <Reveal y={14}>
+              <p className="kicker text-moss">Founder</p>
+              <SplitHeading
+                id="about-letter-heading"
+                text="Tools you can try. Failures you can study."
+                accent={["Failures", "study"]}
+                className="mt-5 max-w-[15ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
+                accentClassName="font-serif font-normal italic text-cinnabar"
+                delay={0.04}
+              />
+            </Reveal>
+
+            <Reveal y={12} delay={0.08} className="mt-8 max-w-[40rem]">
+              <p className="text-[clamp(1.12rem,1.6vw,1.32rem)] leading-relaxed text-ink/88">
+                Not a pitch deck. Adewale builds Interview Coach and UpTo, and turns
+                production failures into design practice — labs and drills where
+                reliability is something you operate, not only read.
+              </p>
+            </Reveal>
+
+            <Reveal y={12} delay={0.12} className="mt-10 max-w-[42rem] md:mt-12">
+              <p className="text-[1.05rem] leading-relaxed text-muted">
+                The research thread — misinformation, platforms, systems under pressure —
+                lives on{" "}
+                <a
+                  href={site.scholar}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-baseline gap-1.5 font-medium text-ink underline decoration-cinnabar/40 underline-offset-[0.22em] transition-colors hover:text-cinnabar hover:decoration-cinnabar"
+                >
+                  Google Scholar
+                  <span className="font-mono text-[0.68rem] font-normal uppercase tracking-[0.12em] text-cinnabar">
+                    {site.scholarCitations} citations
+                  </span>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 translate-y-0.5 text-cinnabar/70 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+                . Essays, scholarship, and the fuller person live on{" "}
+                <a
+                  href={site.personal}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
+                >
+                  obadimu.com
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+                .
+              </p>
+            </Reveal>
+
+            <motion.div
+              aria-hidden="true"
+              style={{ scaleX: ruleScale, opacity: ruleOpacity }}
+              className="mt-12 h-px origin-left bg-gradient-to-r from-cinnabar/60 via-cinnabar/25 to-transparent md:mt-14"
             />
-          </Reveal>
 
-          <Reveal y={12} delay={0.08} className="mt-8 max-w-[40rem]">
-            <p className="text-[clamp(1.12rem,1.6vw,1.32rem)] leading-relaxed text-ink/88">
-              Not a pitch deck. Adewale builds Interview Coach and UpTo, and turns
-              production failures into design practice — labs and drills where
-              reliability is something you operate, not only read.
-            </p>
-          </Reveal>
-
-          <Reveal y={12} delay={0.12} className="mt-10 max-w-[42rem] md:mt-12">
-            <p className="text-[1.05rem] leading-relaxed text-muted">
-              The research thread — misinformation, platforms, systems under pressure —
-              lives on{" "}
+            <Reveal y={14} delay={0.05} className="mt-10 md:mt-12">
+              <p className="kicker text-muted">Get in touch</p>
+              <p className="mt-4 max-w-md text-[1.05rem] leading-relaxed text-ink/85">
+                Products, Play, corrections, or a note — reach him directly.
+              </p>
               <a
-                href={site.scholar}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-baseline gap-1.5 font-medium text-ink underline decoration-cinnabar/40 underline-offset-[0.22em] transition-colors hover:text-cinnabar hover:decoration-cinnabar"
+                href={site.email}
+                className="group mt-6 inline-flex min-h-12 items-center gap-2.5 rounded-full bg-ink px-6 text-[0.95rem] font-medium text-cream transition-colors hover:bg-cinnabar"
               >
-                Google Scholar
-                <span className="font-mono text-[0.68rem] font-normal uppercase tracking-[0.12em] text-cinnabar">
-                  {site.scholarCitations} citations
-                </span>
+                <Mail aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+                Write Baodium
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="h-3.5 w-3.5 translate-y-0.5 text-cinnabar/70 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
-                <span className="sr-only"> (opens in a new tab)</span>
+                <span className="sr-only"> — opens email to {site.emailLabel}</span>
               </a>
-              . Essays, scholarship, and the fuller person live on{" "}
-              <a
-                href={site.personal}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-cinnabar underline decoration-cinnabar/35 underline-offset-4 transition-colors hover:text-ink"
-              >
-                obadimu.com
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
-              .
-            </p>
-          </Reveal>
+            </Reveal>
+          </motion.div>
 
-          <motion.div
-            aria-hidden="true"
-            style={{ scaleX: ruleScale, opacity: ruleOpacity }}
-            className="mt-12 h-px origin-left bg-gradient-to-r from-cinnabar/60 via-cinnabar/25 to-transparent md:mt-14"
-          />
-
-          <Reveal y={14} delay={0.05} className="mt-10 md:mt-12">
-            <p className="kicker text-muted">Get in touch</p>
-            <p className="mt-4 max-w-md text-[1.05rem] leading-relaxed text-ink/85">
-              Products, Play, corrections, or a note — reach him directly.
-            </p>
-            <a
-              href={site.email}
-              className="group mt-6 inline-flex min-h-12 items-center gap-2.5 rounded-full bg-ink px-6 text-[0.95rem] font-medium text-cream transition-colors hover:bg-cinnabar"
-            >
-              <Mail aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-              Write Baodium
-              <ArrowUpRight
-                aria-hidden="true"
-                className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              />
-              <span className="sr-only"> — opens email to {site.emailLabel}</span>
-            </a>
-          </Reveal>
-
-          <AboutListen />
+          <motion.div style={{ y: listenY }}>
+            <AboutListen />
+          </motion.div>
 
           <Reveal y={10} className="mt-14 border-t border-ink/10 pt-10 md:mt-16">
             <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.95rem]">

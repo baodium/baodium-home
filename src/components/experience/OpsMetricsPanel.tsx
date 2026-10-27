@@ -187,15 +187,15 @@ function Gauge({
   good?: string;
   hot?: boolean;
 }) {
-  const title = [tip, good ? `Good: ${good}` : null].filter(Boolean).join(" ");
+  const detail = [tip, good ? `Good: ${good}` : null].filter(Boolean).join(" · ");
   return (
     <div
-      title={title || undefined}
-      className={`rounded-lg border px-2.5 py-2 ${
+      className={`group/gauge relative rounded-lg border px-2.5 py-2 ${
         hot
           ? "border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_7%,transparent)]"
           : "border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)]"
       }`}
+      tabIndex={detail ? 0 : undefined}
     >
       <p className="truncate font-mono text-[0.55rem] uppercase tracking-[0.12em] text-[color:var(--exp-faint)]">
         {name}
@@ -208,10 +208,18 @@ function Gauge({
         {value}
         <span className="ml-1 text-[0.6rem] text-[color:var(--exp-faint)]">{hint}</span>
       </p>
-      {tip ? (
-        <p className="mt-1.5 line-clamp-2 text-[0.62rem] leading-snug text-[color:var(--exp-muted)]">
-          {tip}
+      {hot && good ? (
+        <p className="mt-1.5 line-clamp-1 text-[0.62rem] leading-snug text-[color:var(--exp-accent)]">
+          {good}
         </p>
+      ) : null}
+      {detail ? (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+6px)] left-0 z-20 hidden w-[min(16rem,70vw)] rounded-lg border border-[color:var(--exp-line-strong)] bg-[color:var(--exp-panel)] px-2.5 py-2 text-left text-[0.68rem] leading-snug text-[color:var(--exp-fg)] shadow-[0_14px_32px_-18px_rgba(26,35,48,0.4)] group-focus-within/gauge:block group-hover/gauge:block"
+        >
+          {detail}
+        </span>
       ) : null}
     </div>
   );

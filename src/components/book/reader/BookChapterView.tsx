@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -23,8 +29,10 @@ import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
 import { flipNavigate } from "@/lib/book/flip-navigate";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
-const SWIPE_OFFSET = 72;
-const SWIPE_VELOCITY = 520;
+const SWIPE_OFFSET = 96;
+const SWIPE_VELOCITY = 480;
+/** Constrained drag travel as a fraction of viewport width. */
+const DRAG_TRAVEL_VW = 0.38;
 
 export function BookChapterView({
   chapter,
@@ -38,14 +46,49 @@ export function BookChapterView({
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
-  const { setChromeVisible } = useReader();
+  const committingRef = useRef(false);
+  const { setChromeVisible, settingsOpen, sidebarOpen } = useReader();
   const reduceMotion = usePrefersReducedMotion();
+  const [flipHintOpen, setFlipHintOpen] = useState(false);
+  const [dragDir, setDragDir] = useState<0 | 1 | -1>(0);
+  const [committing, setCommitting] = useState(false);
+  const [stageWidth, setStageWidth] = useState(720);
   const dragX = useMotionValue(0);
-  const pageShade = useTransform(dragX, [-200, 0, 200], [0.32, 0, 0.32]);
-  const pageRotate = useTransform(dragX, [-260, 0, 260], [12, 0, -12]);
-  const pageScale = useTransform(dragX, [-260, 0, 260], [0.978, 1, 0.978]);
-  const liftY = useTransform(dragX, [-260, 0, 260], [-5, 0, -5]);
-  const peelOpacity = useTransform(dragX, [-160, -40, 0, 40, 160], [0.5, 0.1, 0, 0.1, 0.5]);
+  const pageShade = useTransform(dragX, [-220, 0, 220], [0.34, 0, 0.34]);
+  const pageRotate = useTransform(dragX, [-320, 0, 320], [14, 0, -14]);
+  const pageScale = useTransform(dragX, [-320, 0, 320], [0.972, 1, 0.972]);
+  const liftY = useTransform(dragX, [-320, 0, 320], [-6, 0, -6]);
+  const peelOpacity = useTransform(dragX, [-180, -36, 0, 36, 180], [0.55, 0.12, 0, 0.12, 0.55]);
+
+  const maxTravel = Math.max(180, Math.round(stageWidth * DRAG_TRAVEL_VW));
+
+  const commitFlip = useCallback(
+    async (href: string, direction: 1 | -1) => {
+      if (committingRef.current) return;
+      committingRef.current = true;
+      setCommitting(true);
+      setDragDir(direction);
+      if (!reduceMotion) {
+        const target =
+          direction > 0
+            ? -Math.max(maxTravel * 1.35, stageWidth * 0.55)
+            : Math.max(maxTravel * 1.35, stageWidth * 0.55);
+        try {
+          await animate(dragX, target, {
+            type: "spring",
+            stiffness: 280,
+            damping: 34,
+            mass: 0.85,
+            velocity: direction > 0 ? -900 : 900,
+          });
+        } catch {
+          /* navigation still proceeds */
+        }
+      }
+      flipNavigate(router, href, direction);
+    },
+    [dragX, maxTravel, reduceMotion, router, stageWidth],
+  );
 
   useEffect(() => {
     const scroller =
@@ -59,7 +102,28 @@ export function BookChapterView({
     saveReaderPrefs({ ...prefs, lastSlug: chapter.slug });
     setChromeVisible(true);
     dragX.set(0);
+    committingRef.current = false;
+    // Defer React state reset off the effect body (chapter remount continuity).
+    queueMicrotask(() => {
+      setCommitting(false);
+      setDragDir(0);
+    });
   }, [chapter.slug, dragX, setChromeVisible]);
+
+  useEffect(() => {
+    if (settingsOpen || sidebarOpen) setChromeVisible(true);
+  }, [settingsOpen, sidebarOpen, setChromeVisible]);
+
+  useEffect(() => {
+    const measure = () => {
+      const el = document.querySelector(".book-page-stage") as HTMLElement | null;
+      if (el) setStageWidth(el.offsetWidth);
+      else setStageWidth(window.innerWidth);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [chapter.slug]);
 
   useEffect(() => {
     const el =
@@ -76,29 +140,34 @@ export function BookChapterView({
       const y = el.scrollTop;
       const delta = y - last;
       if (Math.abs(delta) < 8) return;
-      setChromeVisible(delta < 0 || y < 48);
+      if (settingsOpen || sidebarOpen) {
+        setChromeVisible(true);
+      } else {
+        setChromeVisible(delta < 0 || y < 48);
+      }
       last = y;
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [chapter.slug, setChromeVisible]);
+  }, [chapter.slug, setChromeVisible, settingsOpen, sidebarOpen]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const tag = (event.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (event.key === "ArrowRight" && next) {
-        flipNavigate(router, `/system-design/${next.slug}`, 1);
+        void commitFlip(`/system-design/${next.slug}`, 1);
       }
       if (event.key === "ArrowLeft" && prev) {
-        flipNavigate(router, `/system-design/${prev.slug}`, -1);
+        void commitFlip(`/system-design/${prev.slug}`, -1);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [next, prev, router]);
+  }, [commitFlip, next, prev]);
 
   const settleDrag = () => {
+    setDragDir(0);
     if (reduceMotion) {
       dragX.set(0);
       return;
@@ -106,15 +175,20 @@ export function BookChapterView({
     animate(dragX, 0, { type: "spring", stiffness: 420, damping: 36, mass: 0.7 });
   };
 
+  const onDrag = (_: unknown, info: PanInfo) => {
+    if (Math.abs(info.offset.x) < 8) return;
+    setDragDir(info.offset.x < 0 ? 1 : -1);
+  };
+
   const onDragEnd = (_: unknown, info: PanInfo) => {
     const dx = info.offset.x;
     const vx = info.velocity.x;
     if ((dx < -SWIPE_OFFSET || vx < -SWIPE_VELOCITY) && next) {
-      flipNavigate(router, `/system-design/${next.slug}`, 1);
+      void commitFlip(`/system-design/${next.slug}`, 1);
       return;
     }
     if ((dx > SWIPE_OFFSET || vx > SWIPE_VELOCITY) && prev) {
-      flipNavigate(router, `/system-design/${prev.slug}`, -1);
+      void commitFlip(`/system-design/${prev.slug}`, -1);
       return;
     }
     settleDrag();
@@ -131,6 +205,7 @@ export function BookChapterView({
 
   const prevHref = prev ? `/system-design/${prev.slug}` : null;
   const nextHref = next ? `/system-design/${next.slug}` : null;
+  const peelOnRight = dragDir !== -1;
 
   return (
     <div
@@ -141,14 +216,15 @@ export function BookChapterView({
       <motion.div
         className="book-page-stage relative touch-pan-y [perspective:1800px]"
         style={{ x: reduceMotion ? 0 : dragX }}
-        drag={reduceMotion ? false : "x"}
+        drag={reduceMotion || committing ? false : "x"}
         dragControls={dragControls}
         dragListener={false}
         dragDirectionLock
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.22}
+        dragConstraints={{ left: -maxTravel, right: maxTravel }}
+        dragElastic={0.12}
         dragMomentum={false}
         onPointerDown={startDrag}
+        onDrag={onDrag}
         onDragEnd={onDragEnd}
       >
         <motion.div
@@ -164,7 +240,9 @@ export function BookChapterView({
             <>
               <motion.div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-y-2 -left-3 z-0 w-4 rounded-l-lg bg-[color-mix(in_srgb,var(--reader-fg)_22%,transparent)] blur-[1.5px]"
+                className={`pointer-events-none absolute inset-y-2 z-0 w-4 rounded-lg bg-[color-mix(in_srgb,var(--reader-fg)_22%,transparent)] blur-[1.5px] ${
+                  peelOnRight ? "-left-3 rounded-l-lg" : "-right-3 rounded-r-lg"
+                }`}
                 style={{ opacity: pageShade }}
               />
               <motion.div
@@ -174,7 +252,11 @@ export function BookChapterView({
               />
               <motion.div
                 aria-hidden="true"
-                className="book-page-peel pointer-events-none absolute inset-y-0 right-0 z-[3] w-[42%] rounded-r-[1.15rem]"
+                className={`book-page-peel pointer-events-none absolute inset-y-0 z-[3] w-[42%] ${
+                  peelOnRight
+                    ? "right-0 rounded-r-[1.15rem]"
+                    : "left-0 rounded-l-[1.15rem] [transform:scaleX(-1)]"
+                }`}
                 style={{ opacity: peelOpacity }}
               />
             </>
@@ -204,13 +286,17 @@ export function BookChapterView({
                 ) : null}
               </header>
               <ChapterContent html={chapter.html} />
-              <BookFeedback chapterTitle={chapter.title} chapterSlug={chapter.slug} />
+              <BookFeedback
+                chapterTitle={chapter.title}
+                chapterSlug={chapter.slug}
+                suppressToast={flipHintOpen}
+              />
               <BookChapterNav prev={prev} next={next} />
             </div>
           </article>
         </motion.div>
       </motion.div>
-      <BookFlipHint />
+      <BookFlipHint onOpenChange={setFlipHintOpen} />
     </div>
   );
 }

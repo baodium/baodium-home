@@ -44,17 +44,13 @@ export function DrillTeach({ lesson }: { lesson: DrillLesson }) {
             {lesson.experiment}
           </p>
         </div>
-        <dl
-          className={`grid gap-0 sm:grid-cols-2 ${
-            lesson.tryNext ? "lg:grid-cols-4" : "lg:grid-cols-3"
-          }`}
-        >
+        <dl className="grid gap-0 sm:grid-cols-2">
           <TeachCell kicker="Seeing" body={lesson.seeing} />
           <TeachCell kicker="Why" body={lesson.why} muted />
           {lesson.tryNext ? (
             <TeachCell kicker="Try" body={lesson.tryNext} accent />
           ) : null}
-          <TeachCell kicker="Success" body={lesson.success} />
+          <TeachCell kicker="Success" body={lesson.success} muted />
         </dl>
       </motion.aside>
     </AnimatePresence>

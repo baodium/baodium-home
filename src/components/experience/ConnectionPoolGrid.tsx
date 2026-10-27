@@ -50,7 +50,7 @@ export function ConnectionPoolGrid({
       ? {
           id: "drain",
           title: "In-flight still holding",
-          body: "Disable stopped new recommendation acquires. Copper slots finish, then release.",
+          body: "Disable stopped new recommendation acquires. Recommendation holds finish, then release.",
         }
       : snap.timeoutCount > 0 && snap.controls.acquireTimeoutSec !== null
         ? {
@@ -221,7 +221,7 @@ export function ConnectionPoolGrid({
           </div>
           {snap.controls.featureDisabledForNew ? (
             <p className="mt-3 rounded-lg border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,var(--exp-accent)_6%,transparent)] px-3 py-2 text-xs leading-relaxed text-[color:var(--exp-fg)]">
-              Disable active: new arrivals skip recommendations. Copper slots still holding finish
+              Disable active: new arrivals skip recommendations. Recommendation holds still finish
               their lookup before releasing — in-flight is not killed.
             </p>
           ) : null}

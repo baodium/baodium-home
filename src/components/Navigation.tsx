@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { book, writing } from "@/data/writing";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const links = [
   { id: "projects", label: "Projects", href: "/projects" },
@@ -21,6 +22,7 @@ export function Navigation() {
   const pathname = usePathname();
   const onProjects = pathname === "/projects";
   const onAbout = pathname === "/about";
+  const reduce = usePrefersReducedMotion();
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [tucked, setTucked] = useState(false);
@@ -29,6 +31,10 @@ export function Navigation() {
 
   /** The bar steps out of the way while reading downward and returns on any upward scroll. */
   useEffect(() => {
+    if (reduce) {
+      setTucked(false);
+      return;
+    }
     let last = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
@@ -39,7 +45,7 @@ export function Navigation() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [reduce]);
 
   useEffect(() => {
     if (onProjects || onAbout) return;
@@ -81,9 +87,15 @@ export function Navigation() {
   return (
     <motion.header
       id="top"
-      initial={{ y: -24, opacity: 0 }}
-      animate={tucked && !open ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
-      transition={entered ? { duration: 0.45, ease } : { duration: 0.9, delay: onProjects || onAbout ? 0.15 : 1.4, ease }}
+      initial={reduce ? false : { y: -24, opacity: 0 }}
+      animate={tucked && !open && !reduce ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
+      transition={
+        reduce
+          ? { duration: 0 }
+          : entered
+            ? { duration: 0.45, ease }
+            : { duration: 0.9, delay: onProjects || onAbout ? 0.15 : 1.4, ease }
+      }
       onAnimationComplete={() => setEntered(true)}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >

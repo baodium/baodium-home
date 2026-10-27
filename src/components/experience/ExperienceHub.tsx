@@ -37,7 +37,7 @@ export function ExperienceHub() {
         >
           Read the book for the reasoning. Run Chapter 1 like an on-call drill: pool.* metrics,
           acquire waits, mitigations, and a kill switch that doesn&apos;t kill in-flight work —
-          with overlays that name what you&apos;re seeing.
+          with live narration that names what you&apos;re seeing.
         </motion.p>
         <motion.div
           className="mt-6 flex flex-wrap gap-3"

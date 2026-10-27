@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CODE_LINES,
@@ -40,7 +40,6 @@ import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
 import { SimControls } from "@/components/experience/SimControls";
 import { LiveNarrator } from "@/components/experience/LiveNarrator";
-import { SeeingCallout } from "@/components/experience/SeeingCallout";
 import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
 import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
 
@@ -66,6 +65,17 @@ function fillDebrief(kind: DecisionKind, snap: EngineSnapshot): string {
 
 export function Chapter1Experience() {
   const reduced = usePrefersReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: rootRef,
+    offset: ["start start", "end start"],
+  });
+  const atmosphereY = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [0, 48]);
+  const atmosphereOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.6],
+    reduced ? [1, 1] : [0.85, 0.35],
+  );
   const scenario = chapter1Scenario;
   const engineRef = useRef<Engine>(
     createEngine(42, { arrivalRate: 0, featureEnabled: false, exposurePct: 0 }),
@@ -437,8 +447,15 @@ export function Chapter1Experience() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-      <header className="max-w-3xl">
+    <div ref={rootRef} className="relative mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      {!reduced ? (
+        <motion.div
+          aria-hidden="true"
+          style={{ y: atmosphereY, opacity: atmosphereOpacity }}
+          className="pointer-events-none absolute -left-[12%] top-[-8%] h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.14),transparent)] blur-3xl"
+        />
+      ) : null}
+      <header className="relative max-w-3xl">
         <motion.p
           className="exp-kicker"
           initial={reduced ? false : { opacity: 0, y: 8 }}
@@ -518,8 +535,11 @@ export function Chapter1Experience() {
       <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)]">
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
           <LiveNarrator snap={snap} />
-          <TeachingOverlay lesson={lesson} reducedMotion={reduced} />
-          <SeeingCallout stepId={stepId} mode={mode} snap={snap} />
+          <TeachingOverlay
+            lesson={lesson}
+            reducedMotion={reduced}
+            compactTry={mode === "guided"}
+          />
 
           <AnimatePresence mode="wait">
             {mode === "guided" ? (
