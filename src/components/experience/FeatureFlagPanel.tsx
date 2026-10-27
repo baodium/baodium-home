@@ -19,22 +19,27 @@ export function FeatureFlagPanel({
   disabled?: boolean;
 }) {
   const c = snap.controls;
+  const inCount = PREVIEW_USERS.filter(
+    (uid) =>
+      c.featureEnabled && !c.featureDisabledForNew && isUserExposed(uid, c.exposurePct),
+  ).length;
+
   return (
     <div className="exp-panel">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-serif text-lg text-cream">Feature flag</h3>
-        <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-cream/45">
+        <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Feature flag</h3>
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[color:var(--exp-muted)]">
           Deploy ≠ enable
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           disabled={disabled}
           onClick={() => onToggleFeature(!c.featureEnabled)}
-          className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-medium transition-opacity disabled:opacity-40 ${
-            c.featureEnabled ? "bg-cinnabar text-cream" : "bg-cream/10 text-cream"
+          className={`exp-btn ${
+            c.featureEnabled ? "exp-btn-primary" : "exp-btn-ghost"
           }`}
         >
           Flag {c.featureEnabled ? "ON" : "OFF"}
@@ -43,14 +48,29 @@ export function FeatureFlagPanel({
           type="button"
           disabled={disabled || c.featureDisabledForNew}
           onClick={onDisableNew}
-          className="inline-flex min-h-10 items-center rounded-full border border-cream/20 px-4 text-sm text-cream/80 transition-colors hover:border-cream/40 disabled:opacity-40"
+          className="exp-btn exp-btn-ghost"
         >
-          Disable for new traffic
+          {c.featureDisabledForNew ? "Disabled for new" : "Disable for new traffic"}
         </button>
+        {[0, 5, 25, 50, 100].map((pct) => (
+          <button
+            key={pct}
+            type="button"
+            disabled={disabled || !c.featureEnabled || c.featureDisabledForNew}
+            onClick={() => onExposure(pct)}
+            className={`exp-btn !min-h-9 !px-3 font-mono text-[0.72rem] ${
+              c.exposurePct === pct && c.featureEnabled && !c.featureDisabledForNew
+                ? "exp-btn-solid"
+                : "exp-btn-ghost"
+            }`}
+          >
+            {pct}%
+          </button>
+        ))}
       </div>
 
       <label className="mt-5 block">
-        <span className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-cream/45">
+        <span className="exp-kicker !tracking-[0.16em]">
           Exposure {c.exposurePct}%
         </span>
         <input
@@ -61,14 +81,17 @@ export function FeatureFlagPanel({
           value={c.exposurePct}
           disabled={disabled || !c.featureEnabled || c.featureDisabledForNew}
           onChange={(e) => onExposure(Number(e.target.value))}
-          className="mt-2 w-full accent-cinnabar disabled:opacity-40"
+          className="mt-2 w-full accent-[color:var(--exp-accent)] disabled:opacity-40"
         />
       </label>
 
       <div className="mt-4">
-        <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-cream/45">
-          Stable assignment preview
-        </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="exp-kicker !tracking-[0.16em]">Stable assignment preview</p>
+          <p className="font-mono text-[0.65rem] text-[color:var(--exp-faint)]">
+            {inCount}/{PREVIEW_USERS.length} in cohort
+          </p>
+        </div>
         <ul className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
           {PREVIEW_USERS.map((uid) => {
             const on =
@@ -78,10 +101,10 @@ export function FeatureFlagPanel({
             return (
               <li
                 key={uid}
-                className={`rounded-md border px-2 py-1.5 font-mono text-[0.7rem] ${
+                className={`rounded-md border px-2 py-1.5 font-mono text-[0.7rem] transition-colors ${
                   on
-                    ? "border-cinnabar/50 bg-cinnabar/15 text-cream"
-                    : "border-cream/10 text-cream/50"
+                    ? "border-[color-mix(in_srgb,var(--exp-accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_10%,transparent)] text-[color:var(--exp-fg)]"
+                    : "border-[color:var(--exp-line)] text-[color:var(--exp-faint)]"
                 }`}
               >
                 {uid}
@@ -93,14 +116,15 @@ export function FeatureFlagPanel({
       </div>
 
       {snap.flagLog.length > 0 ? (
-        <div className="mt-4 max-h-28 overflow-y-auto border-t border-cream/10 pt-3">
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-cream/45">
-            Change log
-          </p>
-          <ul className="mt-2 space-y-1.5 text-xs leading-snug text-cream/55">
-            {[...snap.flagLog].reverse().slice(0, 6).map((e, i) => (
+        <div className="mt-4 max-h-32 overflow-y-auto border-t border-[color:var(--exp-line)] pt-3">
+          <p className="exp-kicker !tracking-[0.16em]">Change log</p>
+          <ul className="mt-2 space-y-1.5 text-xs leading-snug text-[color:var(--exp-muted)]">
+            {[...snap.flagLog].reverse().slice(0, 8).map((e, i) => (
               <li key={`${e.t}-${i}`}>
-                <span className="font-mono text-cream/35">t={e.t.toFixed(1)}s</span> {e.detail}
+                <span className="font-mono text-[color:var(--exp-faint)]">
+                  t={e.t.toFixed(1)}s
+                </span>{" "}
+                {e.detail}
               </li>
             ))}
           </ul>

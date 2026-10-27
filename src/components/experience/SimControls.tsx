@@ -24,7 +24,7 @@ export function SimControls({
       <button
         type="button"
         onClick={onPlayPause}
-        className="inline-flex min-h-10 items-center gap-2 rounded-full bg-cream/10 px-3.5 text-sm text-cream transition-colors hover:bg-cream/15"
+        className="exp-btn exp-btn-solid !gap-2"
         aria-label={running ? "Pause simulation" : "Play simulation"}
       >
         {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -33,7 +33,7 @@ export function SimControls({
       <button
         type="button"
         onClick={onStep}
-        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-cream/15 px-3.5 text-sm text-cream/80 transition-colors hover:border-cream/35"
+        className="exp-btn exp-btn-ghost !gap-2"
         aria-label="Single step"
       >
         <SkipForward className="h-4 w-4" />
@@ -42,20 +42,22 @@ export function SimControls({
       <button
         type="button"
         onClick={onReplay}
-        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-cream/15 px-3.5 text-sm text-cream/80 transition-colors hover:border-cream/35"
+        className="exp-btn exp-btn-ghost !gap-2"
         aria-label="Replay from start"
       >
         <RotateCcw className="h-4 w-4" />
         Replay
       </button>
-      <div className="ml-auto flex items-center gap-1 rounded-full border border-cream/15 p-1">
+      <div className="ml-auto flex items-center gap-1 rounded-full border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-1">
         {[0.5, 1, 2, 4].map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => onSpeed(s)}
-            className={`min-h-8 rounded-full px-2.5 font-mono text-[0.7rem] ${
-              speed === s ? "bg-cream/15 text-cream" : "text-cream/50 hover:text-cream/80"
+            className={`min-h-8 rounded-full px-2.5 font-mono text-[0.7rem] transition-colors ${
+              speed === s
+                ? "bg-[color:var(--exp-fg)] text-[#f5efe5]"
+                : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
             }`}
           >
             {s}×
@@ -63,7 +65,7 @@ export function SimControls({
         ))}
       </div>
       {reducedMotion ? (
-        <p className="w-full font-mono text-[0.65rem] text-cream/40">
+        <p className="w-full font-mono text-[0.65rem] text-[color:var(--exp-faint)]">
           Reduced motion — step mode friendly; essential state stays readable.
         </p>
       ) : null}
