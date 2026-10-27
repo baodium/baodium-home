@@ -28,7 +28,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 const exploreLinks = [
   { href: "/", label: "Home" },
-  { href: "/#products", label: "Products" },
+  { href: "/projects", label: "Projects" },
   { href: "/system-design", label: "Book overview" },
   { href: "/system-design/experience", label: "Experience lab" },
   { href: "/play", label: "Play" },

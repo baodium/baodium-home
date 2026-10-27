@@ -6,8 +6,6 @@ export const site = {
   title: "Baodium — products and technical publishing",
   description:
     "Baodium is Adewale Obadimu’s home for products and technical publishing — reliability, infrastructure, and AI.",
-  /** One-line hero voice — concrete, not studio boilerplate. */
-  tagline: "Products that ship. Failures written so you can design against them.",
   // Real profile URLs. Leave a value blank until it exists — the footer does not render empty links.
   github: "",
   linkedin: "https://www.linkedin.com/in/obadimu",
@@ -21,7 +19,7 @@ export const site = {
 
 /**
  * Culture / elsewhere — Scholar lives only on the founder bridge.
- * Keep light; don’t compete with Products.
+ * Keep light; don’t compete with Projects.
  */
 export const alsoLinks = [
   {

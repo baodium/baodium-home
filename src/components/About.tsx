@@ -97,7 +97,7 @@ export function About() {
               />
             </a>
             <p className="mt-4 max-w-md text-[0.98rem] leading-relaxed text-muted">
-              Products, the book, Play, or a note — that address reaches him.
+              Projects, the book, Play, or a note — that address reaches him.
               Personal writing lives on{" "}
               <a
                 href={site.personal}

@@ -14,7 +14,6 @@ import { ArrowRight } from "lucide-react";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
-import { site } from "@/data/site";
 import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -147,30 +146,13 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             >
               <span className="text-flame-animated">BAODIUM</span>
             </motion.span>
-            <motion.span
-              initial={reduce ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduce ? 0 : 0.9, delay: reduce ? 0 : 0.45, ease }}
-              className="mt-4 block font-serif text-[clamp(1.2rem,1.9vw,1.55rem)] italic leading-none text-cream/80"
-            >
-              Adewale Obadimu, PhD
-            </motion.span>
             <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
           </h1>
-
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.35, ease }}
-            className="mt-5 max-w-[28rem] font-serif text-[clamp(1.05rem,1.6vw,1.25rem)] italic leading-snug text-cream/70 md:mt-6"
-          >
-            {site.tagline}
-          </motion.p>
 
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.55, ease }}
+            transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.35, ease }}
             className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
           >
             <Magnetic>
