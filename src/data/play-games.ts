@@ -1,4 +1,4 @@
-/** Catalog for the /play multi-game hub. */
+/** Catalog for the /play interactive hub (reliability drills). */
 
 export type PlayDifficulty = "easy" | "medium" | "spicy";
 
@@ -7,6 +7,8 @@ export type PlayGame = {
   title: string;
   /** One line — what the player will feel. */
   feel: string;
+  /** What to watch for while drilling — teaching cue. */
+  notice: string;
   difficulty: PlayDifficulty;
   minutes: string;
   chapterHref: string;
@@ -19,6 +21,7 @@ export const playGames: PlayGame[] = [
     slug: "slo-watch",
     title: "SLO Watch",
     feel: "Burn error budget under three traffic waves — size the pool or cascade.",
+    notice: "Watch occupancy and retries trade places as the budget drains.",
     difficulty: "medium",
     minutes: "~1 min",
     chapterHref: "/system-design/chapter-1",
@@ -30,6 +33,7 @@ export const playGames: PlayGame[] = [
     slug: "traffic-surge",
     title: "Traffic Surge",
     feel: "Shape and shed load as RPS spikes — latency vs errors, live.",
+    notice: "Shedding cuts errors faster than growing capacity once the cliff hits.",
     difficulty: "easy",
     minutes: "~45s",
     chapterHref: "/system-design/chapter-2",
@@ -41,6 +45,7 @@ export const playGames: PlayGame[] = [
     slug: "cascade",
     title: "Cascade",
     feel: "Trip circuits and add bulkheads before a dependency outage fans out.",
+    notice: "See blast radius shrink only after both circuit and bulkhead land.",
     difficulty: "spicy",
     minutes: "~1 min",
     chapterHref: "/system-design/chapter-4",
@@ -52,6 +57,7 @@ export const playGames: PlayGame[] = [
     slug: "cache-roulette",
     title: "Cache Roulette",
     feel: "Hit, miss, stampede — feel a thundering herd vs a stampeded cache.",
+    notice: "Compare a single miss refresh against a herd of identical fetches.",
     difficulty: "medium",
     minutes: "~50s",
     chapterHref: "/system-design/chapter-5",
@@ -63,6 +69,7 @@ export const playGames: PlayGame[] = [
     slug: "tail-latency",
     title: "Tail Latency",
     feel: "Watch p50 smile while p99 ruins the day — hedge carefully.",
+    notice: "p50 is the median experience; p99 is the worst 1% users feel.",
     difficulty: "medium",
     minutes: "~45s",
     chapterHref: "/system-design/chapter-2",

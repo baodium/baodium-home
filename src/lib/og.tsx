@@ -47,7 +47,7 @@ export async function OgImage() {
               }}
             >
               <div style={{ display: "flex" }}>Engineer.</div>
-              <div style={{ display: "flex" }}>Builder.</div>
+              <div style={{ display: "flex" }}>Philanthropist.</div>
               <div style={{ display: "flex" }}>Author.</div>
             </div>
           </div>

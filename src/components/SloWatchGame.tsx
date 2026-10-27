@@ -397,7 +397,7 @@ export function SloWatchGame({
               </>
             )}
             <Link href="/play" className="slo-btn-secondary">
-              All games
+              All drills
             </Link>
           </div>
 

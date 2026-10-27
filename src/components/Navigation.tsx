@@ -12,7 +12,7 @@ const links = [
   { id: "book", label: "Book", href: "/#book" },
   { id: "play", label: "Play", href: "/#play" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
-  { id: "about", label: "Founder", href: "/#about" },
+  { id: "about", label: "About", href: "/about" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -20,11 +20,12 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function Navigation() {
   const pathname = usePathname();
   const onProjects = pathname === "/projects";
+  const onAbout = pathname === "/about";
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [tucked, setTucked] = useState(false);
   const [entered, setEntered] = useState(false);
-  const active = onProjects ? "projects" : sectionActive;
+  const active = onAbout ? "about" : onProjects ? "projects" : sectionActive;
 
   /** The bar steps out of the way while reading downward and returns on any upward scroll. */
   useEffect(() => {
@@ -41,7 +42,7 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
-    if (onProjects) return;
+    if (onProjects || onAbout) return;
 
     const sections = links
       .filter((link) => link.href.startsWith("/#") || link.href.startsWith("#"))
@@ -66,7 +67,7 @@ export function Navigation() {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
-  }, [onProjects]);
+  }, [onProjects, onAbout]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,7 +83,7 @@ export function Navigation() {
       id="top"
       initial={{ y: -24, opacity: 0 }}
       animate={tucked && !open ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
-      transition={entered ? { duration: 0.45, ease } : { duration: 0.9, delay: onProjects ? 0.15 : 1.4, ease }}
+      transition={entered ? { duration: 0.45, ease } : { duration: 0.9, delay: onProjects || onAbout ? 0.15 : 1.4, ease }}
       onAnimationComplete={() => setEntered(true)}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >

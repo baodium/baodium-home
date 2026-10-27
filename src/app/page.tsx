@@ -1,4 +1,3 @@
-import { About } from "@/components/About";
 import { BookSection } from "@/components/book/BookSection";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
@@ -19,7 +18,6 @@ export default function Home() {
         <BookSection />
         <PlaySection />
         <Writing />
-        <About />
       </main>
       <Footer />
     </>

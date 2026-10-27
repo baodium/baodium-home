@@ -55,7 +55,7 @@ export function GameResultPanel({
           </button>
         ) : null}
         <Link href="/play" className="slo-btn-secondary">
-          All games
+          All drills
         </Link>
       </div>
     </div>
