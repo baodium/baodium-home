@@ -1,25 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { book, writing } from "@/data/writing";
 
 const links = [
-  { id: "products", label: "Products" },
-  { id: "book", label: "Book" },
-  { id: "play", label: "Play" },
-  ...(writing.length > 0 ? [{ id: "writing", label: "Writing" }] : []),
-  { id: "about", label: "Founder" },
+  { id: "projects", label: "Projects", href: "/projects" },
+  { id: "book", label: "Book", href: "/#book" },
+  { id: "play", label: "Play", href: "/#play" },
+  ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
+  { id: "about", label: "Founder", href: "/#about" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Navigation() {
-  const [active, setActive] = useState<string | null>(null);
+  const pathname = usePathname();
+  const onProjects = pathname === "/projects";
+  const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [tucked, setTucked] = useState(false);
   const [entered, setEntered] = useState(false);
+  const active = onProjects ? "projects" : sectionActive;
 
   /** The bar steps out of the way while reading downward and returns on any upward scroll. */
   useEffect(() => {
@@ -36,20 +41,23 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
+    if (onProjects) return;
+
     const sections = links
+      .filter((link) => link.href.startsWith("/#") || link.href.startsWith("#"))
       .map((link) => document.getElementById(link.id))
       .filter((section): section is HTMLElement => section !== null);
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) setActive(entry.target.id);
+          if (entry.isIntersecting) setSectionActive(entry.target.id);
         }
       },
       { rootMargin: "-45% 0px -50% 0px" },
     );
     const onScroll = () => {
-      if (window.scrollY < window.innerHeight * 0.5) setActive(null);
+      if (window.scrollY < window.innerHeight * 0.5) setSectionActive(null);
     };
 
     sections.forEach((section) => observer.observe(section));
@@ -58,7 +66,7 @@ export function Navigation() {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [onProjects]);
 
   useEffect(() => {
     if (!open) return;
@@ -74,21 +82,21 @@ export function Navigation() {
       id="top"
       initial={{ y: -24, opacity: 0 }}
       animate={tucked && !open ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
-      transition={entered ? { duration: 0.45, ease } : { duration: 0.9, delay: 1.4, ease }}
+      transition={entered ? { duration: 0.45, ease } : { duration: 0.9, delay: onProjects ? 0.15 : 1.4, ease }}
       onAnimationComplete={() => setEntered(true)}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >
       <div className="mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] bg-[#2a211c]/[0.92] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">
-        <a
-          href="#main"
+        <Link
+          href="/"
           className="group inline-flex min-h-10 items-center gap-2.5 font-mono text-[0.72rem] tracking-[0.28em] text-cream"
-          aria-label="Baodium, back to top"
+          aria-label="Baodium, back to home"
         >
           <span aria-hidden="true" className="relative h-2.5 w-2.5">
             <span className="absolute inset-0 rounded-[3px] bg-gradient-to-br from-amber to-crimson transition-transform duration-500 group-hover:rotate-45" />
           </span>
           BAODIUM
-        </a>
+        </Link>
 
         <nav aria-label="Primary" className="hidden md:block">
           <ul className="flex items-center text-[0.86rem] text-cream/65">
@@ -101,13 +109,13 @@ export function Navigation() {
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 ) : null}
-                <a
-                  href={`#${link.id}`}
-                  aria-current={active === link.id ? "location" : undefined}
+                <Link
+                  href={link.href}
+                  aria-current={active === link.id ? "page" : undefined}
                   className="relative inline-flex min-h-10 items-center px-4 transition-colors hover:text-cream aria-[current]:text-cream"
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -164,14 +172,14 @@ export function Navigation() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.05 + index * 0.05, duration: 0.4, ease }}
                 >
-                  <a
-                    href={`#${link.id}`}
+                  <Link
+                    href={link.href}
                     onClick={() => setOpen(false)}
                     className="flex min-h-14 items-center justify-between rounded-2xl px-4 text-2xl tracking-[-0.02em] text-cream active:bg-white/5"
                   >
                     {link.label}
                     <span className="font-mono text-xs text-cream/55">0{index + 1}</span>
-                  </a>
+                  </Link>
                 </motion.li>
               ))}
             </ul>

@@ -1,0 +1,201 @@
+"use client";
+
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
+import { ProjectCard } from "@/components/ProjectCard";
+import { Reveal, SplitHeading } from "@/components/motion/Reveal";
+import { projects, type Project } from "@/data/projects";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const ordered = [...projects].sort((a, b) => Number(b.featured) - Number(a.featured));
+
+export function SideProjectsView() {
+  const reduce = usePrefersReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const mistY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 80]);
+  const mistOpacity = useTransform(scrollYProgress, [0, 0.85], reduce ? [1, 1] : [1, 0.35]);
+
+  return (
+    <div className="relative overflow-hidden bg-cream text-ink">
+      <section
+        ref={heroRef}
+        aria-labelledby="side-projects-heading"
+        className="relative isolate overflow-hidden bg-night pb-16 pt-28 text-cream md:pb-24 md:pt-36"
+      >
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          <motion.div
+            style={{ y: mistY, opacity: mistOpacity }}
+            className="absolute left-[12%] top-[-10%] h-[58vmax] w-[58vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.38),rgba(151,64,49,0.12)_55%,transparent)] blur-2xl"
+          />
+          <motion.div
+            style={{ y: mistY }}
+            className="absolute bottom-[-30%] right-[-8%] h-[46vmax] w-[46vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.22),transparent)] blur-3xl"
+          />
+          <div className="grain absolute inset-0 opacity-40 mix-blend-soft-light" />
+        </div>
+
+        <div className="shell relative z-[2]">
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.05, ease }}
+            className="kicker text-amber"
+          >
+            Recent side projects
+          </motion.p>
+
+          <SplitHeading
+            id="side-projects-heading"
+            text="Live tools with room to ship and learn."
+            accent={["ship", "learn."]}
+            className="mt-5 max-w-[16ch] text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
+            accentClassName="font-serif font-normal italic text-flame"
+            delay={0.08}
+          />
+
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 0.28, ease }}
+            className="mt-6 max-w-xl font-serif text-[clamp(1.1rem,1.7vw,1.35rem)] italic leading-snug text-cream/70"
+          >
+            Interview practice that follows your answers, and a status page that
+            stays true across every profile.
+          </motion.p>
+
+          <motion.ul
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.42, ease }}
+            className="mt-10 flex flex-wrap gap-x-6 gap-y-3"
+          >
+            {ordered.map((project, index) => (
+              <li key={project.slug}>
+                <a
+                  href={`#${project.slug}`}
+                  className="group inline-flex min-h-10 items-center gap-2.5 text-[0.95rem] text-cream/70 transition-colors hover:text-cream"
+                >
+                  <span className="font-mono text-[0.72rem] tracking-[0.14em] text-amber/80">
+                    0{index + 1}
+                  </span>
+                  {project.name}
+                  <span
+                    aria-hidden="true"
+                    className="h-px w-0 bg-cream/40 transition-[width] duration-400 group-hover:w-6"
+                  />
+                </a>
+              </li>
+            ))}
+          </motion.ul>
+        </div>
+      </section>
+
+      <section aria-label="Project showcases" className="relative pb-20 pt-4 md:pb-28 md:pt-8">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-[18%] h-[50vmax] w-[70vmax] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.2),transparent)] blur-2xl" />
+        </div>
+
+        <div className="shell relative z-[2] space-y-16 md:space-y-24">
+          {ordered.map((project, index) => (
+            <ProjectFeature key={project.slug} project={project} index={index} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProjectFeature({ project, index }: { project: Project; index: number }) {
+  const reduce = usePrefersReducedMotion();
+  const host = new URL(project.url).host;
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 0.9", "start 0.35"],
+  });
+  const rule = useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [0.12, 1]);
+  const glow = useTransform(scrollYProgress, [0, 1], reduce ? [0.35, 0.35] : [0.15, 0.55]);
+
+  return (
+    <article
+      ref={sectionRef}
+      id={project.slug}
+      className="scroll-mt-28"
+      aria-labelledby={`${project.slug}-heading`}
+    >
+      <Reveal y={16}>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 md:mb-8">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <p className="kicker text-cinnabar">0{index + 1}</p>
+              <motion.span
+                aria-hidden="true"
+                style={{ scaleX: rule, opacity: glow }}
+                className="h-px origin-left flex-1 bg-gradient-to-r from-cinnabar/45 to-transparent"
+              />
+            </div>
+            <h2
+              id={`${project.slug}-heading`}
+              className="mt-3 text-[clamp(2rem,4vw,3.1rem)] font-semibold leading-[0.95] tracking-[-0.04em] text-ink"
+            >
+              {project.name}
+            </h2>
+            <p className="mt-3 max-w-xl text-[1.05rem] leading-relaxed text-muted md:text-[1.12rem]">
+              {project.description}
+            </p>
+          </div>
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/10 bg-white/50 px-5 text-[0.92rem] font-medium text-ink transition-colors hover:border-cinnabar/30 hover:bg-white hover:text-cinnabar"
+          >
+            Open {host}
+            <ArrowUpRight
+              aria-hidden="true"
+              className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.08} y={22}>
+        <div className="relative">
+          <AmbientGlow tone={project.tone} />
+          <ProjectCard project={project} />
+        </div>
+      </Reveal>
+    </article>
+  );
+}
+
+function AmbientGlow({ tone }: { tone: Project["tone"] }) {
+  const reduce = usePrefersReducedMotion();
+  return (
+    <motion.div
+      aria-hidden="true"
+      animate={
+        reduce
+          ? undefined
+          : {
+              opacity: [0.45, 0.75, 0.45],
+              scale: [1, 1.06, 1],
+            }
+      }
+      transition={reduce ? undefined : { duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
+      className={`pointer-events-none absolute -inset-10 -z-10 rounded-[3rem] blur-3xl md:-inset-14 ${
+        tone === "cinnabar"
+          ? "bg-[radial-gradient(closest-side,rgba(173,79,54,0.28),transparent_70%)]"
+          : "bg-[radial-gradient(closest-side,rgba(222,162,124,0.32),transparent_70%)]"
+      }`}
+    />
+  );
+}
