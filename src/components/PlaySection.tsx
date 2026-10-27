@@ -13,6 +13,8 @@ import {
   DrillPreview,
   previewKindForSlug,
 } from "@/components/play/DrillPreview";
+import { AmbientField } from "@/components/motion/AmbientField";
+import { DriftChip } from "@/components/motion/IdleDrift";
 import { useTilt } from "@/components/motion/useTilt";
 import {
   difficultyLabel,
@@ -63,27 +65,51 @@ export function PlaySection() {
         className="grain relative overflow-hidden rounded-[2rem] bg-ember text-cream shadow-[0_50px_120px_-56px_rgba(30,12,6,0.75)] md:rounded-[3.25rem]"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <AmbientField tone="slate" density={20} className="opacity-50 mix-blend-screen" />
           <motion.div
             style={{ y: glowY }}
             className="absolute -left-[22%] top-[-32%] h-[78%] w-[78%] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.38),transparent)] blur-3xl"
           />
           <motion.div
             style={{ y: glow2Y }}
-            className="absolute bottom-[-42%] right-[-22%] h-[78%] w-[62%] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.42),transparent)] blur-3xl"
+            className="absolute bottom-[-42%] right-[-22%] h-[78%] w-[62%] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,126,0.38),transparent)] blur-3xl"
           />
           <motion.div
             style={{ x: sheenX }}
-            className="absolute inset-x-[6%] top-[11%] h-px bg-gradient-to-r from-transparent via-amber/50 to-transparent"
+            className="absolute inset-x-[6%] top-[11%] h-px bg-gradient-to-r from-transparent via-signal/55 to-transparent"
           />
           {!reduce ? (
             <>
               <motion.div
                 animate={{ opacity: [0.25, 0.65, 0.25], scale: [1, 1.08, 1] }}
                 transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute left-[48%] top-[6%] h-52 w-52 rounded-full bg-[radial-gradient(closest-side,rgba(239,203,172,0.22),transparent)] blur-2xl"
+                className="absolute left-[48%] top-[6%] h-52 w-52 rounded-full bg-[radial-gradient(closest-side,rgba(148,168,196,0.28),transparent)] blur-2xl"
               />
-              <div className="play-orbit absolute right-[12%] top-[18%] h-24 w-24 rounded-full border border-amber/15" />
-              <div className="play-orbit-slow absolute right-[10%] top-[16%] h-32 w-32 rounded-full border border-white/5" />
+              <motion.div
+                animate={{ opacity: [0.2, 0.5, 0.2], x: [0, 40, 0], y: [0, -20, 0] }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute left-[18%] bottom-[12%] h-36 w-36 rounded-full bg-[radial-gradient(closest-side,rgba(94,168,168,0.3),transparent)] blur-2xl"
+              />
+              <div className="play-orbit absolute right-[12%] top-[18%] h-24 w-24 rounded-full border border-signal/25" />
+              <div className="play-orbit-slow absolute right-[10%] top-[16%] h-32 w-32 rounded-full border border-slate-soft/15" />
+              <div className="play-orbit absolute left-[8%] bottom-[22%] h-16 w-16 rounded-full border border-amber/20" />
+              <DriftChip
+                delay={0.2}
+                amp={16}
+                className="absolute left-[22%] top-[28%] font-mono text-[0.58rem] uppercase tracking-[0.22em] text-signal/55"
+              >
+                p99
+              </DriftChip>
+              <DriftChip
+                delay={1.1}
+                amp={12}
+                className="absolute right-[28%] bottom-[30%] font-mono text-[0.58rem] uppercase tracking-[0.22em] text-amber/50"
+              >
+                slo
+              </DriftChip>
+              <span className="absolute inset-x-[10%] top-[42%] h-px overflow-hidden opacity-50">
+                <span className="signal-scan block h-full w-1/4 bg-gradient-to-r from-transparent via-signal/70 to-transparent" />
+              </span>
             </>
           ) : null}
         </div>

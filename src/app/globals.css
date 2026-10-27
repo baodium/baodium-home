@@ -11,6 +11,14 @@
   --cinnabar: #ad4f36;
   --crimson: #974031;
   --amber: #dea27c;
+  /* Section accents beyond brown — keep hero warm; mix elsewhere */
+  --tide: #3d7a7e;
+  --tide-soft: #5ea8a8;
+  --slate: #3d4a5c;
+  --slate-soft: #94a8c4;
+  --moss: #5c6b42;
+  --moss-soft: #96a86e;
+  --signal: #6b9e9a;
 }
 
 @theme inline {
@@ -25,6 +33,13 @@
   --color-cinnabar: #ad4f36;
   --color-crimson: #974031;
   --color-amber: #dea27c;
+  --color-tide: #3d7a7e;
+  --color-tide-soft: #5ea8a8;
+  --color-slate: #3d4a5c;
+  --color-slate-soft: #94a8c4;
+  --color-moss: #5c6b42;
+  --color-moss-soft: #96a86e;
+  --color-signal: #6b9e9a;
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-serif: var(--font-instrument), "Times New Roman", serif;
@@ -485,21 +500,64 @@ html {
   transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Calm at rest: nothing loops while nobody is touching the page. Effects fire once, or in response to a person. */
-.aurora,
-.aurora-slow,
-.breathe,
-.twinkle,
-.live-dot::after,
-.scroll-cue,
-.caret,
-.text-flame-animated {
-  animation: none !important;
+/* Ambient loops are intentional (Adewale feedback): autoplay motion while at rest.
+   prefers-reduced-motion still kills loops in the media query above. */
+
+.signal-scan {
+  animation: signal-scan 7.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
-.portrait-sweep,
-.sig-pulse {
-  animation-iteration-count: 1 !important;
+@keyframes signal-scan {
+  0% {
+    transform: translateX(-30%) scaleX(0.4);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.7;
+  }
+  55% {
+    transform: translateX(80%) scaleX(1);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateX(130%) scaleX(0.5);
+    opacity: 0;
+  }
+}
+
+.float-y {
+  animation: float-y var(--float-dur, 7s) ease-in-out var(--float-delay, 0s) infinite;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+.drift-x {
+  animation: drift-x var(--drift-dur, 14s) ease-in-out var(--drift-delay, 0s) infinite alternate;
+}
+
+@keyframes drift-x {
+  from {
+    transform: translate3d(-4%, 0, 0);
+  }
+  to {
+    transform: translate3d(5%, -3%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-scan,
+  .float-y,
+  .drift-x {
+    animation: none !important;
+  }
 }
 
 /* ——— Online book reader ——— */

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { ProjectCard } from "@/components/ProjectCard";
+import { AmbientField } from "@/components/motion/AmbientField";
 import { Reveal, SplitHeading } from "@/components/motion/Reveal";
 import { projects, type Project } from "@/data/projects";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
@@ -30,14 +31,26 @@ export function SideProjectsView() {
         className="relative isolate overflow-hidden bg-night pb-16 pt-28 text-cream md:pb-24 md:pt-36"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          <AmbientField tone="tide" density={18} className="opacity-45 mix-blend-screen" />
           <motion.div
             style={{ y: mistY, opacity: mistOpacity }}
-            className="absolute left-[12%] top-[-10%] h-[58vmax] w-[58vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.38),rgba(151,64,49,0.12)_55%,transparent)] blur-2xl"
+            className="absolute left-[12%] top-[-10%] h-[58vmax] w-[58vmax] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,126,0.42),rgba(173,79,54,0.14)_55%,transparent)] blur-2xl"
           />
           <motion.div
             style={{ y: mistY }}
-            className="absolute bottom-[-30%] right-[-8%] h-[46vmax] w-[46vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.22),transparent)] blur-3xl"
+            animate={
+              reduce
+                ? undefined
+                : { scale: [1, 1.07, 1], opacity: [0.5, 0.85, 0.5] }
+            }
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-[-30%] right-[-8%] h-[46vmax] w-[46vmax] rounded-full bg-[radial-gradient(closest-side,rgba(148,168,196,0.28),transparent)] blur-3xl"
           />
+          {!reduce ? (
+            <span className="absolute inset-x-[12%] top-[38%] h-px overflow-hidden opacity-60">
+              <span className="signal-scan block h-full w-1/3 bg-gradient-to-r from-transparent via-tide-soft/70 to-transparent" />
+            </span>
+          ) : null}
           <div className="grain absolute inset-0 opacity-40 mix-blend-soft-light" />
         </div>
 
@@ -46,15 +59,15 @@ export function SideProjectsView() {
             initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.05, ease }}
-            className="kicker text-amber"
+            className="kicker text-tide-soft"
           >
             Recent side projects
           </motion.p>
 
           <SplitHeading
             id="side-projects-heading"
-            text="Live tools with room to ship and learn."
-            accent={["ship", "learn."]}
+            text="Interview Coach and UpTo, open now."
+            accent={["open", "now"]}
             className="mt-5 max-w-[16ch] text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
             accentClassName="font-serif font-normal italic text-flame"
             delay={0.08}
@@ -194,7 +207,9 @@ function AmbientGlow({ tone }: { tone: Project["tone"] }) {
       className={`pointer-events-none absolute -inset-10 -z-10 rounded-[3rem] blur-3xl md:-inset-14 ${
         tone === "cinnabar"
           ? "bg-[radial-gradient(closest-side,rgba(173,79,54,0.28),transparent_70%)]"
-          : "bg-[radial-gradient(closest-side,rgba(222,162,124,0.32),transparent_70%)]"
+          : tone === "tide"
+            ? "bg-[radial-gradient(closest-side,rgba(61,122,126,0.3),transparent_70%)]"
+            : "bg-[radial-gradient(closest-side,rgba(222,162,124,0.32),transparent_70%)]"
       }`}
     />
   );
