@@ -9,9 +9,10 @@ import { book } from "@/data/writing";
 
 type Link = { label: string; href: string };
 
-/** Lean elsewhere — Scholar once here as footer nav; music lives in Also. */
+/** Lean elsewhere — contact as Email label (never raw address); music lives on About. */
 const elsewhere: Link[] = [
-  { label: site.emailLabel, href: site.email },
+  { label: "Email", href: site.email },
+  { label: "About", href: "/about" },
   { label: "LinkedIn", href: site.linkedin },
   { label: "Google Scholar", href: site.scholar },
   { label: "Book on Amazon", href: book.href },

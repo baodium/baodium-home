@@ -171,6 +171,12 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             >
               Side projects
             </Link>
+            <Link
+              href="/about"
+              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+            >
+              About
+            </Link>
           </motion.div>
         </motion.div>
       </div>

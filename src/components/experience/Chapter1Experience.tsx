@@ -35,6 +35,7 @@ import { MetricsStrip } from "@/components/experience/MetricsStrip";
 import { ProductPreview } from "@/components/experience/ProductPreview";
 import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
+import { SeeingCallout } from "@/components/experience/SeeingCallout";
 import { SimControls } from "@/components/experience/SimControls";
 
 const STEP_ORDER = chapter1Scenario.steps.map((s) => s.id);
@@ -469,6 +470,7 @@ export function Chapter1Experience() {
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)]">
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+          <SeeingCallout stepId={stepId} mode={mode} snap={snap} />
           <AnimatePresence mode="wait">
             {mode === "guided" ? (
               <motion.div

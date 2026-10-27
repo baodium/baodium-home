@@ -105,6 +105,43 @@ export function TailLatencyGame() {
     }
   };
 
+  const teach =
+    phase === "intro"
+      ? {
+          kicker: "What you’ll do",
+          body: "p50 is the median. p99 is the slow 1%. After ~10s, stragglers appear — keep p99 under the budget without drowning the fleet in hedge copies.",
+          why: "Median health can hide a burning SLO. Hedging races the tail; too-early hedges inflate work cost and make everything slower.",
+        }
+      : phase === "running"
+        ? snap.t < 10
+          ? {
+              kicker: "Quiet lane",
+              body: "Load is steady. Watch p50 stay calm — the test starts when stragglers arrive.",
+              why: "Early calm is not success. Hold the dials for the window that actually stresses the tail.",
+            }
+          : snap.p99 > P99_BUDGET_MS * 0.9
+            ? {
+                kicker: "Tail under fire",
+                body: `p99 is near or over ${P99_BUDGET_MS}ms. Concurrency pressure and late hedges fight each other — cut blast, hedge late, or tighten timeout.`,
+                why: "Duplicate work buys latency only if the original request was truly stuck. Early hedges burn capacity.",
+              }
+            : {
+                kicker: "Stragglers live",
+                body: snap.message,
+                why: "You’re trading concurrency, hedge delay, and timeout against work cost. Read p99 and cost together.",
+              }
+        : phase === "won"
+          ? {
+              kicker: "Tail held",
+              body: "p99 stayed inside the budget. Notice the work-cost multiplier — a win that doubles load is a fragile win.",
+              why: "Good hedging is late and selective. The lesson carries into Chapter 2’s latency models.",
+            }
+          : {
+              kicker: "Tail blew",
+              body: result?.reason ?? "p99 escaped the budget or cost ran away.",
+              why: result?.takeaway ?? "Rebalance concurrency and hedge timing — then run again.",
+            };
+
   return (
     <div className="slo-game">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -122,7 +159,22 @@ export function TailLatencyGame() {
         </div>
       </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-12">
+      <aside
+        role="note"
+        aria-live="polite"
+        className="mt-8 grid gap-3 rounded-2xl border border-amber/25 bg-gradient-to-br from-cinnabar/15 via-night/40 to-transparent p-4 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] sm:gap-6 sm:p-5"
+      >
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-amber">{teach.kicker}</p>
+          <p className="mt-2 text-[0.95rem] leading-relaxed text-cream/85">{teach.body}</p>
+        </div>
+        <div className="border-t border-white/10 pt-3 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-cream/45">Why it matters</p>
+          <p className="mt-2 text-sm leading-relaxed text-cream/65">{teach.why}</p>
+        </div>
+      </aside>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="border border-white/12 bg-night/55 p-5 md:p-6 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-cream/45">
@@ -186,6 +238,11 @@ export function TailLatencyGame() {
         </div>
 
         <div className="flex flex-col gap-5 border border-white/12 p-5 md:p-6 lg:col-span-5">
+          <p className="text-sm leading-relaxed text-cream/55">
+            <span className="text-cream/80">Concurrency</span> loads the lane.{" "}
+            <span className="text-cream/80">Hedge</span> races a duplicate after a delay.{" "}
+            <span className="text-cream/80">Timeout</span> cuts stuck work — too tight and you create false failures.
+          </p>
           <label className="block">
             <span className="flex justify-between text-[0.78rem] text-cream/45">
               Concurrency
@@ -295,7 +352,7 @@ export function TailLatencyGame() {
           </div>
           <p className="text-sm leading-relaxed text-cream/45">
             Hint: modest concurrency + late hedges beat blasting duplicates on
-            every request.
+            every request. p50 staying green does not mean the SLO is safe.
           </p>
         </div>
       </div>

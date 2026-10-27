@@ -24,15 +24,21 @@ export const site = {
 export const alsoLinks = [
   {
     group: "listen" as const,
-    label: "Mami Say Boom Boom",
-    href: "https://www.qobuz.com/dk-en/album/mami-say-boom-boom-baodium/tmx24bb4ca64a",
-    note: "Qobuz",
+    label: "Queen Tonight",
+    href: "https://music.apple.com/in/album/queen-tonight-single/1827702711",
+    note: "Apple Music",
   },
   {
     group: "listen" as const,
     label: "One Hi",
     href: "https://music.apple.com/us/album/one-hi-single/1831748739",
     note: "Apple Music",
+  },
+  {
+    group: "listen" as const,
+    label: "Mami Say Boom Boom",
+    href: "https://www.qobuz.com/dk-en/album/mami-say-boom-boom-baodium/tmx24bb4ca64a",
+    note: "Qobuz",
   },
   {
     group: "elsewhere" as const,
