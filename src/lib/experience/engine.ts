@@ -5,12 +5,16 @@ import type {
   EngineSnapshot,
   FlagLogEntry,
   LatencySample,
+  PathLatency,
   SimRequest,
   SlotState,
 } from "@/lib/experience/types";
 
 export const POOL_SIZE = 40;
-export const DEFAULT_TICK_SEC = 0.05;
+/** Fine tick so short baseline holds (~12ms) are not quantized to 50ms. */
+export const DEFAULT_TICK_SEC = 0.01;
+/** Rolling window for throughput / recent stats (sim seconds). */
+export const METRIC_WINDOW_SEC = 5;
 
 /** 1-based lines matching chapter1Scenario.codeLines */
 const CODE = {
@@ -35,10 +39,15 @@ export type Engine = {
   latency: LatencySample[];
   completedCount: number;
   rejectedNewCount: number;
+  timeoutCount: number;
+  shedCount: number;
+  cacheHitCount: number;
   arrivalAcc: number;
   tracedId: string | null;
   /** Optional cap on new arrivals (guided pressure). */
   arrivalMultiplier: number;
+  /** Completion timestamps for throughput window. */
+  completionTimes: number[];
 };
 
 export function defaultControls(): EngineControls {
@@ -50,6 +59,10 @@ export function defaultControls(): EngineControls {
     featureEnabled: false,
     featureDisabledForNew: false,
     paused: false,
+    acquireTimeoutSec: null,
+    shedAtUtil: null,
+    cacheHitRate: 0,
+    sloP99Sec: 0.2,
   };
 }
 
@@ -67,9 +80,13 @@ export function createEngine(seed = 42, controls?: Partial<EngineControls>): Eng
     latency: [],
     completedCount: 0,
     rejectedNewCount: 0,
+    timeoutCount: 0,
+    shedCount: 0,
+    cacheHitCount: 0,
     arrivalAcc: 0,
     tracedId: null,
     arrivalMultiplier: 1,
+    completionTimes: [],
   };
 }
 
@@ -83,29 +100,79 @@ function userIdFor(n: number): string {
 }
 
 function meanHoldForControls(c: EngineControls): number {
-  const p = c.featureEnabled && !c.featureDisabledForNew ? c.exposurePct / 100 : 0;
-  return c.baselineHoldSec + p * c.recLookupSec;
+  const featureLive = c.featureEnabled && !c.featureDisabledForNew;
+  const p = featureLive ? c.exposurePct / 100 : 0;
+  // Shed and cache reduce effective W for the exposed cohort.
+  const shedFrac = c.shedAtUtil !== null ? 0 : 0; // util-dependent; approx below in snapshot
+  const effectiveRecHold =
+    c.recLookupSec * (1 - c.cacheHitRate) * (1 - shedFrac);
+  return c.baselineHoldSec + p * effectiveRecHold;
+}
+
+/**
+ * Approximate mean hold including shed gate when utilization is high.
+ * Used for Little's Law teaching strip (demand estimate).
+ */
+function approxMeanHold(engine: Engine): number {
+  const c = engine.controls;
+  const featureLive = c.featureEnabled && !c.featureDisabledForNew;
+  const p = featureLive ? c.exposurePct / 100 : 0;
+  const util = engine.slots.filter(Boolean).length / POOL_SIZE;
+  const shedding =
+    c.shedAtUtil !== null && util >= c.shedAtUtil && featureLive;
+  const shedFactor = shedding ? 0 : 1;
+  const recExtra = c.recLookupSec * (1 - c.cacheHitRate) * shedFactor;
+  return c.baselineHoldSec + p * recExtra;
 }
 
 function effectiveArrival(engine: Engine): number {
   return engine.controls.arrivalRate * engine.arrivalMultiplier;
 }
 
+function utilizationNow(engine: Engine): number {
+  return engine.slots.filter((s) => s !== null).length / POOL_SIZE;
+}
+
 function spawnRequest(engine: Engine): SimRequest {
   const id = `r${engine.nextId++}`;
   const userId = userIdFor(engine.nextId);
   const featureOn = engine.controls.featureEnabled && !engine.controls.featureDisabledForNew;
-  const exposed =
+  let exposed =
     featureOn && isUserExposed(userId, engine.controls.exposurePct);
-  const path = exposed ? "recs" : "baseline";
-  const holdSec =
-    engine.controls.baselineHoldSec + (exposed ? engine.controls.recLookupSec : 0);
-  // Small jitter so the grid feels alive
+  let shed = false;
+  let cacheHit = false;
+  let path: SimRequest["path"] = exposed ? "recs" : "baseline";
+  let holdSec = engine.controls.baselineHoldSec;
+
+  if (exposed) {
+    const util = utilizationNow(engine);
+    if (
+      engine.controls.shedAtUtil !== null &&
+      util >= engine.controls.shedAtUtil
+    ) {
+      // Load shed: skip the expensive path when the pool is saturated.
+      shed = true;
+      exposed = false;
+      path = "baseline";
+      holdSec = engine.controls.baselineHoldSec;
+      engine.shedCount += 1;
+    } else if (engine.rng.chance(engine.controls.cacheHitRate)) {
+      cacheHit = true;
+      path = "recs";
+      // Cache hit still "takes" the recs branch in code, but hold ≈ baseline.
+      holdSec = engine.controls.baselineHoldSec * 1.15;
+      engine.cacheHitCount += 1;
+    } else {
+      holdSec = engine.controls.baselineHoldSec + engine.controls.recLookupSec;
+    }
+  }
+
   const jitter = 0.85 + engine.rng.next() * 0.3;
   const req: SimRequest = {
     id,
     userId,
-    exposed,
+    // Copper slots = recs cohort work (including cache hits). Shed falls back to baseline.
+    exposed: path === "recs",
     featureOnAtArrival: featureOn,
     arrivalTime: engine.t,
     waitStart: null,
@@ -117,6 +184,9 @@ function spawnRequest(engine: Engine): SimRequest {
     holdSec: holdSec * jitter,
     codeLine: CODE.entry,
     path,
+    shed,
+    cacheHit,
+    timedOut: false,
   };
   engine.requests.set(id, req);
   return req;
@@ -128,9 +198,6 @@ function tryAcquire(engine: Engine, req: SimRequest): boolean {
   engine.slots[free] = req.id;
   req.slotIndex = free;
   req.acquireTime = engine.t;
-  if (req.waitStart !== null) {
-    // waited
-  }
   req.phase = "holding";
   req.codeLine = req.path === "recs" ? CODE.query : CODE.acquire;
   return true;
@@ -144,20 +211,25 @@ function enqueueWait(engine: Engine, req: SimRequest) {
   engine.waitingIds.push(req.id);
 }
 
-function completeRequest(engine: Engine, req: SimRequest) {
+function completeRequest(engine: Engine, req: SimRequest, timedOut = false) {
   if (req.slotIndex !== null) {
     engine.slots[req.slotIndex] = null;
+    req.slotIndex = null;
   }
   req.releaseTime = engine.t;
   req.doneTime = engine.t;
-  req.phase = "done";
-  req.codeLine = CODE.respond;
+  req.timedOut = timedOut;
+  req.phase = timedOut ? "timed_out" : "done";
+  req.codeLine = timedOut ? CODE.acquire : CODE.respond;
+
   const waitSec =
     req.acquireTime !== null && req.waitStart !== null
       ? Math.max(0, req.acquireTime - req.waitStart)
       : req.acquireTime !== null
         ? Math.max(0, req.acquireTime - req.arrivalTime)
-        : 0;
+        : req.waitStart !== null
+          ? Math.max(0, engine.t - req.waitStart)
+          : 0;
   const holdSec =
     req.acquireTime !== null ? Math.max(0, engine.t - req.acquireTime) : 0;
   const totalSec = Math.max(0, engine.t - req.arrivalTime);
@@ -167,9 +239,40 @@ function completeRequest(engine: Engine, req: SimRequest) {
     waitSec,
     holdSec,
     exposed: req.exposed,
+    path: req.path,
+    timedOut,
+    shed: req.shed,
+    cacheHit: req.cacheHit,
   });
-  if (engine.latency.length > 200) engine.latency.shift();
-  engine.completedCount += 1;
+  if (engine.latency.length > 240) engine.latency.shift();
+  if (!timedOut) {
+    engine.completedCount += 1;
+    engine.completionTimes.push(engine.t);
+  } else {
+    engine.timeoutCount += 1;
+  }
+  // Trim completion window
+  const cutoff = engine.t - METRIC_WINDOW_SEC;
+  while (engine.completionTimes.length > 0 && engine.completionTimes[0]! < cutoff) {
+    engine.completionTimes.shift();
+  }
+}
+
+function timeOutWaiting(engine: Engine) {
+  const timeout = engine.controls.acquireTimeoutSec;
+  if (timeout === null || timeout <= 0) return;
+  const stillWaiting: string[] = [];
+  for (const id of engine.waitingIds) {
+    const req = engine.requests.get(id);
+    if (!req || req.phase !== "waiting" || req.waitStart === null) continue;
+    if (engine.t - req.waitStart >= timeout) {
+      // Remove from wait queue and mark timed out — never acquired a slot.
+      completeRequest(engine, req, true);
+    } else {
+      stillWaiting.push(id);
+    }
+  }
+  engine.waitingIds = stillWaiting;
 }
 
 function drainWaiting(engine: Engine) {
@@ -187,7 +290,6 @@ function advanceHolders(engine: Engine, dt: number) {
   for (const req of engine.requests.values()) {
     if (req.phase !== "holding" || req.acquireTime === null) continue;
     const held = engine.t + dt - req.acquireTime;
-    // Progress code highlight during hold
     if (req.path === "recs") {
       if (held < req.holdSec * 0.25) req.codeLine = CODE.flagCheck;
       else if (held < req.holdSec * 0.45) req.codeLine = CODE.acquire;
@@ -199,14 +301,18 @@ function advanceHolders(engine: Engine, dt: number) {
       else req.codeLine = CODE.release;
     }
     if (held >= req.holdSec) {
-      completeRequest(engine, req);
+      completeRequest(engine, req, false);
     }
   }
 }
 
 function pruneDone(engine: Engine) {
   for (const [id, req] of engine.requests) {
-    if (req.phase === "done" && req.doneTime !== null && engine.t - req.doneTime > 2) {
+    if (
+      (req.phase === "done" || req.phase === "timed_out") &&
+      req.doneTime !== null &&
+      engine.t - req.doneTime > 2
+    ) {
       if (engine.tracedId !== id) engine.requests.delete(id);
     }
     if (req.phase === "rejected_new" && req.doneTime !== null && engine.t - req.doneTime > 1.5) {
@@ -250,7 +356,37 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
       detail: "Rollout paused — exposure frozen; sim clock still runs unless you pause the clock.",
     });
   }
-  if (engine.flagLog.length > 40) engine.flagLog.shift();
+  if (
+    patch.acquireTimeoutSec !== undefined &&
+    patch.acquireTimeoutSec !== prev.acquireTimeoutSec
+  ) {
+    engine.flagLog.push({
+      t: engine.t,
+      kind: "mitigation",
+      detail:
+        patch.acquireTimeoutSec === null
+          ? "Acquire timeout cleared — waiters may block indefinitely."
+          : `Acquire timeout → ${(patch.acquireTimeoutSec * 1000).toFixed(0)}ms (maps to connectionTimeout).`,
+    });
+  }
+  if (patch.shedAtUtil !== undefined && patch.shedAtUtil !== prev.shedAtUtil) {
+    engine.flagLog.push({
+      t: engine.t,
+      kind: "mitigation",
+      detail:
+        patch.shedAtUtil === null
+          ? "Load shed cleared — recs always attempt acquire when exposed."
+          : `Load shed at ≥${Math.round(patch.shedAtUtil * 100)}% pool util — skip recs lookup when saturated.`,
+    });
+  }
+  if (patch.cacheHitRate !== undefined && patch.cacheHitRate !== prev.cacheHitRate) {
+    engine.flagLog.push({
+      t: engine.t,
+      kind: "mitigation",
+      detail: `Cache hit rate → ${Math.round(patch.cacheHitRate * 100)}% (shortens mean W on the recs path).`,
+    });
+  }
+  if (engine.flagLog.length > 48) engine.flagLog.shift();
 }
 
 export function injectSingleRequest(engine: Engine, opts?: { forceExposed?: boolean }): SimRequest {
@@ -258,6 +394,8 @@ export function injectSingleRequest(engine: Engine, opts?: { forceExposed?: bool
   if (opts?.forceExposed) {
     req.exposed = true;
     req.path = "recs";
+    req.shed = false;
+    req.cacheHit = false;
     req.holdSec = engine.controls.baselineHoldSec + engine.controls.recLookupSec;
     req.featureOnAtArrival = true;
   }
@@ -268,30 +406,26 @@ export function injectSingleRequest(engine: Engine, opts?: { forceExposed?: bool
 }
 
 export function tick(engine: Engine, dt = DEFAULT_TICK_SEC): EngineSnapshot {
-  if (!engine.controls.paused) {
-    // Wall clock for sim always advances when not clock-paused.
-    // `controls.paused` is rollout pause — handled via exposure freeze by caller if needed.
-  }
-
   advanceHolders(engine, dt);
+  timeOutWaiting(engine);
   drainWaiting(engine);
 
-  // Arrivals
   const rate = effectiveArrival(engine);
   engine.arrivalAcc += rate * dt;
   while (engine.arrivalAcc >= 1) {
     engine.arrivalAcc -= 1;
     const req = spawnRequest(engine);
-    // If feature was disabled for new and somehow marked exposed, force baseline
-    if (engine.controls.featureDisabledForNew && req.exposed) {
-      // shouldn't happen because spawn checks featureDisabledForNew
-    }
     if (!tryAcquire(engine, req)) {
       enqueueWait(engine, req);
     }
   }
 
   engine.t += dt;
+  // Prune completion window after t advances
+  const cutoff = engine.t - METRIC_WINDOW_SEC;
+  while (engine.completionTimes.length > 0 && engine.completionTimes[0]! < cutoff) {
+    engine.completionTimes.shift();
+  }
   pruneDone(engine);
   return snapshot(engine);
 }
@@ -307,6 +441,15 @@ function percentile(values: number[], p: number): number {
   return sorted[idx]!;
 }
 
+function pathLatency(samples: LatencySample[], path: "baseline" | "recs"): PathLatency {
+  const totals = samples.filter((s) => s.path === path && !s.timedOut).map((s) => s.totalSec);
+  return {
+    p50: percentile(totals, 50),
+    p99: percentile(totals, 99),
+    count: totals.length,
+  };
+}
+
 export function snapshot(engine: Engine): EngineSnapshot {
   const active: SimRequest[] = [];
   const slots: SlotState[] = engine.slots.map((requestId, index) => {
@@ -319,18 +462,39 @@ export function snapshot(engine: Engine): EngineSnapshot {
     };
   });
 
-  // Hard invariant: never more active than pool size
   const activeCount = Math.min(POOL_SIZE, active.length);
+  const idleCount = POOL_SIZE - activeCount;
 
   const waiting = engine.waitingIds
     .map((id) => engine.requests.get(id))
     .filter((r): r is SimRequest => !!r && r.phase === "waiting");
 
-  const hold = meanHoldForControls(engine.controls);
+  const hold = approxMeanHold(engine);
   const lambda = effectiveArrival(engine);
   const littles = littlesLaw(lambda, hold, POOL_SIZE);
 
-  const totals = engine.latency.map((s) => s.totalSec);
+  const recent = engine.latency.slice(-80);
+  const okSamples = recent.filter((s) => !s.timedOut);
+  const totals = okSamples.map((s) => s.totalSec);
+  const waits = okSamples.map((s) => s.waitSec);
+  const latencyP50 = percentile(totals, 50);
+  const latencyP99 = percentile(totals, 99);
+  const acquireWaitP50 = percentile(waits, 50);
+  const acquireWaitP99 = percentile(waits, 99);
+  const meanWaitSec =
+    waits.length === 0 ? 0 : waits.reduce((a, b) => a + b, 0) / waits.length;
+
+  const windowSec = Math.min(METRIC_WINDOW_SEC, Math.max(engine.t, 0.05));
+  const throughputRps = engine.completionTimes.length / windowSec;
+  const utilization = activeCount / POOL_SIZE;
+
+  const target = engine.controls.sloP99Sec;
+  const slo = {
+    targetP99Sec: target,
+    observedP99Sec: latencyP99,
+    breached: totals.length >= 8 && latencyP99 > target,
+    burnRatio: target > 0 ? latencyP99 / target : 0,
+  };
 
   return {
     t: engine.t,
@@ -339,14 +503,26 @@ export function snapshot(engine: Engine): EngineSnapshot {
     waiting,
     active,
     activeCount,
+    idleCount,
     waitingCount: waiting.length,
     completedCount: engine.completedCount,
     rejectedNewCount: engine.rejectedNewCount,
+    timeoutCount: engine.timeoutCount,
+    shedCount: engine.shedCount,
+    cacheHitCount: engine.cacheHitCount,
     controls: { ...engine.controls },
     littles,
-    latencyP50: percentile(totals, 50),
-    latencyP99: percentile(totals, 99),
-    recentLatency: engine.latency.slice(-60),
+    latencyP50,
+    latencyP99,
+    acquireWaitP50,
+    acquireWaitP99,
+    meanWaitSec,
+    throughputRps,
+    utilization,
+    latencyBaseline: pathLatency(recent, "baseline"),
+    latencyRecs: pathLatency(recent, "recs"),
+    slo,
+    recentLatency: recent,
     flagLog: [...engine.flagLog],
     tracedId: engine.tracedId,
     tracedRequest: engine.tracedId
@@ -360,5 +536,8 @@ export function getRequest(engine: Engine, id: string | null): SimRequest | null
   if (!id) return null;
   return engine.requests.get(id) ?? null;
 }
+
+/** Expose meanHold helper for tests / teaching callouts. */
+export { meanHoldForControls, approxMeanHold };
 
 export { CODE as CODE_LINES };

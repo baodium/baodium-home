@@ -10,12 +10,14 @@ export type PedagogyLesson = {
   why: string;
   /** Optional next action hint. */
   next?: string;
+  /** Optional production mapping. */
+  prod?: string;
   tone: "calm" | "warn" | "insight" | "recover";
 };
 
 /**
  * Pick the most relevant teaching overlay from live sim state + guided step.
- * Prefer concrete observations (waiters, disable drain, p99 spread) over step prose.
+ * Prefer concrete observations (waiters, timeouts, shed, disable drain) over step prose.
  */
 export function selectPedagogyLesson(
   snap: EngineSnapshot,
@@ -23,10 +25,11 @@ export function selectPedagogyLesson(
   mode: "guided" | "sandbox",
 ): PedagogyLesson {
   const { littles, controls } = snap;
-  const fill = snap.activeCount / snap.poolSize;
+  const fill = snap.utilization;
   const p99ms = snap.latencyP99 * 1000;
   const p50ms = snap.latencyP50 * 1000;
   const spread = p99ms - p50ms;
+  const acqP99ms = snap.acquireWaitP99 * 1000;
 
   if (controls.featureDisabledForNew && snap.activeCount > 0) {
     return {
@@ -36,6 +39,7 @@ export function selectPedagogyLesson(
       seeing: `${snap.activeCount} copper slots still hold in-flight recommendation work. New arrivals skip the extra lookup.`,
       why: "A kill switch stops new demand on the shared pool. Holds already acquired keep their connection until release — waiters clear as those finish.",
       next: "Watch busy drop toward baseline as releases free slots.",
+      prod: "In prod: flip the flag OFF (or 0% exposure). Expect in-flight checkouts to finish; alert on pool.pending decaying, not instantly zeroing.",
       tone: "recover",
     };
   }
@@ -47,7 +51,58 @@ export function selectPedagogyLesson(
       title: "Pool quiet after disable",
       seeing: "Busy and waiters are near zero. New traffic takes the ~12ms baseline path.",
       why: "Removing the long hold from the request path collapses λ×W under the 40-slot cap.",
+      prod: "Confirm pool.active and pool.pending stay low; p99 should fall toward baseline hold.",
       tone: "recover",
+    };
+  }
+
+  if (snap.timeoutCount > 0 && controls.acquireTimeoutSec !== null) {
+    return {
+      id: "acquire-timeouts",
+      eyebrow: "What’s happening",
+      title: "Acquire timeouts are hard failures",
+      seeing: `${snap.timeoutCount} request${snap.timeoutCount === 1 ? "" : "s"} exceeded the ${(controls.acquireTimeoutSec * 1000).toFixed(0)}ms connectionTimeout while waiting for a free slot.`,
+      why: "Timeouts bound queueing delay but convert saturation into errors. Prefer shedding or disabling the expensive path before the timeout wall.",
+      next: "Compare shed-at-util vs timeout: one drops work early; the other fails late.",
+      prod: "Alert on pool.acquire.timeouts > 0. Pair with pool.pending and acquire.wait.p99 vs connectionTimeout.",
+      tone: "warn",
+    };
+  }
+
+  if (snap.shedCount > 8 && controls.shedAtUtil !== null) {
+    return {
+      id: "load-shed",
+      eyebrow: "What’s happening",
+      title: "Shedding protects the pool",
+      seeing: `${snap.shedCount} arrivals skipped recommendations because utilization hit ≥${Math.round(controls.shedAtUtil * 100)}%.`,
+      why: "Graceful degradation: keep the page fast by dropping the optional lookup when the shared resource is saturated.",
+      prod: "Implement as a util/pending gate before acquire — same idea as adaptive concurrency or priority load shedding.",
+      tone: "insight",
+    };
+  }
+
+  if (controls.cacheHitRate > 0.2 && snap.cacheHitCount > 8 && !littles.overDemand) {
+    return {
+      id: "cache-cuts-w",
+      eyebrow: "What’s happening",
+      title: "Cache shortens W, not λ",
+      seeing: `${Math.round(controls.cacheHitRate * 100)}% cache hits · ${snap.cacheHitCount} hits so far. Mean hold drops; arrival rate is unchanged.`,
+      why: "Little’s Law: L = λ × W. Caching attacks W. Disabling the feature or shedding attacks the fraction of traffic that pays the long hold.",
+      prod: "Measure checkout hold time (usage histogram), not only query duration — cache wins show up as shorter holds.",
+      tone: "insight",
+    };
+  }
+
+  if (snap.slo.breached && snap.completedCount > 12) {
+    return {
+      id: "slo-burn",
+      eyebrow: "What’s happening",
+      title: "p99 is burning the latency SLO",
+      seeing: `Observed p99 ≈ ${p99ms.toFixed(0)} ms vs ${(snap.slo.targetP99Sec * 1000).toFixed(0)} ms target (burn ${snap.slo.burnRatio.toFixed(1)}×).`,
+      why: "Saturation shows up in the tail first. Median can look fine while acquire wait stretches p99 past the budget.",
+      next: "Open Ops metrics — check acquire.wait.p99 and pool.pending before blaming the SQL text.",
+      prod: "Page on latency burn + pool.pending, not only CPU. connectionTimeout approaching = imminent errors.",
+      tone: "warn",
     };
   }
 
@@ -56,12 +111,13 @@ export function selectPedagogyLesson(
       id: "waiters-wall",
       eyebrow: "What’s happening",
       title: "Demand hit the capacity wall",
-      seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting. No 41st slot — excess sits in the waiter queue.`,
+      seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${acqP99ms.toFixed(0)} ms. No 41st slot — excess sits in the waiter queue.`,
       why: `Little’s Law estimates demand ≈ ${littles.L.toFixed(0)} (= λ × W). When that exceeds 40, correct code still waits because the pool is shared and finite.`,
       next:
         mode === "guided" && stepId === "pressure"
           ? "Predict: disable vs pause — then decide in the next step."
-          : "Try disable for new traffic and compare new vs in-flight.",
+          : "Try disable, shed-at-util, or acquire timeout — compare new vs in-flight.",
+      prod: "pool.active ≈ max · pool.pending > 0 sustained = saturation. Size from λ×W with headroom, or cut W.",
       tone: "warn",
     };
   }
@@ -73,6 +129,7 @@ export function selectPedagogyLesson(
       title: "Demand is over capacity",
       seeing: `λ×W ≈ ${littles.L.toFixed(0)} while the pool is only ${snap.poolSize}. Waiters should appear as slots stay full.`,
       why: "Occupancy demand can exceed the pool; active connections never can. The surplus becomes queueing delay.",
+      prod: "Watch pending rise before timeouts. Utilization → 1 is the harbinger; wait time is the user impact.",
       tone: "warn",
     };
   }
@@ -84,7 +141,8 @@ export function selectPedagogyLesson(
       title: "p50 holds · p99 stretches",
       seeing: `p50 ≈ ${p50ms.toFixed(0)} ms while p99 ≈ ${p99ms.toFixed(0)} ms — a ${spread.toFixed(0)} ms spread from wait + long holds.`,
       why: "Queueing delay hits a fraction of requests hardest. The median can look fine while the tail already shows contention.",
-      next: "Select a waiting request to see wait vs hold timing.",
+      next: "Select a waiting request to see wait vs hold timing. Compare baseline vs recs path latency.",
+      prod: "Split latency by feature cohort. A minority path with large W can dominate pool occupancy.",
       tone: "insight",
     };
   }
@@ -94,8 +152,9 @@ export function selectPedagogyLesson(
       id: "near-full",
       eyebrow: "What’s happening",
       title: "Pool nearly saturated",
-      seeing: `${snap.activeCount} of ${snap.poolSize} slots busy. Headroom is thin — a small traffic bump creates waiters.`,
+      seeing: `${snap.activeCount} of ${snap.poolSize} slots busy (${(fill * 100).toFixed(0)}% util). Headroom is thin — a small traffic bump creates waiters.`,
       why: "Shared resources fail at the margin. Headroom, not average idle, decides whether the next arrival waits.",
+      prod: "Capacity targets often sit at 60–70% util for bursty arrivals — 85%+ leaves almost no queueing margin.",
       tone: "warn",
     };
   }
@@ -109,8 +168,9 @@ export function selectPedagogyLesson(
       seeing:
         r.phase === "waiting"
           ? `${r.id} arrived when all ${snap.poolSize} connections were busy — it waits beside the grid.`
-          : `${r.id} acquired a connection${r.exposed ? " for the recommendation lookup" : " on the baseline path"}.`,
+          : `${r.id} acquired a connection${r.exposed ? " for the recommendation lookup" : " on the baseline path"}${r.cacheHit ? " (cache hit — short hold)" : ""}.`,
       why: "Correct code still consumes a shared resource. The highlight in the code panel is the line that owns the hold.",
+      prod: "Instrument checkout→checkin as hold time. Query duration alone understates W.",
       tone: "insight",
     };
   }
@@ -123,6 +183,7 @@ export function selectPedagogyLesson(
       seeing: "Flag is ON at 0% exposure — code is live, but no user is hashed into the cohort.",
       why: "Deploy ≠ enable. You ship dark, then raise exposure so risk is controlled by the flag, not by a redeploy.",
       next: "Trace one forced request, then raise exposure.",
+      prod: "Dark launch: binary present, cohort empty. Roll forward/back with exposure, not builds.",
       tone: "calm",
     };
   }
@@ -134,11 +195,11 @@ export function selectPedagogyLesson(
       title: "Partial cohort, shared pool",
       seeing: `${controls.exposurePct}% of users take the longer hold; everyone still shares the same 40 connections.`,
       why: `Even a minority path can dominate occupancy when W is larger. Here λ≈${littles.lambda.toFixed(0)}/s · W≈${(littles.W * 1000).toFixed(0)}ms → L≈${littles.L.toFixed(0)}.`,
+      prod: "pool_floor ≈ ceil(λ × W × 1.25). Raising exposure raises effective W for the mix — recalculate before 100%.",
       tone: "calm",
     };
   }
 
-  // Step-aware defaults when the sim is quiet
   switch (stepId) {
     case "inspect":
       return {
@@ -185,8 +246,9 @@ export function selectPedagogyLesson(
         id: "step-inspect-prod",
         eyebrow: "Learn this",
         title: "Read the pool like production",
-        seeing: `Busy ${snap.activeCount}/${snap.poolSize} · waiters ${snap.waitingCount} · demand ≈ ${snap.demandOccupancy.toFixed(0)}.`,
+        seeing: `Busy ${snap.activeCount}/${snap.poolSize} · pending ${snap.waitingCount} · util ${(snap.utilization * 100).toFixed(0)}% · demand ≈ ${snap.demandOccupancy.toFixed(0)}.`,
         why: "Active never exceeds the pool. If λ×W > 40, the overflow is waiting — not fake extra busy slots.",
+        prod: "Map: pool.active · pool.idle · pool.pending · acquire.wait.{p50,p99} · acquire.timeouts · throughput.",
         tone: "insight",
       };
     case "pressure":
@@ -206,6 +268,7 @@ export function selectPedagogyLesson(
         title: "Operate the incident",
         seeing: "Pause slows cohort growth. Disable stops new recommendation holds. Investigate leaves pressure running.",
         why: "Your choice changes this same system — then the debrief names what actually happened to new vs in-flight work.",
+        prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",
         tone: "insight",
       };
     case "debrief":
@@ -215,6 +278,7 @@ export function selectPedagogyLesson(
         title: "Name the shared resource",
         seeing: "Correct code waited because every exposed request held a connection from the same 40-slot pool.",
         why: "Disable stops new recommendation work; in-flight holds finish. The pool — not the feature idea — was the bottleneck.",
+        prod: "Leave with: λ×W sizing, acquire.wait alerts, deploy≠enable, disable≠kill in-flight.",
         tone: "insight",
       };
     default:
@@ -222,8 +286,9 @@ export function selectPedagogyLesson(
         id: "sandbox-default",
         eyebrow: "Sandbox",
         title: "Pressure the invariants",
-        seeing: "Vary λ, exposure, and lookup duration. Busy stays ≤ 40; waiters absorb the rest.",
-        why: "If you can explain waiters, Little’s Law, and disable-vs-inflight from what you see, the chapter stuck.",
+        seeing: "Vary λ, exposure, lookup duration, acquire timeout, shed, and cache. Busy stays ≤ 40; waiters / timeouts absorb the rest.",
+        why: "If you can explain waiters, Little’s Law, disable-vs-inflight, and which mitigation cuts W vs demand, the chapter stuck.",
+        prod: "Treat this panel like a runbook rehearsal — change one lever, read pool.* and path latency, then decide.",
         tone: "calm",
       };
   }

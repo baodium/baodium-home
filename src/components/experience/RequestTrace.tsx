@@ -38,12 +38,17 @@ export function RequestTrace({
   const total =
     req.doneTime !== null ? req.doneTime - req.arrivalTime : now - req.arrivalTime;
   const waitMs = waitSec * 1000;
-  const teaching =
-    waitMs > 5
-      ? "Most of this request’s extra latency is queueing — waiting for a free slot, not the SQL itself."
-      : req.exposed
-        ? "Hold time is the recommendation lookup on a shared connection. Multiply by concurrency and you get Little’s Law demand."
-        : "Baseline path: short hold, no recommendation query. Compare with an exposed request under the same traffic.";
+  const teaching = req.timedOut
+    ? "This request hit connectionTimeout while waiting to acquire — saturation became an error instead of an unbounded wait."
+    : req.shed
+      ? "Load shed skipped the recs lookup because pool util was over the gate. The page stayed on the baseline hold."
+      : req.cacheHit
+        ? "Cache hit: still on the recs cohort path, but hold ≈ baseline. That is how caching cuts W in L = λ × W."
+        : waitMs > 5
+          ? "Most of this request’s extra latency is queueing — waiting for a free slot, not the SQL itself."
+          : req.exposed
+            ? "Hold time is the recommendation lookup on a shared connection. Multiply by concurrency and you get Little’s Law demand."
+            : "Baseline path: short hold, no recommendation query. Compare with an exposed request under the same traffic.";
 
   return (
     <div className="exp-panel">
@@ -51,6 +56,9 @@ export function RequestTrace({
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Request {req.id}</h3>
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-muted)]">
           {req.phase} · {req.path}
+          {req.timedOut ? " · timeout" : ""}
+          {req.shed ? " · shed" : ""}
+          {req.cacheHit ? " · cache" : ""}
         </p>
       </div>
       <p className="mt-1 text-sm text-[color:var(--exp-muted)]">

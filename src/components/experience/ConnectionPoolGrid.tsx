@@ -52,19 +52,25 @@ export function ConnectionPoolGrid({
           title: "In-flight still holding",
           body: "Disable stopped new recommendation acquires. Copper slots finish, then release.",
         }
-      : snap.waitingCount > 0
+      : snap.timeoutCount > 0 && snap.controls.acquireTimeoutSec !== null
         ? {
-            id: "wall",
-            title: "Capacity wall",
-            body: `${snap.waitingCount} waiter${snap.waitingCount === 1 ? "" : "s"} — demand > ${snap.poolSize}. Busy stays capped; excess queues.`,
+            id: "timeouts",
+            title: "Acquire timeouts firing",
+            body: `${snap.timeoutCount} timed out waiting for a slot (connectionTimeout ${(snap.controls.acquireTimeoutSec * 1000).toFixed(0)}ms). Saturation → errors.`,
           }
-        : fillRatio > 0.85
+        : snap.waitingCount > 0
           ? {
-              id: "thin",
-              title: "Thin headroom",
-              body: "Most slots are busy. A small surge will create waiters without inventing new connections.",
+              id: "wall",
+              title: "Capacity wall",
+              body: `${snap.waitingCount} waiter${snap.waitingCount === 1 ? "" : "s"} · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)}ms. Busy stays capped; excess queues.`,
             }
-          : null;
+          : fillRatio > 0.85
+            ? {
+                id: "thin",
+                title: "Thin headroom",
+                body: `Util ${(fillRatio * 100).toFixed(0)}%. A small surge will create waiters without inventing new connections.`,
+              }
+            : null;
 
   return (
     <div className={`exp-panel ${wall ? "exp-panel-pressure" : ""}`}>

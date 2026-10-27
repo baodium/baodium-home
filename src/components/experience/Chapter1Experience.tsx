@@ -32,6 +32,9 @@ import { FeatureFlagPanel } from "@/components/experience/FeatureFlagPanel";
 import { GuidedProgress } from "@/components/experience/GuidedProgress";
 import { LittlesLawCallout } from "@/components/experience/LittlesLawCallout";
 import { MetricsStrip } from "@/components/experience/MetricsStrip";
+import { MitigationControls } from "@/components/experience/MitigationControls";
+import { OpsMetricsPanel } from "@/components/experience/OpsMetricsPanel";
+import { PredictionOutcome } from "@/components/experience/PredictionOutcome";
 import { ProductPreview } from "@/components/experience/ProductPreview";
 import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
@@ -123,8 +126,9 @@ export function Chapter1Experience() {
     stopLoop();
     if (!running) return;
     rafRef.current = window.setInterval(() => {
-      const steps = Math.max(1, Math.round(speed));
-      for (let i = 0; i < steps; i++) tick(engineRef.current, 0.05);
+      // ~50ms wall ≈ 5 fine ticks at 1× so 12ms baseline holds resolve credibly.
+      const steps = Math.max(1, Math.round(5 * speed));
+      for (let i = 0; i < steps; i++) tick(engineRef.current, 0.01);
       sync();
     }, 50);
     return stopLoop;
@@ -389,10 +393,46 @@ export function Chapter1Experience() {
     mode === "sandbox" ||
     ["rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
     snap.completedCount > 8;
+  const showOps =
+    mode === "sandbox" ||
+    ["inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    snap.waitingCount > 0 ||
+    snap.timeoutCount > 0 ||
+    snap.slo.breached;
+  const showMitigations = mode === "sandbox" || stepId === "decide" || stepId === "debrief";
   const showTrace =
     mode === "sandbox" ||
     ["trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
     focusedReq !== null;
+
+  const applyMitigation = (patch: {
+    acquireTimeoutSec?: number | null;
+    shedAtUtil?: number | null;
+    cacheHitRate?: number;
+  }) => {
+    setControls(engineRef.current, patch);
+    setRunning(true);
+    sync();
+    const bits: string[] = [];
+    if (patch.acquireTimeoutSec !== undefined) {
+      bits.push(
+        patch.acquireTimeoutSec === null
+          ? "timeout off"
+          : `timeout ${(patch.acquireTimeoutSec * 1000).toFixed(0)}ms`,
+      );
+    }
+    if (patch.shedAtUtil !== undefined) {
+      bits.push(
+        patch.shedAtUtil === null
+          ? "shed off"
+          : `shed@${Math.round(patch.shedAtUtil * 100)}%`,
+      );
+    }
+    if (patch.cacheHitRate !== undefined) {
+      bits.push(`cache ${Math.round(patch.cacheHitRate * 100)}%`);
+    }
+    logAction(`Mitigation: ${bits.join(" · ")}`);
+  };
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
@@ -510,6 +550,23 @@ export function Chapter1Experience() {
                   </div>
                 ) : null}
 
+                {stepDef.prediction && predictionAnswered && stepId === "rollout" ? (
+                  <PredictionOutcome
+                    snap={snap}
+                    answered={predictionAnswered}
+                    reducedMotion={reduced}
+                  />
+                ) : null}
+
+                {stepDef.prediction && predictionAnswered && stepId === "pressure" ? (
+                  <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                    <span className="text-[color:var(--exp-fg)]">Expected answer: </span>
+                    Disable stops <em>new</em> recommendation acquires; in-flight copper slots keep
+                    their connections until release. pool.pending drains as those holds finish —
+                    disable ≠ kill.
+                  </p>
+                ) : null}
+
                 {stepId === "inspect" ? (
                   <button type="button" onClick={onTogglePreview} className="exp-btn exp-btn-primary mt-4">
                     Toggle page preview
@@ -579,17 +636,26 @@ export function Chapter1Experience() {
                 {stepId === "debrief" && debriefText ? (
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
                     <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
-                    <ul className="list-disc space-y-1.5 pl-5">
-                      <li>
-                        Correct code caused waiting because every exposed request held a shared pool
-                        slot.
-                      </li>
-                      <li>The shared resource is the 40-slot connection pool.</li>
-                      <li>
-                        Disable stops new recommendation work; in-flight holds finish before slots
-                        free.
-                      </li>
-                    </ul>
+                    <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_50%,transparent)] px-3 py-2.5">
+                      <p className="exp-kicker !tracking-[0.16em]">Can you explain</p>
+                      <ul className="mt-2 list-disc space-y-1.5 pl-5 text-[color:var(--exp-fg)]">
+                        <li>
+                          Why correct code waited (shared finite pool — not a bad query string)
+                        </li>
+                        <li>Why busy never exceeds 40 while demand (λ×W) can</li>
+                        <li>What disable does to new vs in-flight work</li>
+                        <li>
+                          Which mitigation cuts <span className="font-mono">W</span> (cache) vs
+                          demand (disable / shed) vs bounds wait (timeout → errors)
+                        </li>
+                      </ul>
+                    </div>
+                    <p className="text-xs leading-relaxed">
+                      Live now: util {(snap.utilization * 100).toFixed(0)}% · pending{" "}
+                      {snap.waitingCount} · acquire.wait.p99{" "}
+                      {(snap.acquireWaitP99 * 1000).toFixed(0)} ms · p99{" "}
+                      {(snap.latencyP99 * 1000).toFixed(0)} ms · timeouts {snap.timeoutCount}
+                    </p>
                     {actionLog.length > 0 ? (
                       <div>
                         <p className="exp-kicker !tracking-[0.16em]">Your timeline</p>
@@ -624,8 +690,8 @@ export function Chapter1Experience() {
               >
                 <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Sandbox</h2>
                 <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
-                  Vary traffic, exposure, and lookup duration. Same pool and flag visuals — pressure
-                  the system, then disable and watch new vs in-flight.
+                  Pressure the pool, then operate: disable, shed, timeout, or cache. Read Ops like
+                  an on-call dashboard — same invariants as guided.
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -639,6 +705,30 @@ export function Chapter1Experience() {
                     className="exp-btn exp-btn-primary"
                   >
                     Demo pressure
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="demo-shed"
+                    onClick={() => {
+                      startPressure();
+                      applyMitigation({ shedAtUtil: 0.85 });
+                      logAction("Sandbox shed@85% under pressure");
+                    }}
+                    className="exp-btn exp-btn-ghost"
+                  >
+                    Pressure + shed
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="demo-timeout"
+                    onClick={() => {
+                      startPressure();
+                      applyMitigation({ acquireTimeoutSec: 0.1 });
+                      logAction("Sandbox timeout 100ms under pressure");
+                    }}
+                    className="exp-btn exp-btn-ghost"
+                  >
+                    Pressure + timeout
                   </button>
                   <button
                     type="button"
@@ -660,6 +750,9 @@ export function Chapter1Experience() {
                         featureDisabledForNew: false,
                         recLookupSec: 0.07,
                         paused: false,
+                        acquireTimeoutSec: null,
+                        shedAtUtil: null,
+                        cacheHitRate: 0,
                       });
                       setRunning(true);
                       sync();
@@ -801,6 +894,16 @@ export function Chapter1Experience() {
               <LittlesLawCallout snap={snap} reducedMotion={reduced} />
               <MetricsStrip snap={snap} reducedMotion={reduced} />
             </div>
+          ) : null}
+          {showOps ? (
+            <OpsMetricsPanel snap={snap} reducedMotion={reduced} />
+          ) : null}
+          {showMitigations ? (
+            <MitigationControls
+              snap={snap}
+              onChange={applyMitigation}
+              reducedMotion={reduced}
+            />
           ) : null}
           {showTrace ? (
             <RequestTrace req={tracedReq} now={snap.t} reducedMotion={reduced} />

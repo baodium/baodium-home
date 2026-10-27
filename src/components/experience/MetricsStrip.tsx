@@ -174,14 +174,15 @@ export function MetricsStrip({
         {tailHot ? (
           <>
             <span className="font-medium text-[color:var(--exp-fg)]">p50 can look fine</span> while
-            p99 stretches — wait time on the copper path hits a minority of requests hardest. Amber
-            trace = wait component; copper = total.
+            p99 stretches — acquire wait on the copper path hits a minority hardest. Amber = wait;
+            copper = total. Pair with Ops <span className="font-mono">acquire.wait.p99</span>.
           </>
         ) : (
           <>
             <span className="font-medium text-[color:var(--exp-fg)]">p50</span> is the median
             completion; <span className="font-medium text-[color:var(--exp-fg)]">p99</span> is the
-            slowest 1%. Under contention, the spread opens first — then waiters show on the pool.
+            slowest 1%. Under contention, the spread opens first — then{" "}
+            <span className="font-mono">pool.pending</span> shows on the grid.
           </>
         )}
       </p>
