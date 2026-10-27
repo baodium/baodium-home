@@ -35,8 +35,9 @@ import { MetricsStrip } from "@/components/experience/MetricsStrip";
 import { ProductPreview } from "@/components/experience/ProductPreview";
 import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
-import { SeeingCallout } from "@/components/experience/SeeingCallout";
 import { SimControls } from "@/components/experience/SimControls";
+import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
+import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
 
 const STEP_ORDER = chapter1Scenario.steps.map((s) => s.id);
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -351,6 +352,10 @@ export function Chapter1Experience() {
           : 3;
 
   const debriefText = decision ? fillDebrief(decision, snap) : null;
+  const lesson = useMemo(
+    () => selectPedagogyLesson(snap, stepId, mode),
+    [snap, stepId, mode],
+  );
 
   const selectRequest = (id: string | null) => {
     setSelectedId(id);
@@ -470,7 +475,8 @@ export function Chapter1Experience() {
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)]">
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <SeeingCallout stepId={stepId} mode={mode} snap={snap} />
+          <TeachingOverlay lesson={lesson} reducedMotion={reduced} />
+
           <AnimatePresence mode="wait">
             {mode === "guided" ? (
               <motion.div
@@ -792,11 +798,13 @@ export function Chapter1Experience() {
           ) : null}
           {showMetrics ? (
             <div className="grid gap-4 md:grid-cols-2">
-              <LittlesLawCallout snap={snap} />
-              <MetricsStrip snap={snap} />
+              <LittlesLawCallout snap={snap} reducedMotion={reduced} />
+              <MetricsStrip snap={snap} reducedMotion={reduced} />
             </div>
           ) : null}
-          {showTrace ? <RequestTrace req={tracedReq} now={snap.t} /> : null}
+          {showTrace ? (
+            <RequestTrace req={tracedReq} now={snap.t} reducedMotion={reduced} />
+          ) : null}
         </div>
       </div>
     </div>

@@ -1439,6 +1439,44 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   background: color-mix(in srgb, var(--exp-accent) 8%, #fffefb);
 }
 
+.exp-teach {
+  border-radius: 1.15rem;
+  background:
+    linear-gradient(165deg, color-mix(in srgb, #fffefb 92%, #f3e8d8) 0%, var(--exp-panel) 100%);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 70%, transparent),
+    0 22px 48px -30px rgba(43, 34, 29, 0.34);
+  padding: 1.05rem 1.15rem 1.15rem;
+}
+
+.exp-pool-callout {
+  border-radius: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--exp-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--exp-accent) 7%, #fffefb);
+  padding: 0.7rem 0.85rem;
+}
+
+.exp-panel-pressure {
+  border-color: color-mix(in srgb, var(--exp-accent) 32%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 70%, transparent),
+    0 18px 40px -26px rgba(173, 79, 54, 0.35);
+}
+
+@keyframes exp-lat-draw {
+  from {
+    stroke-dashoffset: 420;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.exp-lat-draw {
+  stroke-dasharray: 420;
+  animation: exp-lat-draw 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .exp-root * {
     scroll-behavior: auto !important;
@@ -1448,7 +1486,8 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   .exp-slot-busy,
   .exp-waiter-chip,
   .exp-flow-path,
-  .exp-demand-fill {
+  .exp-demand-fill,
+  .exp-lat-draw {
     animation: none !important;
   }
 }

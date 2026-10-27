@@ -12,7 +12,8 @@ export const site = {
   scholar: "https://scholar.google.com/citations?user=qcbM1kAAAAAJ&hl=en",
   scholarCitations: "333",
   email: "mailto:baodium@gmail.com",
-  emailLabel: "baodium@gmail.com",
+  /** Visible footer/nav label — never the raw address. */
+  emailLabel: "Email",
   personal: "https://obadimu.com",
   dissertation: "https://research.ualr.edu/etd/955/",
 } as const;

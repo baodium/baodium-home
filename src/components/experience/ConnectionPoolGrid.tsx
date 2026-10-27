@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { EngineSnapshot, SimRequest } from "@/lib/experience/types";
 
@@ -43,9 +44,30 @@ export function ConnectionPoolGrid({
   }, [snap.slots, snap.t, reducedMotion]);
 
   const fillRatio = snap.activeCount / snap.poolSize;
+  const wall = snap.waitingCount > 0 || snap.littles.overDemand;
+  const callout =
+    snap.controls.featureDisabledForNew && snap.activeCount > 0
+      ? {
+          id: "drain",
+          title: "In-flight still holding",
+          body: "Disable stopped new recommendation acquires. Copper slots finish, then release.",
+        }
+      : snap.waitingCount > 0
+        ? {
+            id: "wall",
+            title: "Capacity wall",
+            body: `${snap.waitingCount} waiter${snap.waitingCount === 1 ? "" : "s"} — demand > ${snap.poolSize}. Busy stays capped; excess queues.`,
+          }
+        : fillRatio > 0.85
+          ? {
+              id: "thin",
+              title: "Thin headroom",
+              body: "Most slots are busy. A small surge will create waiters without inventing new connections.",
+            }
+          : null;
 
   return (
-    <div className="exp-panel">
+    <div className={`exp-panel ${wall ? "exp-panel-pressure" : ""}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Connection pool</h3>
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[color:var(--exp-muted)]">
@@ -71,17 +93,37 @@ export function ConnectionPoolGrid({
         className="mt-3 h-1.5 overflow-hidden rounded-full bg-[color:var(--exp-slot-free)]"
         aria-hidden="true"
       >
-        <div
-          className={`h-full rounded-full transition-[width] duration-300 ease-out ${
+        <motion.div
+          className={`h-full rounded-full ${
             fillRatio > 0.92
               ? "bg-[color:var(--exp-accent)]"
               : fillRatio > 0.6
                 ? "bg-[color:var(--exp-amber)]"
                 : "bg-[color:var(--exp-slot-base)]"
           }`}
-          style={{ width: `${Math.min(100, fillRatio * 100)}%` }}
+          initial={false}
+          animate={{ width: `${Math.min(100, fillRatio * 100)}%` }}
+          transition={{ duration: reducedMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
+
+      <AnimatePresence mode="wait">
+        {callout ? (
+          <motion.div
+            key={callout.id}
+            initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
+            transition={{ duration: reducedMotion ? 0 : 0.3 }}
+            className="exp-pool-callout mt-3"
+          >
+            <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-accent)]">
+              {callout.title}
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--exp-fg)]">{callout.body}</p>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start">
         <svg
