@@ -39,6 +39,12 @@ export function BookSection() {
     [0.1, 0.6],
     reduce ? [22, 22] : [30, 15],
   );
+  const copyY = useTransform(scrollYProgress, [0.05, 0.55], reduce ? [0, 0] : [28, -18]);
+  const copyOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.12, 0.55, 0.85],
+    reduce ? [1, 1, 1, 1] : [0.35, 1, 1, 0.85],
+  );
 
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -84,7 +90,10 @@ export function BookSection() {
         ) : null}
         <div className="shell relative z-[2]">
           <div className="grid items-center gap-10 md:grid-cols-12 md:gap-8 lg:gap-10">
-            <div className="md:col-span-7 lg:col-span-6">
+            <motion.div
+              style={{ y: copyY, opacity: copyOpacity }}
+              className="md:col-span-7 lg:col-span-6"
+            >
               <Reveal y={12}>
                 <p className="kicker text-amber">Book</p>
               </Reveal>
@@ -176,7 +185,7 @@ export function BookSection() {
                   </Link>
                 </p>
               </Reveal>
-            </div>
+            </motion.div>
 
             <Link
               href={book.readPath}

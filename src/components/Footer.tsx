@@ -30,12 +30,12 @@ export function Footer() {
 
   return (
     <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
-      <div className="grain relative overflow-hidden rounded-[1.5rem] bg-ember pt-7 md:rounded-[2rem] md:pt-9">
+      <div className="grain relative overflow-hidden rounded-[1.5rem] bg-[#1a2330] pt-7 md:rounded-[2rem] md:pt-9">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[50%]"
         >
-          <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.45),rgba(151,64,49,0.12)_50%,transparent)] blur-3xl" />
+          <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.28),rgba(173,79,54,0.18)_42%,transparent)] blur-3xl" />
         </div>
 
         <div className="shell relative z-[2]">
@@ -135,7 +135,7 @@ function RisingLetter({ letter, index, progress }: { letter: string; index: numb
     <span className="inline-block overflow-hidden pb-[0.06em]">
       <motion.span
         style={{ y }}
-        className="inline-block bg-gradient-to-b from-cream via-[#f3d9c6] to-[#d39a7c] bg-clip-text text-transparent"
+        className="inline-block bg-gradient-to-b from-cream via-[#d8e4e8] to-[#8eb0b8] bg-clip-text text-transparent"
       >
         {letter}
       </motion.span>

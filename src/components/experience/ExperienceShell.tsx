@@ -13,7 +13,7 @@ export function ExperienceShell({
   return (
     <div className="exp-root relative min-h-[100dvh]">
       <div aria-hidden="true" className="exp-atmosphere" />
-      <header className="relative z-[2] border-b border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fffef9_72%,transparent)] backdrop-blur-md">
+      <header className="relative z-[2] border-b border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fbfcfe_78%,transparent)] backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
           <Link
             href="/"

@@ -35,7 +35,7 @@ export function PlayHub() {
 
   return (
     <div ref={ref} className="shell">
-      <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_90px_-56px_rgba(40,30,20,0.28)] md:rounded-[3.25rem]">
+      <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_90px_-56px_rgba(26,35,48,0.22)] md:rounded-[3.25rem]">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <motion.div
             style={{ y: glowY }}
@@ -70,9 +70,7 @@ export function PlayHub() {
               Play · Interactive hub
             </p>
             <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.5rem,5.8vw,4.25rem)] leading-[1.01] tracking-[-0.04em] text-ink">
-              Pick a drill. Experience the{" "}
-              <em className="not-italic text-cinnabar md:italic">impact</em> of
-              the failure mode.
+              Pick a drill. Run the failure, then name what you saw.
             </h1>
             <p className="mt-5 max-w-xl text-[1.08rem] leading-relaxed text-muted">
               Reliability drills from{" "}
@@ -136,7 +134,7 @@ function HubFeatured({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-gradient-to-br from-cream via-white to-[color-mix(in_srgb,#3d7a8c_8%,white)] shadow-[0_24px_60px_-40px_rgba(40,30,20,0.35)] transition-[border-color,box-shadow] duration-500 hover:border-cinnabar/40 hover:shadow-[0_32px_72px_-36px_rgba(40,30,20,0.4)] md:grid-cols-12 md:rounded-[2rem]"
+        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-gradient-to-br from-white via-[#f7fafb] to-[color-mix(in_srgb,#3d7a8c_8%,white)] shadow-[0_24px_60px_-40px_rgba(26,35,48,0.28)] transition-[border-color,box-shadow] duration-500 hover:border-cinnabar/40 hover:shadow-[0_32px_72px_-36px_rgba(26,35,48,0.34)] md:grid-cols-12 md:rounded-[2rem]"
       >
         <span aria-hidden="true" className="spotlight absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         <div className="relative z-[1] flex min-h-[12rem] items-center justify-center border-b border-ink/8 bg-[color-mix(in_srgb,#3d7a8c_7%,#fff)] p-6 md:col-span-5 md:min-h-[17rem] md:border-b-0 md:border-r md:p-9">
@@ -209,7 +207,7 @@ function HubBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full overflow-hidden border bg-cream/60 shadow-[0_18px_44px_-34px_rgba(40,30,20,0.3)] transition-[border-color,background-color,box-shadow] duration-450 hover:bg-white hover:shadow-[0_26px_56px_-30px_rgba(40,30,20,0.35)] ${
+        className={`group relative flex h-full overflow-hidden border bg-[#f7fafb]/80 shadow-[0_18px_44px_-34px_rgba(26,35,48,0.24)] transition-[border-color,background-color,box-shadow] duration-500 hover:bg-white hover:shadow-[0_26px_56px_-30px_rgba(26,35,48,0.3)] ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"
@@ -251,14 +249,10 @@ function HubBand({
             {game.feel}
           </p>
           <p className="text-[0.84rem] leading-relaxed text-ink/70">
-            <span className="text-[color-mix(in_srgb,#3d7a8c_90%,#2b221d)]">
+            <span className="text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
               Notice —{" "}
             </span>
             {game.notice}
-          </p>
-          <p className="text-[0.8rem] leading-relaxed text-muted">
-            <span className="font-medium text-ink">Success — </span>
-            {game.success}
           </p>
         </div>
       </Link>

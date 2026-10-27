@@ -62,7 +62,7 @@ export function PlaySection() {
     >
       <motion.div
         style={{ y: panelY, scale: panelScale }}
-        className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_100px_-56px_rgba(40,30,20,0.3)] md:rounded-[3.25rem]"
+        className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_100px_-56px_rgba(26,35,48,0.22)] md:rounded-[3.25rem]"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <AmbientField tone="slate" density={20} className="opacity-50 mix-blend-screen" />
@@ -74,7 +74,7 @@ export function PlaySection() {
             style={{ y: glow2Y }}
             className="absolute bottom-[-38%] right-[-18%] h-[72%] w-[58%] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.14),transparent)] blur-3xl"
           />
-          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-cream/90 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#f4f7fa]/90 to-transparent" />
           <motion.div
             style={{ x: sheenX }}
             className="absolute inset-x-[6%] top-[11%] h-px bg-gradient-to-r from-transparent via-signal/45 to-transparent"
@@ -129,9 +129,7 @@ export function PlaySection() {
                 id="play-heading"
                 className="mt-5 font-serif text-[clamp(2.15rem,4.6vw,3.75rem)] leading-[1.02] tracking-[-0.035em] text-ink"
               >
-                Experience the{" "}
-                <em className="not-italic text-cinnabar md:italic">impact</em> of
-                the failure mode.
+                Run the failure, then name what you saw.
               </h2>
               <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-muted">
                 Reliability drills from the book — surges, cascades, stampedes.
@@ -140,7 +138,7 @@ export function PlaySection() {
             </div>
             <Link
               href="/play"
-              className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full border border-cinnabar/35 bg-gradient-to-r from-cinnabar/10 via-[color-mix(in_srgb,#3d7a8c_8%,transparent)] to-transparent px-6 text-[0.92rem] text-ink transition-[border-color,box-shadow,background-color] duration-400 hover:border-cinnabar/60 hover:shadow-[0_0_36px_-12px_rgba(173,79,54,0.45)]"
+              className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full border border-cinnabar/35 bg-gradient-to-r from-cinnabar/10 via-[color-mix(in_srgb,#3d7a8c_8%,transparent)] to-transparent px-6 text-[0.92rem] text-ink transition-[border-color,box-shadow,background-color] duration-500 hover:border-cinnabar/60 hover:shadow-[0_0_36px_-12px_rgba(173,79,54,0.45)]"
             >
               <span
                 aria-hidden="true"
@@ -225,7 +223,7 @@ function FeaturedDrill({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-gradient-to-br from-cream via-white to-[color-mix(in_srgb,#3d7a8c_8%,white)] shadow-[0_24px_60px_-40px_rgba(40,30,20,0.32)] transition-[border-color,box-shadow] duration-500 hover:border-cinnabar/40 hover:shadow-[0_32px_72px_-36px_rgba(40,30,20,0.38)] md:grid-cols-12 md:rounded-[2rem]"
+        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-gradient-to-br from-white via-[#f7fafb] to-[color-mix(in_srgb,#3d7a8c_8%,white)] shadow-[0_24px_60px_-40px_rgba(26,35,48,0.26)] transition-[border-color,box-shadow] duration-500 hover:border-cinnabar/40 hover:shadow-[0_32px_72px_-36px_rgba(26,35,48,0.32)] md:grid-cols-12 md:rounded-[2rem]"
       >
         <span aria-hidden="true" className="spotlight absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         <span
@@ -316,7 +314,7 @@ function DrillBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full overflow-hidden border bg-cream/55 shadow-[0_18px_44px_-34px_rgba(40,30,20,0.28)] transition-[border-color,background-color,box-shadow] duration-450 hover:bg-white hover:shadow-[0_26px_56px_-30px_rgba(40,30,20,0.34)] ${
+        className={`group relative flex h-full overflow-hidden border bg-[#f7fafb]/80 shadow-[0_18px_44px_-34px_rgba(26,35,48,0.22)] transition-[border-color,background-color,box-shadow] duration-500 hover:bg-white hover:shadow-[0_26px_56px_-30px_rgba(26,35,48,0.28)] ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"

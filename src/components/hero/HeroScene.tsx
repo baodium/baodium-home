@@ -61,6 +61,13 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
   const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 70]);
+  const typeExitY = useTransform(scrollYProgress, [0, 0.55], reduce ? [0, 0] : [0, -36]);
+  const typeExitOpacity = useTransform(scrollYProgress, [0, 0.45], reduce ? [1, 1] : [1, 0]);
+  const typeExitFilter = useTransform(
+    scrollYProgress,
+    [0, 0.4],
+    reduce ? ["blur(0px)", "blur(0px)"] : ["blur(0px)", "blur(6px)"],
+  );
 
   // Depth: portrait (back) and type (front) drift against each other with the pointer.
   const px = useMotionValue(0);
@@ -70,7 +77,8 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const photoX = useTransform(spx, (v) => v * -14);
   const photoPY = useTransform(spy, (v) => v * -8);
   const typeX = useTransform(spx, (v) => v * 8);
-  const typeY = useTransform(spy, (v) => v * 5);
+  const typePointerY = useTransform(spy, (v) => v * 5);
+  const typeY = useTransform(() => typePointerY.get() + typeExitY.get());
 
   return (
     <section
@@ -144,7 +152,16 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       <div
         className="relative z-[3] -mt-28 px-5 pb-12 sm:px-8 md:-mt-32 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
       >
-        <motion.div style={{ x: typeX, y: typeY }} className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]">
+        <motion.div
+          data-hero-line
+          style={{
+            x: typeX,
+            y: typeY,
+            opacity: typeExitOpacity,
+            filter: typeExitFilter,
+          }}
+          className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]"
+        >
           <h1>
             <motion.span
               initial={reduce ? false : { opacity: 0, y: 22, filter: "blur(8px)" }}

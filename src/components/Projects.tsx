@@ -131,7 +131,7 @@ export function Projects() {
                         delay: reduce ? 0 : 0.08 + index * 0.08,
                         ease,
                       }}
-                      className={`relative flex min-h-[5.5rem] flex-col justify-between overflow-hidden rounded-2xl border p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] transition-[border-color,transform,box-shadow] duration-400 group-hover:-translate-y-0.5 ${
+                      className={`relative flex min-h-[5.5rem] flex-col justify-between overflow-hidden rounded-2xl border p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] transition-[border-color,transform,box-shadow] duration-500 group-hover:-translate-y-0.5 ${
                         project.tone === "cinnabar"
                           ? "border-cinnabar/20 bg-gradient-to-br from-white/80 via-white/55 to-[#f3e0d4]/70 group-hover:border-cinnabar/35 group-hover:shadow-[0_16px_28px_-18px_rgba(173,79,54,0.45)]"
                           : "border-tide/25 bg-gradient-to-br from-white/75 via-[#e8f3f3]/70 to-[#d5e8e8]/55 group-hover:border-tide/45 group-hover:shadow-[0_16px_28px_-18px_rgba(61,122,126,0.45)]"
@@ -203,7 +203,7 @@ export function Projects() {
               </motion.ul>
             </div>
 
-            <span className="relative z-[1] inline-flex min-h-12 shrink-0 items-center justify-center gap-2 self-start rounded-full border border-tide/25 bg-gradient-to-r from-tide/[0.1] to-amber/[0.08] px-5 text-[0.95rem] font-medium text-tide transition-[background-color,border-color,color,transform,box-shadow] duration-400 group-hover:border-tide/45 group-hover:text-ink group-hover:shadow-[0_12px_28px_-14px_rgba(61,122,126,0.5)] sm:self-end">
+            <span className="relative z-[1] inline-flex min-h-12 shrink-0 items-center justify-center gap-2 self-start rounded-full border border-tide/25 bg-gradient-to-r from-tide/[0.1] to-amber/[0.08] px-5 text-[0.95rem] font-medium text-tide transition-[background-color,border-color,color,transform,box-shadow] duration-500 group-hover:border-tide/45 group-hover:text-ink group-hover:shadow-[0_12px_28px_-14px_rgba(61,122,126,0.5)] sm:self-end">
               View projects
               <ArrowRight
                 aria-hidden="true"

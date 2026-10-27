@@ -101,7 +101,7 @@ export function SideProjectsView() {
                   {project.name}
                   <span
                     aria-hidden="true"
-                    className="h-px w-0 bg-cream/40 transition-[width] duration-400 group-hover:w-6"
+                    className="h-px w-0 bg-cream/40 transition-[width] duration-500 group-hover:w-6"
                   />
                 </a>
               </li>
@@ -135,6 +135,9 @@ function ProjectFeature({ project, index }: { project: Project; index: number })
   });
   const rule = useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [0.12, 1]);
   const glow = useTransform(scrollYProgress, [0, 1], reduce ? [0.35, 0.35] : [0.15, 0.55]);
+  const stageY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [28, 0]);
+  const stageOpacity = useTransform(scrollYProgress, [0, 0.55], reduce ? [1, 1] : [0.45, 1]);
+  const cardY = useTransform(scrollYProgress, [0.15, 1], reduce ? [0, 0] : [36, 0]);
 
   return (
     <article
@@ -143,27 +146,28 @@ function ProjectFeature({ project, index }: { project: Project; index: number })
       className="scroll-mt-28"
       aria-labelledby={`${project.slug}-heading`}
     >
-      <Reveal y={16}>
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4 md:mb-8">
-          <div className="min-w-0">
-            <div className="flex items-center gap-3">
-              <p className="kicker text-cinnabar">0{index + 1}</p>
-              <motion.span
-                aria-hidden="true"
-                style={{ scaleX: rule, opacity: glow }}
-                className="h-px origin-left flex-1 bg-gradient-to-r from-cinnabar/45 to-transparent"
-              />
+      <motion.div style={{ y: stageY, opacity: stageOpacity }}>
+        <Reveal y={16}>
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 md:mb-8">
+            <div className="min-w-0">
+              <div className="flex items-center gap-3">
+                <p className="kicker text-cinnabar">0{index + 1}</p>
+                <motion.span
+                  aria-hidden="true"
+                  style={{ scaleX: rule, opacity: glow }}
+                  className="h-px origin-left flex-1 bg-gradient-to-r from-cinnabar/45 to-transparent"
+                />
+              </div>
+              <h2
+                id={`${project.slug}-heading`}
+                className="mt-3 text-[clamp(2rem,4vw,3.1rem)] font-semibold leading-[0.95] tracking-[-0.04em] text-ink"
+              >
+                {project.name}
+              </h2>
+              <p className="mt-3 max-w-xl text-[1.05rem] leading-relaxed text-muted md:text-[1.12rem]">
+                {project.description}
+              </p>
             </div>
-            <h2
-              id={`${project.slug}-heading`}
-              className="mt-3 text-[clamp(2rem,4vw,3.1rem)] font-semibold leading-[0.95] tracking-[-0.04em] text-ink"
-            >
-              {project.name}
-            </h2>
-            <p className="mt-3 max-w-xl text-[1.05rem] leading-relaxed text-muted md:text-[1.12rem]">
-              {project.description}
-            </p>
-          </div>
           <a
             href={project.url}
             target="_blank"
@@ -177,15 +181,18 @@ function ProjectFeature({ project, index }: { project: Project; index: number })
             />
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
-        </div>
-      </Reveal>
+          </div>
+        </Reveal>
+      </motion.div>
 
-      <Reveal delay={0.08} y={22}>
-        <div className="relative">
-          <AmbientGlow tone={project.tone} />
-          <ProjectCard project={project} />
-        </div>
-      </Reveal>
+      <motion.div style={{ y: cardY }}>
+        <Reveal delay={0.08} y={22}>
+          <div className="relative">
+            <AmbientGlow tone={project.tone} />
+            <ProjectCard project={project} />
+          </div>
+        </Reveal>
+      </motion.div>
     </article>
   );
 }

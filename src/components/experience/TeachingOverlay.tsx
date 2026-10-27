@@ -20,9 +20,12 @@ const toneGlow: Record<PedagogyLesson["tone"], string> = {
 export function TeachingOverlay({
   lesson,
   reducedMotion,
+  compactTry = false,
 }: {
   lesson: PedagogyLesson;
   reducedMotion: boolean;
+  /** When guided step already has a CTA, skip competing Try line. */
+  compactTry?: boolean;
 }) {
   return (
     <AnimatePresence mode="wait">
@@ -58,7 +61,7 @@ export function TeachingOverlay({
               </dt>
               <dd className="mt-1 text-[color:var(--exp-muted)]">{lesson.why}</dd>
             </div>
-            {lesson.next ? (
+            {lesson.next && !compactTry ? (
               <div>
                 <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
                   Try
@@ -67,14 +70,17 @@ export function TeachingOverlay({
               </div>
             ) : null}
             {lesson.prod ? (
-              <div>
-                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
+              <details className="group/prod">
+                <summary className="cursor-pointer list-none font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)] marker:content-none [&::-webkit-details-marker]:hidden">
                   In production
-                </dt>
-                <dd className="mt-1 text-xs leading-relaxed text-[color:var(--exp-muted)]">
+                  <span className="ml-1.5 normal-case tracking-normal opacity-70 group-open/prod:hidden">
+                    · show
+                  </span>
+                </summary>
+                <p className="mt-1.5 text-xs leading-relaxed text-[color:var(--exp-muted)]">
                   {lesson.prod}
-                </dd>
-              </div>
+                </p>
+              </details>
             ) : null}
           </dl>
         </div>

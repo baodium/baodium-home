@@ -18,7 +18,6 @@ import {
   Search,
   Share2,
   Type,
-  BookMarked,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { book } from "@/data/writing";
@@ -257,14 +256,6 @@ export function BookToolbar({
             </p>
 
             <div className="ml-auto flex shrink-0 items-center gap-0.5">
-              <span
-                className="hidden h-9 items-center gap-1 rounded-full px-2 text-[var(--reader-muted)] sm:inline-flex"
-                title="Swipe the page or press ← → to flip chapters"
-                aria-label="Swipe or arrow keys flip chapters"
-              >
-                <BookMarked className="h-3.5 w-3.5" aria-hidden="true" />
-                <span className="font-mono text-[0.62rem] tracking-[0.08em]">← →</span>
-              </span>
               <button
                 type="button"
                 onClick={onOpenSearch}
@@ -316,7 +307,27 @@ export function BookToolbar({
             </div>
           </motion.header>
         ) : (
-          <div className="h-2" aria-hidden="true" />
+          <motion.div
+            key="reader-home-dot"
+            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            transition={{ duration: reduceMotion ? 0.01 : 0.22, ease }}
+            className="mx-auto flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] items-center"
+          >
+            <Link
+              href="/"
+              className="group inline-flex h-9 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_82%,transparent)] px-2.5 text-[var(--reader-fg)] shadow-[0_8px_20px_-14px_rgba(18,17,16,0.4)] backdrop-blur-md"
+              aria-label="Baodium home"
+            >
+              <span aria-hidden="true" className="relative h-2 w-2 shrink-0">
+                <span className="absolute inset-0 rounded-[2px] bg-gradient-to-br from-amber to-crimson" />
+              </span>
+              <span className="whitespace-nowrap font-mono text-[0.62rem] font-medium tracking-[0.18em]">
+                BAODIUM
+              </span>
+            </Link>
+          </motion.div>
         )}
       </AnimatePresence>
       {exploreMenu}
