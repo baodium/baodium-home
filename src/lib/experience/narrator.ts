@@ -93,7 +93,7 @@ export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
       "Good: code is live at 0% — raise exposure only when you are ready to watch the pool.";
   } else {
     goodLooksLike =
-      "Good: demand (λ×W) stays under 40, busy has headroom, and p99 stays near the baseline hold.";
+      "Good: estimated demand (arrivals × hold time) stays under 40, busy has headroom, and the slowest 1% of requests stay near the baseline hold.";
   }
 
   return {

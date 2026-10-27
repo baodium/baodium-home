@@ -42,7 +42,7 @@ export function PlayHub() {
             className="absolute -left-[16%] top-[-26%] h-[68%] w-[68%] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.16),transparent)] blur-3xl"
           />
           <div className="absolute bottom-[-30%] right-[-12%] h-[58%] w-[52%] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.14),transparent)] blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-cream/80 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#f4f7fa]/90 to-transparent" />
           {!reduce ? (
             <>
               <div className="play-orbit absolute right-[12%] top-[10%] h-28 w-28 rounded-full border border-[color-mix(in_srgb,#3d7a8c_22%,transparent)]" />
@@ -62,10 +62,10 @@ export function PlayHub() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease }}
           >
-            <p className="kicker inline-flex items-center gap-2.5 text-cinnabar">
+            <p className="kicker inline-flex items-center gap-2.5 text-[color:var(--tide)]">
               <span aria-hidden="true" className="play-cue relative inline-flex h-2 w-2">
-                <span className="absolute inset-0 rounded-full bg-cinnabar" />
-                <span className="play-cue-ring absolute inset-0 rounded-full bg-cinnabar" />
+                <span className="absolute inset-0 rounded-full bg-[color:var(--tide)]" />
+                <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--tide)]" />
               </span>
               Play · Interactive hub
             </p>
