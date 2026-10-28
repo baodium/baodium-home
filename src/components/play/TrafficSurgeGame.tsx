@@ -247,7 +247,7 @@ export function TrafficSurgeGame() {
             />
             <PlayMeter
               label="p95 latency"
-              tip="95th-percentile response time. Cross the budget and the drill fails even if the median still looks fine."
+              tip="95th-percentile response time. Cross the budget and the drill fails even if the median is still inside target."
               value={snap.p95}
               max={P95_LIMIT_MS}
               format={(n) => `${n.toFixed(0)} ms`}

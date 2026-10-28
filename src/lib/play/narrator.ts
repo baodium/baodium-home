@@ -270,7 +270,7 @@ export function narrateTailLatency(input: {
 
   if (phase === "intro") {
     return frame(
-      ["p50 looks fine", "stragglers arrive ~10s", "hedge carefully"],
+      ["Median is calm", "stragglers arrive ~10s", "hedge carefully"],
       "calm",
       `Good: p99 ≤ ${budget} ms without work-cost runaway from hedge copies.`,
     );
