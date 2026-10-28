@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import type { PedagogyLesson } from "@/lib/experience/pedagogy";
+import type { NarratorFrame } from "@/lib/experience/narrator";
 
 const toneBorder: Record<PedagogyLesson["tone"], string> = {
   calm: "border-[color:var(--exp-line-strong)]",
@@ -17,20 +18,29 @@ const toneGlow: Record<PedagogyLesson["tone"], string> = {
   recover: "from-[color-mix(in_srgb,#3d6b4f_12%,transparent)]",
 };
 
+/**
+ * Single teaching card: live Now chain (when provided) + So what / Try.
+ * Seeing is omitted when LiveNarrator owns the live voice — no triple-speak.
+ */
 export function TeachingOverlay({
   lesson,
+  live,
   reducedMotion,
   compactTry = false,
 }: {
   lesson: PedagogyLesson;
+  live?: NarratorFrame | null;
   reducedMotion: boolean;
   /** When guided step already has a CTA, skip competing Try line. */
   compactTry?: boolean;
 }) {
+  const showSeeing = !live;
+  const cardKey = live ? `${lesson.id}|${live.chain}` : lesson.id;
+
   return (
     <AnimatePresence mode="wait">
       <motion.aside
-        key={lesson.id}
+        key={cardKey}
         role="status"
         aria-live="polite"
         className={`exp-teach relative overflow-hidden border ${toneBorder[lesson.tone]}`}
@@ -44,20 +54,61 @@ export function TeachingOverlay({
           className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${toneGlow[lesson.tone]} to-transparent`}
         />
         <div className="relative">
-          <p className="exp-kicker">{lesson.eyebrow}</p>
-          <h2 className="mt-2 font-serif text-[1.15rem] leading-snug tracking-[-0.02em] text-[color:var(--exp-fg)] sm:text-xl">
+          {live ? (
+            <div
+              className="mb-4 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_62%,transparent)] px-3 py-2.5"
+              data-tone={live.tone === "warn" ? "warn" : undefined}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="inline-block size-1.5 rounded-full bg-[color:var(--exp-amber)]"
+                  style={
+                    reducedMotion
+                      ? undefined
+                      : { animation: "exp-ops-pulse 2.2s ease-in-out infinite" }
+                  }
+                />
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--exp-amber)]">
+                  Now
+                </p>
+              </div>
+              <p className="mt-1.5 text-[0.95rem] leading-snug text-[color:var(--exp-fg)] tabular-nums">
+                {live.segments.map((seg, i) => (
+                  <span key={`${i}-${seg}`}>
+                    {i > 0 ? (
+                      <span className="text-[color:var(--exp-faint)]" aria-hidden="true">
+                        {" "}
+                        →{" "}
+                      </span>
+                    ) : null}
+                    {seg}
+                  </span>
+                ))}
+              </p>
+              <p className="mt-1.5 text-xs leading-relaxed text-[color:var(--exp-muted)]">
+                {live.goodLooksLike}
+              </p>
+            </div>
+          ) : (
+            <p className="exp-kicker">{lesson.eyebrow}</p>
+          )}
+
+          <h2 className="font-serif text-[1.15rem] leading-snug tracking-[-0.02em] text-[color:var(--exp-fg)] sm:text-xl">
             {lesson.title}
           </h2>
           <dl className="mt-4 space-y-3 text-sm leading-relaxed">
+            {showSeeing ? (
+              <div>
+                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
+                  Seeing
+                </dt>
+                <dd className="mt-1 text-[color:var(--exp-fg)]">{lesson.seeing}</dd>
+              </div>
+            ) : null}
             <div>
               <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                Seeing
-              </dt>
-              <dd className="mt-1 text-[color:var(--exp-fg)]">{lesson.seeing}</dd>
-            </div>
-            <div>
-              <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                Why
+                So what
               </dt>
               <dd className="mt-1 text-[color:var(--exp-muted)]">{lesson.why}</dd>
             </div>

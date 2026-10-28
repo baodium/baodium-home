@@ -1099,6 +1099,21 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
     transform-origin: left center;
   }
 
+  /* Gesture commits: Motion already turned the page — VT must not snap a second time. */
+  ::view-transition-old(.nav-gesture-forward),
+  ::view-transition-old(.nav-gesture-back),
+  ::view-transition-new(.nav-gesture-forward),
+  ::view-transition-new(.nav-gesture-back) {
+    animation: none;
+    mix-blend-mode: normal;
+    height: 100%;
+    overflow: clip;
+  }
+  ::view-transition-group(.nav-gesture-forward),
+  ::view-transition-group(.nav-gesture-back) {
+    animation: none;
+  }
+
   @keyframes book-vt-fade {
     from {
       filter: blur(4px);

@@ -39,9 +39,9 @@ import { ProductPreview } from "@/components/experience/ProductPreview";
 import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
 import { SimControls } from "@/components/experience/SimControls";
-import { LiveNarrator } from "@/components/experience/LiveNarrator";
 import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
 import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
+import { narrateChapter1 } from "@/lib/experience/narrator";
 
 const STEP_ORDER = chapter1Scenario.steps.map((s) => s.id);
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -368,6 +368,7 @@ export function Chapter1Experience() {
           : 3;
 
   const debriefText = decision ? fillDebrief(decision, snap) : null;
+  const liveFrame = useMemo(() => narrateChapter1(snap), [snap]);
   const lesson = useMemo(
     () => selectPedagogyLesson(snap, stepId, mode),
     [snap, stepId, mode],
@@ -534,9 +535,9 @@ export function Chapter1Experience() {
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)]">
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <LiveNarrator snap={snap} />
           <TeachingOverlay
             lesson={lesson}
+            live={liveFrame}
             reducedMotion={reduced}
             compactTry={mode === "guided"}
           />
@@ -659,7 +660,12 @@ export function Chapter1Experience() {
 
                 {stepId === "debrief" && debriefText ? (
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                    <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
+                    <div className="rounded-xl border border-[color-mix(in_srgb,var(--exp-amber)_40%,transparent)] bg-[color-mix(in_srgb,#fff_58%,transparent)] px-3 py-3">
+                      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-amber)]">
+                        So what
+                      </p>
+                      <p className="mt-1.5 text-[color:var(--exp-fg)]">{debriefText}</p>
+                    </div>
                     <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_50%,transparent)] px-3 py-2.5">
                       <p className="exp-kicker !tracking-[0.16em]">Can you explain</p>
                       <ul className="mt-2 list-disc space-y-1.5 pl-5 text-[color:var(--exp-fg)]">
