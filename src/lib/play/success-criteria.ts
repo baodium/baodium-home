@@ -63,7 +63,7 @@ export const SURGE_CRITERIA: CriterionDef[] = [
   {
     id: "underBudget",
     label: "Time under p95 budget",
-    rule: `Spend ≥ 55% of ${SURGE_DURATION_S}s with p95 ≤ ${P95_LIMIT_MS}ms, and peak p95 < ${(P95_LIMIT_MS * 1.55).toFixed(0)}ms.`,
+    rule: `Spend ≥ 55% of ${SURGE_DURATION_S}s with p95 ≤ ${P95_LIMIT_MS}ms, and peak p95 < ${(P95_LIMIT_MS * 2.1).toFixed(0)}ms.`,
   },
   {
     id: "success",

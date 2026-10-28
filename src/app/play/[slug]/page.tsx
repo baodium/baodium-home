@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Footer } from "@/components/Footer";
 import { LearningShell } from "@/components/learning/LearningShell";
 import { CacheRouletteGame } from "@/components/play/CacheRouletteGame";
 import { CascadeGame } from "@/components/play/CascadeGame";
@@ -54,16 +55,19 @@ export default async function PlayGamePage({ params }: Props) {
   if (!game) notFound();
 
   return (
-    <LearningShell
-      surface="drill"
-      title={game.title}
-      chapterProseHref={game.chapterHref}
-    >
-      <div className="shell">
-        <div className="drill-stage overflow-hidden rounded-[2rem] p-5 md:rounded-[3rem] md:p-10">
-          <GameBySlug slug={slug} />
+    <>
+      <LearningShell
+        surface="drill"
+        title={game.title}
+        chapterProseHref={game.chapterHref}
+      >
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 md:py-12">
+          <div className="drill-stage overflow-hidden rounded-[2rem] p-5 md:rounded-[3rem] md:p-10">
+            <GameBySlug slug={slug} />
+          </div>
         </div>
-      </div>
-    </LearningShell>
+      </LearningShell>
+      <Footer />
+    </>
   );
 }

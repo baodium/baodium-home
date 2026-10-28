@@ -110,8 +110,10 @@ function arrivalCurve(t: number): number {
 }
 
 /**
- * Approximate p95 from utilization via M/M/1 waiting-time intuition:
- * service ≈ 1000/μ ms; Wq ≈ ρ / (μ(1-ρ)) when ρ<1, else grows steeply.
+ * Teaching latency model: queue depth and overflow dominate the tail.
+ * At/under capacity with a short queue, p95 stays near budget; a built-up
+ * cliff queue pushes it over. Avoids M/M/1 blow-ups at ρ→1 that made the
+ * drill unwinnable even with correct shedding.
  */
 function latencyFromQueues(
   totalQueue: number,
@@ -119,18 +121,14 @@ function latencyFromQueues(
   dt: number,
   overflow: number,
 ): number {
-  const mu = CAPACITY; // completions / s at full speed
-  const rho = Math.min(0.98, Math.max(0.01, (drained / dt) / mu));
-  const serviceMs = 1000 / mu; // ~11ms at μ=90
-  const wqSec = rho / (mu * (1 - rho));
-  const queuePenalty = (totalQueue / Math.max(1, CAPACITY)) * 90;
-  const overflowPenalty = overflow * 10;
-  const p95 =
-    serviceMs * 8 + // base variability
-    wqSec * 1000 * 2.2 +
-    queuePenalty +
-    overflowPenalty;
-  return Math.max(25, p95);
+  const mu = CAPACITY;
+  const offered = Math.max(0, drained / Math.max(dt, 1e-6));
+  const rho = Math.min(1.25, offered / mu);
+  const serviceMs = 55;
+  const queueMs = (totalQueue / Math.max(1, mu)) * 210;
+  const satMs = rho <= 0.9 ? rho * 40 : 36 + (rho - 0.9) * 320;
+  const overflowPenalty = overflow * 9;
+  return Math.max(28, serviceMs + queueMs + satMs + overflowPenalty);
 }
 
 export function tickSurge(
@@ -274,7 +272,7 @@ export function tickSurge(
     const servedFrac =
       next.served / Math.max(1, next.served + next.shed + next.failed);
     const budgetFrac = next.underBudgetSec / SURGE_DURATION_S;
-    const latencyOk = budgetFrac >= 0.55 && next.peakP95 < P95_LIMIT_MS * 1.55;
+    const latencyOk = budgetFrac >= 0.55 && next.peakP95 < P95_LIMIT_MS * 2.1;
     const vipOk = !controls.vipFirst || vipSuccessRate >= 0.72;
     const won =
       servedFrac >= MIN_SERVED_RATE && latencyOk && successRate > 0.48 && vipOk;
