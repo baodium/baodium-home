@@ -217,23 +217,25 @@ export function CascadeGame() {
         </p>
       </div>
 
-      <DrillNarrator
-        frame={narrateCascade({
-          phase,
-          edgeHealth: snap.health.edge,
-          authHealth: snap.health.auth,
-          dbHealth: snap.health.db,
-          payHealth: snap.health.pay,
-          circuitsOpen: Number(snap.circuitOpen.auth) + Number(snap.circuitOpen.pay) + Number(snap.circuitOpen.db),
-          bulkheadAuth: controls.bulkheadAuth,
-          bulkheadPay: controls.bulkheadPay,
-          cascadeRisk: snap.cascadeRisk,
-        })}
-      />
-      <DrillTeach lesson={lesson} />
+      <DrillTeach lesson={lesson} compact={phase !== "intro"} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <div className="mb-5 [&_.drill-narrator]:mt-0">
+            <DrillNarrator
+              frame={narrateCascade({
+                phase,
+                edgeHealth: snap.health.edge,
+                authHealth: snap.health.auth,
+                dbHealth: snap.health.db,
+                payHealth: snap.health.pay,
+                circuitsOpen: Number(snap.circuitOpen.auth) + Number(snap.circuitOpen.pay) + Number(snap.circuitOpen.db),
+                bulkheadAuth: controls.bulkheadAuth,
+                bulkheadPay: controls.bulkheadPay,
+                cascadeRisk: snap.cascadeRisk,
+              })}
+            />
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"

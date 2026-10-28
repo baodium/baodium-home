@@ -303,11 +303,17 @@ export function SloWatchGame({
         </div>
       )}
 
-      {!embedded ? <DrillNarrator frame={narrator} /> : null}
-      {!embedded ? <DrillTeach lesson={lesson} /> : null}
+      {!embedded ? (
+        <DrillTeach lesson={lesson} compact={phase !== "intro"} />
+      ) : null}
 
       <div className={`grid gap-6 lg:grid-cols-12 ${embedded ? "mt-6" : "mt-8"}`}>
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          {!embedded ? (
+            <div className="mb-5 [&_.drill-narrator]:mt-0">
+              <DrillNarrator frame={narrator} />
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"

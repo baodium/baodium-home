@@ -215,23 +215,25 @@ export function TailLatencyGame() {
         </p>
       </div>
 
-      <DrillNarrator
-        frame={narrateTailLatency({
-          phase,
-          p50: snap.p50,
-          p99: snap.p99,
-          budget: P99_BUDGET_MS,
-          hedge: controls.hedge,
-          hedgeAfterMs: controls.hedgeAfterMs,
-          workers: controls.concurrency,
-          queueDepth: snap.queueDepth,
-          cost: snap.cost,
-        })}
-      />
-      <DrillTeach lesson={lesson} />
+      <DrillTeach lesson={lesson} compact={phase !== "intro"} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <div className="mb-5 [&_.drill-narrator]:mt-0">
+            <DrillNarrator
+              frame={narrateTailLatency({
+                phase,
+                p50: snap.p50,
+                p99: snap.p99,
+                budget: P99_BUDGET_MS,
+                hedge: controls.hedge,
+                hedgeAfterMs: controls.hedgeAfterMs,
+                workers: controls.concurrency,
+                queueDepth: snap.queueDepth,
+                cost: snap.cost,
+              })}
+            />
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"

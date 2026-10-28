@@ -198,24 +198,26 @@ export function TrafficSurgeGame() {
         </p>
       </div>
 
-      <DrillNarrator
-        frame={narrateTrafficSurge({
-          phase,
-          t: snap.t,
-          admit: controls.admit,
-          queue: snap.queue,
-          vipQueue: snap.vipQueue,
-          p95: snap.p95,
-          p95Limit: P95_LIMIT_MS,
-          successRate: snap.successRate,
-          shed: snap.shed,
-          vipFirst: controls.vipFirst,
-        })}
-      />
-      <DrillTeach lesson={lesson} />
+      <DrillTeach lesson={lesson} compact={phase !== "intro"} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <div className="mb-5 [&_.drill-narrator]:mt-0">
+            <DrillNarrator
+              frame={narrateTrafficSurge({
+                phase,
+                t: snap.t,
+                admit: controls.admit,
+                queue: snap.queue,
+                vipQueue: snap.vipQueue,
+                p95: snap.p95,
+                p95Limit: P95_LIMIT_MS,
+                successRate: snap.successRate,
+                shed: snap.shed,
+                vipFirst: controls.vipFirst,
+              })}
+            />
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
               {phase === "intro"
