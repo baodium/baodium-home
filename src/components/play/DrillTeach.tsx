@@ -4,8 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 /**
- * EC-Council-style training brief for Play drills:
- * what we simulate → why it matters → technologies → simulation → interpret results.
+ * Scenario context for a Play drill (structure is internal; labels stay human).
  */
 export type DrillLesson = {
   simulate: string;
@@ -17,6 +16,13 @@ export type DrillLesson = {
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+const cellsFrom = (lesson: DrillLesson) => [
+  { kicker: "In production", body: lesson.why },
+  { kicker: "Stack", body: lesson.technologies.join(" · "), muted: true },
+  { kicker: "Your shift", body: lesson.simulation, accent: true },
+  { kicker: "Success looks like", body: lesson.interpret, muted: true },
+];
+
 export function DrillTeach({
   lesson,
   compact = false,
@@ -27,12 +33,7 @@ export function DrillTeach({
 }) {
   const reduced = usePrefersReducedMotion();
   const key = `${compact ? "c" : "f"}|${lesson.simulate.slice(0, 24)}|${lesson.simulation.slice(0, 24)}|${lesson.interpret.slice(0, 24)}`;
-  const cells = [
-    { kicker: "Why it matters", body: lesson.why },
-    { kicker: "Technologies", body: lesson.technologies.join(" · "), muted: true },
-    { kicker: "Simulation", body: lesson.simulation, accent: true },
-    { kicker: "Interpret results", body: lesson.interpret, muted: true },
-  ];
+  const cells = cellsFrom(lesson);
 
   if (compact) {
     return (
@@ -40,7 +41,7 @@ export function DrillTeach({
         <motion.aside
           key={key}
           role="note"
-          aria-label="Training brief"
+          aria-label="Scenario"
           initial={reduced ? false : { opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={reduced ? undefined : { opacity: 0, y: -4 }}
@@ -52,28 +53,27 @@ export function DrillTeach({
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
-                    Training brief
+                    Scenario
                   </p>
                   <p className="mt-1.5 text-[0.92rem] leading-relaxed text-[color:var(--drill-fg)]">
                     {lesson.simulate}
                   </p>
                 </div>
                 <span className="shrink-0 font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)] group-open:hidden">
-                  Open
+                  More
                 </span>
                 <span className="hidden shrink-0 font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)] group-open:inline">
-                  Close
+                  Less
                 </span>
               </div>
             </summary>
             <dl className="grid gap-0 border-t border-[color:var(--drill-line)] sm:grid-cols-2">
-              {cells.map((cell, index) => (
+              {cells.map((cell) => (
                 <div
                   key={cell.kicker}
                   className="border-t border-[color:var(--drill-line)] px-4 py-3.5 sm:border-l sm:border-t-0 sm:px-5 sm:odd:border-l-0 sm:[&:nth-child(-n+2)]:border-t-0"
                 >
                   <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
-                    <span className="mr-1.5 text-[color:var(--drill-signal)]">0{index + 2}</span>
                     {cell.kicker}
                   </dt>
                   <dd
@@ -101,7 +101,7 @@ export function DrillTeach({
       <motion.aside
         key={key}
         role="note"
-        aria-label="Training brief"
+        aria-label="Scenario"
         aria-live="polite"
         initial={reduced ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -110,14 +110,9 @@ export function DrillTeach({
         className="mt-7 overflow-hidden rounded-2xl border border-[color:var(--drill-line)] bg-[color:var(--drill-panel)] shadow-[0_20px_48px_-32px_rgba(26,35,48,0.28)]"
       >
         <div className="border-b border-[color:var(--drill-line)] bg-[color-mix(in_srgb,var(--drill-signal)_6%,transparent)] px-4 py-3.5 sm:px-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
-              Training brief · 01 What we simulate
-            </p>
-            <p className="font-mono text-[0.55rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)]">
-              Then run · then debrief
-            </p>
-          </div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
+            Scenario
+          </p>
           <p className="mt-1.5 text-[0.95rem] leading-relaxed text-[color:var(--drill-fg)]">
             {lesson.simulate}
           </p>
@@ -136,7 +131,6 @@ export function DrillTeach({
               className="border-t border-[color:var(--drill-line)] px-4 py-3.5 sm:border-l sm:border-t-0 sm:px-5 sm:odd:border-l-0"
             >
               <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
-                <span className="mr-1.5 text-[color:var(--drill-signal)]">0{index + 2}</span>
                 {cell.kicker}
               </dt>
               <dd

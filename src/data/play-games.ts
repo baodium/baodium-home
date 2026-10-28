@@ -17,7 +17,7 @@ export type PlayGame = {
   changed: string;
   /** Why that change matters on a real service. */
   matters: string;
-  /** Stack / concepts named in the training brief. */
+  /** Stack / concepts shown beside the scenario. */
   technologies: string[];
   difficulty: PlayDifficulty;
   minutes: string;

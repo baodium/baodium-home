@@ -84,12 +84,12 @@ export const chapter1Scenario: ChapterScenario = {
     {
       id: "decide",
       title: "Decide",
-      body: "Pause freezes exposure at the current % (traffic continues; cohort cannot grow). Disable routes new traffic to the baseline path while in-flight holds finish. Investigate leaves pressure running. Your choice mutates this same system. Then we debrief. In sandbox you can also try acquire timeout, shed-at-util, and cache.",
+      body: "Pause freezes exposure at the current % (traffic continues; cohort cannot grow). Disable routes new traffic to the baseline path while in-flight holds finish. Investigate leaves pressure running. Your choice mutates this same system. Then we review what happened. In sandbox you can also try acquire timeout, shed-at-util, and cache.",
       require: "decision",
     },
     {
       id: "debrief",
-      title: "Debrief",
+      title: "What just happened",
       body: "Name the shared resource (40-slot pool), explain why waiting appeared, and state what disable did to new vs in-flight requests. Then enter sandbox and pressure mitigations yourself.",
       require: "none",
     },

@@ -13,13 +13,6 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const pathSteps = [
-  { n: "01", label: "Brief" },
-  { n: "02", label: "Simulate" },
-  { n: "03", label: "Operate" },
-  { n: "04", label: "Debrief" },
-] as const;
-
 export function PlayHub() {
   const reduce = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -55,36 +48,14 @@ export function PlayHub() {
               Play · Interactive hub
             </p>
             <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
-              Reliability drills with a training brief and debrief.
+              Reliability drills from the book.
             </h1>
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
               Each drill is a short ops shift from{" "}
-              <em className="text-ink">Practical System Design</em>. You get a
-              training brief, tune real levers, watch the meters move, then read
-              the results against a production takeaway.
+              <em className="text-ink">Practical System Design</em>. Tune real
+              levers, watch the meters move, and leave with a production takeaway.
             </p>
           </motion.div>
-
-          <motion.ol
-            initial={reduce ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.55, delay: reduce ? 0 : 0.12, ease }}
-            className="mt-8 flex flex-wrap items-center gap-x-1 gap-y-2 border border-ink/8 bg-[#f3f7fa] px-3 py-2.5 sm:gap-x-2 sm:px-4 md:mt-9"
-            style={{ borderRadius: "999px" }}
-            aria-label="How a drill runs"
-          >
-            {pathSteps.map((step, index) => (
-              <li key={step.n} className="flex items-center gap-1.5 sm:gap-2">
-                {index > 0 ? (
-                  <span aria-hidden="true" className="mx-0.5 h-px w-3 bg-ink/15 sm:w-5" />
-                ) : null}
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-ink shadow-[0_1px_0_rgba(26,35,48,0.04)]">
-                  <span className="text-[color:var(--tide)]">{step.n}</span>
-                  {step.label}
-                </span>
-              </li>
-            ))}
-          </motion.ol>
 
           <motion.div
             aria-hidden="true"
@@ -120,9 +91,9 @@ export function PlayHub() {
 
 function TrainingOutline({ game, compact }: { game: PlayGame; compact?: boolean }) {
   const rows = [
-    { k: "Why it matters", v: game.matters },
-    { k: "Technologies", v: game.technologies.join(" · ") },
-    { k: "Interpret", v: game.success },
+    { k: "In production", v: game.matters },
+    { k: "Stack", v: game.technologies.join(" · ") },
+    { k: "Success looks like", v: game.success },
   ];
   return (
     <dl
@@ -181,7 +152,6 @@ function HubFeatured({
             {game.title}
           </h2>
           <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
-            <span className="font-medium text-ink">What we simulate. </span>
             {game.feel}
           </p>
           <TrainingOutline game={game} />
