@@ -50,7 +50,7 @@ export function GuidedProgress({
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="hidden font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--exp-amber)] sm:block"
           >
-            Operate · then continue
+            Finish the step, then continue
           </motion.p>
         ) : null}
       </div>

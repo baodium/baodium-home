@@ -74,12 +74,11 @@ export function PlaySection() {
                 id="play-heading"
                 className="mt-5 font-serif text-[clamp(2.15rem,4.6vw,3.6rem)] leading-[1.02] tracking-[-0.035em] text-ink"
               >
-                Reliability drills with a training brief and debrief.
+                Reliability drills from the book.
               </h2>
               <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-muted">
-                Short ops drills from the book. Each one follows a training brief:
-                what we simulate, why it matters, the technologies in play, then a
-                live run and how to read the results.
+                Short ops shifts you run yourself. Set the levers, watch the meters
+                move, and leave with a production takeaway.
               </p>
             </div>
             <Link
@@ -131,9 +130,9 @@ export function PlaySection() {
 
 function TrainingStrip({ game, compact }: { game: PlayGame; compact?: boolean }) {
   const rows = [
-    { k: "Why it matters", v: game.matters },
-    { k: "Technologies", v: game.technologies.join(" · ") },
-    { k: "Interpret", v: game.success },
+    { k: "In production", v: game.matters },
+    { k: "Stack", v: game.technologies.join(" · ") },
+    { k: "Success looks like", v: game.success },
   ];
   return (
     <dl
@@ -204,7 +203,6 @@ function FeaturedDrill({
             {game.title}
           </span>
           <span className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
-            <span className="font-medium text-ink">What we simulate. </span>
             {game.feel}
           </span>
           <TrainingStrip game={game} />

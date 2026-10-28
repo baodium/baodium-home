@@ -62,7 +62,7 @@ export function GameResultPanel({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-signal)]">
-          {held ? "Held · interpret results" : "Breached · interpret results"}
+          {held ? "Held" : "Breached"}
         </p>
         <p className="font-serif text-2xl tracking-[-0.02em] text-[color:var(--drill-fg)]">
           Score {score}
@@ -142,7 +142,7 @@ export function GameResultPanel({
 
       <p className="mt-4 border-t border-[color:var(--drill-line)] pt-4 text-[0.95rem] leading-relaxed text-[color:var(--drill-fg)]">
         <span className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-accent)]">
-          Why it matters{" "}
+          In production{" "}
         </span>
         {takeaway}
       </p>

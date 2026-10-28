@@ -714,7 +714,7 @@ export function Chapter1Experience() {
                       </div>
                       <div className="rounded-xl border border-[color-mix(in_srgb,var(--exp-signal)_35%,transparent)] bg-[color-mix(in_srgb,var(--exp-signal)_6%,var(--exp-panel))] px-3 py-2.5">
                         <p className="exp-kicker !tracking-[0.16em] !text-[color:var(--exp-signal)]">
-                          Interpret results
+                          What this means
                         </p>
                         <p className="mt-1.5 text-[color:var(--exp-fg)]">
                           Correct code still waits on a shared finite pool. Disable cuts new demand;

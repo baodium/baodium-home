@@ -289,7 +289,7 @@ export function selectPedagogyLesson(
         eyebrow: "Learn this",
         title: "Operate the incident",
         seeing: "Pause freezes exposure % (demand stays). Disable stops new recommendation holds. Investigate leaves pressure running.",
-        why: "Your choice changes this same system. Then the debrief names what actually happened to new vs in-flight work.",
+        why: "Your choice changes this same system. Next you will see what actually happened to new vs in-flight work.",
         prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",
         tone: "insight",
       };

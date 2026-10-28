@@ -58,28 +58,6 @@ export function ExperienceHub() {
             Play drills
           </Link>
         </motion.div>
-        <motion.ol
-          initial={reduced ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.18, ease }}
-          className="mt-8 flex flex-wrap gap-2"
-          aria-label="Lab training path"
-        >
-          {[
-            "Training brief",
-            "Guided steps",
-            "Live meters",
-            "Decide + debrief",
-          ].map((label, index) => (
-            <li
-              key={label}
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-muted)]"
-            >
-              <span className="text-[color:var(--exp-amber)]">0{index + 1}</span>
-              {label}
-            </li>
-          ))}
-        </motion.ol>
       </header>
 
       <ol className="mt-14 grid gap-4 sm:grid-cols-2">
