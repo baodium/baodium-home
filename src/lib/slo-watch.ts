@@ -128,7 +128,7 @@ export function createEngine(): EngineState {
     cascade: false,
     recentFailEwma: 0,
     peakUtil: 0,
-    lastMessage: "Warm traffic. Defaults won’t survive Wave 3. size up.",
+    lastMessage: "Warm traffic. Three waves ahead. Watch the budget burn.",
   };
 }
 

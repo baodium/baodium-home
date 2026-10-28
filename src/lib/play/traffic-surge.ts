@@ -15,8 +15,11 @@ export type SurgeSnap = {
   admitted: number;
   served: number;
   shed: number;
+  /** Total queue depth (VIP + regular). */
   queue: number;
   vipQueue: number;
+  /** Regular (non-VIP) lane depth. */
+  restQueue: number;
   p95: number;
   successRate: number;
   vipSuccessRate: number;
@@ -88,6 +91,7 @@ export function emptySurgeSnap(message?: string): SurgeSnap {
     shed: 0,
     queue: 0,
     vipQueue: 0,
+    restQueue: 0,
     p95: 0,
     successRate: 0,
     vipSuccessRate: 0,
@@ -216,9 +220,9 @@ export function tickSurge(
   const peakP95 = Math.max(state.peakP95, p95);
 
   let message = state.lastMessage;
-  if (t > 11 && t < 15) message = "Surge arriving. Shed or drown.";
+  if (t > 11 && t < 15) message = "Surge arriving. Watch both admission lanes.";
   else if (p95 > P95_LIMIT_MS)
-    message = `p95 ${p95.toFixed(0)}ms. queue depth is eating the shift.`;
+    message = `p95 ${p95.toFixed(0)}ms. Queue depth is eating the shift.`;
   else if (controls.vipFirst && controls.admit < 0.7 && t > 14)
     message = "VIP priority drain. Checkout lane kept short while rest sheds.";
   else if (controls.admit < 0.55 && t > 14)
@@ -257,6 +261,7 @@ export function tickSurge(
     shed: next.shed,
     queue: queue + vipQueue,
     vipQueue,
+    restQueue: queue,
     p95,
     successRate,
     vipSuccessRate,

@@ -99,7 +99,7 @@ export const playGames: PlayGame[] = [
       primary: { label: "p95", value: "840ms", tone: "bad" },
       secondary: { label: "Served", value: "61%", tone: "warn" },
       spark: [0.25, 0.28, 0.32, 0.9, 0.95, 0.7, 0.45, 0.38],
-      caption: "Cliff at 12s · capacity fixed · shed or drown",
+      caption: "Cliff at 12s · capacity fixed · dual admission lanes",
     },
   },
   {

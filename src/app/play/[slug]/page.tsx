@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { LearningShell } from "@/components/learning/LearningShell";
 import { CacheRouletteGame } from "@/components/play/CacheRouletteGame";
 import { CascadeGame } from "@/components/play/CascadeGame";
-import { PlayChrome } from "@/components/play/PlayChrome";
 import { TailLatencyGame } from "@/components/play/TailLatencyGame";
 import { TrafficSurgeGame } from "@/components/play/TrafficSurgeGame";
 import { SloWatchGame } from "@/components/SloWatchGame";
@@ -54,12 +54,16 @@ export default async function PlayGamePage({ params }: Props) {
   if (!game) notFound();
 
   return (
-    <PlayChrome crumb={{ label: game.title }}>
+    <LearningShell
+      surface="drill"
+      title={game.title}
+      chapterProseHref={game.chapterHref}
+    >
       <div className="shell">
         <div className="drill-stage overflow-hidden rounded-[2rem] p-5 md:rounded-[3rem] md:p-10">
           <GameBySlug slug={slug} />
         </div>
       </div>
-    </PlayChrome>
+    </LearningShell>
   );
 }
