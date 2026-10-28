@@ -22,11 +22,11 @@ import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
 import { flipNavigate } from "@/lib/book/flip-navigate";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
-const SWIPE_OFFSET = 88;
-const SWIPE_VELOCITY = 520;
-/** Max hinge rotation while dragging — page stays covering the stage. */
-const MAX_FLIP_DEG = 58;
-const AXIS_LOCK_PX = 10;
+const SWIPE_OFFSET = 96;
+const SWIPE_VELOCITY = 560;
+/** Peek only — page stays upright and readable; ViewTransition owns the flip. */
+const MAX_PEEK_RATIO = 0.18;
+const AXIS_LOCK_PX = 12;
 
 export function BookChapterView({
   chapter,
@@ -52,32 +52,25 @@ export function BookChapterView({
   const { setChromeVisible, settingsOpen, sidebarOpen, exploreOpen } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const [flipHintOpen, setFlipHintOpen] = useState(false);
-  /** +1 next (hinge left), −1 prev (hinge right), 0 idle */
+  /** +1 next, −1 prev, 0 idle */
   const [dragDir, setDragDir] = useState<0 | 1 | -1>(0);
   const [stageWidth, setStageWidth] = useState(720);
 
   const dragX = useMotionValue(0);
-  const flipAngle = useTransform(dragX, (x) => {
+  const progress = useTransform(dragX, (x) => {
     if (stageWidth <= 0) return 0;
-    const t = Math.max(-1, Math.min(1, x / (stageWidth * 0.55)));
-    return -t * MAX_FLIP_DEG;
+    return Math.max(-1, Math.min(1, x / (stageWidth * 0.5)));
   });
-  const pageShade = useTransform(dragX, (x) => {
-    if (stageWidth <= 0) return 0;
-    return Math.min(0.55, (Math.abs(x) / (stageWidth * 0.55)) * 0.55);
-  });
-  const underlayLift = useTransform(dragX, (x) => {
-    if (stageWidth <= 0) return 0.94;
-    const t = Math.min(1, Math.abs(x) / (stageWidth * 0.55));
-    return 0.94 + t * 0.06;
-  });
+  const peekX = useTransform(progress, (t) => t * stageWidth * MAX_PEEK_RATIO);
+  const pageShade = useTransform(progress, (t) => Math.min(0.28, Math.abs(t) * 0.28));
+  const underlayLift = useTransform(progress, (t) => 0.985 + Math.abs(t) * 0.015);
 
   const commitFlip = useCallback(
     (href: string, direction: 1 | -1) => {
       if (committingRef.current) return;
       committingRef.current = true;
       setDragDir(direction);
-      /* Settle the hinge so ViewTransition captures a full page — never fling off-stage. */
+      /* Settle peek so ViewTransition captures a full upright page. */
       dragX.set(0);
       flipNavigate(router, href, direction);
     },
@@ -90,7 +83,7 @@ export function BookChapterView({
       dragX.set(0);
       return;
     }
-    void animate(dragX, 0, { type: "spring", stiffness: 420, damping: 36, mass: 0.7 });
+    void animate(dragX, 0, { type: "spring", stiffness: 440, damping: 38, mass: 0.68 });
   }, [dragX, reduceMotion]);
 
   const endPointer = useCallback(
@@ -237,7 +230,7 @@ export function BookChapterView({
     if (axisRef.current !== "x") return;
 
     event.preventDefault();
-    const maxTravel = Math.max(160, Math.round(stageWidth * 0.42));
+    const maxTravel = Math.max(140, Math.round(stageWidth * 0.4));
     const clamped = Math.max(-maxTravel, Math.min(maxTravel, dx));
     dragX.set(clamped);
     if (Math.abs(clamped) >= 8) {
@@ -267,8 +260,8 @@ export function BookChapterView({
 
   const prevHref = prev ? `/system-design/${prev.slug}` : null;
   const nextHref = next ? `/system-design/${next.slug}` : null;
-  const hingeLeft = dragDir !== -1;
-  const preview = hingeLeft ? next : prev;
+  const goingNext = dragDir !== -1;
+  const preview = goingNext ? next : prev;
 
   return (
     <div
@@ -278,13 +271,14 @@ export function BookChapterView({
       <BookEdgeCues prevHref={prevHref} nextHref={nextHref} />
       <div
         ref={stageRef}
-        className="book-page-stage relative touch-pan-y [perspective:1800px]"
+        className="book-page-stage relative touch-pan-y"
+        data-book-flip-stage=""
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
       >
-        {/* Paper underlay — always fills the stage so the desk never shows through a flip. */}
+        {/* Paper underlay fills the stage — desk grey never shows through a swipe. */}
         <motion.div
           aria-hidden="true"
           className="book-page-underlay pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[1.15rem]"
@@ -296,7 +290,7 @@ export function BookChapterView({
             {preview && dragDir !== 0 ? (
               <div
                 className={`relative z-[1] flex h-full min-h-[14rem] flex-col justify-center px-8 py-10 sm:px-12 ${
-                  hingeLeft ? "items-start text-left" : "items-end text-right"
+                  goingNext ? "items-end text-right" : "items-start text-left"
                 }`}
               >
                 <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-cinnabar">
@@ -315,18 +309,13 @@ export function BookChapterView({
 
         <motion.div
           className="book-page-leaf relative z-[1] will-change-transform"
-          style={{
-            rotateY: reduceMotion ? 0 : flipAngle,
-            transformOrigin: hingeLeft ? "left center" : "right center",
-            transformStyle: "preserve-3d",
-            backfaceVisibility: "hidden",
-          }}
+          style={{ x: reduceMotion ? 0 : peekX }}
         >
           {!reduceMotion ? (
             <motion.div
               aria-hidden="true"
-              className={`book-page-hinge-shade pointer-events-none absolute inset-y-0 z-[2] w-[42%] ${
-                hingeLeft ? "right-0" : "left-0 [transform:scaleX(-1)]"
+              className={`book-page-hinge-shade pointer-events-none absolute inset-y-0 z-[2] w-10 ${
+                goingNext ? "right-0" : "left-0 [transform:scaleX(-1)]"
               }`}
               style={{ opacity: pageShade }}
             />
