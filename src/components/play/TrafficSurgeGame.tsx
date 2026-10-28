@@ -154,8 +154,8 @@ export function TrafficSurgeGame() {
       "p95 latency",
       "VIP priority",
     ];
+  // Softened vs catalog "Shedding early…" so Challenge mode stays non-spoiler.
   const takeaway =
-    catalog?.takeaway ??
     "When capacity is fixed, who you admit decides who you can still serve well.";
 
   const live = phase === "running" || phase === "won" || phase === "lost";
