@@ -20,8 +20,10 @@ export function SideProjectsView() {
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const mistY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 80]);
-  const mistOpacity = useTransform(scrollYProgress, [0, 0.85], reduce ? [1, 1] : [1, 0.35]);
+  const mistY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 100]);
+  const mistOpacity = useTransform(scrollYProgress, [0, 0.85], reduce ? [1, 1] : [1, 0.3]);
+  const titleY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 36]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.7], reduce ? [1, 1] : [1, 0.55]);
 
   return (
     <div className="relative overflow-hidden bg-cream text-ink">
@@ -54,7 +56,7 @@ export function SideProjectsView() {
           <div className="grain absolute inset-0 opacity-40 mix-blend-soft-light" />
         </div>
 
-        <div className="shell relative z-[2]">
+        <motion.div style={{ y: titleY, opacity: titleOpacity }} className="shell relative z-[2]">
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -107,7 +109,7 @@ export function SideProjectsView() {
               </li>
             ))}
           </motion.ul>
-        </div>
+        </motion.div>
       </section>
 
       <section aria-label="Project showcases" className="relative pb-20 pt-4 md:pb-28 md:pt-8">

@@ -60,14 +60,16 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
-  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 70]);
-  const typeExitY = useTransform(scrollYProgress, [0, 0.55], reduce ? [0, 0] : [0, -36]);
-  const typeExitOpacity = useTransform(scrollYProgress, [0, 0.45], reduce ? [1, 1] : [1, 0]);
+  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 110]);
+  const photoScale = useTransform(scrollYProgress, [0, 0.85], reduce ? [1, 1] : [1, 1.06]);
+  const typeExitY = useTransform(scrollYProgress, [0, 0.58], reduce ? [0, 0] : [0, -64]);
+  const typeExitOpacity = useTransform(scrollYProgress, [0, 0.38], reduce ? [1, 1] : [1, 0]);
   const typeExitFilter = useTransform(
     scrollYProgress,
-    [0, 0.4],
-    reduce ? ["blur(0px)", "blur(0px)"] : ["blur(0px)", "blur(6px)"],
+    [0, 0.35],
+    reduce ? ["blur(0px)", "blur(0px)"] : ["blur(0px)", "blur(10px)"],
   );
+  const mistDrift = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 90]);
 
   // Depth: portrait (back) and type (front) drift against each other with the pointer.
   const px = useMotionValue(0);
@@ -100,6 +102,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       {/* Far plane: warm light that keeps drifting (hero look preserved) */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
+          style={{ y: mistDrift }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2.4, ease }}
@@ -107,6 +110,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         />
         {!reduce ? (
           <motion.div
+            style={{ y: mistDrift }}
             initial={{ opacity: 0 }}
             animate={{ opacity: [0.35, 0.7, 0.4, 0.65, 0.35] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
@@ -116,7 +120,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       </div>
       {/* Mid plane: the portrait, melted into the field */}
       <motion.div
-        style={{ y: photoY }}
+        style={{ y: photoY, scale: photoScale }}
         className="relative h-[46svh] max-h-[560px] min-h-[300px] w-full max-lg:mt-14 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
       >
         <motion.div style={{ x: photoX, y: photoPY }} className="absolute -inset-6">

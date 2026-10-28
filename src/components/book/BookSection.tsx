@@ -39,12 +39,14 @@ export function BookSection() {
     [0.1, 0.6],
     reduce ? [22, 22] : [30, 15],
   );
-  const copyY = useTransform(scrollYProgress, [0.05, 0.55], reduce ? [0, 0] : [28, -18]);
+  const copyY = useTransform(scrollYProgress, [0.05, 0.55], reduce ? [0, 0] : [42, -28]);
   const copyOpacity = useTransform(
     scrollYProgress,
     [0, 0.12, 0.55, 0.85],
-    reduce ? [1, 1, 1, 1] : [0.35, 1, 1, 0.85],
+    reduce ? [1, 1, 1, 1] : [0.25, 1, 1, 0.7],
   );
+  const coverLift = useTransform(scrollYProgress, [0.15, 0.65], reduce ? [0, 0] : [48, -20]);
+  const coverScale = useTransform(scrollYProgress, [0.15, 0.55], reduce ? [1, 1] : [0.94, 1]);
 
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -187,10 +189,14 @@ export function BookSection() {
               </Reveal>
             </motion.div>
 
+            <motion.div
+              style={{ y: coverLift, scale: coverScale }}
+              className="max-md:order-first max-md:mx-auto max-md:w-[70%] md:col-span-5 lg:col-span-6"
+            >
             <Link
               href={book.readPath}
               aria-label={`Read ${book.title} for free`}
-              className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60 max-md:order-first max-md:mx-auto max-md:w-[70%] md:col-span-5 lg:col-span-6"
+              className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60"
             >
               <motion.div
                 aria-hidden="true"
@@ -209,6 +215,7 @@ export function BookSection() {
                 </span>
               </div>
             </Link>
+            </motion.div>
           </div>
 
           <Reveal className="mt-8 border-t border-white/10 pt-6 md:mt-10 md:pt-8">
