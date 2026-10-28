@@ -66,7 +66,7 @@ export function SimControls({
       </div>
       {reducedMotion ? (
         <p className="w-full font-mono text-[0.65rem] text-[color:var(--exp-faint)]">
-          Reduced motion — step mode friendly; essential state stays readable.
+          Reduced motion. step mode friendly; essential state stays readable.
         </p>
       ) : null}
     </div>

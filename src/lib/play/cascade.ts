@@ -1,4 +1,4 @@
-/** Pure engine — Cascade: dependency fan-out, circuits, bulkhead budgets, fail-fast. */
+/** Pure engine. Cascade: dependency fan-out, circuits, bulkhead budgets, fail-fast. */
 
 export type CascadeControls = {
   /** Trip open when recent error rate exceeds this (0–1). */
@@ -87,7 +87,7 @@ export function emptyCascadeSnap(message?: string): CascadeSnap {
     checkoutOk: 0,
     checkoutFail: 0,
     cascadeRisk: 0,
-    message: message ?? "Idle — start a run to watch dependency health.",
+    message: message ?? "Idle. Start a run to watch dependency health.",
   };
 }
 
@@ -107,7 +107,7 @@ export function tickCascade(
   const inFlight = { ...state.inFlight };
   const errRate = { ...state.errRate };
 
-  // Injected faults — dependency sickness (independent of player at first).
+  // Injected faults. dependency sickness (independent of player at first).
   if (t > 8 && t < 22) {
     health.auth = Math.max(0.12, health.auth - 0.038 * dt * 5);
   }
@@ -119,7 +119,7 @@ export function tickCascade(
   const timeoutSec = Math.max(0.04, controls.timeoutMs / 1000);
 
   // Hold time on a sick dependency without fail-fast ≈ 1 / health seconds (capped).
-  // Fail-fast caps the hold, freeing slots sooner — less amplification.
+  // Fail-fast caps the hold, freeing slots sooner. less amplification.
   function holdSec(nodeHealth: number): number {
     const natural = 0.08 + (1 - nodeHealth) * 1.8;
     return Math.min(natural, timeoutSec);
@@ -134,7 +134,7 @@ export function tickCascade(
   // Shared pool: when bulkheads are off, in-flight across nodes contend for SHARED_BUDGET.
   function sharedUsed(): number {
     if (controls.bulkheadAuth && controls.bulkheadPay) {
-      return 0; // fully isolated — each uses own budget
+      return 0; // fully isolated. each uses own budget
     }
     let used = 0;
     if (!controls.bulkheadAuth) used += inFlight.auth;
@@ -264,7 +264,7 @@ export function tickCascade(
     db: inFlight.db / budget("db"),
   };
 
-  // Risk from actual blast radius — not a flat penalty for missing bulkheads at t=0.
+  // Risk from actual blast radius. not a flat penalty for missing bulkheads at t=0.
   const cascadeRisk = Math.min(
     1,
     (1 - health.edge) * 0.55 +
@@ -278,15 +278,15 @@ export function tickCascade(
 
   let message = state.lastMessage;
   if (circuit.auth && !controls.bulkheadAuth)
-    message = "Auth circuit open — shared threads still pile on pay/edge.";
+    message = "Auth circuit open. Shared threads still pile on pay/edge.";
   else if (circuit.auth)
     message = "Auth circuit open. Bulkhead holds the edge concurrency budget.";
   else if (health.db < 0.45)
-    message = "DB wobbling — trip it or watch pay fan the fire.";
+    message = "DB wobbling. Trip it or watch pay fan the fire.";
   else if (t > 8 && health.auth < 0.7)
-    message = `Auth errors ~${(errRate.auth * 100).toFixed(0)}% — trip at ${(controls.tripAt * 100).toFixed(0)}%.`;
+    message = `Auth errors ~${(errRate.auth * 100).toFixed(0)}%. trip at ${(controls.tripAt * 100).toFixed(0)}%.`;
   else if (controls.timeoutMs < 100 && health.auth < 0.7)
-    message = "Fail-fast timeout cutting hangs — slots free sooner.";
+    message = "Fail-fast timeout cutting hangs. Slots free sooner.";
   else if (t > 30) message = "Storm easing. Keep isolation on.";
 
   const next: CascadeState = {
@@ -340,26 +340,26 @@ export function tickCascade(
         outcome: won ? "won" : "lost",
         score,
         reason: won
-          ? "Checkout stayed up — circuits and bulkheads contained the blast."
+          ? "Checkout stayed up. Circuits and bulkheads contained the blast."
           : health.edge < 0.42
-            ? "Edge melted — failures fanned across shared pools."
+            ? "Edge melted. Failures fanned across shared pools."
             : peakRisk >= 0.82
-              ? "Cascade risk peaked too high — isolation landed too late."
+              ? "Cascade risk peaked too high. Isolation landed too late."
               : "Too many checkout failures; the outage spread.",
         chapterHref: "/system-design/chapter-4",
-        chapterLabel: "Ch.4 — Service communication and cascading failure",
+        chapterLabel: "Ch.4. Service communication and cascading failure",
         takeaway:
-          "Isolate failure domains first — a circuit without a bulkhead still shares the blast radius.",
+          "Isolate failure domains first. A circuit without a bulkhead still shares the blast radius.",
         debrief,
         before:
-          "Auth/DB wobble with a shared worker pool — one slow dependency holds threads every checkout path needs.",
+          "Auth/DB wobble with a shared worker pool. One slow dependency holds threads every checkout path needs.",
         after: `Checkout ok ${(okRate * 100).toFixed(0)}%, edge health ${(health.edge * 100).toFixed(0)}%, peak cascade risk ${(peakRisk * 100).toFixed(0)}%, circuits tripped ${trips}× (timeout ${controls.timeoutMs}ms${controls.bulkheadAuth ? ", auth bulkhead" : ""}${controls.bulkheadPay ? ", pay/db bulkhead" : ""}).`,
         changed:
           controls.bulkheadAuth && controls.bulkheadPay && won
-            ? "Bulkheads capped auth/DB contagion while fail-fast freed slots — checkout kept its own budget."
+            ? "Bulkheads capped auth/DB contagion while fail-fast freed slots. Checkout kept its own budget."
             : !controls.bulkheadAuth && peakRisk >= 0.7
-              ? "Circuits alone still shared the pool — auth failure starved checkout workers."
-              : "Isolation landed partly — blast radius shrinks only when both circuit and bulkhead are in place.",
+              ? "Circuits alone still shared the pool. Auth failure starved checkout workers."
+              : "Isolation landed partly. Blast radius shrinks only when both circuit and bulkhead are in place.",
         metrics: [
           {
             label: "Checkout ok",

@@ -35,9 +35,9 @@ export function selectPedagogyLesson(
     return {
       id: "disable-inflight",
       eyebrow: "What’s happening",
-      title: "Disable drains — it doesn’t kill",
+      title: "Disable drains; it does not kill",
       seeing: `${snap.activeCount} busy slot${snap.activeCount === 1 ? "" : "s"} still hold in-flight recommendation work. New arrivals skip the extra lookup.`,
-      why: "Disable stops new demand on the shared pool. Holds already acquired keep their connection until release — waiters clear as those finish.",
+      why: "Disable stops new demand on the shared pool. Holds already acquired keep their connection until release. Waiters clear as those finish.",
       next: "Watch busy drop toward baseline as releases free slots.",
       prod: "In prod: flip the flag OFF (or 0% exposure). Expect in-flight checkouts to finish; alert on pool.pending decaying, not instantly zeroing.",
       tone: "recover",
@@ -60,11 +60,11 @@ export function selectPedagogyLesson(
     return {
       id: "rollout-paused",
       eyebrow: "What’s happening",
-      title: "Exposure frozen — demand continues",
+      title: "Exposure frozen; demand continues",
       seeing: `Rollout paused at ${controls.exposurePct}%. Busy ${snap.activeCount}/${snap.poolSize}, pending ${snap.waitingCount}. Traffic still arrives; the cohort just cannot grow.`,
-      why: "Pause stops raising exposure. It does not cut λ or kill in-flight holds — waiters clear only if demand (λ×W) falls under 40.",
+      why: "Pause stops raising exposure. It does not cut λ or kill in-flight holds. Waiters clear only if demand (λ×W) falls under 40.",
       next: "Compare with Disable: disable routes new traffic to the baseline path and drains recommendation demand.",
-      prod: "Pause/hold a progressive rollout at the current %. Watch pool.pending — it will not magically drop unless W or λ changes.",
+      prod: "Pause/hold a progressive rollout at the current %. Watch pool.pending: it will not magically drop unless W or λ changes.",
       tone: "insight",
     };
   }
@@ -75,12 +75,12 @@ export function selectPedagogyLesson(
       id: "waiters-wall",
       eyebrow: "What’s happening",
       title: "Demand hit the capacity wall",
-      seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${acqP99ms.toFixed(0)} ms. No 41st slot — excess sits in the waiter queue.`,
+      seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${acqP99ms.toFixed(0)} ms. No 41st slot; excess sits in the waiter queue.`,
       why: `Little’s Law estimates demand ≈ ${littles.L.toFixed(0)} (= λ × W). When that exceeds 40, correct code still waits because the pool is shared and finite.`,
       next:
         mode === "guided" && stepId === "pressure"
-          ? "Predict: disable vs pause — then decide in the next step."
-          : "Try disable, shed-at-util, or acquire timeout — compare new vs in-flight.",
+          ? "Predict: disable vs pause. Then decide in the next step."
+          : "Try disable, shed-at-util, or acquire timeout. Compare new vs in-flight.",
       prod: "pool.active ≈ max · pool.pending > 0 sustained = saturation. Size from λ×W with headroom, or cut W.",
       tone: "warn",
     };
@@ -114,7 +114,7 @@ export function selectPedagogyLesson(
       title: "Shedding protects the pool",
       seeing: `${snap.shedCount} arrivals skipped recommendations because utilization hit ≥${Math.round(controls.shedAtUtil * 100)}%.`,
       why: "Graceful degradation: keep the page fast by dropping the optional lookup when the shared resource is saturated.",
-      prod: "Implement as a util/pending gate before acquire — same idea as adaptive concurrency or priority load shedding.",
+      prod: "Implement as a util/pending gate before acquire. Same idea as adaptive concurrency or priority load shedding.",
       tone: "insight",
     };
   }
@@ -126,7 +126,7 @@ export function selectPedagogyLesson(
       title: "Cache shortens W, not λ",
       seeing: `${Math.round(controls.cacheHitRate * 100)}% cache hits · ${snap.cacheHitCount} hits so far. Mean hold drops; arrival rate is unchanged.`,
       why: "Little’s Law: L = λ × W. Caching attacks W. Disabling the feature or shedding attacks the fraction of traffic that pays the long hold.",
-      prod: "Measure checkout hold time (usage histogram), not only query duration — cache wins show up as shorter holds.",
+      prod: "Measure checkout hold time (usage histogram), not only query duration. Cache wins show up as shorter holds.",
       tone: "insight",
     };
   }
@@ -138,8 +138,8 @@ export function selectPedagogyLesson(
       title: "p99 is burning the latency SLO",
       seeing: `Observed p99 ≈ ${p99ms.toFixed(0)} ms vs ${(snap.slo.targetP99Sec * 1000).toFixed(0)} ms target (burn ${snap.slo.burnRatio.toFixed(1)}×).`,
       why: "Saturation shows up in the tail first. Median can look fine while acquire wait stretches p99 past the budget.",
-      next: "Open Ops metrics — check acquire.wait.p99 and pool.pending before blaming the SQL text.",
-      prod: "Page on latency burn + pool.pending, not only CPU. connectionTimeout approaching = imminent errors.",
+      next: "Open Ops metrics. Check acquire.wait.p99 and pool.pending before blaming the SQL text.",
+      prod: "Page on latency burn + pool.pending, not only CPU. ConnectionTimeout approaching = imminent errors.",
       tone: "warn",
     };
   }
@@ -161,7 +161,7 @@ export function selectPedagogyLesson(
       id: "tail-spread",
       eyebrow: "What’s happening",
       title: "p50 holds · p99 stretches",
-      seeing: `p50 ≈ ${p50ms.toFixed(0)} ms while p99 ≈ ${p99ms.toFixed(0)} ms — a ${spread.toFixed(0)} ms spread from wait + long holds.`,
+      seeing: `p50 ≈ ${p50ms.toFixed(0)} ms while p99 ≈ ${p99ms.toFixed(0)} ms. a ${spread.toFixed(0)} ms spread from wait + long holds.`,
       why: "Queueing delay hits a fraction of requests hardest. The median can look fine while the tail already shows contention.",
       next: "Select a waiting request to see wait vs hold timing. Compare baseline vs recs path latency.",
       prod: "Split latency by feature cohort. A minority path with large W can dominate pool occupancy.",
@@ -174,9 +174,9 @@ export function selectPedagogyLesson(
       id: "near-full",
       eyebrow: "What’s happening",
       title: "Pool nearly saturated",
-      seeing: `${snap.activeCount} of ${snap.poolSize} slots busy (${(fill * 100).toFixed(0)}% util). Headroom is thin — a small traffic bump creates waiters.`,
+      seeing: `${snap.activeCount} of ${snap.poolSize} slots busy (${(fill * 100).toFixed(0)}% util). Headroom is thin. a small traffic bump creates waiters.`,
       why: "Shared resources fail at the margin. Headroom, not average idle, decides whether the next arrival waits.",
-      prod: "Capacity targets often sit at 60–70% util for bursty arrivals — 85%+ leaves almost no queueing margin.",
+      prod: "Capacity targets often sit at 60–70% util for bursty arrivals. 85%+ leaves almost no queueing margin.",
       tone: "warn",
     };
   }
@@ -189,8 +189,8 @@ export function selectPedagogyLesson(
       title: r.phase === "waiting" ? "This request is queued" : "This request holds a slot",
       seeing:
         r.phase === "waiting"
-          ? `${r.id} arrived when all ${snap.poolSize} connections were busy — it waits beside the grid.`
-          : `${r.id} acquired a connection${r.exposed ? " for the recommendation lookup" : " on the baseline path"}${r.cacheHit ? " (cache hit — short hold)" : ""}.`,
+          ? `${r.id} arrived when all ${snap.poolSize} connections were busy. it waits beside the grid.`
+          : `${r.id} acquired a connection${r.exposed ? " for the recommendation lookup" : " on the baseline path"}${r.cacheHit ? " (cache hit. Short hold)" : ""}.`,
       why: "Correct code still consumes a shared resource. The highlight in the code panel is the line that owns the hold.",
       prod: "Instrument checkout→checkin as hold time. Query duration alone understates W.",
       tone: "insight",
@@ -202,7 +202,7 @@ export function selectPedagogyLesson(
       id: "deploy-zero",
       eyebrow: "What’s happening",
       title: "Deployed, not enabled",
-      seeing: "Flag is ON at 0% exposure — code is live, but no user is hashed into the cohort.",
+      seeing: "Flag is ON at 0% exposure. Code is live, but no user is hashed into the cohort.",
       why: "Deploy ≠ enable. You ship dark, then raise exposure so risk is controlled by the flag, not by a redeploy.",
       next: "Trace one forced request, then raise exposure.",
       prod: "Dark launch: binary present, cohort empty. Roll forward/back with exposure, not builds.",
@@ -217,7 +217,7 @@ export function selectPedagogyLesson(
       title: "Partial cohort, shared pool",
       seeing: `${controls.exposurePct}% of users take the longer hold; everyone still shares the same 40 connections.`,
       why: `Even a minority path can dominate occupancy when W is larger. Here λ≈${littles.lambda.toFixed(0)}/s · W≈${(littles.W * 1000).toFixed(0)}ms → L≈${littles.L.toFixed(0)}.`,
-      prod: "pool_floor ≈ ceil(λ × W × 1.25). Raising exposure raises effective W for the mix — recalculate before 100%.",
+      prod: "pool_floor ≈ ceil(λ × W × 1.25). Raising exposure raises effective W for the mix. Recalculate before 100%.",
       tone: "calm",
     };
   }
@@ -229,7 +229,7 @@ export function selectPedagogyLesson(
         eyebrow: "Learn this",
         title: "Same page, one extra lookup",
         seeing: "Toggle the storefront. Recommendations appear only on the proposed path.",
-        why: "The product change looks small in the UI — the cost lives in an extra synchronous DB hold on the request path.",
+        why: "The product change looks small in the UI. The cost lives in an extra synchronous DB hold on the request path.",
         next: "Toggle the preview, then continue.",
         tone: "calm",
       };
@@ -259,7 +259,7 @@ export function selectPedagogyLesson(
         eyebrow: "Learn this",
         title: "Exposure changes who pays W",
         seeing: "Stable hashing keeps the same users in or out as you move the percentage.",
-        why: "Raising exposure raises the fraction of arrivals that take the long hold — L = λ × W climbs with that mix.",
+        why: "Raising exposure raises the fraction of arrivals that take the long hold. L = λ × W climbs with that mix.",
         next: "Predict before 25%, then set exposure.",
         tone: "calm",
       };
@@ -269,7 +269,7 @@ export function selectPedagogyLesson(
         eyebrow: "Learn this",
         title: "Read the pool like production",
         seeing: `Busy ${snap.activeCount}/${snap.poolSize} · pending ${snap.waitingCount} · util ${(snap.utilization * 100).toFixed(0)}% · demand ≈ ${snap.demandOccupancy.toFixed(0)}.`,
-        why: "Active never exceeds the pool. If λ×W > 40, the overflow is waiting — not fake extra busy slots.",
+        why: "Active never exceeds the pool. If λ×W > 40, the overflow is waiting. Not fake extra busy slots.",
         prod: "Map: pool.active · pool.idle · pool.pending · acquire.wait.{p50,p99} · acquire.timeouts · throughput.",
         tone: "insight",
       };
@@ -289,7 +289,7 @@ export function selectPedagogyLesson(
         eyebrow: "Learn this",
         title: "Operate the incident",
         seeing: "Pause freezes exposure % (demand stays). Disable stops new recommendation holds. Investigate leaves pressure running.",
-        why: "Your choice changes this same system — then the debrief names what actually happened to new vs in-flight work.",
+        why: "Your choice changes this same system. Then the debrief names what actually happened to new vs in-flight work.",
         prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",
         tone: "insight",
       };
@@ -299,7 +299,7 @@ export function selectPedagogyLesson(
         eyebrow: "Takeaway",
         title: "Name the shared resource",
         seeing: "Correct code waited because every exposed request held a connection from the same 40-slot pool.",
-        why: "Disable stops new recommendation work; in-flight holds finish. The pool — not the feature idea — was the bottleneck.",
+        why: "Disable stops new recommendation work; in-flight holds finish. The pool, not the feature idea, was the bottleneck.",
         prod: "Leave with: λ×W sizing, acquire.wait alerts, deploy≠enable, disable≠kill in-flight.",
         tone: "insight",
       };
@@ -307,10 +307,10 @@ export function selectPedagogyLesson(
       return {
         id: "sandbox-default",
         eyebrow: "Sandbox",
-        title: "Pressure the invariants",
+        title: "Pressure the shared pool",
         seeing: "Vary λ, exposure, lookup duration, acquire timeout, shed, and cache. Busy stays ≤ 40; waiters / timeouts absorb the rest.",
         why: "If you can explain waiters, Little’s Law, disable-vs-inflight, and which mitigation cuts W vs demand, the chapter stuck.",
-        prod: "Treat this panel like a runbook rehearsal — change one lever, read pool.* and path latency, then decide.",
+        prod: "Treat this panel like a runbook rehearsal: change one lever, read pool.* and path latency, then decide.",
         tone: "calm",
       };
   }

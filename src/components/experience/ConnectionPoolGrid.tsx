@@ -45,16 +45,16 @@ export function ConnectionPoolGrid({
 
   const fillRatio = snap.activeCount / snap.poolSize;
   const wall = snap.waitingCount > 0 || snap.littles.overDemand;
-  /** Visual pressure only — rail TeachingOverlay owns the prose so-what. */
+  /** Visual pressure only. rail TeachingOverlay owns the prose so-what. */
   const statusLine =
     snap.controls.featureDisabledForNew && snap.activeCount > 0
-      ? "Disable draining — in-flight holds finishing"
+      ? "Disable draining. In-flight holds finishing"
       : snap.timeoutCount > 0 && snap.controls.acquireTimeoutSec !== null
         ? `${snap.timeoutCount} acquire timeout${snap.timeoutCount === 1 ? "" : "s"}`
         : snap.waitingCount > 0
           ? `${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)}ms`
           : fillRatio > 0.85
-            ? `Util ${(fillRatio * 100).toFixed(0)}% — thin headroom`
+            ? `Util ${(fillRatio * 100).toFixed(0)}%. thin headroom`
             : null;
 
   return (
@@ -77,7 +77,7 @@ export function ConnectionPoolGrid({
         </p>
       </div>
       <p className="mt-1 text-sm text-[color:var(--exp-muted)]">
-        Shared resource — active slots never exceed {snap.poolSize}. Excess demand waits.
+        Shared resource. active slots never exceed {snap.poolSize}. Excess demand waits.
       </p>
 
       <div
@@ -195,7 +195,7 @@ export function ConnectionPoolGrid({
           {snap.controls.featureDisabledForNew ? (
             <p className="mt-3 rounded-lg border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,var(--exp-accent)_6%,transparent)] px-3 py-2 text-xs leading-relaxed text-[color:var(--exp-fg)]">
               Disable active: new arrivals skip recommendations. Recommendation holds still finish
-              their lookup before releasing — in-flight is not killed.
+              their lookup before releasing. in-flight is not killed.
             </p>
           ) : null}
         </div>

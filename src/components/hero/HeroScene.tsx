@@ -64,11 +64,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const photoScale = useTransform(scrollYProgress, [0, 0.85], reduce ? [1, 1] : [1, 1.06]);
   const typeExitY = useTransform(scrollYProgress, [0, 0.58], reduce ? [0, 0] : [0, -64]);
   const typeExitOpacity = useTransform(scrollYProgress, [0, 0.38], reduce ? [1, 1] : [1, 0]);
-  const typeExitFilter = useTransform(
-    scrollYProgress,
-    [0, 0.35],
-    reduce ? ["blur(0px)", "blur(0px)"] : ["blur(0px)", "blur(10px)"],
-  );
   const mistDrift = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 90]);
 
   // Depth: portrait (back) and type (front) drift against each other with the pointer.
@@ -165,14 +160,13 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             x: typeX,
             y: typeY,
             opacity: typeExitOpacity,
-            filter: typeExitFilter,
           }}
           className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]"
         >
           <h1>
             <motion.span
-              initial={reduce ? false : { opacity: 0, y: 22, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : 0.2, ease }}
               className="block text-[clamp(2.65rem,6.4vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
             >

@@ -1,9 +1,9 @@
-/** Pure engine — Traffic Surge: admit/shed, dual queues, M/M/1-ish wait. */
+/** Pure engine. Traffic Surge: admit/shed, dual queues, M/M/1-ish wait. */
 
 export type SurgeControls = {
   /** Fraction of arrivals admitted (0–1). */
   admit: number;
-  /** Soft queue cap — excess becomes 503. */
+  /** Soft queue cap. excess becomes 503. */
   queueCap: number;
   /** Prefer VIP traffic when shedding; VIP gets its own drain priority. */
   vipFirst: boolean;
@@ -44,7 +44,7 @@ export const SURGE_TICK_MS = 200;
 export const SURGE_DURATION_S = 36;
 export const P95_LIMIT_MS = 280;
 export const MIN_SERVED_RATE = 0.55;
-/** Service capacity (req/s) — player cannot add capacity, only shed. */
+/** Service capacity (req/s). player cannot add capacity, only shed. */
 export const CAPACITY = 90;
 
 export type SurgeState = {
@@ -75,7 +75,7 @@ export function createSurge(): SurgeState {
     underBudgetSec: 0,
     peakP95: 0,
     happyMs: 0,
-    lastMessage: "Calm morning. Spike lands around 12s — decide who waits.",
+    lastMessage: "Calm morning. Spike lands around 12s. Decide who waits.",
   };
 }
 
@@ -93,7 +93,7 @@ export function emptySurgeSnap(message?: string): SurgeSnap {
     vipSuccessRate: 0,
     underBudgetSec: 0,
     happyMs: 0,
-    message: message ?? "Idle — start a run to see the spike shape.",
+    message: message ?? "Idle. Start a run to see the spike shape.",
   };
 }
 
@@ -203,7 +203,7 @@ export function tickSurge(
   const servedRest = Math.max(0, drainedRest - timeoutRest);
   const served = servedVip + servedRest;
 
-  // Shed is intentional 503 — tracked separately from timeouts/overflow.
+  // Shed is intentional 503. tracked separately from timeouts/overflow.
   // VIP-first: shed lands on the rest; VIP failures are timeouts/overflow only.
   const vipShed = controls.vipFirst ? 0 : shedNow * dt * vipShare;
   const restShed = controls.vipFirst ? shedNow * dt : shedNow * dt * (1 - vipShare);
@@ -216,15 +216,15 @@ export function tickSurge(
   const peakP95 = Math.max(state.peakP95, p95);
 
   let message = state.lastMessage;
-  if (t > 11 && t < 15) message = "Surge arriving — shed or drown.";
+  if (t > 11 && t < 15) message = "Surge arriving. Shed or drown.";
   else if (p95 > P95_LIMIT_MS)
-    message = `p95 ${p95.toFixed(0)}ms — queue depth is eating the shift.`;
+    message = `p95 ${p95.toFixed(0)}ms. queue depth is eating the shift.`;
   else if (controls.vipFirst && controls.admit < 0.7 && t > 14)
-    message = "VIP priority drain — checkout lane kept short while rest sheds.";
+    message = "VIP priority drain. Checkout lane kept short while rest sheds.";
   else if (controls.admit < 0.55 && t > 14)
-    message = "Hard shed — intentional 503s protecting the customers you keep.";
+    message = "Hard shed. Intentional 503s protecting the customers you keep.";
   else if (queue + vipQueue > controls.queueCap * 0.8)
-    message = "Queue near cap — overflow turns into errors.";
+    message = "Queue near cap. Overflow turns into errors.";
   else if (t > 28) message = "Traffic easing. Hold the line.";
 
   const next: SurgeState = {
@@ -280,7 +280,7 @@ export function tickSurge(
         (controls.vipFirst ? vipSuccessRate * 80 : 20) +
         (won ? 180 : 35),
     );
-    const debrief = `Served ${(servedFrac * 100).toFixed(0)}% · under-budget ${(budgetFrac * 100).toFixed(0)}% of the run · peak p95 ${next.peakP95.toFixed(0)}ms · VIP success ${(vipSuccessRate * 100).toFixed(0)}%. Admit ${(controls.admit * 100).toFixed(0)}%, queue cap ${controls.queueCap}${controls.vipFirst ? ", VIP priority on" : ""}. Capacity fixed at ${CAPACITY} rps — shedding is the only lever past the cliff.`;
+    const debrief = `Served ${(servedFrac * 100).toFixed(0)}% · under-budget ${(budgetFrac * 100).toFixed(0)}% of the run · peak p95 ${next.peakP95.toFixed(0)}ms · VIP success ${(vipSuccessRate * 100).toFixed(0)}%. Admit ${(controls.admit * 100).toFixed(0)}%, queue cap ${controls.queueCap}${controls.vipFirst ? ", VIP priority on" : ""}. Capacity fixed at ${CAPACITY} rps. Shedding is the only lever past the cliff.`;
 
     return {
       state: next,
@@ -289,27 +289,27 @@ export function tickSurge(
         outcome: won ? "won" : "lost",
         score,
         reason: won
-          ? "You shaped the surge — enough happy requests, p95 held most of the run."
+          ? "You shaped the surge. Enough happy requests, p95 held most of the run."
           : servedFrac < MIN_SERVED_RATE
-            ? "Too much shed — not enough customers made it through."
+            ? "Too much shed. Not enough customers made it through."
             : !latencyOk
               ? "Latency spent too long over budget under the spike."
               : !vipOk
-                ? "VIP lane still suffered — priority needs earlier shed on the rest."
+                ? "VIP lane still suffered. Priority needs earlier shed on the rest."
                 : "Success rate collapsed under the cliff.",
         chapterHref: "/system-design/chapter-2",
-        chapterLabel: "Ch.2 — Modeling requests, latency, and throughput",
+        chapterLabel: "Ch.2. Modeling requests, latency, and throughput",
         takeaway:
           "Shedding early protects the customers you can serve; serving everyone slowly serves no one.",
         debrief,
         before:
-          "Cliff at ~12s against fixed capacity — admit-all sends p95 through the roof and burns the floor you meant to protect.",
+          "Cliff at ~12s against fixed capacity. Admit-all sends p95 through the roof and burns the floor you meant to protect.",
         after: `Served ${(servedFrac * 100).toFixed(0)}%, under-budget ${(budgetFrac * 100).toFixed(0)}% of the run, peak p95 ${next.peakP95.toFixed(0)}ms, VIP success ${(vipSuccessRate * 100).toFixed(0)}% (admit ${(controls.admit * 100).toFixed(0)}%, queue ${controls.queueCap}${controls.vipFirst ? ", VIP on" : ""}).`,
         changed:
           controls.admit < 0.85 && won
-            ? "Lower admit at the cliff traded volume for latency — the customers you kept stayed inside budget."
+            ? "Lower admit at the cliff traded volume for latency. The customers you kept stayed inside budget."
             : controls.admit >= 0.95 && !latencyOk
-              ? "Near-full admit past capacity queued everyone — p95 failed for the crowd you tried to serve."
+              ? "Near-full admit past capacity queued everyone. P95 failed for the crowd you tried to serve."
               : "Queue and VIP levers only help after you stop admitting more than the fixed pool can finish.",
         metrics: [
           {

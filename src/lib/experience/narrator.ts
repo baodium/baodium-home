@@ -13,7 +13,7 @@ export type NarratorFrame = {
 };
 
 /**
- * Always-on live state for Chapter 1 — so a real engineer never wonders
+ * Always-on live state for Chapter 1. so a real engineer never wonders
  * “what am I looking at?” while the sim runs.
  */
 export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
@@ -68,7 +68,7 @@ export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
     segments.push(`${growing} (${snap.waitingCount})`);
     tone = "warn";
   } else if (snap.littles.overDemand) {
-    segments.push(`demand ≈ ${snap.littles.L.toFixed(0)} over capacity — waiters next`);
+    segments.push(`demand ≈ ${snap.littles.L.toFixed(0)} over capacity. waiters next`);
     tone = "warn";
   } else {
     segments.push("no waiters");
@@ -84,13 +84,13 @@ export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
       "Good: busy and waiters fall as in-flight holds finish; new traffic stays on the fast baseline path.";
   } else if (snap.waitingCount > 0) {
     goodLooksLike =
-      "Good: busy stays ≤ 40 while you cut demand (disable / shed) or shorten holds (cache) — waiters then drain.";
+      "Good: busy stays ≤ 40 while you cut demand (disable / shed) or shorten holds (cache). Waiters then drain.";
   } else if (snap.utilization >= 0.85) {
     goodLooksLike =
       "Good: keep headroom under ~70–80% util so a small traffic bump does not create waiters.";
   } else if (controls.exposurePct === 0 && controls.featureEnabled) {
     goodLooksLike =
-      "Good: code is live at 0% — raise exposure only when you are ready to watch the pool.";
+      "Good: code is live at 0%. Raise exposure only when you are ready to watch the pool.";
   } else {
     goodLooksLike =
       "Good: estimated demand (arrivals × hold time) stays under 40, busy has headroom, and the slowest 1% of requests stay near the baseline hold.";

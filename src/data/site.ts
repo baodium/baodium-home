@@ -3,23 +3,23 @@ export const site = {
   credit: "Adewale Obadimu, PhD",
   brand: "BAODIUM",
   url: "https://baodium.com",
-  title: "Baodium — products and technical publishing",
+  title: "Baodium · products and technical publishing",
   description:
-    "Baodium is Adewale Obadimu’s home for products and technical publishing — reliability, infrastructure, and AI.",
-  // Real profile URLs. Leave a value blank until it exists — the footer does not render empty links.
+    "Baodium is Adewale Obadimu’s home for products and technical publishing: reliability, infrastructure, and AI.",
+  // Real profile URLs. Leave a value blank until it exists; the footer does not render empty links.
   github: "",
   linkedin: "https://www.linkedin.com/in/obadimu",
   scholar: "https://scholar.google.com/citations?user=qcbM1kAAAAAJ&hl=en",
   scholarCitations: "333",
   email: "mailto:baodium@gmail.com",
-  /** Visible footer/nav label — never the raw address. */
+  /** Visible footer/nav label; never the raw address. */
   emailLabel: "Email",
   personal: "https://obadimu.com",
   dissertation: "https://research.ualr.edu/etd/955/",
 } as const;
 
 /**
- * Culture / elsewhere — Scholar lives only on the founder bridge.
+ * Culture / elsewhere. Scholar lives only on the founder bridge.
  * Keep light; don’t compete with Projects.
  */
 export const alsoLinks = [

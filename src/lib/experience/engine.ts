@@ -266,7 +266,7 @@ function timeOutWaiting(engine: Engine) {
     const req = engine.requests.get(id);
     if (!req || req.phase !== "waiting" || req.waitStart === null) continue;
     if (engine.t - req.waitStart >= timeout) {
-      // Remove from wait queue and mark timed out — never acquired a slot.
+      // Remove from wait queue and mark timed out. never acquired a slot.
       completeRequest(engine, req, true);
     } else {
       stillWaiting.push(id);
@@ -344,7 +344,7 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
       kind: patch.featureEnabled ? "enable" : "disable",
       detail: patch.featureEnabled
         ? "Feature flag ON (deploy already live; exposure still controls who sees it)."
-        : "Feature flag OFF — new requests skip recommendations.",
+        : "Feature flag OFF. New requests skip recommendations.",
     });
   }
   if (patch.featureDisabledForNew === true && !prev.featureDisabledForNew) {
@@ -372,14 +372,14 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
     engine.flagLog.push({
       t: engine.t,
       kind: "pause",
-      detail: `Exposure raise blocked — rollout paused at ${prev.exposurePct}%. Disable or unpause to change cohort size.`,
+      detail: `Exposure raise blocked. rollout paused at ${prev.exposurePct}%. Disable or unpause to change cohort size.`,
     });
   }
   if (patch.paused === true && !prev.paused) {
     engine.flagLog.push({
       t: engine.t,
       kind: "pause",
-      detail: `Rollout paused at ${next.exposurePct}% — cohort frozen; traffic and in-flight holds continue. Pausing does not drain the pool.`,
+      detail: `Rollout paused at ${next.exposurePct}%. cohort frozen; traffic and in-flight holds continue. Pausing does not drain the pool.`,
     });
   }
   if (
@@ -391,7 +391,7 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
       kind: "mitigation",
       detail:
         patch.acquireTimeoutSec === null
-          ? "Acquire timeout cleared — waiters may block indefinitely."
+          ? "Acquire timeout cleared. Waiters may block indefinitely."
           : `Acquire timeout → ${(patch.acquireTimeoutSec * 1000).toFixed(0)}ms (maps to connectionTimeout).`,
     });
   }
@@ -401,8 +401,8 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
       kind: "mitigation",
       detail:
         patch.shedAtUtil === null
-          ? "Load shed cleared — recs always attempt acquire when exposed."
-          : `Load shed at ≥${Math.round(patch.shedAtUtil * 100)}% pool util — skip recs lookup when saturated.`,
+          ? "Load shed cleared. Recs always attempt acquire when exposed."
+          : `Load shed at ≥${Math.round(patch.shedAtUtil * 100)}% pool util. skip recs lookup when saturated.`,
     });
   }
   if (patch.cacheHitRate !== undefined && patch.cacheHitRate !== prev.cacheHitRate) {

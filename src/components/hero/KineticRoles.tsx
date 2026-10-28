@@ -54,7 +54,6 @@ export function KineticRoles({
         </motion.span>
         {roles.map((role, line) => {
           const isActive = active === line;
-          const dim = active !== -1 && !isActive;
           const letters = `${role.word}.`.split("");
           return (
             <span
@@ -71,7 +70,8 @@ export function KineticRoles({
               >
                 0{line + 1}
               </motion.span>
-              <span className="block overflow-hidden pb-[0.08em] text-[clamp(2.45rem,5.1vw,4.85rem)] font-semibold leading-[1.02] tracking-[-0.05em]">
+              {/* No overflow clip / filter blur: roles must stay optically sharp. */}
+              <span className="block pb-[0.08em] text-[clamp(2.45rem,5.1vw,4.85rem)] font-semibold leading-[1.02] tracking-[-0.05em] [filter:none]">
                 <span className="sr-only">{role.word}.</span>
                 <span
                   aria-hidden="true"
@@ -83,20 +83,18 @@ export function KineticRoles({
                   {letters.map((letter, k) => (
                     <motion.span
                       key={k}
-                      className={`inline-block ${dim ? "group-hover/role:!text-[rgba(245,239,229,0.78)]" : ""}`}
-                      initial={reduce ? false : { y: "105%", rotate: 6 }}
-                      animate={{ y: "0%", rotate: 0 }}
+                      className="inline-block will-change-auto"
+                      initial={reduce ? false : { y: "0.35em", opacity: 0 }}
+                      animate={{ y: "0em", opacity: 1 }}
                       transition={{
-                        duration: reduce ? 0 : 0.9,
-                        delay: reduce ? 0 : 0.55 + line * 0.14 + k * 0.035,
+                        duration: reduce ? 0 : 0.7,
+                        delay: reduce ? 0 : 0.55 + line * 0.14 + k * 0.03,
                         ease,
                       }}
                       style={{
                         color: isActive
                           ? flameAt(k / Math.max(letters.length - 1, 1))
-                          : dim
-                            ? "rgba(245,239,229,0.62)"
-                            : "#f5efe5",
+                          : "#f5efe5",
                         transition: reduce
                           ? undefined
                           : `color 0.28s ease ${isActive ? (letters.length - 1 - k) * 0.018 : 0}s`,

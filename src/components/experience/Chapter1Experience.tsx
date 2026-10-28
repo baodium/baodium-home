@@ -40,6 +40,7 @@ import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
 import { SimControls } from "@/components/experience/SimControls";
 import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
+import { TrainingBrief } from "@/components/experience/TrainingBrief";
 import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
 import { narrateChapter1 } from "@/lib/experience/narrator";
 
@@ -147,7 +148,7 @@ export function Chapter1Experience() {
   }, [running, speed, stopLoop, sync]);
 
   const logAction = (msg: string) => {
-    setActionLog((prev) => [`t=${engineRef.current.t.toFixed(1)}s — ${msg}`, ...prev].slice(0, 24));
+    setActionLog((prev) => [`t=${engineRef.current.t.toFixed(1)}s. ${msg}`, ...prev].slice(0, 24));
   };
 
   const onTogglePreview = () => {
@@ -219,7 +220,7 @@ export function Chapter1Experience() {
     setDecision(kind);
     if (kind === "pause_exposure") {
       logAction(`Decision: pause exposure at ${engineRef.current.controls.exposurePct}% (traffic continues; cohort frozen)`);
-      // Freeze exposure only — do not secretly cut λ (that taught the wrong lesson).
+      // Freeze exposure only. do not secretly cut λ (that taught the wrong lesson).
       setControls(engineRef.current, { paused: true });
     } else if (kind === "disable_feature") {
       setControls(engineRef.current, {
@@ -229,7 +230,7 @@ export function Chapter1Experience() {
       });
       logAction("Decision: disable feature for new traffic");
     } else {
-      logAction("Decision: investigate — left traffic running");
+      logAction("Decision: investigate. Left traffic running");
     }
     sync();
   };
@@ -330,7 +331,7 @@ export function Chapter1Experience() {
     setFocusedReq(null);
     setTraced(false);
     setSawWaiters(false);
-    logAction("Replay — engine reset");
+    logAction("Replay. Engine reset");
     sync();
   };
 
@@ -483,6 +484,21 @@ export function Chapter1Experience() {
         </motion.p>
       </header>
 
+      <TrainingBrief
+        simulate="Recommendations behind a feature flag share a 40-slot database connection pool with the rest of the product page path."
+        why="Correct code can still exhaust a shared resource. Waiting, timeouts, and SLO burn show up before anyone finds a bug in the query."
+        technologies={[
+          "Feature flags",
+          "Connection pools",
+          "Little’s Law",
+          "Acquire timeout",
+          "Load shedding",
+          "Request-path cache",
+        ]}
+        simulation="Guided walkthrough first: inspect, deploy at 0%, trace one request, raise exposure, pressure the pool, then decide. Sandbox unlocks the same levers for free practice."
+        interpret="Read pool.active, pool.pending, acquire.wait.p99, and path latency. Busy stays ≤ 40; overflow waits. Disable cuts new demand while in-flight holds drain."
+      />
+
       <div className="mt-6 space-y-4">
         <GuidedProgress
           steps={scenario.steps.map((s) => ({ id: s.id, title: s.title }))}
@@ -570,7 +586,7 @@ export function Chapter1Experience() {
                       className="exp-btn exp-btn-ghost mt-3"
                       onClick={() => setPredictionAnswered(true)}
                     >
-                      I&apos;ve made my prediction — show me
+                      I&apos;ve made my prediction. show me
                     </button>
                   </div>
                 ) : null}
@@ -587,7 +603,7 @@ export function Chapter1Experience() {
                   <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
                     <span className="text-[color:var(--exp-fg)]">Expected answer: </span>
                     Disable stops <em>new</em> recommendation acquires; in-flight busy slots keep
-                    their connections until release. pool.pending drains as those holds finish —
+                    their connections until release. pool.pending drains as those holds finish . 
                     disable ≠ kill.
                   </p>
                 ) : null}
@@ -674,12 +690,12 @@ export function Chapter1Experience() {
                       </div>
                       <div className="rounded-xl border border-[color-mix(in_srgb,var(--exp-signal)_35%,transparent)] bg-[color-mix(in_srgb,var(--exp-signal)_6%,var(--exp-panel))] px-3 py-2.5">
                         <p className="exp-kicker !tracking-[0.16em] !text-[color:var(--exp-signal)]">
-                          So what
+                          Interpret results
                         </p>
                         <p className="mt-1.5 text-[color:var(--exp-fg)]">
                           Correct code still waits on a shared finite pool. Disable cuts new demand;
                           in-flight holds drain on their own. Cache cuts W; shed/timeout trade errors
-                          for headroom — same ops signature you would page on.
+                          for headroom. same ops signature you would page on.
                         </p>
                       </div>
                     </div>
@@ -741,7 +757,7 @@ export function Chapter1Experience() {
                 <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Sandbox</h2>
                 <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
                   Pressure the pool, then operate: disable, shed, timeout, or cache. Read Ops like
-                  an on-call dashboard — same invariants as guided.
+                  an on-call dashboard. Same rules as guided mode.
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">

@@ -55,7 +55,7 @@ export function PlayChrome({
               href={book.readPath}
               className="text-cinnabar transition-colors hover:text-ink"
             >
-              Free book →
+              Read the book for free →
             </Link>
           </div>
         </div>

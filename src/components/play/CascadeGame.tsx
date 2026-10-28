@@ -83,7 +83,7 @@ export function CascadeGame() {
     engineRef.current = createCascade();
     setResult(null);
     setCopied(false);
-    setSnap(emptyCascadeSnap("Faults inject at ~8s — trip early, isolate budgets."));
+    setSnap(emptyCascadeSnap("Faults inject at ~8s. Trip early, isolate budgets."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -100,10 +100,10 @@ export function CascadeGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/cascade`;
-    const text = `Cascade on Baodium — score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Cascade on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Cascade — Baodium", text, url });
+        await navigator.share({ title: "Cascade · Baodium", text, url });
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -114,57 +114,59 @@ export function CascadeGame() {
     }
   };
 
+  const technologies =
+    catalog?.technologies ??
+    ["Circuit breakers", "Bulkheads", "Fail-fast timeouts", "Shared worker pools", "Dependency health"];
+  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
+  const win =
+    catalog?.success ?? "Keep checkout alive through the wobble without a site-wide outage.";
+
   const lesson = useMemo((): DrillLesson => {
     if (phase === "intro") {
       return {
-        experiment:
+        simulate:
           "One dependency will degrade. Circuits and bulkheads decide whether the blast stays local or takes checkout down.",
-        seeing:
-          "Four dependency health tiles, cascade risk, and checkout throughput. Watch Auth wobble first.",
-        why: "Shared pools turn one slow dependency into thread starvation everywhere — unless you isolate failure domains.",
-        tryNext: "Trip circuits early and enable the Auth bulkhead before you start.",
-        success:
-          catalog?.success ??
-          "Keep checkout alive through the wobble without a site-wide outage.",
+        why: "Shared pools turn one slow dependency into thread starvation everywhere unless you isolate failure domains.",
+        technologies,
+        simulation:
+          "Trip circuits early and enable the Auth bulkhead before you start. Watch dependency health, cascade risk, and checkout throughput.",
+        interpret: win,
       };
     }
     if (phase === "running") {
       const openCount = Object.values(snap.circuitOpen).filter(Boolean).length;
       return {
-        experiment:
+        simulate:
           snap.cascadeRisk > 0.55
-            ? "Cascade risk is high — failure is spreading across shared capacity."
+            ? "Cascade risk is high. Failure is spreading across shared capacity."
             : "Dependencies are under stress. Isolation only works when both trip and bulkhead land.",
-        seeing: `${snap.message}${openCount ? ` · ${openCount} circuit(s) open` : ""}`,
         why:
           controls.bulkheadAuth && openCount > 0
             ? "An open circuit stops calling the sick dependency; a bulkhead keeps its waiters from consuming the shared pool."
             : "A circuit without a bulkhead still shares the blast radius through the thread/connection pool.",
-        tryNext:
-          !controls.bulkheadAuth
-            ? "Enable Bulkhead Auth — isolate the first wobbling dependency."
-            : "Trip earlier or shorten timeouts if health keeps falling.",
-        success:
-          catalog?.success ??
-          "Keep checkout alive through the wobble without a site-wide outage.",
+        technologies,
+        simulation: !controls.bulkheadAuth
+          ? `${snap.message}${openCount ? ` · ${openCount} circuit(s) open` : ""}. Enable Bulkhead Auth to isolate the first wobbling dependency.`
+          : `${snap.message}${openCount ? ` · ${openCount} circuit(s) open` : ""}. Trip earlier or shorten timeouts if health keeps falling.`,
+        interpret: win,
       };
     }
     if (phase === "won") {
       return {
-        experiment: "Contained — checkout stayed up while a dependency failed.",
-        seeing: result?.reason ?? "Blast radius stayed local.",
-        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-        success: "Win locked. Try without the Auth bulkhead to see the spread return.",
+        simulate: "Contained. Checkout stayed up while a dependency failed.",
+        why: result?.takeaway ?? takeaway,
+        technologies,
+        simulation: result?.reason ?? "Blast radius stayed local.",
+        interpret: "Win locked. Try without the Auth bulkhead to see the spread return.",
       };
     }
     return {
-      experiment: "The outage fanned out — checkout fell with the dependency.",
-      seeing: result?.reason ?? "Cascade risk won.",
-      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-      tryNext: "Trip early and isolate Auth. Shared pools turn one bad dependency into a site outage.",
-      success:
-        catalog?.success ??
-        "Keep checkout alive through the wobble without a site-wide outage.",
+      simulate: "The outage fanned out. Checkout fell with the dependency.",
+      why: result?.takeaway ?? takeaway,
+      technologies,
+      simulation: result?.reason ?? "Cascade risk won.",
+      interpret:
+        "Trip early and isolate Auth. Shared pools turn one bad dependency into a site outage.",
     };
   }, [
     controls.bulkheadAuth,
@@ -173,6 +175,9 @@ export function CascadeGame() {
     snap.cascadeRisk,
     snap.circuitOpen,
     snap.message,
+    takeaway,
+    technologies,
+    win,
   ]);
 
   return (
@@ -204,7 +209,7 @@ export function CascadeGame() {
                 bulkheads
               </span>
             </DrillTip>
-            , fail fast — keep checkout alive for {CASCADE_DURATION_S}s.
+            , and fail fast. Keep checkout alive for {CASCADE_DURATION_S}s.
           </p>
         </div>
         <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
@@ -411,7 +416,7 @@ export function CascadeGame() {
             <span>
               <DrillTip
                 label="Bulkhead Pay"
-                tip="Isolate Pay the same way — useful when payment latency would otherwise consume the shared pool."
+                tip="Isolate Pay the same way. Useful when payment latency would otherwise consume the shared pool."
               >
                 <span className="text-[color:var(--drill-fg)]">Bulkhead Pay</span>
               </DrillTip>
@@ -456,7 +461,7 @@ export function CascadeGame() {
             )}
           </div>
           <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            Trip early and isolate Auth — shared pools turn one bad dependency
+            Trip early and isolate Auth. Shared pools turn one bad dependency
             into a site outage.
           </p>
         </div>

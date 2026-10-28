@@ -93,10 +93,10 @@ export function TailLatencyGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/tail-latency`;
-    const text = `Tail Latency on Baodium — score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Tail Latency on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Tail Latency — Baodium", text, url });
+        await navigator.share({ title: "Tail Latency · Baodium", text, url });
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -107,72 +107,84 @@ export function TailLatencyGame() {
     }
   };
 
+  const technologies =
+    catalog?.technologies ??
+    ["p50 / p99 latency", "Worker pools", "Request hedging", "Timeouts", "Work amplification"];
+  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
+  const win =
+    catalog?.success ??
+    `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`;
+
   const lesson = useMemo((): DrillLesson => {
     if (phase === "intro") {
       return {
-        experiment:
-          "p50 is the median. p99 is the slowest 1%. After ~10s, stragglers appear — hold p99 without drowning the fleet in hedge copies.",
-        seeing: "p50, p95, p99, and work-cost multiplier. Early calm is not the test.",
+        simulate:
+          "p50 is the median. p99 is the slowest 1%. After ~10s, stragglers appear. Hold p99 without drowning the fleet in hedge copies.",
         why: "Median health can hide a burning SLO. Hedging races the tail; too-early hedges inflate work cost and make everything slower.",
-        tryNext: "Keep concurrency modest, enable hedge with a late delay, then start.",
-        success:
-          catalog?.success ??
-          `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`,
+        technologies,
+        simulation:
+          "Keep concurrency modest, enable hedge with a late delay, then start. Watch p50, p95, p99, and the work-cost multiplier.",
+        interpret: win,
       };
     }
     if (phase === "running") {
       if (snap.t < 10) {
         return {
-          experiment: "Quiet lane — load is steady. The real test starts when stragglers arrive.",
-          seeing: snap.message,
+          simulate: "Quiet lane. Load is steady. The real test starts when stragglers arrive.",
           why: "Early calm is not success. Hold the dials for the window that actually stresses the tail.",
-          tryNext: "Leave room for hedges: do not max concurrency before stragglers land.",
-          success:
-            catalog?.success ??
-            `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`,
+          technologies,
+          simulation: `${snap.message} Leave room for hedges: do not max concurrency before stragglers land.`,
+          interpret: win,
         };
       }
       if (snap.p99 > P99_BUDGET_MS * 0.9) {
         return {
-          experiment: `p99 is near or over ${P99_BUDGET_MS}ms — the tail is under fire.`,
-          seeing: snap.message,
+          simulate: `p99 is near or over ${P99_BUDGET_MS}ms. The tail is under fire.`,
           why: "Duplicate work buys latency only if the original request was truly stuck. Early hedges burn capacity.",
-          tryNext: "Cut concurrency, hedge later, or tighten timeout — read p99 and cost together.",
-          success:
-            catalog?.success ??
-            `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`,
+          technologies,
+          simulation: `${snap.message} Cut concurrency, hedge later, or tighten timeout. Read p99 and cost together.`,
+          interpret: win,
         };
       }
       return {
-        experiment: "Stragglers are live. You are trading concurrency, hedge delay, and timeout against work cost.",
-        seeing: snap.message,
+        simulate:
+          "Stragglers are live. You are trading concurrency, hedge delay, and timeout against work cost.",
         why: "Users notice the tail, not the mean. A green p50 does not mean the SLO is safe.",
-        tryNext: controls.hedge
-          ? "If cost climbs, delay the hedge further so only true stragglers get a duplicate."
-          : "Enable hedging with a late delay once p99 starts to stretch.",
-        success:
-          catalog?.success ??
-          `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`,
+        technologies,
+        simulation: controls.hedge
+          ? `${snap.message} If cost climbs, delay the hedge further so only true stragglers get a duplicate.`
+          : `${snap.message} Enable hedging with a late delay once p99 starts to stretch.`,
+        interpret: win,
       };
     }
     if (phase === "won") {
       return {
-        experiment: "Tail held — p99 stayed inside the budget.",
-        seeing: "Notice the work-cost multiplier — a win that doubles load is a fragile win.",
-        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-        success: "Win locked. Try earlier hedges next to see cost climb.",
+        simulate: "Tail held. p99 stayed inside the budget.",
+        why: result?.takeaway ?? takeaway,
+        technologies,
+        simulation:
+          "Notice the work-cost multiplier. A win that doubles load is a fragile win.",
+        interpret: "Win locked. Try earlier hedges next to see cost climb.",
       };
     }
     return {
-      experiment: "The tail escaped — p99 blew the budget or work cost ran away.",
-      seeing: result?.reason ?? "p99 or cost broke first.",
-      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-      tryNext: "Modest concurrency + late hedges beat blasting duplicates on every request.",
-      success:
-        catalog?.success ??
-        `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`,
+      simulate: "The tail escaped. p99 blew the budget or work cost ran away.",
+      why: result?.takeaway ?? takeaway,
+      technologies,
+      simulation: result?.reason ?? "p99 or cost broke first.",
+      interpret: "Modest concurrency plus late hedges beat blasting duplicates on every request.",
     };
-  }, [controls.hedge, phase, result, snap.message, snap.p99, snap.t]);
+  }, [
+    controls.hedge,
+    phase,
+    result,
+    snap.message,
+    snap.p99,
+    snap.t,
+    takeaway,
+    technologies,
+    win,
+  ]);
 
   return (
     <div className="slo-game">
@@ -182,7 +194,7 @@ export function TailLatencyGame() {
             Play · Tail Latency
           </p>
           <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
-            p50 can look fine while p99 is already broken.
+            Hold the tail under budget without drowning the fleet.
           </h1>
           <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
             Stragglers hit after 10s.{" "}
@@ -194,7 +206,7 @@ export function TailLatencyGame() {
                 Hedge
               </span>
             </DrillTip>{" "}
-            carefully — duplicate work costs capacity. Hold p99 under {P99_BUDGET_MS}ms for{" "}
+            carefully: duplicate work costs capacity. Hold p99 under {P99_BUDGET_MS}ms for{" "}
             {TAIL_DURATION_S}s.
           </p>
         </div>
@@ -235,7 +247,7 @@ export function TailLatencyGame() {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
               label="p50"
-              tip="Median latency — half of requests are faster. Can stay green while the slowest 1% already miss the SLO."
+              tip="Median latency. half of requests are faster. Can stay green while the slowest 1% already miss the SLO."
               value={snap.p50}
               max={P99_BUDGET_MS}
               format={(n) => `${n.toFixed(0)} ms`}
@@ -253,7 +265,7 @@ export function TailLatencyGame() {
             />
             <PlayMeter
               label="p99"
-              tip="99th-percentile latency — the slowest 1%. This is the budget you must hold."
+              tip="99th-percentile latency. the slowest 1%. This is the budget you must hold."
               value={snap.p99}
               max={P99_BUDGET_MS}
               format={(n) => `${n.toFixed(0)} ms`}
@@ -312,7 +324,7 @@ export function TailLatencyGame() {
           <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
             <span className="text-[color:var(--drill-fg)]">Workers</span> size the pool (queueing lifts the whole
             tail). <span className="text-[color:var(--drill-fg)]">Hedge</span> races a duplicate after a delay.{" "}
-            <span className="text-[color:var(--drill-fg)]">Timeout</span> cuts stuck work — too tight and you create false failures.
+            <span className="text-[color:var(--drill-fg)]">Timeout</span> cuts stuck work. too tight and you create false failures.
           </p>
           <label className="block">
             <DrillControlLabel

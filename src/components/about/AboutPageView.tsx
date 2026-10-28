@@ -14,7 +14,7 @@ import { site } from "@/data/site";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Dedicated About — Adewale behind Baodium.
+ * Dedicated About. Adewale behind Baodium.
  * Alive copper/cream craft: portrait field, letter, intentional Scholar, contact CTA, listen.
  * No giant raw email; no homepage duplicate.
  */
@@ -117,8 +117,8 @@ export function AboutPageView() {
 
             <motion.h1
               id="about-page-heading"
-              initial={reduce ? false : { opacity: 0, y: 22, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 1.05, delay: reduce ? 0 : 0.12, ease }}
               className="mt-5 max-w-[13ch] font-serif text-[clamp(3rem,8vw,5.75rem)] italic leading-[0.96] tracking-[-0.04em] text-cream"
             >
@@ -148,7 +148,7 @@ export function AboutPageView() {
               transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 0.4, ease }}
               className="mt-7 max-w-lg text-[clamp(1.08rem,1.65vw,1.28rem)] leading-relaxed text-cream/72"
             >
-              Baodium is his home for products and technical publishing — failures from
+              Baodium is his home for products and technical publishing: failures from
               production, written so the next design holds.
             </motion.p>
 
@@ -172,7 +172,7 @@ export function AboutPageView() {
                   aria-hidden="true"
                   className="relative h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
-                <span className="sr-only"> — opens email to {site.emailLabel}</span>
+                <span className="sr-only"> (opens email to {site.emailLabel})</span>
               </a>
               <a
                 href={site.personal}
@@ -190,7 +190,7 @@ export function AboutPageView() {
             </motion.div>
           </motion.div>
 
-          {/* Mobile / tablet portrait — edge composition, not a card collage */}
+          {/* Mobile / tablet portrait. edge composition, not a card collage */}
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -242,14 +242,14 @@ export function AboutPageView() {
             <Reveal y={12} delay={0.08} className="mt-8 max-w-[40rem]">
               <p className="text-[clamp(1.12rem,1.6vw,1.32rem)] leading-relaxed text-ink/88">
                 Not a pitch deck. Adewale builds Interview Coach and UpTo, and turns
-                production failures into design practice — labs and drills where
+                production failures into design practice: labs and drills where
                 reliability is something you operate, not only read.
               </p>
             </Reveal>
 
             <Reveal y={12} delay={0.12} className="mt-10 max-w-[42rem] md:mt-12">
               <p className="text-[1.05rem] leading-relaxed text-muted">
-                The research thread — misinformation, platforms, systems under pressure —
+                The research thread (misinformation, platforms, systems under pressure)
                 lives on{" "}
                 <a
                   href={site.scholar}
@@ -290,7 +290,7 @@ export function AboutPageView() {
             <Reveal y={14} delay={0.05} className="mt-10 md:mt-12">
               <p className="kicker text-muted">Get in touch</p>
               <p className="mt-4 max-w-md text-[1.05rem] leading-relaxed text-ink/85">
-                Products, Play, corrections, or a note — reach him directly.
+                Products, Play, corrections, or a note: reach him directly.
               </p>
               <a
                 href={site.email}
@@ -302,7 +302,7 @@ export function AboutPageView() {
                   aria-hidden="true"
                   className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
-                <span className="sr-only"> — opens email to {site.emailLabel}</span>
+                <span className="sr-only"> (opens email to {site.emailLabel})</span>
               </a>
             </Reveal>
           </motion.div>

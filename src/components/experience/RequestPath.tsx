@@ -126,7 +126,7 @@ export function RequestPath({
       </div>
       {pressure ? (
         <p className="mt-2 text-xs leading-relaxed text-[color:var(--exp-accent)]">
-          Pool saturated — arrivals wait beside the grid. Busy slots stay ≤ {snap.poolSize}.
+          Pool saturated. arrivals wait beside the grid. Busy slots stay ≤ {snap.poolSize}.
         </p>
       ) : (
         <p className="mt-2 text-xs leading-relaxed text-[color:var(--exp-muted)]">

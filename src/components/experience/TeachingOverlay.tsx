@@ -20,7 +20,7 @@ const toneGlow: Record<PedagogyLesson["tone"], string> = {
 
 /**
  * Single teaching card: live Now chain (when provided) + So what / Try.
- * Seeing is omitted when LiveNarrator owns the live voice — no triple-speak.
+ * Seeing is omitted when LiveNarrator owns the live voice. no triple-speak.
  */
 export function TeachingOverlay({
   lesson,
@@ -101,21 +101,21 @@ export function TeachingOverlay({
             {showSeeing ? (
               <div>
                 <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                  Seeing
+                  Simulation
                 </dt>
                 <dd className="mt-1 text-[color:var(--exp-fg)]">{lesson.seeing}</dd>
               </div>
             ) : null}
             <div>
               <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                So what
+                Why it matters
               </dt>
               <dd className="mt-1 text-[color:var(--exp-muted)]">{lesson.why}</dd>
             </div>
             {lesson.next && !compactTry ? (
               <div>
                 <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                  Try
+                  Next action
                 </dt>
                 <dd className="mt-1 text-[color:var(--exp-amber)]">{lesson.next}</dd>
               </div>
@@ -123,7 +123,7 @@ export function TeachingOverlay({
             {lesson.prod ? (
               <details className="group/prod">
                 <summary className="cursor-pointer list-none font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)] marker:content-none [&::-webkit-details-marker]:hidden">
-                  In production
+                  Interpret in production
                   <span className="ml-1.5 normal-case tracking-normal opacity-70 group-open/prod:hidden">
                     · show
                   </span>

@@ -24,7 +24,7 @@ import {
 const catalog = getPlayGame("traffic-surge");
 
 const idleSnap: SurgeSnap = emptySurgeSnap(
-  "Calm morning. Spike lands around 12s — decide who waits.",
+  "Calm morning. Spike lands around 12s. decide who waits.",
 );
 
 export function TrafficSurgeGame() {
@@ -72,7 +72,7 @@ export function TrafficSurgeGame() {
     engineRef.current = createSurge();
     setResult(null);
     setCopied(false);
-    setSnap(emptySurgeSnap("Spike incoming — decide admit rate before 12s."));
+    setSnap(emptySurgeSnap("Spike incoming. decide admit rate before 12s."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -92,7 +92,7 @@ export function TrafficSurgeGame() {
         : `Traffic Surge got me (score ${result.score}). Can you hold p95? ${url}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Traffic Surge — Baodium", text, url });
+        await navigator.share({ title: "Traffic Surge · Baodium", text, url });
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -103,57 +103,72 @@ export function TrafficSurgeGame() {
     }
   };
 
+  const technologies =
+    catalog?.technologies ??
+    ["Admission control", "Queue caps", "Load shedding", "p95 latency", "VIP priority"];
+  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
+  const win =
+    catalog?.success ??
+    `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`;
+
   const lesson = useMemo((): DrillLesson => {
     if (phase === "intro") {
       return {
-        experiment:
-          "Arrivals spike around 12s. Admit rate and queue cap decide who waits — and whether p95 survives.",
-        seeing: "Arrivals, queue depth, p95 latency, and success rate move together under the spike.",
+        simulate:
+          "Arrivals spike around 12s against fixed capacity. Admit rate and queue cap decide who waits and whether p95 survives.",
         why: "Serving everyone slowly serves no one. Early shedding protects the customers you can still help.",
-        tryNext: "Lower admit before the spike, or keep VIP-first shedding ready, then start.",
-        success:
-          catalog?.success ??
-          `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`,
+        technologies,
+        simulation:
+          "Lower admit before the spike, or keep VIP-first shedding ready, then start. Watch arrivals, queue depth, p95, and success rate together.",
+        interpret: win,
       };
     }
     if (phase === "running") {
       return {
-        experiment:
+        simulate:
           snap.t < 12
-            ? "Calm traffic for now — the spike is coming. Set the dials before it lands."
+            ? "Calm traffic for now. The spike is coming, so set the dials before it lands."
             : "Spike is live. Queue depth and p95 tell you whether shedding is early enough.",
-        seeing: snap.message,
         why:
           snap.p95 > P95_LIMIT_MS * 0.9
             ? "A full queue turns wait time into latency. Shed load before p95 cooks past the budget."
-            : "Admit rate is load shedding by another name — refuse some work so the rest stays fast.",
-        tryNext:
+            : "Admit rate is load shedding by another name: refuse some work so the rest stays fast.",
+        technologies,
+        simulation:
           snap.queue > controls.queueCap * 0.8
-            ? "Drop admit rate or lower the queue cap before latency breaches."
-            : "Hold the line through the peak; nudge VIP-first if success rate dips unevenly.",
-        success:
-          catalog?.success ??
-          `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`,
+            ? `${snap.message} Drop admit rate or lower the queue cap before latency breaches.`
+            : `${snap.message} Hold the line through the peak; nudge VIP-first if success rate dips unevenly.`,
+        interpret: win,
       };
     }
     if (phase === "won") {
       return {
-        experiment: "You shaped the spike — latency stayed inside the budget.",
-        seeing: result?.reason ?? "p95 held while enough traffic still got through.",
-        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-        success: "Win locked. Try a higher admit next run and see when the cliff returns.",
+        simulate: "You shaped the spike. Latency stayed inside the budget.",
+        why: result?.takeaway ?? takeaway,
+        technologies,
+        simulation: result?.reason ?? "p95 held while enough traffic still got through.",
+        interpret: "Win locked. Try a higher admit next run and see when the cliff returns.",
       };
     }
     return {
-      experiment: "The spike won — p95 or success rate broke first.",
-      seeing: result?.reason ?? "Latency or errors escaped the budget.",
-      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-      tryNext: "Shed earlier at peak (~200 rps). You cannot admit everyone.",
-      success:
-        catalog?.success ??
-        `Keep p95 under ${P95_LIMIT_MS}ms for ${SURGE_DURATION_S}s while still serving most traffic.`,
+      simulate: "The spike won. p95 or success rate broke first.",
+      why: result?.takeaway ?? takeaway,
+      technologies,
+      simulation: result?.reason ?? "Latency or errors escaped the budget.",
+      interpret: "Shed earlier at peak (~200 rps). You cannot admit everyone. " + win,
     };
-  }, [controls.queueCap, phase, result, snap.message, snap.p95, snap.queue, snap.t]);
+  }, [
+    controls.queueCap,
+    phase,
+    result,
+    snap.message,
+    snap.p95,
+    snap.queue,
+    snap.t,
+    takeaway,
+    technologies,
+    win,
+  ]);
 
   return (
     <div className="slo-game">
@@ -216,7 +231,7 @@ export function TrafficSurgeGame() {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
               label="Arrivals"
-              tip="Incoming request rate. The spike peaks near ~200 rps — that is more than you can admit safely."
+              tip="Incoming request rate. The spike peaks near ~200 rps. that is more than you can admit safely."
               value={snap.arrivals}
               max={240}
               format={(n) => `${n.toFixed(0)} rps`}
@@ -232,7 +247,7 @@ export function TrafficSurgeGame() {
             />
             <PlayMeter
               label="p95 latency"
-              tip="95th-percentile response time. Cross the budget and the drill fails even if the median still looks fine."
+              tip="95th-percentile response time. Cross the budget and the drill fails even if the median is still inside target."
               value={snap.p95}
               max={P95_LIMIT_MS}
               format={(n) => `${n.toFixed(0)} ms`}

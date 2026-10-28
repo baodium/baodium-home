@@ -1,13 +1,13 @@
-/** Pure engine for SLO Watch — dual knobs (pool vs concurrency), retries, shedding. */
+/** Pure engine for SLO Watch. dual knobs (pool vs concurrency), retries, shedding. */
 
 export type RetryPolicy = "off" | "cautious" | "aggressive";
 
 export type GamePhase = "intro" | "running" | "won" | "lost";
 
 export type Controls = {
-  /** Connection pool size — hard cap on concurrent holds. */
+  /** Connection pool size. hard cap on concurrent holds. */
   poolSize: number;
-  /** Edge concurrency limit — admission before the pool. */
+  /** Edge concurrency limit. admission before the pool. */
   concurrencyLimit: number;
   retries: RetryPolicy;
   shedding: boolean;
@@ -128,7 +128,7 @@ export function createEngine(): EngineState {
     cascade: false,
     recentFailEwma: 0,
     peakUtil: 0,
-    lastMessage: "Warm traffic. Defaults won’t survive Wave 3 — size up.",
+    lastMessage: "Warm traffic. Defaults won’t survive Wave 3. size up.",
   };
 }
 
@@ -149,7 +149,7 @@ export function emptySloSnap(message?: string): TickSnapshot {
     sheds: 0,
     retryAmp: 1,
     cascadeRisk: 0,
-    message: message ?? "Idle — start a shift to burn the error budget.",
+    message: message ?? "Idle. Start a shift to burn the error budget.",
   };
 }
 
@@ -245,23 +245,23 @@ export function tick(
     (rejectedAtEdge > 0 || softFails > completions * 0.05)
   ) {
     cascade = true;
-    message = "Retry storm — callers are amplifying the outage.";
+    message = "Retry storm. Callers are amplifying the outage.";
   } else if (pending > pool * 0.5) {
-    message = `Pool saturated — ${pending.toFixed(0)} waiting for a free connection (concurrency ${conc} > useful pool work).`;
+    message = `Pool saturated. ${pending.toFixed(0)} waiting for a free connection (concurrency ${conc} > useful pool work).`;
   } else if (!controls.shedding && rejectedAtEdge > 0) {
-    message = "Concurrency limit hit without shedding — edge rejects.";
+    message = "Concurrency limit hit without shedding. Edge rejects.";
   } else if (controls.shedding && shedCount > 0) {
-    message = "Shedding load — intentional 503s, pool protected.";
+    message = "Shedding load. Intentional 503s, pool protected.";
   } else if (conc < pool * 0.55 && wave >= 2) {
-    message = "Concurrency below pool — headroom unused, but latency gated.";
+    message = "Concurrency below pool. Headroom unused, but latency gated.";
   } else if (pool < conc * 0.6 && wave >= 2) {
-    message = "Pool smaller than concurrency — pending grows; size the pool or shed.";
+    message = "Pool smaller than concurrency. Pending grows; size the pool or shed.";
   } else if (wave === 3) {
     message = "Wave 3 spike. Aggressive retries can cascade.";
   } else if (wave === 2) {
     message = "Wave 2. Watch pool util and pending climb.";
   } else if (poolUtil < 0.55) {
-    message = "Headroom looks fine — for now.";
+    message = "Headroom looks fine. For now.";
   } else {
     message = "Contention rising. Occupancy is stretching.";
   }
@@ -327,7 +327,7 @@ export function tick(
   }
 
   if (t >= DURATION_S) {
-    // Must still be roughly on SLO after surviving — not just budget > 0 from early headroom.
+    // Must still be roughly on SLO after surviving. not just budget > 0 from early headroom.
     const held =
       successRate >= SLO_TARGET - 0.012 && !cascade && peakUtil < 1.2;
     return {
@@ -361,11 +361,11 @@ function buildResult(
     state.cascade || snap.cascadeRisk > 0.75
       ? {
           href: "/system-design/chapter-4",
-          label: "Ch.4 — Service communication and cascading failure",
+          label: "Ch.4. Service communication and cascading failure",
         }
       : {
           href: "/system-design/chapter-1",
-          label: "Ch.1 — Resource contention in production",
+          label: "Ch.1. Resource contention in production",
         };
 
   const reason =
@@ -374,10 +374,10 @@ function buildResult(
       : state.cascade
         ? "A retry storm turned saturation into a cascade."
         : state.errorBudget <= 0
-          ? "Error budget hit zero — too many failed requests under load."
+          ? "Error budget hit zero. Too many failed requests under load."
           : successRate < SLO_TARGET - 0.012
             ? "Budget limped to the end, but success rate still missed the SLO."
-            : "Peak pool saturation was too deep — headroom gone.";
+            : "Peak pool saturation was too deep. Headroom gone.";
 
   const takeaway =
     "Pool size and concurrency are different levers: one caps holds, the other caps admission. Aggressive retries under saturation spend the budget twice.";
@@ -389,17 +389,17 @@ function buildResult(
     "Default-sized pool under Wave 3: util climbs past 90%, retries amplify load, error budget drains, and a cascade becomes likely.";
   const after = outcome === "won"
     ? `You finished with success ${(successRate * 100).toFixed(2)}%, budget ${budgetLeft.toFixed(0)}% left, peak util ${(state.peakUtil * 100).toFixed(0)}%, retry amp ${snap.retryAmp.toFixed(2)}× (pool ${controls.poolSize}, concurrency ${controls.concurrencyLimit}, retries ${controls.retries}${controls.shedding ? ", shedding on" : ""}).`
-    : `Run ended at wave ${wave}: success ${(successRate * 100).toFixed(2)}%, budget ${budgetLeft.toFixed(0)}%, peak util ${(state.peakUtil * 100).toFixed(0)}%, retry amp ${snap.retryAmp.toFixed(2)}×${state.cascade ? " — cascade fired" : ""}.`;
+    : `Run ended at wave ${wave}: success ${(successRate * 100).toFixed(2)}%, budget ${budgetLeft.toFixed(0)}%, peak util ${(state.peakUtil * 100).toFixed(0)}%, retry amp ${snap.retryAmp.toFixed(2)}×${state.cascade ? ". Cascade fired" : ""}.`;
   const changed =
     controls.retries === "aggressive" && state.peakUtil > 0.85
-      ? "Aggressive retries under saturation multiplied offered load — the budget paid twice for the same work."
+      ? "Aggressive retries under saturation multiplied offered load. The budget paid twice for the same work."
       : controls.concurrencyLimit < controls.poolSize * 0.7
-        ? "Admission capped below pool capacity — you protected holds, but may have shed useful traffic early."
+        ? "Admission capped below pool capacity. You protected holds, but may have shed useful traffic early."
         : controls.shedding && outcome === "won"
-          ? "Shedding under pressure traded a few requests to keep the pool from locking up — budget survived."
+          ? "Shedding under pressure traded a few requests to keep the pool from locking up. Budget survived."
           : controls.poolSize >= 160 && controls.retries !== "aggressive"
-            ? "A larger pool absorbed Wave 3 holds without a retry storm — util stayed recoverable."
-            : "The levers you moved did not separate admission from holds — saturation still owned the shift.";
+            ? "A larger pool absorbed Wave 3 holds without a retry storm. Util stayed recoverable."
+            : "The levers you moved did not separate admission from holds. Saturation still owned the shift.";
 
   const metrics: GameResult["metrics"] = [
     {
@@ -427,7 +427,7 @@ function buildResult(
   const shareText =
     outcome === "won"
       ? `I held the SLO in Baodium’s SLO Watch (score ${score}). Pool under fire, no cascade. Try it: https://baodium.com/play/slo-watch`
-      : `SLO Watch got me — ${state.cascade ? "retry cascade" : "error budget gone"} at wave ${wave}. Can you hold it? https://baodium.com/play/slo-watch`;
+      : `SLO Watch got me. ${state.cascade ? "retry cascade" : "error budget gone"} at wave ${wave}. Can you hold it? https://baodium.com/play/slo-watch`;
 
   return {
     outcome,

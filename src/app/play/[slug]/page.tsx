@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `${game.feel} So what: ${game.matters}`,
     alternates: { canonical: `${site.url}/play/${game.slug}` },
     openGraph: {
-      title: `${game.title} — Baodium Play`,
+      title: `${game.title} · Baodium Play`,
       description: game.matters,
       url: `${site.url}/play/${game.slug}`,
     },

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { EngineSnapshot } from "@/lib/experience/types";
 
 /**
- * Production-shaped gauges so the lab feels like reading a real pool dashboard —
+ * Production-shaped gauges so the lab feels like reading a real pool dashboard . 
  * not a toy counter strip.
  */
 export function OpsMetricsPanel({
@@ -36,7 +36,7 @@ export function OpsMetricsPanel({
           name="pool.active"
           value={`${snap.activeCount}`}
           hint={`/ ${snap.poolSize}`}
-          tip="Connections currently held. Never exceeds pool size — overflow waits instead of inventing a 41st slot."
+          tip="Connections currently held. Never exceeds pool size. Overflow waits instead of inventing a 41st slot."
           good="Headroom under the cap (often aim ~60–70% busy under load)."
           hot={snap.activeCount >= snap.poolSize}
         />
@@ -82,7 +82,7 @@ export function OpsMetricsPanel({
           name="acquire.timeouts"
           value={`${snap.timeoutCount}`}
           hint={timeoutArmed ? `to ${timeoutMs.toFixed(0)}ms` : "disarmed"}
-          tip="Requests that exceeded connectionTimeout while waiting for a slot — hard failures."
+          tip="Requests that exceeded connectionTimeout while waiting for a slot. Hard failures."
           good="Zero. Prefer shed/disable before relying on timeouts."
           hot={snap.timeoutCount > 0}
         />
@@ -157,8 +157,8 @@ export function OpsMetricsPanel({
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[color:var(--exp-muted)]">
             {snap.slo.breached
-              ? "Tail is past budget. Check acquire.wait.p99 and pool.pending before blaming the query text — queueing often dominates."
-              : "When util climbs, watch acquire.wait.p99 approach connectionTimeout — that is the error cliff."}
+              ? "Tail is past budget. Check acquire.wait.p99 and pool.pending before blaming the query text. Queueing often dominates."
+              : "When util climbs, watch acquire.wait.p99 approach connectionTimeout. That is the error cliff."}
           </p>
         </motion.div>
       </AnimatePresence>

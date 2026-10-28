@@ -110,7 +110,7 @@ export function MitigationControls({
 
         <MitigationRow
           title="Cache hit rate"
-          prod="Shorten W — hits skip the long hold"
+          prod="Shorten W. hits skip the long hold"
           active={c.cacheHitRate > 0}
           reducedMotion={reducedMotion}
         >
@@ -131,7 +131,7 @@ export function MitigationControls({
           </label>
           <p className="mt-2 text-xs text-[color:var(--exp-muted)]">
             Attacks <span className="font-mono">W</span> in L = λ × W. Does not change arrival rate
-            — compare with disable (cuts demand) under the same pressure.
+           . compare with disable (cuts demand) under the same pressure.
           </p>
         </MitigationRow>
       </div>

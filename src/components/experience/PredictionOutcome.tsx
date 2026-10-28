@@ -38,12 +38,12 @@ export function PredictionOutcome({
         <span className="font-mono tabular-nums">{demand.toFixed(0)}</span> vs pool{" "}
         {littles.poolSize}.{" "}
         {under
-          ? "Demand fits — waiters should stay near zero at this mix."
-          : "Demand exceeds capacity — expect pool.pending > 0; busy stays capped at 40."}
+          ? "Demand fits. waiters should stay near zero at this mix."
+          : "Demand exceeds capacity. expect pool.pending > 0; busy stays capped at 40."}
       </p>
       <p className="mt-1.5 text-xs text-[color:var(--exp-muted)]">
         Formula check: ceil(λ × W × 1.25) ≈ {Math.ceil(demand * 1.25)} would be a first pool-floor
-        estimate with headroom — not a license to grow W without watching acquire.wait.p99.
+        estimate with headroom. not a license to grow W without watching acquire.wait.p99.
       </p>
     </motion.div>
   );
