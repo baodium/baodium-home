@@ -5,7 +5,7 @@ export type PlayDifficulty = "easy" | "medium" | "spicy";
 export type PlayGame = {
   slug: string;
   title: string;
-  /** One line: the concrete production scenario you operate. */
+  /** Challenge-style one-liner for hub cards (no spoiler solution). */
   feel: string;
   /** What the meters will show when the failure is live. */
   notice: string;
@@ -25,6 +25,8 @@ export type PlayGame = {
   chapterLabel: string;
   /** Compact takeaway for share/debrief fallback. */
   takeaway: string;
+  /** Clear challenge question matching the drill H1. */
+  challenge: string;
   /** Mini-preview seed metrics shown on the hub card. */
   preview: {
     primary: { label: string; value: string; tone: "ok" | "warn" | "bad" };
@@ -38,7 +40,8 @@ export const playGames: PlayGame[] = [
   {
     slug: "slo-watch",
     title: "SLO Watch",
-    feel: "Checkout faces three traffic waves. You set pool size, concurrency, and retries before the error budget hits zero.",
+    challenge: "Can you hold checkout at 99.5% through three waves?",
+    feel: "Three traffic waves hit checkout. You set pool size, concurrency, and retries before the error budget runs out.",
     notice:
       "Watch error budget and pool util together. Aggressive retries under saturation burn the budget twice.",
     success: "Hold success ≥ 99.5% for the full shift without a cascade.",
@@ -70,7 +73,8 @@ export const playGames: PlayGame[] = [
   {
     slug: "traffic-surge",
     title: "Traffic Surge",
-    feel: "A spike lands around 12s against fixed capacity. Admit, queue, and shed so p95 stays inside budget.",
+    challenge: "Can you keep p95 under budget through the spike?",
+    feel: "A spike lands around 12 seconds against fixed capacity. Admit, queue, and shed so latency survives.",
     notice: "Past the cliff, shedding cuts errors faster than any capacity you do not have.",
     success: "Keep p95 under budget most of the run while still serving most traffic.",
     learn: "When capacity is fixed, early shedding is the only lever that protects latency.",
@@ -90,7 +94,7 @@ export const playGames: PlayGame[] = [
     chapterHref: "/system-design/chapter-2",
     chapterLabel: "Ch.2 · Latency and throughput",
     takeaway:
-      "Shedding early protects the customers you can serve; serving everyone slowly serves no one.",
+      "Shedding early protects the customers you can serve. Serving everyone slowly serves no one.",
     preview: {
       primary: { label: "p95", value: "840ms", tone: "bad" },
       secondary: { label: "Served", value: "61%", tone: "warn" },
@@ -101,6 +105,7 @@ export const playGames: PlayGame[] = [
   {
     slug: "cascade",
     title: "Cascade",
+    challenge: "Can you keep checkout alive when a dependency fails?",
     feel: "Auth and DB wobble. Trip circuits and add bulkheads before one dependency takes checkout down.",
     notice: "Blast radius shrinks only after both the circuit and the bulkhead land.",
     success: "Keep checkout alive through the wobble without a site-wide outage.",
@@ -132,6 +137,7 @@ export const playGames: PlayGame[] = [
   {
     slug: "cache-roulette",
     title: "Cache Roulette",
+    challenge: "Can you survive a hot-key expiry without stampeding origin?",
     feel: "Cached keys expire on a timer. Coalesce concurrent misses, or every client hits origin at once.",
     notice: "Compare one miss refresh (singleflight) with a herd of identical origin fetches.",
     success: "Hold hit rate high and keep origin load under capacity for the full run.",
@@ -162,7 +168,8 @@ export const playGames: PlayGame[] = [
   {
     slug: "tail-latency",
     title: "Tail Latency",
-    feel: "Stragglers arrive after ~10s. Hold p99 under budget without drowning the fleet in hedge copies.",
+    challenge: "Can you keep p99 below 420 ms?",
+    feel: "Stragglers arrive after about 10 seconds. Hold p99 under budget without drowning the fleet in hedge copies.",
     notice:
       "p50 is the median; p99 is the slowest 1%. They diverge under stragglers and queueing.",
     success: "Keep p99 inside budget without work cost running away.",
@@ -183,7 +190,7 @@ export const playGames: PlayGame[] = [
     chapterHref: "/system-design/chapter-2",
     chapterLabel: "Ch.2 · Latency and throughput",
     takeaway:
-      "The slowest requests shape the customer experience. Hedging helps only when the duplicate work fits.",
+      "The slowest requests shape the customer experience. Hedging helps only when the duplicate work still fits.",
     preview: {
       primary: { label: "p99", value: "1.4s", tone: "bad" },
       secondary: { label: "p50", value: "48ms", tone: "ok" },

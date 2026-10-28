@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
 import { DrillNarrator } from "@/components/play/DrillNarrator";
-import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
+import {
+  DrillPanelHeading,
+  DrillProseHeader,
+  DrillTakeaway,
+  type DrillProse,
+} from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import {
   createEngine,
@@ -48,7 +53,11 @@ function Meter({
 }) {
   const ratio = max === 0 ? 0 : Math.min(1.15, value / max);
   const tone =
-    ratio >= dangerAt ? "bg-cinnabar" : ratio >= warnAt ? "bg-[color:var(--drill-warn)]" : "bg-[color:var(--drill-signal)]";
+    ratio >= dangerAt
+      ? "bg-cinnabar"
+      : ratio >= warnAt
+        ? "bg-[color:var(--drill-warn)]"
+        : "bg-[color:var(--drill-signal)]";
   return (
     <div>
       <div className="flex justify-between gap-3 text-[0.72rem] tracking-wide text-[color:var(--drill-muted)]">
@@ -78,6 +87,7 @@ export function SloWatchGame({
   compact?: boolean;
   embedded?: boolean;
 }) {
+  void compact;
   const reduced = usePrefersReducedMotion();
   const [phase, setPhase] = useState<GamePhase>("intro");
   const [controls, setControls] = useState<Controls>({
@@ -90,7 +100,6 @@ export function SloWatchGame({
   const [result, setResult] = useState<GameResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
-  // Reduced-motion defaults to step mode; still fully playable without spectacle.
   const stepMode = stepOverride ?? reduced;
 
   const engineRef = useRef(createEngine());
@@ -128,7 +137,6 @@ export function SloWatchGame({
     setPhase("running");
 
     if (stepMode) {
-      // One automatic tick so meters aren't empty; player advances with Step.
       applyTick();
       return;
     }
@@ -170,67 +178,61 @@ export function SloWatchGame({
   const technologies =
     catalog?.technologies ??
     ["Error budgets", "Connection pools", "Concurrency limits", "Retry policy", "Load shedding"];
-  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
-  const win =
-    catalog?.success ??
-    `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`;
+  const takeaway =
+    catalog?.takeaway ??
+    "Capacity and retries are coupled: aggressive retries under saturation spend the budget twice.";
 
-  const lesson = useMemo((): DrillLesson => {
-    if (phase === "intro") {
+  const prose = useMemo((): DrillProse => {
+    if (phase === "won" || phase === "lost") {
       return {
-        simulate:
-          "Three traffic waves hit checkout while you choose pool size, concurrency, retries, and shedding.",
-        why: "An SLO is a promise with a budget. Aggressive retries under saturation spend that budget twice and can cascade.",
-        technologies,
-        simulation:
-          "Set the dials, then start the shift. Watch pool util, arrivals, success rate, and remaining error budget as each wave lands.",
-        interpret: win,
-      };
-    }
-    if (phase === "running") {
-      return {
-        simulate: `Wave ${snap.wave} is live. Occupancy and retries decide whether the budget survives.`,
-        why:
-          controls.retries === "aggressive" && snap.poolUtil > 0.85
-            ? "Aggressive retries multiply arrivals while the pool is already full, which spends the budget twice."
-            : "Capacity and retries are coupled. Under saturation, more retries usually means more failures, not more recoveries.",
-        technologies,
-        simulation:
-          snap.errorBudget < 40
-            ? `${snap.message} Shed load or cut retries before the budget hits zero.`
-            : `${snap.message} Watch utilization into the next wave and size up before it crests.`,
-        interpret: win,
-      };
-    }
-    if (phase === "won") {
-      return {
-        simulate: "Checkout held inside the SLO for the full shift.",
-        why: takeaway || "Capacity and retries are coupled under saturation.",
-        technologies,
-        simulation: result?.reason ?? "Error budget survived all three waves.",
-        interpret: "Win locked. Try aggressive retries once to see the budget burn faster.",
+        title: "SLO Watch",
+        challenge: `Can you hold checkout at ${(SLO_TARGET * 100).toFixed(1)}% through three waves?`,
+        situation: <p>{result?.reason ?? snap.message}</p>,
+        objective: `Hold success at or above ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S} seconds without a cascade.`,
+        explore: technologies,
+        gettingStarted:
+          phase === "won"
+            ? "Try aggressive retries once to see the budget burn faster."
+            : "Size the pool, keep retries cautious, and shed before Wave 3 saturates.",
+        takeaway: result?.takeaway || takeaway,
       };
     }
     return {
-      simulate: "The budget emptied or the system cascaded.",
-      why: takeaway || "Capacity and retries are coupled under saturation.",
-      technologies,
-      simulation: result?.reason ?? "SLO breached under the waves.",
-      interpret:
-        "Size the pool, keep retries cautious, and shed before Wave 3 saturates. " + win,
+      title: "SLO Watch",
+      challenge: `Can you hold checkout at ${(SLO_TARGET * 100).toFixed(1)}% through three waves?`,
+      situation: (
+        <>
+          <p>
+            Checkout faces three traffic waves while you choose pool size,
+            concurrency, retries, and whether to shed load.
+          </p>
+          <p>
+            An{" "}
+            <DrillTip
+              label="error budget"
+              tip="The amount of unreliability an SLO still allows. When it hits zero, you have broken the promise for the window."
+            >
+              <span className="text-[color:var(--drill-fg)]">error budget</span>
+            </DrillTip>{" "}
+            is the unreliability an SLO still allows. Empty it, or cascade under
+            Wave 3, and the shift is lost.
+          </p>
+        </>
+      ),
+      objective: `Hold success at or above ${(SLO_TARGET * 100).toFixed(1)}% for the full ${DURATION_S}-second shift without a cascade.`,
+      terms: (
+        <>
+          Pool size caps how many connections checkout can hold at once.
+          Concurrency caps how much work you admit. They are different levers:
+          sizing the pool without capping admission still queues.
+        </>
+      ),
+      explore: technologies,
+      gettingStarted:
+        "Set the dials, then start the shift. Watch pool util, arrivals, success rate, and remaining error budget as each wave lands.",
+      takeaway,
     };
-  }, [
-    controls.retries,
-    phase,
-    result,
-    snap.errorBudget,
-    snap.message,
-    snap.poolUtil,
-    snap.wave,
-    takeaway,
-    technologies,
-    win,
-  ]);
+  }, [phase, result, snap.message, takeaway, technologies]);
 
   const narrator = useMemo(
     () =>
@@ -259,44 +261,24 @@ export function SloWatchGame({
     ],
   );
 
+  const statusLabel =
+    phase === "intro"
+      ? "Ready"
+      : phase === "running"
+        ? `Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
+        : phase === "won"
+          ? "Held"
+          : "Breached";
+
   return (
     <div className="slo-game">
       {!embedded ? (
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="drill-kicker">Play · SLO Watch</p>
-            <h2 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] text-[color:var(--drill-fg)] md:text-4xl">
-              Keep checkout inside the SLO through three waves.
-            </h2>
-            <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
-              Size the pool, cap concurrency, pick retries carefully, shed if you
-              must. Empty the{" "}
-              <DrillTip
-                label="error budget"
-                tip="The amount of unreliability an SLO still allows. When it hits zero, you have broken the promise for the window."
-              >
-                <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
-                  error budget
-                </span>
-              </DrillTip>{" "}
-              or cascade, and you lose.
-            </p>
-          </div>
-          <div className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
-            <p>
-              Hold availability at or above{" "}
-              <span className="tabular-nums text-[color:var(--drill-fg)]">
-                {(SLO_TARGET * 100).toFixed(1)}%
-              </span>{" "}
-              for {DURATION_S}s
-            </p>
-          </div>
-        </div>
+        <DrillProseHeader prose={prose} compact={phase !== "intro"} />
       ) : (
         <div className="flex flex-wrap items-end justify-between gap-3">
           <p className="max-w-xl text-[0.95rem] leading-relaxed text-[color:var(--drill-muted)]">
-            Three traffic waves. Defaults will not hold Wave 3. Size up, pick retries carefully,
-            and shed if you must.
+            Three traffic waves. Defaults will not hold Wave 3. Size up, pick
+            retries carefully, and shed if you must.
           </p>
           <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
             SLO {(SLO_TARGET * 100).toFixed(1)}% · {DURATION_S}s
@@ -304,40 +286,78 @@ export function SloWatchGame({
         </div>
       )}
 
-      {!embedded ? (
-        <DrillTeach lesson={lesson} compact={phase !== "intro"} />
-      ) : null}
-
       <div className={`grid gap-6 lg:grid-cols-12 ${embedded ? "mt-6" : "mt-8"}`}>
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <DrillPanelHeading
+            status={
+              <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+                <span className="font-mono text-[0.68rem] uppercase tracking-[0.14em]">
+                  {statusLabel}
+                </span>
+                <span className="max-w-xs text-right">{snap.message}</span>
+              </span>
+            }
+          >
+            Live metrics
+          </DrillPanelHeading>
+
           {!embedded ? (
             <div className="mb-5 [&_.drill-narrator]:mt-0">
               <DrillNarrator frame={narrator} />
             </div>
           ) : null}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
-              {phase === "intro"
-                ? "Ready"
-                : phase === "running"
-                  ? `Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
-                  : phase === "won"
-                    ? "Held"
-                    : "Breached"}
-            </p>
-            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
-          </div>
+
+          <table className="drill-metrics-table">
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+                <th scope="col">What it means</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pool util</td>
+                <td>{Math.round(snap.poolUtil * 100)}%</td>
+                <td>How full the connection pool is. Near 100% means new work waits.</td>
+              </tr>
+              <tr>
+                <td>Pending</td>
+                <td>{snap.pending.toFixed(0)}</td>
+                <td>Admitted work waiting for a free pool slot.</td>
+              </tr>
+              <tr>
+                <td>Arrivals</td>
+                <td>
+                  {snap.arrivals.toFixed(0)} req/s · {snap.retryAmp.toFixed(2)}×
+                </td>
+                <td>Incoming rate including retry amplification.</td>
+              </tr>
+              <tr>
+                <td>Success rate</td>
+                <td>{(snap.successRate * 100).toFixed(2)}%</td>
+                <td>
+                  Must stay at or above {(SLO_TARGET * 100).toFixed(1)}% for the shift.
+                </td>
+              </tr>
+              <tr>
+                <td>Error budget</td>
+                <td>{snap.errorBudget.toFixed(0)}%</td>
+                <td>Remaining allowed unreliability for this window.</td>
+              </tr>
+            </tbody>
+          </table>
 
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <Meter
               label="Pool utilization"
-              tip="How full the connection pool is. Near 100% means new work waits for a free hold."
+              tip="How full the connection pool is."
               value={snap.poolUtil}
               format={(n) => `${Math.round(n * 100)}%`}
             />
             <Meter
               label="Pending (awaiting conn)"
-              tip="Admitted work waiting for a free pool slot. Shows up when concurrency ≫ pool size."
+              tip="Admitted work waiting for a free pool slot."
               value={snap.pending}
               max={Math.max(20, controls.poolSize)}
               format={(n) => `${n.toFixed(0)}`}
@@ -345,17 +365,8 @@ export function SloWatchGame({
               dangerAt={0.7}
             />
             <Meter
-              label="Arrivals (w/ retries)"
-              tip="Incoming request rate including retry amplification. Aggressive retries multiply this under saturation."
-              value={snap.arrivals}
-              max={280}
-              format={(n) => `${n.toFixed(0)} req/s · ${snap.retryAmp.toFixed(2)}×`}
-              warnAt={0.55}
-              dangerAt={0.75}
-            />
-            <Meter
               label="Success rate"
-              tip="Share of requests that complete successfully. Must stay at or above the SLO target."
+              tip="Share of requests that complete successfully."
               value={Math.max(0, 1 - snap.successRate)}
               max={0.05}
               format={() => `${(snap.successRate * 100).toFixed(2)}%`}
@@ -364,20 +375,12 @@ export function SloWatchGame({
             />
             <Meter
               label="Error budget left"
-              tip="Remaining allowed unreliability for this window. Hits zero when you have broken the SLO."
+              tip="Remaining allowed unreliability for this window."
               value={100 - snap.errorBudget}
               max={100}
               format={() => `${snap.errorBudget.toFixed(0)}%`}
               warnAt={0.45}
               dangerAt={0.75}
-            />
-            <Meter
-              label="Concurrency util"
-              tip="Admission fill vs concurrency limit (in-flight + pending). Separate from pool util."
-              value={snap.concurrencyUtil}
-              format={(n) => `${Math.round(n * 100)}%`}
-              warnAt={0.8}
-              dangerAt={0.95}
             />
           </div>
 
@@ -390,11 +393,7 @@ export function SloWatchGame({
               outcome={result.outcome}
               score={result.score}
               reason={result.reason}
-              takeaway={
-                result.takeaway ||
-                getPlayGame("slo-watch")?.takeaway ||
-                "Capacity and retries are coupled under saturation."
-              }
+              takeaway={result.takeaway || takeaway}
               debrief={result.debrief}
               before={result.before}
               after={result.after}
@@ -410,10 +409,13 @@ export function SloWatchGame({
         </div>
 
         <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
+          <DrillPanelHeading>Adjust your settings</DrillPanelHeading>
+
           <label className="block">
             <DrillControlLabel
               label="Pool size"
-              tip="How many workers/connections checkout can hold at once. Pool caps holds; concurrency caps admission. They are different levers."
+              tip="How many workers or connections checkout can hold at once."
+              help="How many connections checkout can hold at once. Pool caps holds; concurrency caps admission. They are different levers."
               value={controls.poolSize}
             />
             <input
@@ -428,10 +430,12 @@ export function SloWatchGame({
               }
             />
           </label>
+
           <label className="block">
             <DrillControlLabel
               label="Concurrency limit"
-              tip="Hard cap on in-flight work. Prevents the pool from accepting more than it can finish."
+              tip="Hard cap on in-flight work."
+              help="Hard cap on in-flight work. Prevents the pool from accepting more than it can finish."
               value={controls.concurrencyLimit}
             />
             <input
@@ -451,20 +455,21 @@ export function SloWatchGame({
           </label>
 
           <fieldset>
-            <legend className="flex items-center gap-2 text-[0.78rem] text-[color:var(--drill-muted)]">
-              <DrillTip
-                label="Retries"
-                tip="How aggressively failed requests are retried. Aggressive retries under saturation multiply load and can cascade."
-              >
-                <span>Retries</span>
-              </DrillTip>
+            <legend className="font-medium text-[0.82rem] text-[color:var(--drill-fg)]">
+              Retries
             </legend>
+            <p className="mt-1.5 text-[0.84rem] leading-relaxed text-[color:var(--drill-muted)]">
+              How aggressively failed requests are retried. Aggressive retries
+              under saturation multiply load and can cascade.
+            </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {([
-                ["off", "Off"],
-                ["cautious", "Cautious"],
-                ["aggressive", "Aggressive"],
-              ] as const).map(([value, label]) => (
+              {(
+                [
+                  ["off", "Off"],
+                  ["cautious", "Cautious"],
+                  ["aggressive", "Aggressive"],
+                ] as const
+              ).map(([value, label]) => (
                 <button
                   key={value}
                   type="button"
@@ -485,46 +490,42 @@ export function SloWatchGame({
           <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={controls.shedding}
               onChange={(e) =>
                 setControls((c) => ({ ...c, shedding: e.target.checked }))
               }
             />
             <span>
-              <DrillTip
-                label="Shed load"
-                tip="Refuse some work with 503s so the pool can finish what it already accepted. Spends success rate to protect survivors."
-              >
-                <span className="text-[color:var(--drill-fg)]">Shed load</span>
-              </DrillTip>
-              <span className="mt-0.5 block text-[color:var(--drill-muted)]">
-                Accept 503s to protect the pool
+              <span className="font-medium text-[color:var(--drill-fg)]">Shed load</span>
+              <span className="mt-1.5 block leading-relaxed">
+                Refuse some work with 503s so the pool can finish what it already
+                accepted. Spends success rate to protect survivors.
               </span>
             </span>
           </label>
 
-          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={stepMode}
               onChange={(e) => setStepOverride(e.target.checked)}
               disabled={phase === "running"}
             />
-            <DrillTip
-              label="Step mode"
-              tip="Advance one simulation tick at a time. Default when reduced motion is on."
-            >
-              <span>Step mode</span>
-            </DrillTip>
-            <span className="text-[color:var(--drill-muted)]">(default when reduced motion is on)</span>
+            <span>
+              <span className="font-medium text-[color:var(--drill-fg)]">Step mode</span>
+              <span className="mt-1.5 block leading-relaxed">
+                Advance one simulation tick at a time. Default when reduced
+                motion is on.
+              </span>
+            </span>
           </label>
 
           <div className="mt-auto flex flex-wrap gap-3 pt-2">
             {phase !== "running" ? (
               <button type="button" className="slo-btn-primary" onClick={start}>
-                {phase === "intro" ? "Start shift" : "Play again"}
+                {phase === "intro" ? "Start drill" : "Play again"}
               </button>
             ) : (
               <>
@@ -564,21 +565,7 @@ export function SloWatchGame({
             </Link>
           </div>
 
-          <details className="border border-[color:var(--drill-line)] p-3 text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            <summary className="cursor-pointer text-[color:var(--drill-fg)]">Assumptions</summary>
-            <ul className="mt-3 list-disc space-y-2 pl-5">
-              <li>Synthetic checkout traffic. not production telemetry.</li>
-              <li>
-                Pool size caps concurrent connection holds. Concurrency limit caps
-                admission (in-flight + pending). When concurrency ≫ pool, pending grows.
-              </li>
-              <li>
-                Aggressive retries multiply arrivals under saturation and can cascade . 
-                the chapter-4 lesson.
-              </li>
-              <li>Shedding cuts offered load but spends some success rate on 503s.</li>
-            </ul>
-          </details>
+          {!embedded ? <DrillTakeaway>{takeaway}</DrillTakeaway> : null}
         </div>
       </div>
     </div>

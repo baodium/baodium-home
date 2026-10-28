@@ -52,8 +52,9 @@ export function PlayHub() {
             </h1>
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
               Short SRE drills from{" "}
-              <em className="text-ink">Practical System Design</em>. Tune the
-              levers, watch the meters, and leave with a production takeaway.
+              <em className="text-ink">Practical System Design</em>. Each one
+              opens with a clear challenge, explains the metrics in plain
+              English, then lets you operate the levers yourself.
             </p>
           </motion.div>
 
@@ -125,6 +126,9 @@ function HubFeatured({
           <h2 className="mt-3 font-serif text-[clamp(1.9rem,3.2vw,2.6rem)] leading-[1.05] tracking-[-0.03em] text-ink">
             {game.title}
           </h2>
+          <p className="mt-3 max-w-xl font-serif text-[1.15rem] leading-snug tracking-[-0.01em] text-ink">
+            {game.challenge}
+          </p>
           <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
             {game.feel}
           </p>
@@ -206,6 +210,7 @@ function HubBand({
           <h2 className="font-serif text-[1.35rem] leading-tight tracking-[-0.02em] text-ink md:text-[1.5rem]">
             {game.title}
           </h2>
+          <p className="text-[0.95rem] leading-snug text-ink">{game.challenge}</p>
           <p className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</p>
         </div>
       </Link>

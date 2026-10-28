@@ -1,9 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillControlLabel } from "@/components/play/DrillTip";
 import { DrillNarrator } from "@/components/play/DrillNarrator";
-import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
+import {
+  DrillPanelHeading,
+  DrillProseHeader,
+  DrillTakeaway,
+  type DrillProse,
+} from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
@@ -24,7 +29,7 @@ import {
 const catalog = getPlayGame("cascade");
 
 const idleSnap: CascadeSnap = emptyCascadeSnap(
-  "All green. Auth starts wobbling around 8s.",
+  "All green. Auth starts wobbling around 8 seconds.",
 );
 
 const NODES: { id: NodeId; label: string }[] = [
@@ -83,7 +88,7 @@ export function CascadeGame() {
     engineRef.current = createCascade();
     setResult(null);
     setCopied(false);
-    setSnap(emptyCascadeSnap("Faults inject at ~8s. Trip early, isolate budgets."));
+    setSnap(emptyCascadeSnap("Faults inject at about 8 seconds."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -117,110 +122,90 @@ export function CascadeGame() {
   const technologies =
     catalog?.technologies ??
     ["Circuit breakers", "Bulkheads", "Fail-fast timeouts", "Shared worker pools", "Dependency health"];
-  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
-  const win =
-    catalog?.success ?? "Keep checkout alive through the wobble without a site-wide outage.";
+  const takeaway =
+    catalog?.takeaway ??
+    "Isolate failure domains first. A circuit without a bulkhead still shares the blast radius.";
 
-  const lesson = useMemo((): DrillLesson => {
-    if (phase === "intro") {
+  const checkoutRate =
+    snap.checkoutOk + snap.checkoutFail <= 0
+      ? null
+      : snap.checkoutOk / (snap.checkoutOk + snap.checkoutFail);
+
+  const prose = useMemo((): DrillProse => {
+    if (phase === "won" || phase === "lost") {
       return {
-        simulate:
-          "One dependency will degrade. Circuits and bulkheads decide whether the blast stays local or takes checkout down.",
-        why: "Shared pools turn one slow dependency into thread starvation everywhere unless you isolate failure domains.",
-        technologies,
-        simulation:
-          "Trip circuits early and enable the Auth bulkhead before you start. Watch dependency health, cascade risk, and checkout throughput.",
-        interpret: win,
-      };
-    }
-    if (phase === "running") {
-      const openCount = Object.values(snap.circuitOpen).filter(Boolean).length;
-      return {
-        simulate:
-          snap.cascadeRisk > 0.55
-            ? "Cascade risk is high. Failure is spreading across shared capacity."
-            : "Dependencies are under stress. Isolation only works when both trip and bulkhead land.",
-        why:
-          controls.bulkheadAuth && openCount > 0
-            ? "An open circuit stops calling the sick dependency; a bulkhead keeps its waiters from consuming the shared pool."
-            : "A circuit without a bulkhead still shares the blast radius through the thread/connection pool.",
-        technologies,
-        simulation: !controls.bulkheadAuth
-          ? `${snap.message}${openCount ? ` · ${openCount} circuit(s) open` : ""}. Enable Bulkhead Auth to isolate the first wobbling dependency.`
-          : `${snap.message}${openCount ? ` · ${openCount} circuit(s) open` : ""}. Trip earlier or shorten timeouts if health keeps falling.`,
-        interpret: win,
-      };
-    }
-    if (phase === "won") {
-      return {
-        simulate: "Contained. Checkout stayed up while a dependency failed.",
-        why: result?.takeaway ?? takeaway,
-        technologies,
-        simulation: result?.reason ?? "Blast radius stayed local.",
-        interpret: "Win locked. Try without the Auth bulkhead to see the spread return.",
+        title: "Cascade",
+        challenge: "Can you keep checkout alive when a dependency fails?",
+        situation: <p>{result?.reason ?? snap.message}</p>,
+        objective: `Keep checkout answering through the wobble for ${CASCADE_DURATION_S} seconds without a site-wide outage.`,
+        explore: technologies,
+        gettingStarted:
+          phase === "won"
+            ? "Try without the Auth bulkhead next to see how shared pools spread failure."
+            : "Try again with earlier circuit trips and isolated pools for Auth.",
+        takeaway: result?.takeaway ?? takeaway,
       };
     }
     return {
-      simulate: "The outage fanned out. Checkout fell with the dependency.",
-      why: result?.takeaway ?? takeaway,
-      technologies,
-      simulation: result?.reason ?? "Cascade risk won.",
-      interpret:
-        "Trip early and isolate Auth. Shared pools turn one bad dependency into a site outage.",
+      title: "Cascade",
+      challenge: "Can you keep checkout alive when a dependency fails?",
+      situation: (
+        <>
+          <p>
+            Checkout depends on Auth, Pay, and the database. Around 8 seconds,
+            one of those paths starts to fail and hold shared workers.
+          </p>
+          <p>
+            You choose when to stop calling a sick dependency, how long callers
+            wait, and whether each dependency gets its own capacity budget.
+          </p>
+        </>
+      ),
+      objective: `Keep checkout answering through the wobble for ${CASCADE_DURATION_S} seconds without a site-wide outage.`,
+      terms: (
+        <>
+          A <span className="text-[color:var(--drill-fg)]">circuit breaker</span>{" "}
+          stops calling a failing dependency after enough errors, so callers fail
+          fast instead of waiting. A{" "}
+          <span className="text-[color:var(--drill-fg)]">bulkhead</span> gives
+          that dependency its own pool so its waiters cannot starve everyone else.
+        </>
+      ),
+      explore: technologies,
+      gettingStarted:
+        "Set the trip threshold and timeouts, decide which bulkheads to enable, then start. Watch dependency health and cascade risk as Auth wobbles.",
+      takeaway,
     };
-  }, [
-    controls.bulkheadAuth,
-    phase,
-    result,
-    snap.cascadeRisk,
-    snap.circuitOpen,
-    snap.message,
-    takeaway,
-    technologies,
-    win,
-  ]);
+  }, [phase, result, snap.message, takeaway, technologies]);
+
+  const statusLabel =
+    phase === "intro"
+      ? "Ready"
+      : phase === "running"
+        ? `${snap.t.toFixed(1)}s`
+        : phase === "won"
+          ? "Contained"
+          : "Spread";
 
   return (
     <div className="slo-game">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="drill-kicker">
-            Play · Cascade
-          </p>
-          <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
-            Keep one bad dependency from taking the site down.
-          </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
-            Auth and DB will wobble. Trip{" "}
-            <DrillTip
-              label="circuits"
-              tip="A circuit breaker stops calling a failing dependency after enough errors, so callers fail fast instead of waiting."
-            >
-              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
-                circuits
-              </span>
-            </DrillTip>
-            , add{" "}
-            <DrillTip
-              label="bulkheads"
-              tip="A bulkhead isolates a dependency onto its own pool of threads or connections so its waiters cannot starve the rest of the system."
-            >
-              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
-                bulkheads
-              </span>
-            </DrillTip>
-            , and fail fast. Keep checkout alive for {CASCADE_DURATION_S}s.
-          </p>
-        </div>
-        <p className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
-          Keep checkout answering while a dependency is sick
-        </p>
-      </div>
-
-      <DrillTeach lesson={lesson} compact={phase !== "intro"} />
+      <DrillProseHeader prose={prose} compact={phase !== "intro"} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <DrillPanelHeading
+            status={
+              <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+                <span className="font-mono text-[0.68rem] uppercase tracking-[0.14em]">
+                  {statusLabel}
+                </span>
+                <span className="max-w-xs text-right">{snap.message}</span>
+              </span>
+            }
+          >
+            Live metrics
+          </DrillPanelHeading>
+
           <div className="mb-5 [&_.drill-narrator]:mt-0">
             <DrillNarrator
               frame={narrateCascade({
@@ -229,28 +214,19 @@ export function CascadeGame() {
                 authHealth: snap.health.auth,
                 dbHealth: snap.health.db,
                 payHealth: snap.health.pay,
-                circuitsOpen: Number(snap.circuitOpen.auth) + Number(snap.circuitOpen.pay) + Number(snap.circuitOpen.db),
+                circuitsOpen:
+                  Number(snap.circuitOpen.auth) +
+                  Number(snap.circuitOpen.pay) +
+                  Number(snap.circuitOpen.db),
                 bulkheadAuth: controls.bulkheadAuth,
                 bulkheadPay: controls.bulkheadPay,
                 cascadeRisk: snap.cascadeRisk,
               })}
             />
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
-              {phase === "intro"
-                ? "Ready"
-                : phase === "running"
-                  ? `${snap.t.toFixed(1)}s`
-                  : phase === "won"
-                    ? "Contained"
-                    : "Spread"}
-            </p>
-            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
-          </div>
 
           <div
-            className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
+            className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4"
             aria-label="Dependency health"
           >
             {NODES.map((node) => {
@@ -282,10 +258,44 @@ export function CascadeGame() {
             })}
           </div>
 
+          <table className="drill-metrics-table">
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+                <th scope="col">What it means</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cascade risk</td>
+                <td>{Math.round(snap.cascadeRisk * 100)}%</td>
+                <td>
+                  Chance the failure fans out through shared capacity.
+                </td>
+              </tr>
+              <tr>
+                <td>Checkout ok</td>
+                <td>{checkoutRate == null ? "-" : `${(checkoutRate * 100).toFixed(0)}%`}</td>
+                <td>Successful checkouts over attempts during the wobble.</td>
+              </tr>
+              <tr>
+                <td>Auth util</td>
+                <td>{Math.round(snap.util.auth * 100)}%</td>
+                <td>Auth concurrency fill. Without a bulkhead this shares the pool.</td>
+              </tr>
+              <tr>
+                <td>Pay util</td>
+                <td>{Math.round(snap.util.pay * 100)}%</td>
+                <td>Pay concurrency fill. Isolation stops Auth sickness from consuming these slots.</td>
+              </tr>
+            </tbody>
+          </table>
+
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
               label="Cascade risk"
-              tip="Estimated chance the failure fans out through shared capacity. Falls when circuits and bulkheads isolate the sick path."
+              tip="Estimated chance the failure fans out through shared capacity."
               value={snap.cascadeRisk}
               format={(n) => `${Math.round(n * 100)}%`}
               warnAt={0.45}
@@ -293,38 +303,14 @@ export function CascadeGame() {
             />
             <PlayMeter
               label="Checkout ok rate"
-              tip="Successful checkouts over attempts. Circuits + bulkheads keep this up while a dependency is sick."
-              value={
-                snap.checkoutOk + snap.checkoutFail <= 0
-                  ? 0
-                  : 1 - snap.checkoutOk / (snap.checkoutOk + snap.checkoutFail)
-              }
+              tip="Successful checkouts over attempts."
+              value={checkoutRate == null ? 0 : 1 - checkoutRate}
               max={0.5}
-              format={() => {
-                const total = snap.checkoutOk + snap.checkoutFail;
-                if (total <= 0) return "—";
-                return `${((snap.checkoutOk / total) * 100).toFixed(0)}%`;
-              }}
+              format={() =>
+                checkoutRate == null ? "-" : `${(checkoutRate * 100).toFixed(0)}%`
+              }
               warnAt={0.35}
               dangerAt={0.6}
-            />
-            <PlayMeter
-              label="Auth util"
-              tip="Auth concurrency budget fill. Without a bulkhead this shares the edge/pay pool."
-              value={snap.util.auth}
-              max={1}
-              format={(n) => `${Math.round(n * 100)}%`}
-              warnAt={0.75}
-              dangerAt={1}
-            />
-            <PlayMeter
-              label="Pay util"
-              tip="Pay concurrency budget fill. Isolation stops auth sickness from consuming these slots."
-              value={snap.util.pay}
-              max={1}
-              format={(n) => `${Math.round(n * 100)}%`}
-              warnAt={0.75}
-              dangerAt={1}
             />
           </div>
 
@@ -349,10 +335,13 @@ export function CascadeGame() {
         </div>
 
         <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
+          <DrillPanelHeading>Adjust your settings</DrillPanelHeading>
+
           <label className="block">
             <DrillControlLabel
               label="Trip circuit at"
-              tip="Error-rate threshold that opens the circuit. Lower means you stop calling the sick dependency sooner."
+              tip="Error-rate threshold that opens the circuit."
+              help="Error-rate threshold that opens the circuit. Lower means you stop calling the sick dependency sooner."
               value={`${Math.round(controls.tripAt * 100)}% errors`}
             />
             <input
@@ -367,10 +356,12 @@ export function CascadeGame() {
               }
             />
           </label>
+
           <label className="block">
             <DrillControlLabel
               label="Timeout"
-              tip="How long a caller waits on a dependency before failing. Shorter timeouts free capacity faster when the dependency is stuck."
+              tip="How long a caller waits on a dependency before failing."
+              help="How long a caller waits on a dependency before failing. Shorter timeouts free capacity faster when the dependency is stuck."
               value={`${controls.timeoutMs}ms`}
             />
             <input
@@ -388,57 +379,64 @@ export function CascadeGame() {
               }
             />
           </label>
+
           <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={controls.bulkheadAuth}
               onChange={(e) =>
                 setControls((c) => ({ ...c, bulkheadAuth: e.target.checked }))
               }
             />
             <span>
-              <DrillTip
-                label="Bulkhead Auth"
-                tip="Give Auth its own connection/thread pool so Auth waiters cannot starve Pay, DB, or Edge work."
-              >
-                <span className="text-[color:var(--drill-fg)]">Bulkhead Auth</span>
-              </DrillTip>
+              <span className="font-medium text-[color:var(--drill-fg)]">
+                Bulkhead Auth
+              </span>
+              <span className="mt-1.5 block leading-relaxed">
+                Give Auth its own connection or thread pool so Auth waiters
+                cannot starve Pay, DB, or Edge work.
+              </span>
             </span>
           </label>
+
           <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={controls.bulkheadPay}
               onChange={(e) =>
                 setControls((c) => ({ ...c, bulkheadPay: e.target.checked }))
               }
             />
             <span>
-              <DrillTip
-                label="Bulkhead Pay"
-                tip="Isolate Pay the same way. Useful when payment latency would otherwise consume the shared pool."
-              >
-                <span className="text-[color:var(--drill-fg)]">Bulkhead Pay</span>
-              </DrillTip>
+              <span className="font-medium text-[color:var(--drill-fg)]">
+                Bulkhead Pay
+              </span>
+              <span className="mt-1.5 block leading-relaxed">
+                Isolate Pay the same way. Useful when payment latency would
+                otherwise consume the shared pool.
+              </span>
             </span>
           </label>
-          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
+
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={stepMode}
               onChange={(e) => setStepOverride(e.target.checked)}
               disabled={phase === "running"}
             />
-            <DrillTip
-              label="Step mode"
-              tip="Advance one simulation tick at a time. Default when reduced motion is on."
-            >
-              <span>Step mode</span>
-            </DrillTip>
+            <span>
+              <span className="font-medium text-[color:var(--drill-fg)]">Step mode</span>
+              <span className="mt-1.5 block leading-relaxed">
+                Advance one simulation tick at a time. Default when reduced
+                motion is on.
+              </span>
+            </span>
           </label>
+
           <div className="mt-auto flex flex-wrap gap-3 pt-2">
             {phase !== "running" ? (
               <button type="button" className="slo-btn-primary" onClick={start}>
@@ -462,10 +460,8 @@ export function CascadeGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            Trip early and isolate Auth. Shared pools turn one bad dependency
-            into a site outage.
-          </p>
+
+          <DrillTakeaway>{takeaway}</DrillTakeaway>
         </div>
       </div>
     </div>
