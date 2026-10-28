@@ -282,12 +282,13 @@ export function SloWatchGame({
               or cascade, and you lose.
             </p>
           </div>
-          <div className="text-right text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
+          <div className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
             <p>
-              Success{" "}
-              <span className="text-[color:var(--drill-fg)]">
-                ≥ {(SLO_TARGET * 100).toFixed(1)}% for {DURATION_S}s
-              </span>
+              Hold availability at or above{" "}
+              <span className="tabular-nums text-[color:var(--drill-fg)]">
+                {(SLO_TARGET * 100).toFixed(1)}%
+              </span>{" "}
+              for {DURATION_S}s
             </p>
           </div>
         </div>

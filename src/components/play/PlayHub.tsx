@@ -45,15 +45,15 @@ export function PlayHub() {
                 <span className="absolute inset-0 rounded-full bg-[color:var(--tide)]" />
                 <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--tide)]" />
               </span>
-              Play · Interactive hub
+              Play
             </p>
             <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
               Reliability drills from the book.
             </h1>
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
-              Each drill is a short ops shift from{" "}
-              <em className="text-ink">Practical System Design</em>. Tune real
-              levers, watch the meters move, and leave with a production takeaway.
+              Short SRE drills from{" "}
+              <em className="text-ink">Practical System Design</em>. Tune the
+              levers, watch the meters, and leave with a production takeaway.
             </p>
           </motion.div>
 
@@ -89,26 +89,6 @@ export function PlayHub() {
   );
 }
 
-function TrainingOutline({ game, compact }: { game: PlayGame; compact?: boolean }) {
-  return (
-    <div className="space-y-2.5 border-t border-ink/8 pt-4">
-      <p
-        className={`leading-relaxed text-ink/80 ${compact ? "text-[0.82rem]" : "text-[0.88rem]"}`}
-      >
-        {game.matters}
-      </p>
-      <p className="font-mono text-[0.68rem] leading-relaxed tracking-[0.02em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
-        {game.technologies.join(" · ")}
-      </p>
-      <p
-        className={`leading-relaxed text-ink/70 ${compact ? "text-[0.82rem]" : "text-[0.88rem]"}`}
-      >
-        {game.success}
-      </p>
-    </div>
-  );
-}
-
 function HubFeatured({
   game,
   reduce,
@@ -127,8 +107,8 @@ function HubFeatured({
         className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.28)] md:grid-cols-12 md:rounded-[2rem] [&_*]:no-underline"
       >
         <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7fa] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
-          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#2b221d)]">
-            Featured · 01 · Live failure preview
+          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#1a2330)]">
+            Featured · 01
           </span>
           <div className="h-[11.5rem] md:h-[14.5rem]">
             <DrillPreview game={game} size="lg" />
@@ -148,7 +128,9 @@ function HubFeatured({
           <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
             {game.feel}
           </p>
-          <TrainingOutline game={game} />
+          <p className="mt-4 max-w-xl border-t border-ink/8 pt-4 text-[0.92rem] leading-relaxed text-ink/75">
+            {game.takeaway}
+          </p>
           <span className="mt-6 inline-flex items-center gap-2 text-[0.92rem] text-[color-mix(in_srgb,#3d7a8c_95%,#1a2330)] transition-transform duration-300 group-hover:translate-x-1">
             Run this drill
             <span aria-hidden="true">→</span>
@@ -213,7 +195,7 @@ function HubBand({
               className={
                 accent
                   ? "text-cinnabar"
-                  : "text-[color-mix(in_srgb,#3d7a8c_90%,#2b221d)]"
+                  : "text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]"
               }
             >
               {difficultyLabel(game.difficulty)}
@@ -225,7 +207,6 @@ function HubBand({
             {game.title}
           </h2>
           <p className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</p>
-          <TrainingOutline game={game} compact />
         </div>
       </Link>
     </motion.div>

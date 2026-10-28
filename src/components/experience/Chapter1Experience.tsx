@@ -464,7 +464,7 @@ export function Chapter1Experience() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.45, ease }}
         >
-          Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min · Guided + sandbox
+          Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min
         </motion.p>
         <motion.h1
           className="mt-2 font-serif text-[clamp(1.95rem,4.2vw,2.9rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]"
@@ -519,7 +519,7 @@ export function Chapter1Experience() {
           "Load shedding",
           "Request-path cache",
         ]}
-        simulation="Guided walkthrough first: inspect, deploy at 0%, trace one request, raise exposure, pressure the pool, then decide. Sandbox unlocks the same levers for free practice."
+        simulation="Walk the incident first: inspect, deploy at 0%, trace one request, raise exposure, pressure the pool, then decide. Open practice unlocks the same levers afterward."
         interpret="Read pool.active, pool.pending, acquire.wait.p99, and path latency. Busy stays ≤ 40; overflow waits. Disable cuts new demand while in-flight holds drain."
       />
 
@@ -549,13 +549,19 @@ export function Chapter1Experience() {
             <button
               type="button"
               onClick={enterSandbox}
-              className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
+              disabled={!decision && mode !== "sandbox"}
+              title={
+                !decision && mode !== "sandbox"
+                  ? "Finish the guided decision first"
+                  : undefined
+              }
+              className={`rounded-full px-3.5 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                 mode === "sandbox"
                   ? "bg-[color:var(--exp-fg)] text-white"
                   : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
               }`}
             >
-              Sandbox
+              Practice
             </button>
           </div>
           <SimControls
@@ -700,28 +706,17 @@ export function Chapter1Experience() {
 
                 {stepId === "debrief" && debriefText ? (
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2.5">
-                        <p className="exp-kicker !tracking-[0.16em]">Before</p>
-                        <p className="mt-1.5 text-[color:var(--exp-fg)]">
-                          Exposed traffic held the 40-slot pool longer (~12ms → ~80ms). Arrivals kept
-                          coming; waiters grew while busy stayed capped at 40.
-                        </p>
-                      </div>
-                      <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2.5">
-                        <p className="exp-kicker !tracking-[0.16em]">After your choice</p>
-                        <p className="mt-1.5 text-[color:var(--exp-fg)]">{debriefText}</p>
-                      </div>
-                      <div className="rounded-xl border border-[color-mix(in_srgb,var(--exp-signal)_35%,transparent)] bg-[color-mix(in_srgb,var(--exp-signal)_6%,var(--exp-panel))] px-3 py-2.5">
-                        <p className="exp-kicker !tracking-[0.16em] !text-[color:var(--exp-signal)]">
-                          Takeaway
-                        </p>
-                        <p className="mt-1.5 text-[color:var(--exp-fg)]">
-                          Correct code still waits on a shared finite pool. Disable cuts new demand;
-                          in-flight holds drain on their own. Cache cuts W; shed/timeout trade errors
-                          for headroom. same ops signature you would page on.
-                        </p>
-                      </div>
+                    <div className="space-y-3 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3.5 py-3">
+                      <p className="text-[color:var(--exp-fg)]">
+                        Exposed traffic held the 40-slot pool longer (~12ms → ~80ms). Arrivals kept
+                        coming; waiters grew while busy stayed capped at 40.
+                      </p>
+                      <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
+                      <p className="text-[color:var(--exp-fg)]">
+                        Correct code still waits on a shared finite pool. Disable cuts new demand;
+                        in-flight holds drain on their own. Cache cuts hold time; shedding and
+                        timeouts trade errors for headroom. Same signature you would page on.
+                      </p>
                     </div>
                     <ul className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                       {(
@@ -748,7 +743,7 @@ export function Chapter1Experience() {
                     </ul>
                     {actionLog.length > 0 ? (
                       <div>
-                        <p className="exp-kicker !tracking-[0.16em]">Your timeline</p>
+                        <p className="text-[0.8rem] text-[color:var(--exp-faint)]">Actions this run</p>
                         <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-[color:var(--exp-faint)]">
                           {actionLog.map((a) => (
                             <li key={a}>{a}</li>
@@ -766,7 +761,7 @@ export function Chapter1Experience() {
                     onClick={goNext}
                     className="exp-btn exp-btn-solid mt-5 w-full sm:w-auto"
                   >
-                    {stepId === "debrief" ? "Enter sandbox" : "Continue"}
+                    {stepId === "debrief" ? "Open practice" : "Continue"}
                   </button>
                 ) : null}
               </motion.div>
@@ -778,10 +773,10 @@ export function Chapter1Experience() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: reduced ? 0 : 0.35, ease }}
               >
-                <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Sandbox</h2>
+                <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Open practice</h2>
                 <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
-                  Pressure the pool, then operate: disable, shed, timeout, or cache. Read Ops like
-                  an on-call dashboard. Same rules as guided mode.
+                  Pressure the pool, then respond: disable, shed, timeout, or cache. Read Ops like
+                  an on-call dashboard. Same rules as the guided path.
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -931,7 +926,7 @@ export function Chapter1Experience() {
           </AnimatePresence>
 
           <div className="exp-panel-flat">
-            <p className="exp-kicker !tracking-[0.16em]">Assumptions</p>
+            <p className="text-[0.8rem] text-[color:var(--exp-faint)]">What this sim assumes</p>
             <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[color:var(--exp-muted)]">
               {scenario.assumptions.map((a) => (
                 <li key={a}>· {a}</li>

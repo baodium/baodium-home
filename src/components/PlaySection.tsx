@@ -10,7 +10,6 @@ import {
 } from "motion/react";
 import { useRef } from "react";
 import { DrillPreview } from "@/components/play/DrillPreview";
-import { AmbientField } from "@/components/motion/AmbientField";
 import {
   difficultyLabel,
   playGames,
@@ -21,8 +20,8 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Homepage interactive hub — light paper stage, live failure previews, so-what copy.
- * No decorative orbits or pointer-gradient spotlight as the “wow”.
+ * Homepage Play strip — light paper stage, live previews, thin copy.
+ * No decorative orbits or constellation fields.
  */
 export function PlaySection() {
   const ref = useRef<HTMLElement>(null);
@@ -56,10 +55,6 @@ export function PlaySection() {
         style={{ y: panelY, scale: panelScale }}
         className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_100px_-56px_rgba(26,35,48,0.18)] md:rounded-[3.25rem]"
       >
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <AmbientField tone="slate" density={16} className="opacity-35" />
-        </div>
-
         <div className="relative z-[2] mx-auto w-full max-w-[84rem] px-5 py-11 md:px-10 md:py-16">
           <motion.div style={{ y: headerY }} className="flex flex-wrap items-end justify-between gap-6">
             <div className="max-w-2xl">
@@ -68,7 +63,7 @@ export function PlaySection() {
                   <span className="absolute inset-0 rounded-full bg-[color:var(--tide)]" />
                   <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--tide)]" />
                 </span>
-                Play · Interactive hub
+                Play
               </p>
               <h2
                 id="play-heading"
@@ -77,15 +72,15 @@ export function PlaySection() {
                 Reliability drills from the book.
               </h2>
               <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-muted">
-                Short ops shifts you run yourself. Set the levers, watch the meters
-                move, and leave with a production takeaway.
+                Run a short SRE drill yourself. Set the levers, watch the meters,
+                and leave with a production takeaway.
               </p>
             </div>
             <Link
               href="/play"
               className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,#3d7a8c_35%,transparent)] bg-[#f3f7fa] px-6 text-[0.92rem] text-ink transition-[border-color,background-color] duration-300 hover:border-[color-mix(in_srgb,#3d7a8c_55%,transparent)] hover:bg-white"
             >
-              <span>Browse the hub</span>
+              <span>All drills</span>
               <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">
                 ↗
               </span>
@@ -128,30 +123,6 @@ export function PlaySection() {
   );
 }
 
-function TrainingStrip({ game, compact }: { game: PlayGame; compact?: boolean }) {
-  return (
-    <div className="mt-4 space-y-2.5 border-t border-ink/8 pt-4">
-      <p
-        className={`leading-relaxed text-ink/80 ${
-          compact ? "text-[0.8rem]" : "text-[0.88rem]"
-        }`}
-      >
-        {game.matters}
-      </p>
-      <p className="font-mono text-[0.68rem] leading-relaxed tracking-[0.02em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
-        {game.technologies.join(" · ")}
-      </p>
-      <p
-        className={`leading-relaxed text-ink/70 ${
-          compact ? "text-[0.8rem]" : "text-[0.88rem]"
-        }`}
-      >
-        {game.success}
-      </p>
-    </div>
-  );
-}
-
 function FeaturedDrill({
   game,
   progress,
@@ -179,8 +150,8 @@ function FeaturedDrill({
           style={{ y: previewY }}
           className="relative z-[1] border-b border-ink/8 bg-[#f3f7fa] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7"
         >
-          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#2b221d)]">
-            Featured · 01 · Live failure preview
+          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#1a2330)]">
+            Featured · 01
           </span>
           <div className="h-[10.5rem] md:h-[13.5rem]">
             <DrillPreview game={game} size="lg" />
@@ -199,7 +170,9 @@ function FeaturedDrill({
           <span className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
             {game.feel}
           </span>
-          <TrainingStrip game={game} />
+          <span className="mt-4 max-w-xl border-t border-ink/8 pt-4 text-[0.9rem] leading-relaxed text-ink/75">
+            {game.takeaway}
+          </span>
           <span className="mt-6 inline-flex items-center gap-2 text-[0.9rem] text-[color-mix(in_srgb,#3d7a8c_95%,#1a2330)] transition-transform duration-300 group-hover:translate-x-1">
             Run this drill
             <span aria-hidden="true">→</span>
@@ -277,7 +250,7 @@ function DrillBand({
               className={
                 accent
                   ? "text-cinnabar"
-                  : "text-[color-mix(in_srgb,#3d7a8c_90%,#2b221d)]"
+                  : "text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]"
               }
             >
               {difficultyLabel(game.difficulty)}
@@ -289,7 +262,6 @@ function DrillBand({
             {game.title}
           </span>
           <span className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</span>
-          <TrainingStrip game={game} compact />
         </div>
       </Link>
     </motion.div>

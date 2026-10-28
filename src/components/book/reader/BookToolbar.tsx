@@ -237,7 +237,7 @@ export function BookToolbar({
                   BAODIUM
                 </span>
               </Link>
-              <div className="relative hidden sm:block">
+              <div className="relative">
                 <button
                   ref={exploreBtnRef}
                   type="button"
@@ -250,9 +250,27 @@ export function BookToolbar({
                   <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
               </div>
+              <nav
+                aria-label="Site"
+                className="ml-1 hidden items-center gap-0.5 md:flex"
+              >
+                {[
+                  { href: "/projects", label: "Projects" },
+                  { href: "/play", label: "Play" },
+                  { href: "/about", label: "About" },
+                ].map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="inline-flex h-9 items-center rounded-full px-2 text-[0.78rem] text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
 
-            <p className="hidden min-w-0 flex-1 truncate px-2 text-center font-serif text-[0.8125rem] italic text-[var(--reader-muted)] md:block">
+            <p className="hidden min-w-0 flex-1 truncate px-2 text-center font-serif text-[0.8125rem] italic text-[var(--reader-muted)] lg:block">
               {book.title}
             </p>
 

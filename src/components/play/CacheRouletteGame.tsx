@@ -217,11 +217,10 @@ export function CacheRouletteGame() {
             once for {CACHE_DURATION_S}s.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
-          Success{" "}
-          <span className="text-[color:var(--drill-fg)]">
-            hit rate ≥ 72% · no sustained stampede
-          </span>
+        <p className="max-w-[15rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
+          Keep hit rate at or above{" "}
+          <span className="tabular-nums text-[color:var(--drill-fg)]">72%</span>
+          {" "}without a sustained stampede
         </p>
       </div>
 

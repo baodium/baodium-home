@@ -13,7 +13,6 @@ import Link from "next/link";
 import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
 import { Magnetic } from "@/components/Magnetic";
-import { AmbientField } from "@/components/motion/AmbientField";
 import { useIdleDrift } from "@/components/motion/IdleDrift";
 import { Reveal } from "@/components/motion/Reveal";
 import { book } from "@/data/writing";
@@ -78,7 +77,6 @@ export function BookSection() {
       className="relative bg-cream px-3 md:px-5"
     >
       <div className="grain relative overflow-hidden rounded-[2rem] bg-ember pb-10 pt-12 md:rounded-[3rem] md:pb-14 md:pt-20">
-        <AmbientField tone="warm" density={16} className="opacity-70" />
         {!reduce ? (
           <div
             aria-hidden="true"

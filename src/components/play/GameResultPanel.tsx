@@ -106,36 +106,15 @@ export function GameResultPanel({
       ) : null}
 
       {(before || after || changed) && (
-        <div className="mt-4 grid gap-3 border-t border-[color:var(--drill-line)] pt-4 sm:grid-cols-3">
+        <div className="mt-4 space-y-2.5 border-t border-[color:var(--drill-line)] pt-4 text-sm leading-relaxed">
           {before ? (
-            <div>
-              <p className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
-                Before
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-[color:var(--drill-muted)]">
-                {before}
-              </p>
-            </div>
+            <p className="text-[color:var(--drill-muted)]">{before}</p>
           ) : null}
           {after ? (
-            <div>
-              <p className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
-                After
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-[color:var(--drill-fg)]">
-                {after}
-              </p>
-            </div>
+            <p className="text-[color:var(--drill-fg)]">{after}</p>
           ) : null}
           {changed ? (
-            <div>
-              <p className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
-                What changed
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-[color:var(--drill-fg)]">
-                {changed}
-              </p>
-            </div>
+            <p className="text-[color:var(--drill-fg)]">{changed}</p>
           ) : null}
         </div>
       )}

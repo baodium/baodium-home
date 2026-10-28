@@ -37,9 +37,7 @@ export function LiveNarrator({ snap }: { snap: EngineSnapshot }) {
                 : { animation: "exp-ops-pulse 2.2s ease-in-out infinite" }
             }
           />
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--exp-amber)]">
-            Now
-          </p>
+          <span className="sr-only">Live state</span>
         </div>
         <p className="mt-2 text-[0.98rem] leading-snug text-[color:var(--exp-fg)] tabular-nums">
           {frame.segments.map((seg, i) => (
