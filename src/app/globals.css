@@ -1096,6 +1096,60 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   color: var(--drill-signal);
 }
 
+.drill-section-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--drill-fg);
+}
+
+.drill-prose {
+  margin-bottom: 0.25rem;
+}
+
+.drill-metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.drill-metrics-table th,
+.drill-metrics-table td {
+  padding: 0.65rem 0.35rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--drill-line);
+}
+
+.drill-metrics-table th {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--drill-faint);
+  font-weight: 500;
+}
+
+.drill-metrics-table td {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--drill-muted);
+}
+
+.drill-metrics-table td:first-child {
+  color: var(--drill-fg);
+  font-weight: 500;
+  white-space: nowrap;
+  padding-right: 0.75rem;
+}
+
+.drill-metrics-table td:nth-child(2) {
+  font-variant-numeric: tabular-nums;
+  color: var(--drill-fg);
+  white-space: nowrap;
+  padding-right: 0.85rem;
+}
+
 .drill-narrator {
   border: 1px solid color-mix(in srgb, var(--drill-signal) 28%, transparent);
   background: color-mix(in srgb, var(--drill-signal) 7%, var(--drill-panel));

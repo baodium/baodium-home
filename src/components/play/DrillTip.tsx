@@ -23,7 +23,7 @@ type Coords = {
 };
 
 /**
- * Glossary tip — dotted term is the hit target (optional quiet mark for icon-only).
+ * Glossary tip: dotted term is the hit target (optional quiet mark for icon-only).
  * Portaled; recomputes on scroll/resize; flips above/below and clamps horizontally.
  */
 export function DrillTip({
@@ -155,27 +155,40 @@ export function DrillTip({
   );
 }
 
-/** Label row with optional tip — for sliders and checkbox rows. */
+/**
+ * Control label with optional tip + full-sentence help under the slider.
+ * Prefer `help` for teaching prose; keep `tip` for the glossary hover.
+ */
 export function DrillControlLabel({
   label,
   tip,
+  help,
   value,
 }: {
   label: string;
   tip?: string;
+  /** Full-sentence explanation shown under the control. */
+  help?: ReactNode;
   value?: ReactNode;
 }) {
   return (
-    <span className="flex justify-between gap-3 text-[0.78rem] text-[color:var(--drill-muted)]">
-      {tip ? (
-        <DrillTip label={label} tip={tip} mark="never">
-          <span className="text-[color:var(--drill-muted)]">{label}</span>
-        </DrillTip>
-      ) : (
-        <span>{label}</span>
-      )}
-      {value != null ? (
-        <span className="tabular-nums text-[color:var(--drill-fg)]">{value}</span>
+    <span className="block">
+      <span className="flex justify-between gap-3 text-[0.82rem] text-[color:var(--drill-muted)]">
+        {tip ? (
+          <DrillTip label={label} tip={tip} mark="never">
+            <span className="font-medium text-[color:var(--drill-fg)]">{label}</span>
+          </DrillTip>
+        ) : (
+          <span className="font-medium text-[color:var(--drill-fg)]">{label}</span>
+        )}
+        {value != null ? (
+          <span className="tabular-nums text-[color:var(--drill-fg)]">{value}</span>
+        ) : null}
+      </span>
+      {help ? (
+        <span className="mt-1.5 block text-[0.84rem] leading-relaxed text-[color:var(--drill-muted)]">
+          {help}
+        </span>
       ) : null}
     </span>
   );

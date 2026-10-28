@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
 import { DrillNarrator } from "@/components/play/DrillNarrator";
-import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
+import {
+  DrillPanelHeading,
+  DrillProseHeader,
+  DrillTakeaway,
+  type DrillProse,
+} from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
@@ -24,7 +29,7 @@ import {
 const catalog = getPlayGame("tail-latency");
 
 const idleSnap: TailSnap = emptyTailSnap(
-  "Quiet lane. Stragglers appear after 10s.",
+  "Quiet lane. Stragglers appear after about 10 seconds.",
 );
 
 export function TailLatencyGame() {
@@ -110,116 +115,111 @@ export function TailLatencyGame() {
   const technologies =
     catalog?.technologies ??
     ["p50 / p99 latency", "Worker pools", "Request hedging", "Timeouts", "Work amplification"];
-  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
-  const win =
-    catalog?.success ??
-    `Keep p99 ≤ ${P99_BUDGET_MS}ms for ${TAIL_DURATION_S}s without work cost running away.`;
+  const takeaway =
+    catalog?.takeaway ??
+    "The slowest requests shape the customer experience. Hedging helps only when the duplicate work still fits.";
 
-  const lesson = useMemo((): DrillLesson => {
-    if (phase === "intro") {
-      return {
-        simulate:
-          "p50 is the median. p99 is the slowest 1%. After ~10s, stragglers appear. Hold p99 without drowning the fleet in hedge copies.",
-        why: "Median health can hide a burning SLO. Hedging races the tail; too-early hedges inflate work cost and make everything slower.",
-        technologies,
-        simulation:
-          "Keep concurrency modest, enable hedge with a late delay, then start. Watch p50, p95, p99, and the work-cost multiplier.",
-        interpret: win,
-      };
-    }
-    if (phase === "running") {
-      if (snap.t < 10) {
-        return {
-          simulate: "Quiet lane. Load is steady. The real test starts when stragglers arrive.",
-          why: "Early calm is not success. Hold the dials for the window that actually stresses the tail.",
-          technologies,
-          simulation: `${snap.message} Leave room for hedges: do not max concurrency before stragglers land.`,
-          interpret: win,
-        };
-      }
-      if (snap.p99 > P99_BUDGET_MS * 0.9) {
-        return {
-          simulate: `p99 is near or over ${P99_BUDGET_MS}ms. The tail is under fire.`,
-          why: "Duplicate work buys latency only if the original request was truly stuck. Early hedges burn capacity.",
-          technologies,
-          simulation: `${snap.message} Cut concurrency, hedge later, or tighten timeout. Read p99 and cost together.`,
-          interpret: win,
-        };
-      }
-      return {
-        simulate:
-          "Stragglers are live. You are trading concurrency, hedge delay, and timeout against work cost.",
-        why: "The slowest requests shape the customer experience. A green median does not mean the SLO is safe.",
-        technologies,
-        simulation: controls.hedge
-          ? `${snap.message} If cost climbs, delay the hedge further so only true stragglers get a duplicate.`
-          : `${snap.message} Enable hedging with a late delay once p99 starts to stretch.`,
-        interpret: win,
-      };
-    }
+  const prose = useMemo((): DrillProse => {
     if (phase === "won") {
       return {
-        simulate: "Tail held. p99 stayed inside the budget.",
-        why: result?.takeaway ?? takeaway,
-        technologies,
-        simulation:
-          "Notice the work-cost multiplier. A win that doubles load is a fragile win.",
-        interpret: "Win locked. Try earlier hedges next to see cost climb.",
+        title: "Tail Latency",
+        challenge: "Can you keep p99 below 420 ms?",
+        situation: <p>You held the tail inside the budget for this run.</p>,
+        objective: `Keep p99 at or below ${P99_BUDGET_MS} ms for ${TAIL_DURATION_S} seconds without work cost running away.`,
+        explore: technologies,
+        gettingStarted:
+          "Notice the work-cost multiplier beside p99. A win that doubles load is a fragile win under the next traffic bump.",
+        takeaway: result?.takeaway ?? takeaway,
+      };
+    }
+    if (phase === "lost") {
+      return {
+        title: "Tail Latency",
+        challenge: "Can you keep p99 below 420 ms?",
+        situation: (
+          <p>
+            {result?.reason ??
+              "p99 blew the budget, or hedge copies pushed work cost too high."}
+          </p>
+        ),
+        objective: `Keep p99 at or below ${P99_BUDGET_MS} ms for ${TAIL_DURATION_S} seconds without work cost running away.`,
+        explore: technologies,
+        gettingStarted:
+          "Try again with modest concurrency and a later hedge delay so only true stragglers get a duplicate.",
+        takeaway: result?.takeaway ?? takeaway,
       };
     }
     return {
-      simulate: "The tail escaped. p99 blew the budget or work cost ran away.",
-      why: result?.takeaway ?? takeaway,
-      technologies,
-      simulation: result?.reason ?? "p99 or cost broke first.",
-      interpret: "Modest concurrency plus late hedges beat blasting duplicates on every request.",
+      title: "Tail Latency",
+      challenge: "Can you keep p99 below 420 ms?",
+      situation: (
+        <>
+          <p>
+            You are looking at request latency for a busy service. Most requests
+            finish quickly, but a small share arrive late. Those late ones are
+            the tail.
+          </p>
+          <p>
+            After about 10 seconds in this drill, stragglers show up. The median
+            can stay calm while the slowest requests stretch past your budget.
+          </p>
+        </>
+      ),
+      objective: `Keep p99 at or below ${P99_BUDGET_MS} ms for the full ${TAIL_DURATION_S}-second run, without letting hedge copies push work cost past about 1.8×.`,
+      terms: (
+        <>
+          <DrillTip
+            label="p50"
+            tip="Median latency: half of requests finish faster than this number."
+          >
+            <span className="text-[color:var(--drill-fg)]">p50</span>
+          </DrillTip>{" "}
+          is the median: half of requests are faster.{" "}
+          <DrillTip
+            label="p99"
+            tip="99th-percentile latency: only 1% of requests are slower. This is usually what an SLO cares about."
+          >
+            <span className="text-[color:var(--drill-fg)]">p99</span>
+          </DrillTip>{" "}
+          is the slowest 1%. An SLO on the median can look fine while customers
+          in the tail already time out.
+        </>
+      ),
+      explore: technologies,
+      gettingStarted:
+        "Choose how many workers run at once, whether to hedge slow requests, and how long to wait before giving up. Then start the drill and watch p50 stay calm while p99 climbs when stragglers arrive.",
+      takeaway,
     };
-  }, [
-    controls.hedge,
-    phase,
-    result,
-    snap.message,
-    snap.p99,
-    snap.t,
-    takeaway,
-    technologies,
-    win,
-  ]);
+  }, [phase, result, takeaway, technologies]);
+
+  const statusLabel =
+    phase === "intro"
+      ? "Ready"
+      : phase === "running"
+        ? `${snap.t.toFixed(1)}s`
+        : phase === "won"
+          ? "Tail held"
+          : "Tail blew";
 
   return (
     <div className="slo-game">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="drill-kicker">
-            Play · Tail Latency
-          </p>
-          <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
-            Hold the tail under budget without drowning the fleet.
-          </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
-            Stragglers hit after 10s.{" "}
-            <DrillTip
-              label="Hedge"
-              tip="Send a duplicate request after a delay and take whichever finishes first. Helps the tail only when the extra work still fits in capacity."
-            >
-              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
-                Hedge
-              </span>
-            </DrillTip>{" "}
-            carefully: duplicate work costs capacity. Hold p99 under {P99_BUDGET_MS}ms for{" "}
-            {TAIL_DURATION_S}s.
-          </p>
-        </div>
-        <p className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
-          Hold p99 under{" "}
-          <span className="tabular-nums text-[color:var(--drill-fg)]">{P99_BUDGET_MS}ms</span>
-        </p>
-      </div>
-
-      <DrillTeach lesson={lesson} compact={phase !== "intro"} />
+      <DrillProseHeader prose={prose} compact={phase !== "intro"} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <DrillPanelHeading
+            status={
+              <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+                <span className="font-mono text-[0.68rem] uppercase tracking-[0.14em]">
+                  {statusLabel}
+                </span>
+                <span className="max-w-xs text-right">{snap.message}</span>
+              </span>
+            }
+          >
+            Live metrics
+          </DrillPanelHeading>
+
           <div className="mb-5 [&_.drill-narrator]:mt-0">
             <DrillNarrator
               frame={narrateTailLatency({
@@ -235,22 +235,64 @@ export function TailLatencyGame() {
               })}
             />
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
-              {phase === "intro"
-                ? "Ready"
-                : phase === "running"
-                  ? `${snap.t.toFixed(1)}s`
-                  : phase === "won"
-                    ? "Tail held"
-                    : "Tail blew"}
-            </p>
-            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
-          </div>
+
+          <table className="drill-metrics-table">
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+                <th scope="col">What it means</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>p50</td>
+                <td>{snap.p50.toFixed(0)} ms</td>
+                <td>Median latency. Half of requests are faster than this.</td>
+              </tr>
+              <tr>
+                <td>p95</td>
+                <td>{snap.p95.toFixed(0)} ms</td>
+                <td>Sits between the median and the extreme tail.</td>
+              </tr>
+              <tr>
+                <td>p99</td>
+                <td>{snap.p99.toFixed(0)} ms</td>
+                <td>
+                  The slowest 1%. Hold this at or below {P99_BUDGET_MS} ms.
+                </td>
+              </tr>
+              <tr>
+                <td>Work cost</td>
+                <td>{snap.cost.toFixed(2)}×</td>
+                <td>
+                  Extra work from hedges. 1.0× means no duplicates. Above ~1.8×
+                  is a fragile win.
+                </td>
+              </tr>
+              <tr>
+                <td>Worker util</td>
+                <td>{Math.round(snap.util * 100)}%</td>
+                <td>
+                  Offered load versus the worker pool. Above ~100% means queue
+                  wait dominates the tail.
+                </td>
+              </tr>
+              <tr>
+                <td>Queue depth</td>
+                <td>{snap.queueDepth.toFixed(0)}</td>
+                <td>
+                  Requests waiting for a free worker. An undersized pool lifts
+                  everyone&apos;s p99.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
               label="p50"
-              tip="Median latency. half of requests are faster. Can stay green while the slowest 1% already miss the SLO."
+              tip="Median latency. Half of requests are faster. Can stay green while the slowest 1% already miss the SLO."
               value={snap.p50}
               max={P99_BUDGET_MS}
               format={(n) => `${n.toFixed(0)} ms`}
@@ -258,17 +300,8 @@ export function TailLatencyGame() {
               dangerAt={0.55}
             />
             <PlayMeter
-              label="p95"
-              tip="95th-percentile latency. Sits between the median and the extreme tail."
-              value={snap.p95}
-              max={P99_BUDGET_MS}
-              format={(n) => `${n.toFixed(0)} ms`}
-              warnAt={0.7}
-              dangerAt={0.9}
-            />
-            <PlayMeter
               label="p99"
-              tip="99th-percentile latency. the slowest 1%. This is the budget you must hold."
+              tip="99th-percentile latency: the slowest 1%. This is the budget you must hold."
               value={snap.p99}
               max={P99_BUDGET_MS}
               format={(n) => `${n.toFixed(0)} ms`}
@@ -285,15 +318,6 @@ export function TailLatencyGame() {
               dangerAt={0.9}
             />
             <PlayMeter
-              label="Worker util"
-              tip="Offered load vs worker pool. Above ~100% means queue wait dominates the tail."
-              value={snap.util}
-              max={1.2}
-              format={(n) => `${Math.round(n * 100)}%`}
-              warnAt={0.75}
-              dangerAt={0.95}
-            />
-            <PlayMeter
               label="Queue depth"
               tip="Requests waiting for a free worker. Undersized concurrency lifts everyone's p99."
               value={snap.queueDepth}
@@ -303,6 +327,7 @@ export function TailLatencyGame() {
               dangerAt={0.7}
             />
           </div>
+
           {(phase === "won" || phase === "lost") && result ? (
             <GameResultPanel
               outcome={result.outcome}
@@ -324,15 +349,13 @@ export function TailLatencyGame() {
         </div>
 
         <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
-          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            <span className="text-[color:var(--drill-fg)]">Workers</span> size the pool (queueing lifts the whole
-            tail). <span className="text-[color:var(--drill-fg)]">Hedge</span> races a duplicate after a delay.{" "}
-            <span className="text-[color:var(--drill-fg)]">Timeout</span> cuts stuck work. too tight and you create false failures.
-          </p>
+          <DrillPanelHeading>Adjust your settings</DrillPanelHeading>
+
           <label className="block">
             <DrillControlLabel
               label="Concurrency"
               tip="How many requests run at once. Higher pressure stretches the tail; leave headroom if you plan to hedge."
+              help="How many requests run at once. Higher pressure stretches the tail. Leave some headroom if you plan to send hedge copies."
               value={controls.concurrency}
             />
             <input
@@ -350,10 +373,12 @@ export function TailLatencyGame() {
               }
             />
           </label>
+
           <label className="block">
             <DrillControlLabel
               label="Timeout"
               tip="Cancel stuck work after this delay. Too tight creates false failures; too loose lets stragglers occupy capacity."
+              help="Cancel stuck work after this delay. Too tight creates false failures. Too loose lets stragglers occupy capacity."
               value={`${controls.timeoutMs}ms`}
             />
             <input
@@ -371,29 +396,34 @@ export function TailLatencyGame() {
               }
             />
           </label>
+
           <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={controls.hedge}
               onChange={(e) =>
                 setControls((c) => ({ ...c, hedge: e.target.checked }))
               }
             />
             <span>
-              <DrillTip
-                label="Hedge"
-                tip="Race a duplicate after a delay and keep the faster response. Helps only when the original was truly stuck."
-              >
-                <span className="text-[color:var(--drill-fg)]">Hedge slow requests</span>
-              </DrillTip>
+              <span className="font-medium text-[color:var(--drill-fg)]">
+                Hedge slow requests
+              </span>
+              <span className="mt-1.5 block leading-relaxed">
+                Send a duplicate after a delay and keep whichever finishes
+                first. This helps the tail only when the original request was
+                truly stuck and the extra work still fits.
+              </span>
             </span>
           </label>
+
           {controls.hedge ? (
             <label className="block">
               <DrillControlLabel
                 label="Hedge after"
                 tip="Delay before the duplicate is sent. Later hedges hit true stragglers; early hedges inflate work cost."
+                help="How long to wait before sending the duplicate. Later hedges hit true stragglers. Early hedges inflate work cost for everyone."
                 value={`${controls.hedgeAfterMs}ms`}
               />
               <input
@@ -412,21 +442,26 @@ export function TailLatencyGame() {
               />
             </label>
           ) : null}
-          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
+
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={stepMode}
               onChange={(e) => setStepOverride(e.target.checked)}
               disabled={phase === "running"}
             />
-            <DrillTip
-              label="Step mode"
-              tip="Advance one simulation tick at a time. Default when reduced motion is on."
-            >
-              <span>Step mode</span>
-            </DrillTip>
+            <span>
+              <span className="font-medium text-[color:var(--drill-fg)]">
+                Step mode
+              </span>
+              <span className="mt-1.5 block leading-relaxed">
+                Advance one simulation tick at a time. This is the default when
+                reduced motion is on.
+              </span>
+            </span>
           </label>
+
           <div className="mt-auto flex flex-wrap gap-3 pt-2">
             {phase !== "running" ? (
               <button type="button" className="slo-btn-primary" onClick={start}>
@@ -450,10 +485,8 @@ export function TailLatencyGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            Modest concurrency + late hedges beat blasting duplicates on every
-            request. A green median does not mean the SLO is safe.
-          </p>
+
+          <DrillTakeaway>{takeaway}</DrillTakeaway>
         </div>
       </div>
     </div>

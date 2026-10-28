@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
 import { DrillNarrator } from "@/components/play/DrillNarrator";
-import { DrillTeach, type DrillLesson } from "@/components/play/DrillTeach";
+import {
+  DrillPanelHeading,
+  DrillProseHeader,
+  DrillTakeaway,
+  type DrillProse,
+} from "@/components/play/DrillTeach";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { getPlayGame } from "@/data/play-games";
@@ -23,7 +28,7 @@ import {
 const catalog = getPlayGame("cache-roulette");
 
 const idleSnap: CacheSnap = emptyCacheSnap(
-  "Warm cache. Keys expire on a TTL. watch origin when they do.",
+  "Warm cache. Keys expire on a TTL. Watch origin when they do.",
 );
 
 export function CacheRouletteGame() {
@@ -75,7 +80,7 @@ export function CacheRouletteGame() {
     engineRef.current = createCache();
     setResult(null);
     setCopied(false);
-    setSnap(emptyCacheSnap("Run started. watch the next TTL edge."));
+    setSnap(emptyCacheSnap("Run started. Watch the next TTL edge."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -109,125 +114,93 @@ export function CacheRouletteGame() {
   const technologies =
     catalog?.technologies ??
     ["TTL caches", "Singleflight / coalescing", "Soft TTL (SWR)", "Origin fill latency", "Thundering herd"];
-  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
-  const win =
-    catalog?.success ??
-    "Hold hit rate high and keep origin load under capacity for the full run.";
+  const takeaway =
+    catalog?.takeaway ??
+    "Without request coalescing, a TTL expiry becomes an origin stampede.";
 
-  const lesson = useMemo((): DrillLesson => {
-    if (phase === "intro") {
+  const prose = useMemo((): DrillProse => {
+    if (phase === "won" || phase === "lost") {
       return {
-        simulate:
-          "A hot key expires on a timer. Without coalescing, every waiting client fetches origin at once (a thundering herd).",
-        why: "TTL expiry is normal. The outage comes from N identical refreshes competing for limited origin workers.",
-        technologies,
-        simulation:
-          "Turn on singleflight before you start. Optionally enable soft TTL, then run the drill. Watch hit rate, origin load, and in-flight misses during the fill window.",
-        interpret: win,
-      };
-    }
-    if (phase === "running") {
-      if (snap.stampeded) {
-        return {
-          simulate:
-            "Expiry just turned into a herd. Many clients are punching origin together.",
-          why: "Without singleflight, each miss is independent. Soft TTL alone cannot stop a herd if every client still refreshes.",
-          technologies,
-          simulation: `${snap.inFlightMisses} in-flight misses · origin load ${(snap.originLoad * 100).toFixed(0)}%. Enable singleflight (and soft TTL if you want users served stale while one revalidate runs).`,
-          interpret: win,
-        };
-      }
-      if (controls.singleflight && controls.softTtl) {
-        return {
-          simulate: "Singleflight and soft TTL are on: one revalidate, users stay warm.",
-          why: "Stale-while-revalidate keeps hit rate up while one leader refreshes. Origin sees one worker, not a stampede.",
-          technologies,
-          simulation: `${snap.message} Shorten TTL and watch whether origin stays calm under more expiry storms.`,
-          interpret: win,
-        };
-      }
-      if (controls.singleflight) {
-        return {
-          simulate: "Singleflight is on. Concurrent misses coalesce to one leader.",
-          why: "Others wait for the leader’s result instead of each calling origin. That is request coalescing.",
-          technologies,
-          simulation: `${snap.message} Enable soft TTL so users keep getting a response while the leader revalidates.`,
-          interpret: win,
-        };
-      }
-      return {
-        simulate: "Keys are expiring without coalescing. Origin will take the heat.",
-        why: "A short TTL means more expiry storms. Origin workers are the capacity wall the herd hits.",
-        technologies,
-        simulation: `${snap.message} Enable singleflight before the next expiry, or raise TTL / origin workers to buy time.`,
-        interpret: win,
-      };
-    }
-    if (phase === "won") {
-      return {
-        simulate: "Origin lived through expiry. Coalescing beat the herd.",
-        why: result?.takeaway ?? takeaway,
-        technologies,
-        simulation: result?.reason ?? "Hit rate held and origin stayed under capacity.",
-        interpret: "You met the win condition. Try a shorter TTL next to pressure the same defenses.",
+        title: "Cache Roulette",
+        challenge: "Can you survive a hot-key expiry without stampeding origin?",
+        situation: <p>{result?.reason ?? snap.message}</p>,
+        objective:
+          "Hold hit rate high and keep origin load under capacity for the full run.",
+        explore: technologies,
+        gettingStarted:
+          phase === "won"
+            ? "Try a shorter TTL next to pressure the same defenses."
+            : "Try again with coalescing enabled before the first expiry.",
+        takeaway: result?.takeaway ?? takeaway,
       };
     }
     return {
-      simulate: "The herd won. Expiry became an origin stampede or hit rate collapsed.",
-      why: result?.takeaway ?? takeaway,
-      technologies,
-      simulation: result?.reason ?? "Origin overloaded or the cache spent more than it saved.",
-      interpret: "Reset with singleflight on before the first expiry, then add soft TTL.",
-    };
-  }, [
-    controls.singleflight,
-    controls.softTtl,
-    phase,
-    result,
-    snap.inFlightMisses,
-    snap.message,
-    snap.originLoad,
-    snap.stampeded,
-    takeaway,
-    technologies,
-    win,
-  ]);
-
-  return (
-    <div className="slo-game">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="drill-kicker">
-            Play · Cache Roulette
-          </p>
-          <h1 className="mt-3 max-w-xl font-serif text-3xl tracking-[-0.02em] md:text-4xl">
-            Stop a cache expiry from stampeding origin.
-          </h1>
-          <p className="mt-4 max-w-xl text-[0.98rem] leading-relaxed text-[color:var(--drill-muted)]">
-            Keys expire on a{" "}
+      title: "Cache Roulette",
+      challenge: "Can you survive a hot-key expiry without stampeding origin?",
+      situation: (
+        <>
+          <p>
+            A popular key lives in cache for a fixed{" "}
             <DrillTip
               label="TTL"
               tip="Time-to-live: how long a cached key stays valid before it must be refreshed from origin."
             >
-              <span className="underline decoration-dotted decoration-[color:var(--drill-faint)] underline-offset-2">
-                TTL
-              </span>
+              <span className="text-[color:var(--drill-fg)]">TTL</span>
             </DrillTip>
-            . Coalesce concurrent misses, or watch every client hit origin at
-            once for {CACHE_DURATION_S}s.
+            . When it expires, every waiting client may try to refresh from
+            origin at once.
           </p>
-        </div>
-        <p className="max-w-[15rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
-          Keep hit rate at or above{" "}
-          <span className="tabular-nums text-[color:var(--drill-fg)]">72%</span>
-          {" "}without a sustained stampede
-        </p>
-      </div>
+          <p>
+            That herd can overwhelm a small origin pool even though each client
+            is doing the “correct” thing.
+          </p>
+        </>
+      ),
+      objective: `Hold hit rate high and keep origin load under capacity for ${CACHE_DURATION_S} seconds.`,
+      terms: (
+        <>
+          <span className="text-[color:var(--drill-fg)]">Singleflight</span>{" "}
+          coalesces concurrent misses so only one fetch goes to origin.{" "}
+          <span className="text-[color:var(--drill-fg)]">Soft TTL</span> keeps
+          serving a slightly stale value while one background refresh updates
+          the cache.
+        </>
+      ),
+      explore: technologies,
+      gettingStarted:
+        "Choose TTL, origin workers, and whether to coalesce misses. Then start and watch hit rate, origin load, and in-flight misses at each expiry.",
+      takeaway,
+    };
+  }, [phase, result, snap.message, takeaway, technologies]);
 
-      <DrillTeach lesson={lesson} compact={phase !== "intro"} />
+  const statusLabel =
+    phase === "intro"
+      ? "Ready"
+      : phase === "running"
+        ? `${snap.t.toFixed(1)}s${snap.stampeded ? " · stampede" : ""}`
+        : phase === "won"
+          ? "Coalesced"
+          : "Stampeded";
+
+  return (
+    <div className="slo-game">
+      <DrillProseHeader prose={prose} compact={phase !== "intro"} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         <div className="drill-panel p-5 md:p-6 lg:col-span-7">
+          <DrillPanelHeading
+            status={
+              <span className="flex flex-col items-end gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+                <span className="font-mono text-[0.68rem] uppercase tracking-[0.14em]">
+                  {statusLabel}
+                </span>
+                <span className="max-w-xs text-right">{snap.message}</span>
+              </span>
+            }
+          >
+            Live metrics
+          </DrillPanelHeading>
+
           <div className="mb-5 [&_.drill-narrator]:mt-0">
             <DrillNarrator
               frame={narrateCacheRoulette({
@@ -243,22 +216,46 @@ export function CacheRouletteGame() {
               })}
             />
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-muted)]">
-              {phase === "intro"
-                ? "Ready"
-                : phase === "running"
-                  ? `${snap.t.toFixed(1)}s${snap.stampeded ? " · stampede" : ""}`
-                  : phase === "won"
-                    ? "Coalesced"
-                    : "Stampeded"}
-            </p>
-            <p className="max-w-sm text-right text-sm text-[color:var(--drill-muted)]">{snap.message}</p>
-          </div>
+
+          <table className="drill-metrics-table">
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+                <th scope="col">What it means</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Hit rate</td>
+                <td>{(snap.hitRate * 100).toFixed(0)}%</td>
+                <td>Share of requests served from cache.</td>
+              </tr>
+              <tr>
+                <td>Origin load</td>
+                <td>{(snap.originLoad * 100).toFixed(0)}%</td>
+                <td>How busy origin workers are right now.</td>
+              </tr>
+              <tr>
+                <td>Peak origin</td>
+                <td>{(snap.peakOriginLoad * 100).toFixed(0)}%</td>
+                <td>Highest origin load this run, usually at a fill window.</td>
+              </tr>
+              <tr>
+                <td>In-flight misses</td>
+                <td>{snap.inFlightMisses}</td>
+                <td>
+                  Concurrent cache misses hitting origin. A herd drives this up
+                  for the whole fill latency.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <PlayMeter
               label="Hit rate"
-              tip="Share of requests served from cache. Soft TTL keeps this high while a background refresh runs."
+              tip="Share of requests served from cache."
               value={Math.max(0, 1 - snap.hitRate)}
               max={0.5}
               format={() => `${(snap.hitRate * 100).toFixed(0)}%`}
@@ -267,7 +264,7 @@ export function CacheRouletteGame() {
             />
             <PlayMeter
               label="Origin load"
-              tip="How busy origin workers are. Above ~100% means the refresh herd saturated the backend."
+              tip="How busy origin workers are."
               value={snap.originLoad}
               max={1}
               format={(n) => `${(n * 100).toFixed(0)}%`}
@@ -276,7 +273,7 @@ export function CacheRouletteGame() {
             />
             <PlayMeter
               label="Peak origin"
-              tip="Highest origin load this run. Win/fail uses peak during fill windows, not the recovered end state."
+              tip="Highest origin load this run."
               value={snap.peakOriginLoad}
               max={1.5}
               format={(n) => `${(n * 100).toFixed(0)}%`}
@@ -284,8 +281,12 @@ export function CacheRouletteGame() {
               dangerAt={0.9}
             />
             <PlayMeter
-              label={snap.filling ? `Fill · ${snap.fillRemainingSec.toFixed(1)}s` : "In-flight misses"}
-              tip="Concurrent cache misses hitting origin right now. During a fill, singleflight keeps this near 1; a herd drives it to ~RPS for the whole fill latency."
+              label={
+                snap.filling
+                  ? `Fill · ${snap.fillRemainingSec.toFixed(1)}s`
+                  : "In-flight misses"
+              }
+              tip="Concurrent cache misses hitting origin right now."
               value={snap.inFlightMisses}
               max={80}
               format={(n) => `${n}`}
@@ -293,6 +294,7 @@ export function CacheRouletteGame() {
               dangerAt={0.5}
             />
           </div>
+
           <div
             className={`mt-6 h-14 overflow-hidden border ${
               snap.stampeded ? "border-cinnabar" : "border-[color:var(--drill-line)]"
@@ -301,6 +303,7 @@ export function CacheRouletteGame() {
           >
             <HerdBars load={snap.originLoad} stampeded={snap.stampeded} reduced={reduced} />
           </div>
+
           {(phase === "won" || phase === "lost") && result ? (
             <GameResultPanel
               outcome={result.outcome}
@@ -322,10 +325,13 @@ export function CacheRouletteGame() {
         </div>
 
         <div className="drill-panel flex flex-col gap-5 p-5 md:p-6 lg:col-span-5">
+          <DrillPanelHeading>Adjust your settings</DrillPanelHeading>
+
           <label className="block">
             <DrillControlLabel
               label="TTL"
-              tip="Time-to-live in seconds. Shorter TTLs mean more expiry storms and more pressure on origin."
+              tip="Time-to-live in seconds."
+              help="How long a cached key stays valid. Shorter TTLs mean more expiry storms and more pressure on origin."
               value={`${controls.ttlSec}s`}
             />
             <input
@@ -340,10 +346,12 @@ export function CacheRouletteGame() {
               }
             />
           </label>
+
           <label className="block">
             <DrillControlLabel
               label="Origin workers"
-              tip="How many concurrent origin fetches the backend can handle. The herd saturates this pool when misses are not coalesced."
+              tip="How many concurrent origin fetches the backend can handle."
+              help="How many concurrent origin fetches the backend can handle. The herd saturates this pool when misses are not coalesced."
               value={controls.originWorkers}
             />
             <input
@@ -361,63 +369,64 @@ export function CacheRouletteGame() {
               }
             />
           </label>
+
           <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={controls.singleflight}
               onChange={(e) =>
                 setControls((c) => ({ ...c, singleflight: e.target.checked }))
               }
             />
             <span>
-              <DrillTip
-                label="Singleflight"
-                tip="Request coalescing: when many clients miss the same key, only one fetch goes to origin; the others wait for that result."
-              >
-                <span className="text-[color:var(--drill-fg)]">Singleflight</span>
-              </DrillTip>
-              <span className="mt-0.5 block text-[color:var(--drill-muted)]">
-                Coalesce concurrent misses into one origin fetch
+              <span className="font-medium text-[color:var(--drill-fg)]">
+                Singleflight
+              </span>
+              <span className="mt-1.5 block leading-relaxed">
+                Coalesce concurrent misses into one origin fetch. Other waiters
+                share that result instead of each punching origin.
               </span>
             </span>
           </label>
+
           <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={controls.softTtl}
               onChange={(e) =>
                 setControls((c) => ({ ...c, softTtl: e.target.checked }))
               }
             />
             <span>
-              <DrillTip
-                label="Soft TTL"
-                tip="Stale-while-revalidate: after soft expiry, keep serving the old value while one background refresh updates the cache."
-              >
-                <span className="text-[color:var(--drill-fg)]">Soft TTL</span>
-              </DrillTip>
-              <span className="mt-0.5 block text-[color:var(--drill-muted)]">
-                Serve stale while one revalidate runs
+              <span className="font-medium text-[color:var(--drill-fg)]">
+                Soft TTL
+              </span>
+              <span className="mt-1.5 block leading-relaxed">
+                Serve a slightly stale value while one background revalidate
+                updates the cache. Users stay warm during the fill.
               </span>
             </span>
           </label>
-          <label className="flex items-center gap-3 text-sm text-[color:var(--drill-muted)]">
+
+          <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--cinnabar)]"
+              className="mt-1 size-4 accent-[var(--cinnabar)]"
               checked={stepMode}
               onChange={(e) => setStepOverride(e.target.checked)}
               disabled={phase === "running"}
             />
-            <DrillTip
-              label="Step mode"
-              tip="Advance one simulation tick at a time. Default when reduced motion is on. fully playable without animation."
-            >
-              <span>Step mode</span>
-            </DrillTip>
+            <span>
+              <span className="font-medium text-[color:var(--drill-fg)]">Step mode</span>
+              <span className="mt-1.5 block leading-relaxed">
+                Advance one simulation tick at a time. Default when reduced
+                motion is on.
+              </span>
+            </span>
           </label>
+
           <div className="mt-auto flex flex-wrap gap-3 pt-2">
             {phase !== "running" ? (
               <button type="button" className="slo-btn-primary" onClick={start}>
@@ -441,10 +450,8 @@ export function CacheRouletteGame() {
               </button>
             )}
           </div>
-          <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            Turn on singleflight before the first expiry. Soft TTL keeps users
-            on a response while one revalidate runs.
-          </p>
+
+          <DrillTakeaway>{takeaway}</DrillTakeaway>
         </div>
       </div>
     </div>

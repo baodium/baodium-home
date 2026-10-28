@@ -167,6 +167,9 @@ function FeaturedDrill({
           <span className="mt-3 font-serif text-[clamp(1.85rem,3vw,2.45rem)] leading-[1.05] tracking-[-0.03em] text-ink">
             {game.title}
           </span>
+          <span className="mt-3 max-w-xl font-serif text-[1.12rem] leading-snug tracking-[-0.01em] text-ink">
+            {game.challenge}
+          </span>
           <span className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
             {game.feel}
           </span>
@@ -261,6 +264,7 @@ function DrillBand({
           <span className="font-serif text-[1.35rem] leading-tight tracking-[-0.02em] text-ink md:text-[1.45rem]">
             {game.title}
           </span>
+          <span className="text-[0.95rem] leading-snug text-ink">{game.challenge}</span>
           <span className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</span>
         </div>
       </Link>
