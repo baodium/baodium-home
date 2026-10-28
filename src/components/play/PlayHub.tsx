@@ -140,7 +140,7 @@ function HubFeatured({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.28)] md:grid-cols-12 md:rounded-[2rem]"
+        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.28)] md:grid-cols-12 md:rounded-[2rem] [&_*]:no-underline"
       >
         <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7fa] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
           <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#2b221d)]">
@@ -203,7 +203,7 @@ function HubBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-34px_rgba(26,35,48,0.26)] sm:flex-row ${
+        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-34px_rgba(26,35,48,0.26)] sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"

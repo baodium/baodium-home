@@ -166,7 +166,7 @@ function FeaturedDrill({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.26)] md:grid-cols-12 md:rounded-[2rem]"
+        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.26)] md:grid-cols-12 md:rounded-[2rem] [&_*]:no-underline"
       >
         <motion.div
           style={{ y: previewY }}
@@ -242,7 +242,7 @@ function DrillBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-34px_rgba(26,35,48,0.24)] sm:flex-row ${
+        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-34px_rgba(26,35,48,0.24)] sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"
