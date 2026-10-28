@@ -12,9 +12,9 @@ const FRAME_ASPECT = 16 / 10;
 const PAGE_WIDTH = 1200;
 
 const tones = {
-  cinnabar: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(173,79,54,0.3),transparent_60%)]",
-  amber: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(222,162,124,0.24),transparent_60%)]",
-  tide: "bg-[radial-gradient(110%_70%_at_100%_0%,rgba(61,122,126,0.32),transparent_60%)]",
+  cinnabar: "bg-[#faf4f0]",
+  amber: "bg-[#faf6f1]",
+  tide: "bg-[#f0f6f6]",
 } as const;
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -86,16 +86,9 @@ export function ProjectCard({ project }: { project: Project }) {
         hovering.set(0);
       }}
       style={{ rotateX, rotateY, transformPerspective: 1400 }}
-      className="group relative block h-full rounded-[1.75rem] p-px shadow-[0_36px_72px_-36px_rgba(26,35,48,0.28)] transition-shadow duration-700 hover:shadow-[0_48px_90px_-40px_rgba(26,35,48,0.36)] md:rounded-[2.25rem]"
+      className="group relative block h-full rounded-[1.75rem] border border-ink/10 bg-white p-px shadow-[0_36px_72px_-36px_rgba(26,35,48,0.22)] transition-[border-color,box-shadow] duration-700 hover:border-ink/18 hover:shadow-[0_48px_90px_-40px_rgba(26,35,48,0.3)] md:rounded-[2.25rem]"
     >
-      <span aria-hidden="true" className="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-white via-[#f4f7fa] to-[#e8eef1]" />
-      <span aria-hidden="true" className="spotlight-border absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-      <span className="relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] bg-[#fbfcfe] text-ink md:rounded-[calc(2.25rem-1px)]">
-        <span aria-hidden="true" className={`absolute inset-0 ${tones[project.tone]}`} />
-        <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(90%_60%_at_0%_0%,rgba(61,122,140,0.08),transparent_60%)]" />
-        <span aria-hidden="true" className="spotlight absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
+      <span className={`relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] text-ink md:rounded-[calc(2.25rem-1px)] ${tones[project.tone]}`}>
         <span className="relative flex flex-col px-6 pb-5 pt-6 md:px-8 md:pb-6 md:pt-8">
           <span className="flex items-start justify-between gap-5">
             <span className="block text-[clamp(1.85rem,2.8vw,2.65rem)] font-semibold leading-[0.95] tracking-[-0.045em]">{project.name}</span>
@@ -109,7 +102,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
         <span aria-hidden="true" className="relative mt-auto block px-5 [perspective:1600px] md:px-7">
           <motion.span style={{ rotateX: frameTilt }} className="relative block origin-[50%_100%]">
-            <span className="block overflow-hidden rounded-t-xl border border-b-0 border-ink/10 bg-white shadow-[0_-16px_40px_-28px_rgba(26,35,48,0.35)]">
+            <span className="block overflow-hidden rounded-t-xl border border-b-0 border-ink/10 bg-white shadow-[0_-16px_40px_-28px_rgba(26,35,48,0.28)]">
               <span className="flex items-center justify-between gap-4 border-b border-ink/8 px-4 py-2.5 font-mono text-xs tracking-[0.04em] text-muted">
                 <span className="flex min-w-0 items-center gap-2.5">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#3d7a8c]" />
@@ -128,9 +121,9 @@ export function ProjectCard({ project }: { project: Project }) {
                     className="block h-auto w-full"
                   />
                 </motion.span>
-                <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/90 to-transparent" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-white/90" />
                 <span className="absolute inset-y-2 right-1.5 w-[3px] rounded-full bg-ink/10">
-                  <motion.span style={{ y: railY }} className="block h-1/5 w-full rounded-full bg-cinnabar shadow-[0_0_10px_rgba(173,79,54,0.45)]" />
+                  <motion.span style={{ y: railY }} className="block h-1/5 w-full rounded-full bg-cinnabar" />
                 </span>
               </span>
             </span>

@@ -6,29 +6,22 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 type Tone = "warm" | "tide" | "slate" | "moss";
 
-const TONE: Record<
-  Tone,
-  { node: string; line: string; glow: string }
-> = {
+const TONE: Record<Tone, { node: string; line: string }> = {
   warm: {
     node: "rgba(222,162,124,0.85)",
     line: "rgba(173,79,54,0.28)",
-    glow: "rgba(222,162,124,0.18)",
   },
   tide: {
     node: "rgba(94,168,168,0.9)",
     line: "rgba(58,120,128,0.32)",
-    glow: "rgba(94,168,168,0.16)",
   },
   slate: {
     node: "rgba(148,168,196,0.9)",
     line: "rgba(90,112,148,0.3)",
-    glow: "rgba(120,140,180,0.14)",
   },
   moss: {
     node: "rgba(150,168,110,0.88)",
     line: "rgba(100,120,72,0.28)",
-    glow: "rgba(140,160,100,0.14)",
   },
 };
 
@@ -36,7 +29,7 @@ type Node = { x: number; y: number; r: number; delay: number; dur: number };
 
 /**
  * Continuous constellation field — drifts and pulses without pointer input.
- * Honor prefers-reduced-motion with a still frame.
+ * Point nodes and links only; no radial glow washes.
  */
 export function AmbientField({
   tone = "warm",
@@ -62,13 +55,6 @@ export function AmbientField({
         viewBox="0 0 100 100"
         preserveAspectRatio="xMidYMid slice"
       >
-        <defs>
-          <radialGradient id={`af-glow-${tone}`} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor={colors.glow} />
-            <stop offset="100%" stopColor="transparent" />
-          </radialGradient>
-        </defs>
-
         {links.map(([a, b], i) => (
           <motion.line
             key={`l-${i}`}
@@ -120,13 +106,6 @@ export function AmbientField({
                   }
             }
           >
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r={node.r * 4}
-              fill={`url(#af-glow-${tone})`}
-              opacity={0.55}
-            />
             <motion.circle
               cx={node.x}
               cy={node.y}

@@ -80,7 +80,7 @@ export function BookProgress({
         aria-valuenow={bookPct}
       >
         <div
-          className="book-progress-fill h-full origin-left bg-gradient-to-r from-cinnabar via-amber to-cinnabar transition-[width] duration-150 ease-out"
+          className="book-progress-fill h-full origin-left bg-cinnabar transition-[width] duration-150 ease-out"
           style={{ width: `${fill * 100}%` }}
         />
       </div>

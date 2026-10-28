@@ -62,7 +62,7 @@ export function PlayChrome({
       </header>
       <main
         id="main"
-        className="bg-[linear-gradient(180deg,#fbfcfe_0%,#f4f7fa_55%,#eef3f7_100%)] pb-16 pt-10 text-ink md:pb-24 md:pt-14"
+        className="bg-[#f4f7fa] pb-16 pt-10 text-ink md:pb-24 md:pt-14"
       >
         {children}
       </main>

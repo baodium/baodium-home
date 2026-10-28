@@ -454,7 +454,7 @@ export function Chapter1Experience() {
         <motion.div
           aria-hidden="true"
           style={{ y: atmosphereY, opacity: atmosphereOpacity }}
-          className="pointer-events-none absolute -left-[12%] top-[-8%] h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.14),transparent)] blur-3xl"
+          className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[#eef3f7]/80"
         />
       ) : null}
       <header className="relative max-w-3xl">

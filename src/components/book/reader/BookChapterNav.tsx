@@ -25,7 +25,7 @@ export function BookChapterNav({
         >
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-amber/50 via-cinnabar/40 to-transparent opacity-70"
+            className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-cinnabar/55 opacity-70"
           />
           <span className="flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
             <span aria-hidden="true" className="text-base leading-none">
@@ -58,7 +58,7 @@ export function BookChapterNav({
         >
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 w-1.5 bg-gradient-to-b from-amber/50 via-cinnabar/40 to-transparent opacity-70"
+            className="pointer-events-none absolute inset-y-0 right-0 w-1.5 bg-cinnabar/55 opacity-70"
           />
           <span className="flex items-center justify-end gap-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
             <span className="mr-auto hidden font-mono normal-case tracking-normal text-[0.58rem] opacity-70 sm:inline">
