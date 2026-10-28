@@ -32,6 +32,10 @@ export type CacheResult = {
   chapterLabel: string;
   takeaway: string;
   debrief: string;
+  before: string;
+  after: string;
+  changed: string;
+  metrics: { label: string; value: string; tone?: "ok" | "warn" | "bad" | "neutral" }[];
 };
 
 export const CACHE_TICK_MS = 200;
@@ -259,6 +263,36 @@ export function tickCache(
         takeaway:
           "Without request coalescing, a TTL expiry becomes an origin stampede that lasts the whole fill — not one tick.",
         debrief,
+        before:
+          "Popular keys share one TTL — when it fires, every waiter can hit origin for the whole fill window.",
+        after: `Hit rate ${(hitRate * 100).toFixed(0)}%, peak origin ${peakOriginLoad.toFixed(2)}×, stampede ${stampededSec.toFixed(1)}s (TTL ${ttl.toFixed(1)}s, workers ${workers}${controls.singleflight ? ", singleflight" : ""}${controls.softTtl ? ", SWR" : ""}).`,
+        changed: controls.singleflight && won
+          ? "Singleflight collapsed concurrent misses into one fill — origin load stayed near 1× during expiry."
+          : !controls.singleflight && stampededSec >= 1
+            ? "Without coalescing, expiry multiplied origin work by RPS × fill latency for the stampede window."
+            : "Soft TTL / workers alone cannot replace coalescing when many clients miss the same key together.",
+        metrics: [
+          {
+            label: "Hit rate",
+            value: `${(hitRate * 100).toFixed(0)}%`,
+            tone: hitRate >= 0.7 ? "ok" : hitRate >= 0.55 ? "warn" : "bad",
+          },
+          {
+            label: "Peak origin",
+            value: `${peakOriginLoad.toFixed(2)}×`,
+            tone: peakOriginLoad < 1.2 ? "ok" : peakOriginLoad < 1.45 ? "warn" : "bad",
+          },
+          {
+            label: "Stampede",
+            value: `${stampededSec.toFixed(1)}s`,
+            tone: stampededSec < 1 ? "ok" : stampededSec < 2.2 ? "warn" : "bad",
+          },
+          {
+            label: "Coalesce",
+            value: controls.singleflight ? "on" : "off",
+            tone: controls.singleflight ? "ok" : "bad",
+          },
+        ],
       },
     };
   }

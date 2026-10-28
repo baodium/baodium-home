@@ -171,14 +171,14 @@ export function CacheRouletteGame() {
       return {
         experiment: "Origin lived through expiry — coalescing beat the herd.",
         seeing: result?.reason ?? "Hit rate held and origin stayed under capacity.",
-        why: result?.takeaway ?? catalog?.takeaway ?? "",
+        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
         success: "You met the win condition. Try a shorter TTL next to pressure the same defenses.",
       };
     }
     return {
       experiment: "The herd won — expiry became an origin stampede or hit rate collapsed.",
       seeing: result?.reason ?? "Origin overloaded or the cache spent more than it saved.",
-      why: result?.takeaway ?? catalog?.takeaway ?? "",
+      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
       tryNext: "Reset with singleflight on before the first expiry, then add soft TTL.",
       success:
         catalog?.success ??
@@ -300,6 +300,10 @@ export function CacheRouletteGame() {
               reason={result.reason}
               takeaway={result.takeaway}
               debrief={result.debrief}
+              before={result.before}
+              after={result.after}
+              changed={result.changed}
+              metrics={result.metrics}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}

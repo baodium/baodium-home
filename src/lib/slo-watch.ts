@@ -45,6 +45,10 @@ export type GameResult = {
   shareText: string;
   takeaway: string;
   debrief: string;
+  before: string;
+  after: string;
+  changed: string;
+  metrics: { label: string; value: string; tone?: "ok" | "warn" | "bad" | "neutral" }[];
 };
 
 export const TICK_MS = 200;
@@ -378,7 +382,47 @@ function buildResult(
   const takeaway =
     "Pool size and concurrency are different levers: one caps holds, the other caps admission. Aggressive retries under saturation spend the budget twice.";
 
-  const debrief = `Success ${(successRate * 100).toFixed(2)}% (SLO ${(SLO_TARGET * 100).toFixed(1)}%) · budget ${Math.max(0, state.errorBudget).toFixed(0)}% · peak util ${(state.peakUtil * 100).toFixed(0)}% · sheds ${state.sheds.toFixed(0)} · retry amp ${snap.retryAmp.toFixed(2)}×. Pool ${controls.poolSize}, concurrency ${controls.concurrencyLimit}, retries ${controls.retries}${controls.shedding ? ", shedding on" : ""}.`;
+  const budgetLeft = Math.max(0, state.errorBudget);
+  const debrief = `Success ${(successRate * 100).toFixed(2)}% (SLO ${(SLO_TARGET * 100).toFixed(1)}%) · budget ${budgetLeft.toFixed(0)}% · peak util ${(state.peakUtil * 100).toFixed(0)}% · sheds ${state.sheds.toFixed(0)} · retry amp ${snap.retryAmp.toFixed(2)}×. Pool ${controls.poolSize}, concurrency ${controls.concurrencyLimit}, retries ${controls.retries}${controls.shedding ? ", shedding on" : ""}.`;
+
+  const before =
+    "Default-sized pool under Wave 3: util climbs past 90%, retries amplify load, error budget drains, and a cascade becomes likely.";
+  const after = outcome === "won"
+    ? `You finished with success ${(successRate * 100).toFixed(2)}%, budget ${budgetLeft.toFixed(0)}% left, peak util ${(state.peakUtil * 100).toFixed(0)}%, retry amp ${snap.retryAmp.toFixed(2)}× (pool ${controls.poolSize}, concurrency ${controls.concurrencyLimit}, retries ${controls.retries}${controls.shedding ? ", shedding on" : ""}).`
+    : `Run ended at wave ${wave}: success ${(successRate * 100).toFixed(2)}%, budget ${budgetLeft.toFixed(0)}%, peak util ${(state.peakUtil * 100).toFixed(0)}%, retry amp ${snap.retryAmp.toFixed(2)}×${state.cascade ? " — cascade fired" : ""}.`;
+  const changed =
+    controls.retries === "aggressive" && state.peakUtil > 0.85
+      ? "Aggressive retries under saturation multiplied offered load — the budget paid twice for the same work."
+      : controls.concurrencyLimit < controls.poolSize * 0.7
+        ? "Admission capped below pool capacity — you protected holds, but may have shed useful traffic early."
+        : controls.shedding && outcome === "won"
+          ? "Shedding under pressure traded a few requests to keep the pool from locking up — budget survived."
+          : controls.poolSize >= 160 && controls.retries !== "aggressive"
+            ? "A larger pool absorbed Wave 3 holds without a retry storm — util stayed recoverable."
+            : "The levers you moved did not separate admission from holds — saturation still owned the shift.";
+
+  const metrics: GameResult["metrics"] = [
+    {
+      label: "Success",
+      value: `${(successRate * 100).toFixed(2)}%`,
+      tone: successRate >= SLO_TARGET ? "ok" : successRate >= SLO_TARGET - 0.01 ? "warn" : "bad",
+    },
+    {
+      label: "Budget left",
+      value: `${budgetLeft.toFixed(0)}%`,
+      tone: budgetLeft > 40 ? "ok" : budgetLeft > 10 ? "warn" : "bad",
+    },
+    {
+      label: "Peak util",
+      value: `${(state.peakUtil * 100).toFixed(0)}%`,
+      tone: state.peakUtil < 0.85 ? "ok" : state.peakUtil < 0.95 ? "warn" : "bad",
+    },
+    {
+      label: "Retry amp",
+      value: `${snap.retryAmp.toFixed(2)}×`,
+      tone: snap.retryAmp <= 1.15 ? "ok" : snap.retryAmp <= 1.6 ? "warn" : "bad",
+    },
+  ];
 
   const shareText =
     outcome === "won"
@@ -396,5 +440,9 @@ function buildResult(
     shareText,
     takeaway,
     debrief,
+    before,
+    after,
+    changed,
+    metrics,
   };
 }

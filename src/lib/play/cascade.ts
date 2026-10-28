@@ -33,6 +33,10 @@ export type CascadeResult = {
   chapterLabel: string;
   takeaway: string;
   debrief: string;
+  before: string;
+  after: string;
+  changed: string;
+  metrics: { label: string; value: string; tone?: "ok" | "warn" | "bad" | "neutral" }[];
 };
 
 export const CASCADE_TICK_MS = 220;
@@ -347,6 +351,37 @@ export function tickCascade(
         takeaway:
           "Isolate failure domains first — a circuit without a bulkhead still shares the blast radius.",
         debrief,
+        before:
+          "Auth/DB wobble with a shared worker pool — one slow dependency holds threads every checkout path needs.",
+        after: `Checkout ok ${(okRate * 100).toFixed(0)}%, edge health ${(health.edge * 100).toFixed(0)}%, peak cascade risk ${(peakRisk * 100).toFixed(0)}%, circuits tripped ${trips}× (timeout ${controls.timeoutMs}ms${controls.bulkheadAuth ? ", auth bulkhead" : ""}${controls.bulkheadPay ? ", pay/db bulkhead" : ""}).`,
+        changed:
+          controls.bulkheadAuth && controls.bulkheadPay && won
+            ? "Bulkheads capped auth/DB contagion while fail-fast freed slots — checkout kept its own budget."
+            : !controls.bulkheadAuth && peakRisk >= 0.7
+              ? "Circuits alone still shared the pool — auth failure starved checkout workers."
+              : "Isolation landed partly — blast radius shrinks only when both circuit and bulkhead are in place.",
+        metrics: [
+          {
+            label: "Checkout ok",
+            value: `${(okRate * 100).toFixed(0)}%`,
+            tone: okRate >= 0.6 ? "ok" : okRate >= 0.4 ? "warn" : "bad",
+          },
+          {
+            label: "Edge health",
+            value: `${(health.edge * 100).toFixed(0)}%`,
+            tone: health.edge > 0.55 ? "ok" : health.edge > 0.42 ? "warn" : "bad",
+          },
+          {
+            label: "Peak cascade",
+            value: `${(peakRisk * 100).toFixed(0)}%`,
+            tone: peakRisk < 0.55 ? "ok" : peakRisk < 0.82 ? "warn" : "bad",
+          },
+          {
+            label: "Trips",
+            value: `${trips}×`,
+            tone: "neutral",
+          },
+        ],
       },
     };
   }

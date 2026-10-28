@@ -2,250 +2,212 @@
 
 import { motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import type { PlayGame } from "@/data/play-games";
 
-type PreviewTone = "ember" | "paper";
+type Tone = "ok" | "warn" | "bad";
 
-/** Tiny animated glyph that hints at each drill’s failure mode. */
+const toneClass: Record<Tone, string> = {
+  ok: "text-[color:var(--drill-signal,#2f7a7e)]",
+  warn: "text-[color:var(--drill-warn,#b45309)]",
+  bad: "text-cinnabar",
+};
+
+const barClass: Record<Tone, string> = {
+  ok: "bg-[color:var(--drill-signal,#2f7a7e)]",
+  warn: "bg-[color:var(--drill-warn,#b45309)]",
+  bad: "bg-cinnabar",
+};
+
+/**
+ * Live mini-metric preview of a drill’s failure mode — labeled numbers + sparkline,
+ * not abstract decorative bars.
+ */
 export function DrillPreview({
-  kind,
+  game,
   active = true,
-  tone = "ember",
+  size = "md",
 }: {
-  kind: "slo" | "surge" | "cascade" | "cache" | "tail";
+  game: PlayGame;
   active?: boolean;
-  /** Hub listings use paper; in-drill dark chrome uses ember. */
-  tone?: PreviewTone;
+  size?: "sm" | "md" | "lg";
 }) {
   const reduce = usePrefersReducedMotion();
   const run = active && !reduce;
-  const paper = tone === "paper";
-  const soft = paper ? "fill-ink/18" : "fill-cream/25";
-  const mid = paper ? "fill-ink/35" : "fill-cream/55";
-  const lineSoft = paper ? "stroke-ink/25" : "stroke-cream/30";
-  const lineMid = paper ? "stroke-ink/35" : "stroke-cream/35";
-  const mark = paper ? "fill-ink/70" : "fill-cream";
+  const { preview } = game;
+  const pad = size === "lg" ? "p-4 md:p-5" : size === "sm" ? "p-2.5" : "p-3.5";
+  const titleSize = size === "sm" ? "text-[0.58rem]" : "text-[0.62rem]";
+  const valueSize =
+    size === "lg"
+      ? "text-[1.35rem] md:text-[1.55rem]"
+      : size === "sm"
+        ? "text-[1.05rem]"
+        : "text-[1.2rem] md:text-[1.35rem]";
 
-  if (kind === "slo") {
-    return (
-      <svg viewBox="0 0 120 56" className="h-full w-full" aria-hidden="true">
-        <motion.rect
-          x="8"
-          y="28"
-          width="28"
-          height="20"
-          rx="2"
-          className={paper ? "fill-[color-mix(in_srgb,#3d7a8c_45%,transparent)]" : "fill-amber/35"}
-          animate={run ? { height: [12, 20, 16, 20], y: [36, 28, 32, 28] } : undefined}
-          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.rect
-          x="46"
-          y="18"
-          width="28"
-          height="30"
-          rx="2"
-          className={soft}
-          animate={run ? { height: [22, 30, 18, 30], y: [26, 18, 30, 18] } : undefined}
-          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-        />
-        <motion.rect
-          x="84"
-          y="10"
-          width="28"
-          height="38"
-          rx="2"
-          className="fill-cinnabar/55"
-          animate={run ? { height: [28, 38, 24, 38], y: [20, 10, 24, 10] } : undefined}
-          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-        />
-        <line
-          x1="4"
-          y1="8"
-          x2="116"
-          y2="8"
-          className={paper ? "stroke-[color-mix(in_srgb,#3d7a8c_50%,transparent)]" : "stroke-amber/40"}
-          strokeWidth="1"
-          strokeDasharray="3 3"
-        />
-      </svg>
-    );
-  }
-
-  if (kind === "surge") {
-    return (
-      <svg viewBox="0 0 120 56" className="h-full w-full" aria-hidden="true">
-        <motion.path
-          d="M4 44 C 22 44, 28 40, 40 34 S 58 18, 72 16 S 96 22, 116 8"
-          fill="none"
-          className={paper ? "stroke-[color-mix(in_srgb,#3d7a8c_85%,transparent)]" : "stroke-amber"}
-          strokeWidth="2"
-          strokeLinecap="round"
-          initial={false}
-          animate={run ? { pathLength: [0.35, 1, 0.55, 1] } : { pathLength: 1 }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.circle
-          cx="72"
-          cy="16"
-          r="3.5"
-          className={mark}
-          animate={run ? { opacity: [0.4, 1, 0.5, 1] } : undefined}
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
-    );
-  }
-
-  if (kind === "cascade") {
-    const nodes = [
-      { x: 20, y: 16 },
-      { x: 60, y: 16 },
-      { x: 100, y: 16 },
-      { x: 40, y: 40 },
-      { x: 80, y: 40 },
-    ];
-    return (
-      <svg viewBox="0 0 120 56" className="h-full w-full" aria-hidden="true">
-        <motion.line
-          x1="20"
-          y1="16"
-          x2="60"
-          y2="16"
-          className={lineSoft}
-          strokeWidth="1.5"
-          animate={run ? { opacity: [0.25, 0.9, 0.25] } : undefined}
-          transition={{ duration: 2.4, repeat: Infinity }}
-        />
-        <motion.line
-          x1="60"
-          y1="16"
-          x2="100"
-          y2="16"
-          className="stroke-cinnabar/50"
-          strokeWidth="1.5"
-          animate={run ? { opacity: [0.3, 1, 0.3] } : undefined}
-          transition={{ duration: 2.4, repeat: Infinity, delay: 0.35 }}
-        />
-        <motion.line
-          x1="60"
-          y1="16"
-          x2="40"
-          y2="40"
-          className={lineSoft}
-          strokeWidth="1.5"
-          animate={run ? { opacity: [0.2, 0.8, 0.2] } : undefined}
-          transition={{ duration: 2.4, repeat: Infinity, delay: 0.15 }}
-        />
-        <motion.line
-          x1="60"
-          y1="16"
-          x2="80"
-          y2="40"
-          className={paper ? "stroke-[color-mix(in_srgb,#3d7a8c_55%,transparent)]" : "stroke-amber/45"}
-          strokeWidth="1.5"
-          animate={run ? { opacity: [0.25, 0.95, 0.25] } : undefined}
-          transition={{ duration: 2.4, repeat: Infinity, delay: 0.5 }}
-        />
-        {nodes.map((n, i) => (
-          <motion.circle
-            key={`${n.x}-${n.y}`}
-            cx={n.x}
-            cy={n.y}
-            r={i === 1 ? 5 : 3.5}
-            className={
-              i === 2
-                ? "fill-cinnabar"
-                : i === 1
-                  ? paper
-                    ? "fill-[color-mix(in_srgb,#3d7a8c_90%,transparent)]"
-                    : "fill-amber"
-                  : mid
-            }
-            animate={run ? { scale: [1, 1.25, 1] } : undefined}
-            transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.12 }}
-          />
-        ))}
-      </svg>
-    );
-  }
-
-  if (kind === "cache") {
-    return (
-      <svg viewBox="0 0 120 56" className="h-full w-full" aria-hidden="true">
-        {[0, 1, 2, 3].map((i) => (
-          <motion.rect
-            key={i}
-            x={12 + i * 26}
-            y="14"
-            width="18"
-            height="28"
-            rx="2"
-            className={i === 2 ? "fill-cinnabar/60" : soft}
-            animate={
-              run
-                ? {
-                    opacity: i === 2 ? [0.45, 1, 0.45] : [0.35, 0.7, 0.35],
-                    y: i === 2 ? [14, 10, 14] : 14,
-                  }
-                : undefined
-            }
-            transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.18 }}
-          />
-        ))}
-        <motion.circle
-          cx="95"
-          cy="12"
-          r="4"
-          className={paper ? "fill-[color-mix(in_srgb,#3d7a8c_90%,transparent)]" : "fill-amber"}
-          animate={run ? { cx: [95, 21, 47, 73, 95], opacity: [0, 1, 1, 1, 0] } : undefined}
-          transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
-    );
-  }
-
-  // tail
   return (
-    <svg viewBox="0 0 120 56" className="h-full w-full" aria-hidden="true">
-      <motion.path
-        d="M4 36 C 24 36, 30 34, 44 32 S 70 30, 84 28 S 104 18, 116 8"
-        fill="none"
-        className="stroke-cinnabar"
-        strokeWidth="2"
-        strokeLinecap="round"
-        animate={run ? { pathLength: [0.4, 1, 0.55, 1] } : { pathLength: 1 }}
-        transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+    <div
+      className={`relative flex h-full w-full flex-col justify-between overflow-hidden rounded-xl border border-ink/10 bg-[#fbfcfe] ${pad}`}
+      aria-hidden="true"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <Metric
+          label={preview.primary.label}
+          value={preview.primary.value}
+          tone={preview.primary.tone}
+          valueSize={valueSize}
+          titleSize={titleSize}
+          run={run}
+          emphasize
+        />
+        <Metric
+          label={preview.secondary.label}
+          value={preview.secondary.value}
+          tone={preview.secondary.tone}
+          valueSize={size === "sm" ? "text-[0.95rem]" : "text-[1.05rem] md:text-[1.15rem]"}
+          titleSize={titleSize}
+          run={run}
+          delay={0.15}
+        />
+      </div>
+
+      <Sparkline
+        values={preview.spark}
+        tone={preview.primary.tone}
+        run={run}
+        tall={size === "lg"}
       />
-      <path
-        d="M4 40 C 30 40, 50 39, 70 38 S 100 37, 116 36"
-        fill="none"
-        className={lineMid}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="4"
-        y1="22"
-        x2="116"
-        y2="22"
-        className={paper ? "stroke-[color-mix(in_srgb,#3d7a8c_45%,transparent)]" : "stroke-amber/35"}
-        strokeWidth="1"
-        strokeDasharray="3 3"
-      />
-      <text
-        x="100"
-        y="18"
-        className={paper ? "fill-[color-mix(in_srgb,#3d7a8c_80%,transparent)]" : "fill-amber/70"}
-        fontSize="7"
-        fontFamily="monospace"
+
+      <p
+        className={`font-mono ${titleSize} uppercase tracking-[0.14em] text-[color:var(--drill-muted,#5b6778)]`}
       >
-        p99
-      </text>
-    </svg>
+        {preview.caption}
+      </p>
+    </div>
   );
 }
 
-export function previewKindForSlug(slug: string): "slo" | "surge" | "cascade" | "cache" | "tail" {
+function Metric({
+  label,
+  value,
+  tone,
+  valueSize,
+  titleSize,
+  run,
+  delay = 0,
+  emphasize,
+}: {
+  label: string;
+  value: string;
+  tone: Tone;
+  valueSize: string;
+  titleSize: string;
+  run: boolean;
+  delay?: number;
+  emphasize?: boolean;
+}) {
+  return (
+    <div className={emphasize ? "min-w-0 flex-1" : "min-w-0 shrink-0 text-right"}>
+      <p
+        className={`font-mono ${titleSize} uppercase tracking-[0.14em] text-[color:var(--drill-muted,#5b6778)]`}
+      >
+        {label}
+      </p>
+      <motion.p
+        className={`mt-1 font-serif tabular-nums tracking-[-0.03em] ${valueSize} ${toneClass[tone]}`}
+        animate={run ? { opacity: [0.7, 1, 0.85, 1] } : undefined}
+        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay }}
+      >
+        {value}
+      </motion.p>
+    </div>
+  );
+}
+
+function Sparkline({
+  values,
+  tone,
+  run,
+  tall,
+}: {
+  values: number[];
+  tone: Tone;
+  run: boolean;
+  tall?: boolean;
+}) {
+  const h = tall ? 44 : 32;
+  const w = 160;
+  const step = w / Math.max(1, values.length - 1);
+  const coords = values.map((v, i) => {
+    const x = i * step;
+    const y = h - Math.max(0.08, Math.min(1, v)) * (h - 4);
+    return { x, y, v };
+  });
+  const d = coords
+    .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
+    .join(" ");
+  const last = coords[coords.length - 1] ?? { x: 0, y: h / 2, v: 0.5 };
+
+  return (
+    <div className="relative my-2 w-full" style={{ height: h }}>
+      <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full" preserveAspectRatio="none">
+        <line
+          x1="0"
+          y1={h * 0.35}
+          x2={w}
+          y2={h * 0.35}
+          className="stroke-ink/10"
+          strokeWidth="1"
+          strokeDasharray="3 3"
+        />
+        {coords.map((c, i) => (
+          <motion.rect
+            key={i}
+            x={c.x - 3}
+            width="6"
+            rx="1"
+            className={`${barClass[tone]} opacity-25`}
+            initial={false}
+            animate={
+              run
+                ? {
+                    y: h - Math.max(0.08, c.v) * (h - 4),
+                    height: Math.max(0.08, c.v) * (h - 4),
+                    opacity: i === coords.length - 1 ? [0.35, 0.7, 0.35] : 0.22,
+                  }
+                : {
+                    y: h - Math.max(0.08, c.v) * (h - 4),
+                    height: Math.max(0.08, c.v) * (h - 4),
+                  }
+            }
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.05 }}
+          />
+        ))}
+        <motion.path
+          d={d}
+          fill="none"
+          className={tone === "ok" ? "stroke-[color:var(--drill-signal,#2f7a7e)]" : "stroke-cinnabar"}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={false}
+          animate={run ? { pathLength: [0.55, 1, 0.7, 1] } : { pathLength: 1 }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.circle
+          cx={last.x}
+          cy={last.y}
+          r="3.5"
+          className={barClass[tone]}
+          animate={run ? { opacity: [0.5, 1, 0.5] } : undefined}
+          transition={{ duration: 1.6, repeat: Infinity }}
+        />
+      </svg>
+    </div>
+  );
+}
+
+export function previewKindForSlug(
+  slug: string,
+): "slo" | "surge" | "cascade" | "cache" | "tail" {
   if (slug === "slo-watch") return "slo";
   if (slug === "traffic-surge") return "surge";
   if (slug === "cascade") return "cascade";
