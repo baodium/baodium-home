@@ -90,28 +90,22 @@ export function PlayHub() {
 }
 
 function TrainingOutline({ game, compact }: { game: PlayGame; compact?: boolean }) {
-  const rows = [
-    { k: "In production", v: game.matters },
-    { k: "Stack", v: game.technologies.join(" · ") },
-    { k: "Success looks like", v: game.success },
-  ];
   return (
-    <dl
-      className={`grid gap-3 ${compact ? "" : "sm:grid-cols-3"} border-t border-ink/8 pt-4`}
-    >
-      {rows.map((row) => (
-        <div key={row.k}>
-          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
-            {row.k}
-          </dt>
-          <dd
-            className={`mt-1.5 leading-relaxed text-ink/80 ${compact ? "text-[0.82rem]" : "text-[0.88rem]"}`}
-          >
-            {row.v}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div className="space-y-2.5 border-t border-ink/8 pt-4">
+      <p
+        className={`leading-relaxed text-ink/80 ${compact ? "text-[0.82rem]" : "text-[0.88rem]"}`}
+      >
+        {game.matters}
+      </p>
+      <p className="font-mono text-[0.68rem] leading-relaxed tracking-[0.02em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
+        {game.technologies.join(" · ")}
+      </p>
+      <p
+        className={`leading-relaxed text-ink/70 ${compact ? "text-[0.82rem]" : "text-[0.88rem]"}`}
+      >
+        {game.success}
+      </p>
+    </div>
   );
 }
 

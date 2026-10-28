@@ -141,9 +141,6 @@ export function GameResultPanel({
       )}
 
       <p className="mt-4 border-t border-[color:var(--drill-line)] pt-4 text-[0.95rem] leading-relaxed text-[color:var(--drill-fg)]">
-        <span className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-accent)]">
-          In production{" "}
-        </span>
         {takeaway}
       </p>
 

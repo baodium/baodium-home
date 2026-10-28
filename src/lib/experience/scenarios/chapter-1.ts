@@ -89,7 +89,7 @@ export const chapter1Scenario: ChapterScenario = {
     },
     {
       id: "debrief",
-      title: "What just happened",
+      title: "After your choice",
       body: "Name the shared resource (40-slot pool), explain why waiting appeared, and state what disable did to new vs in-flight requests. Then enter sandbox and pressure mitigations yourself.",
       require: "none",
     },
