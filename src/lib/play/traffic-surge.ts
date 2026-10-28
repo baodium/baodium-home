@@ -34,6 +34,10 @@ export type SurgeResult = {
   chapterLabel: string;
   takeaway: string;
   debrief: string;
+  before: string;
+  after: string;
+  changed: string;
+  metrics: { label: string; value: string; tone?: "ok" | "warn" | "bad" | "neutral" }[];
 };
 
 export const SURGE_TICK_MS = 200;
@@ -298,6 +302,37 @@ export function tickSurge(
         takeaway:
           "Shedding early protects the customers you can serve; serving everyone slowly serves no one.",
         debrief,
+        before:
+          "Cliff at ~12s against fixed capacity — admit-all sends p95 through the roof and burns the floor you meant to protect.",
+        after: `Served ${(servedFrac * 100).toFixed(0)}%, under-budget ${(budgetFrac * 100).toFixed(0)}% of the run, peak p95 ${next.peakP95.toFixed(0)}ms, VIP success ${(vipSuccessRate * 100).toFixed(0)}% (admit ${(controls.admit * 100).toFixed(0)}%, queue ${controls.queueCap}${controls.vipFirst ? ", VIP on" : ""}).`,
+        changed:
+          controls.admit < 0.85 && won
+            ? "Lower admit at the cliff traded volume for latency — the customers you kept stayed inside budget."
+            : controls.admit >= 0.95 && !latencyOk
+              ? "Near-full admit past capacity queued everyone — p95 failed for the crowd you tried to serve."
+              : "Queue and VIP levers only help after you stop admitting more than the fixed pool can finish.",
+        metrics: [
+          {
+            label: "Served",
+            value: `${(servedFrac * 100).toFixed(0)}%`,
+            tone: servedFrac >= MIN_SERVED_RATE ? "ok" : "bad",
+          },
+          {
+            label: "Peak p95",
+            value: `${next.peakP95.toFixed(0)}ms`,
+            tone: next.peakP95 <= P95_LIMIT_MS ? "ok" : next.peakP95 <= P95_LIMIT_MS * 1.5 ? "warn" : "bad",
+          },
+          {
+            label: "Under budget",
+            value: `${(budgetFrac * 100).toFixed(0)}%`,
+            tone: budgetFrac >= 0.7 ? "ok" : budgetFrac >= 0.45 ? "warn" : "bad",
+          },
+          {
+            label: "VIP success",
+            value: `${(vipSuccessRate * 100).toFixed(0)}%`,
+            tone: vipSuccessRate >= 0.85 ? "ok" : vipSuccessRate >= 0.6 ? "warn" : "bad",
+          },
+        ],
       },
     };
   }

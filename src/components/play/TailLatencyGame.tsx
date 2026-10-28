@@ -159,14 +159,14 @@ export function TailLatencyGame() {
       return {
         experiment: "Tail held — p99 stayed inside the budget.",
         seeing: "Notice the work-cost multiplier — a win that doubles load is a fragile win.",
-        why: result?.takeaway ?? catalog?.takeaway ?? "",
+        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
         success: "Win locked. Try earlier hedges next to see cost climb.",
       };
     }
     return {
       experiment: "The tail escaped — p99 blew the budget or work cost ran away.",
       seeing: result?.reason ?? "p99 or cost broke first.",
-      why: result?.takeaway ?? catalog?.takeaway ?? "",
+      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
       tryNext: "Modest concurrency + late hedges beat blasting duplicates on every request.",
       success:
         catalog?.success ??
@@ -295,6 +295,10 @@ export function TailLatencyGame() {
               reason={result.reason}
               takeaway={result.takeaway}
               debrief={result.debrief}
+              before={result.before}
+              after={result.after}
+              changed={result.changed}
+              metrics={result.metrics}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}

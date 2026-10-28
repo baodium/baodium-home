@@ -46,11 +46,11 @@ export function DrillTeach({ lesson }: { lesson: DrillLesson }) {
         </div>
         <dl className="grid gap-0 sm:grid-cols-2">
           <TeachCell kicker="Seeing" body={lesson.seeing} />
-          <TeachCell kicker="Why" body={lesson.why} muted />
+          <TeachCell kicker="So what" body={lesson.why} muted />
           {lesson.tryNext ? (
             <TeachCell kicker="Try" body={lesson.tryNext} accent />
           ) : null}
-          <TeachCell kicker="Success" body={lesson.success} muted />
+          <TeachCell kicker="Win" body={lesson.success} muted />
         </dl>
       </motion.aside>
     </AnimatePresence>

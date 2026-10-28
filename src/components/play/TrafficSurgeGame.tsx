@@ -140,14 +140,14 @@ export function TrafficSurgeGame() {
       return {
         experiment: "You shaped the spike — latency stayed inside the budget.",
         seeing: result?.reason ?? "p95 held while enough traffic still got through.",
-        why: result?.takeaway ?? catalog?.takeaway ?? "",
+        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
         success: "Win locked. Try a higher admit next run and see when the cliff returns.",
       };
     }
     return {
       experiment: "The spike won — p95 or success rate broke first.",
       seeing: result?.reason ?? "Latency or errors escaped the budget.",
-      why: result?.takeaway ?? catalog?.takeaway ?? "",
+      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
       tryNext: "Shed earlier at peak (~200 rps). You cannot admit everyone.",
       success:
         catalog?.success ??
@@ -268,6 +268,10 @@ export function TrafficSurgeGame() {
               reason={result.reason}
               takeaway={result.takeaway}
               debrief={result.debrief}
+              before={result.before}
+              after={result.after}
+              changed={result.changed}
+              metrics={result.metrics}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}

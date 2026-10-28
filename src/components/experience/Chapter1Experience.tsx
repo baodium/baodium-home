@@ -660,32 +660,52 @@ export function Chapter1Experience() {
 
                 {stepId === "debrief" && debriefText ? (
                   <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                    <div className="rounded-xl border border-[color-mix(in_srgb,var(--exp-amber)_40%,transparent)] bg-[color-mix(in_srgb,#fff_58%,transparent)] px-3 py-3">
-                      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-amber)]">
-                        So what
-                      </p>
-                      <p className="mt-1.5 text-[color:var(--exp-fg)]">{debriefText}</p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2.5">
+                        <p className="exp-kicker !tracking-[0.16em]">Before</p>
+                        <p className="mt-1.5 text-[color:var(--exp-fg)]">
+                          Exposed traffic held the 40-slot pool longer (~12ms → ~80ms). Arrivals kept
+                          coming; waiters grew while busy stayed capped at 40.
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2.5">
+                        <p className="exp-kicker !tracking-[0.16em]">After your choice</p>
+                        <p className="mt-1.5 text-[color:var(--exp-fg)]">{debriefText}</p>
+                      </div>
+                      <div className="rounded-xl border border-[color-mix(in_srgb,var(--exp-signal)_35%,transparent)] bg-[color-mix(in_srgb,var(--exp-signal)_6%,var(--exp-panel))] px-3 py-2.5">
+                        <p className="exp-kicker !tracking-[0.16em] !text-[color:var(--exp-signal)]">
+                          So what
+                        </p>
+                        <p className="mt-1.5 text-[color:var(--exp-fg)]">
+                          Correct code still waits on a shared finite pool. Disable cuts new demand;
+                          in-flight holds drain on their own. Cache cuts W; shed/timeout trade errors
+                          for headroom — same ops signature you would page on.
+                        </p>
+                      </div>
                     </div>
-                    <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_50%,transparent)] px-3 py-2.5">
-                      <p className="exp-kicker !tracking-[0.16em]">Can you explain</p>
-                      <ul className="mt-2 list-disc space-y-1.5 pl-5 text-[color:var(--exp-fg)]">
-                        <li>
-                          Why correct code waited (shared finite pool — not a bad query string)
+                    <ul className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                      {(
+                        [
+                          ["Util", `${(snap.utilization * 100).toFixed(0)}%`],
+                          ["Pending", `${snap.waitingCount}`],
+                          [
+                            "Acquire p99",
+                            `${(snap.acquireWaitP99 * 1000).toFixed(0)} ms`,
+                          ],
+                          ["Timeouts", `${snap.timeoutCount}`],
+                        ] as const
+                      ).map(([label, value]) => (
+                        <li
+                          key={label}
+                          className="flex items-baseline justify-between gap-2 rounded-lg border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2"
+                        >
+                          <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                            {label}
+                          </span>
+                          <span className="tabular-nums text-[color:var(--exp-fg)]">{value}</span>
                         </li>
-                        <li>Why busy never exceeds 40 while demand (λ×W) can</li>
-                        <li>What disable does to new vs in-flight work</li>
-                        <li>
-                          Which mitigation cuts <span className="font-mono">W</span> (cache) vs
-                          demand (disable / shed) vs bounds wait (timeout → errors)
-                        </li>
-                      </ul>
-                    </div>
-                    <p className="text-xs leading-relaxed">
-                      Live now: util {(snap.utilization * 100).toFixed(0)}% · pending{" "}
-                      {snap.waitingCount} · acquire.wait.p99{" "}
-                      {(snap.acquireWaitP99 * 1000).toFixed(0)} ms · p99{" "}
-                      {(snap.latencyP99 * 1000).toFixed(0)} ms · timeouts {snap.timeoutCount}
-                    </p>
+                      ))}
+                    </ul>
                     {actionLog.length > 0 ? (
                       <div>
                         <p className="exp-kicker !tracking-[0.16em]">Your timeline</p>

@@ -386,6 +386,10 @@ export function SloWatchGame({
                 "Capacity and retries are coupled under saturation."
               }
               debrief={result.debrief}
+              before={result.before}
+              after={result.after}
+              changed={result.changed}
+              metrics={result.metrics}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}

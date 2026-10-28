@@ -153,14 +153,14 @@ export function CascadeGame() {
       return {
         experiment: "Contained — checkout stayed up while a dependency failed.",
         seeing: result?.reason ?? "Blast radius stayed local.",
-        why: result?.takeaway ?? catalog?.takeaway ?? "",
+        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
         success: "Win locked. Try without the Auth bulkhead to see the spread return.",
       };
     }
     return {
       experiment: "The outage fanned out — checkout fell with the dependency.",
       seeing: result?.reason ?? "Cascade risk won.",
-      why: result?.takeaway ?? catalog?.takeaway ?? "",
+      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
       tryNext: "Trip early and isolate Auth. Shared pools turn one bad dependency into a site outage.",
       success:
         catalog?.success ??
@@ -328,6 +328,10 @@ export function CascadeGame() {
               reason={result.reason}
               takeaway={result.takeaway}
               debrief={result.debrief}
+              before={result.before}
+              after={result.after}
+              changed={result.changed}
+              metrics={result.metrics}
               chapterHref={result.chapterHref}
               chapterLabel={result.chapterLabel}
               onAgain={start}

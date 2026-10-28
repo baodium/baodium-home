@@ -29,6 +29,10 @@ export type TailResult = {
   chapterLabel: string;
   takeaway: string;
   debrief: string;
+  before: string;
+  after: string;
+  changed: string;
+  metrics: { label: string; value: string; tone?: "ok" | "warn" | "bad" | "neutral" }[];
 };
 
 export const TAIL_TICK_MS = 200;
@@ -250,6 +254,37 @@ export function tickTail(
         takeaway:
           "Users notice the tail, not the mean — hedging helps only when the duplicate work fits.",
         debrief,
+        before:
+          "Stragglers plus an undersized pool — p50 stays calm while p99 walks off the SLO.",
+        after: `p50 ${p50.toFixed(0)}ms, p99 ${p99.toFixed(0)}ms, goodput ${(goodput * 100).toFixed(0)}%, cost ${costPer.toFixed(2)}×, workers ${workers}${controls.hedge ? `, hedge after ${controls.hedgeAfterMs}ms` : ", no hedge"}.`,
+        changed:
+          controls.hedge && costPer < 1.8 && won
+            ? "Hedges cut the tail while duplicate work still fit — cost stayed under the storm line."
+            : controls.hedge && costPer >= 1.8
+              ? "Hedge copies ate the pool — p99 may improve briefly while goodput and cost collapse."
+              : "Right-sized concurrency dropped queue wait; without a fitting hedge budget, stragglers still own p99.",
+        metrics: [
+          {
+            label: "p50",
+            value: `${p50.toFixed(0)}ms`,
+            tone: "ok",
+          },
+          {
+            label: "p99",
+            value: `${p99.toFixed(0)}ms`,
+            tone: p99 <= P99_BUDGET_MS ? "ok" : p99 <= P99_BUDGET_MS * 1.4 ? "warn" : "bad",
+          },
+          {
+            label: "Goodput",
+            value: `${(goodput * 100).toFixed(0)}%`,
+            tone: goodput >= 0.9 ? "ok" : goodput >= 0.75 ? "warn" : "bad",
+          },
+          {
+            label: "Cost",
+            value: `${costPer.toFixed(2)}×`,
+            tone: costPer < 1.3 ? "ok" : costPer < 1.8 ? "warn" : "bad",
+          },
+        ],
       },
     };
   }
