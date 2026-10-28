@@ -1269,21 +1269,57 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   cursor: grab;
 }
 
+/* ——— Shared learning tokens (editorial + engineering console) ——— */
+.learn-root {
+  --learn-fg: #1a2330;
+  --learn-muted: #5b6778;
+  --learn-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --learn-line: color-mix(in srgb, #1a2330 10%, transparent);
+  --learn-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
+  --learn-panel: color-mix(in srgb, #ffffff 92%, #eef3f7 8%);
+  --learn-panel-raise: #ffffff;
+  --learn-accent: #ad4f36;
+  --learn-signal: #2f7a7e;
+  --learn-console: #0f1419;
+  --learn-console-fg: #d7e0ea;
+  --learn-console-muted: #8a97a8;
+}
+
+.learn-workbench .learn-rail,
+.learn-workbench .learn-canvas {
+  min-width: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .learn-root {
+    --learn-fg: #e8edf4;
+    --learn-muted: #9aa6b8;
+    --learn-faint: color-mix(in srgb, #e8edf4 42%, transparent);
+    --learn-line: color-mix(in srgb, #e8edf4 12%, transparent);
+    --learn-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
+    --learn-panel: #12151a;
+    --learn-panel-raise: #181c22;
+  }
+}
+
 /* ——— System Design experience lab (light airy — not brown desk) ——— */
 .exp-root {
-  --exp-fg: #1a2330;
-  --exp-muted: #5b6778;
-  --exp-faint: color-mix(in srgb, #1a2330 40%, transparent);
-  --exp-line: color-mix(in srgb, #1a2330 10%, transparent);
-  --exp-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
-  --exp-panel: color-mix(in srgb, #ffffff 92%, #eef3f7 8%);
-  --exp-panel-raise: #ffffff;
+  --exp-fg: var(--learn-fg, #1a2330);
+  --exp-muted: var(--learn-muted, #5b6778);
+  --exp-faint: var(--learn-faint, color-mix(in srgb, #1a2330 40%, transparent));
+  --exp-line: var(--learn-line, color-mix(in srgb, #1a2330 10%, transparent));
+  --exp-line-strong: var(
+    --learn-line-strong,
+    color-mix(in srgb, #1a2330 18%, transparent)
+  );
+  --exp-panel: var(--learn-panel, color-mix(in srgb, #ffffff 92%, #eef3f7 8%));
+  --exp-panel-raise: var(--learn-panel-raise, #ffffff);
   --exp-slot-free: color-mix(in srgb, #1a2330 6%, #f4f7fa);
   --exp-slot-base: #5ea8a8;
   --exp-slot-recs: #ad4f36;
-  --exp-accent: #ad4f36;
-  --exp-amber: #2f7a7e;
-  --exp-signal: #2f7a7e;
+  --exp-accent: var(--learn-accent, #ad4f36);
+  --exp-amber: var(--learn-signal, #2f7a7e);
+  --exp-signal: var(--learn-signal, #2f7a7e);
   color-scheme: light;
   background: #f4f7fa;
   color: var(--exp-fg);

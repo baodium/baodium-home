@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import type { GuidedStepId } from "@/lib/experience/types";
+import type { GuidedStepId, LabMode } from "@/lib/experience/types";
+import { CH1_GUIDED_STAGE_COUNT } from "@/lib/learning/registry";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 export function GuidedProgress({
@@ -9,14 +10,16 @@ export function GuidedProgress({
   stepId,
   mode,
 }: {
-  steps: { id: GuidedStepId; title: string }[];
+  steps: { id: GuidedStepId; title: string; letter: string }[];
   stepId: GuidedStepId;
-  mode: "guided" | "sandbox";
+  mode: LabMode;
 }) {
   const reduced = usePrefersReducedMotion();
-  const guided = steps.filter((s) => s.id !== "sandbox");
+  const guided = steps;
   const idx = guided.findIndex((s) => s.id === stepId);
-  const activeIdx = mode === "sandbox" ? guided.length : Math.max(0, idx);
+  const activeIdx =
+    mode !== "guided" ? guided.length : Math.max(0, idx);
+  const total = guided.length || CH1_GUIDED_STAGE_COUNT;
 
   return (
     <div className="w-full">
@@ -31,16 +34,18 @@ export function GuidedProgress({
               className="exp-progress-dot"
               data-done={done ? "true" : "false"}
               data-active={active ? "true" : "false"}
-              title={s.title}
+              title={`${s.letter}. ${s.title}`}
             />
           );
         })}
       </div>
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-          {mode === "sandbox"
-            ? "Open practice"
-            : `Step ${activeIdx + 1} of ${guided.length} · ${guided[activeIdx]?.title ?? ""}`}
+          {mode === "practice"
+            ? "Practice"
+            : mode === "challenge"
+              ? "Challenge"
+              : `Step ${activeIdx + 1} of ${total} · ${guided[activeIdx]?.letter ?? ""}. ${guided[activeIdx]?.title ?? ""}`}
         </p>
         {mode === "guided" && !reduced ? (
           <motion.p

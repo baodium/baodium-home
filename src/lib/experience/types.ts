@@ -148,13 +148,30 @@ export type EngineSnapshot = {
   demandOccupancy: number;
 };
 
+/**
+ * Guided stages A–H. Practice and Challenge are LabMode values, not stages.
+ * Letters map 1:1 so “Step 1 of 8” never disagrees with progress chrome.
+ */
 export type GuidedStepId =
-  | "inspect"
-  | "review"
-  | "trace"
-  | "rollout"
-  | "inspect_prod"
-  | "pressure"
-  | "decide"
-  | "debrief"
-  | "sandbox";
+  | "inspect" // A — Inspect feature
+  | "deploy" // B — Deploy flag off (0% exposure)
+  | "trace" // C — Trace one request
+  | "exposure" // D — Increase exposure
+  | "saturation" // E — Saturation
+  | "investigate" // F — Investigate
+  | "mitigate" // G — Mitigate
+  | "review"; // H — Review
+
+export type LabMode = "guided" | "practice" | "challenge";
+
+/** Challenge pass/fail — exact metrics, no spoiler in the intro. */
+export type ChallengeCriteria = {
+  /** Max logical sim seconds from challenge start. */
+  maxSimSec: number;
+  /** Waiting queue must clear. */
+  requireWaitingZero: boolean;
+  /** End-to-end p99 must be under the SLO target. */
+  requireP99UnderSlo: boolean;
+  /** Pool utilization must be at or below this fraction. */
+  maxUtilization: number;
+};

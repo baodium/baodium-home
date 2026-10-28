@@ -18,7 +18,9 @@ export function ProductPreview({
         <div>
           <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Product page</h3>
           <p className="mt-0.5 text-xs text-[color:var(--exp-muted)]">
-            {showRecs ? "Proposed · recommendations rail" : "Current · no extra lookup"}
+            {showRecs
+              ? "Proposed · Catalog + Recommendation rail"
+              : "Current · Product Page → Catalog only"}
           </p>
         </div>
         <button type="button" onClick={onToggle} className="exp-btn exp-btn-ghost">
