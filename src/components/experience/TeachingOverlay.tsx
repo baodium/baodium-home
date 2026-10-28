@@ -86,28 +86,13 @@ export function TeachingOverlay({
           <h2 className="font-serif text-[1.15rem] leading-snug tracking-[-0.02em] text-[color:var(--exp-fg)] sm:text-xl">
             {lesson.title}
           </h2>
-          <dl className="mt-4 space-y-3 text-sm leading-relaxed">
+          <div className="mt-4 space-y-3 text-sm leading-relaxed">
             {showSeeing ? (
-              <div>
-                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                  What you are seeing
-                </dt>
-                <dd className="mt-1 text-[color:var(--exp-fg)]">{lesson.seeing}</dd>
-              </div>
+              <p className="text-[color:var(--exp-fg)]">{lesson.seeing}</p>
             ) : null}
-            <div>
-              <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                In production
-              </dt>
-              <dd className="mt-1 text-[color:var(--exp-muted)]">{lesson.why}</dd>
-            </div>
+            <p className="text-[color:var(--exp-muted)]">{lesson.why}</p>
             {lesson.next && !compactTry ? (
-              <div>
-                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-                  What to try next
-                </dt>
-                <dd className="mt-1 text-[color:var(--exp-amber)]">{lesson.next}</dd>
-              </div>
+              <p className="text-[color:var(--exp-amber)]">{lesson.next}</p>
             ) : null}
             {lesson.prod ? (
               <details className="group/prod">
@@ -122,7 +107,7 @@ export function TeachingOverlay({
                 </p>
               </details>
             ) : null}
-          </dl>
+          </div>
         </div>
       </motion.aside>
     </AnimatePresence>
