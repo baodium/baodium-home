@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
     default: site.title,
-    template: "%s — Baodium",
+    template: "%s · Baodium",
   },
   description: site.description,
   applicationName: "Baodium",

@@ -3,32 +3,28 @@
 import { AnimatePresence, motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
+/**
+ * EC-Council-style training brief for Play drills:
+ * what we simulate → why it matters → technologies → simulation → interpret results.
+ */
 export type DrillLesson = {
-  /** What this experiment is testing — one concrete sentence. */
-  experiment: string;
-  /** What to watch in the meters / viz right now. */
-  seeing: string;
-  /** Why the observation matters in production systems. */
+  simulate: string;
   why: string;
-  /** Concrete next action. */
-  tryNext?: string;
-  /** Explicit win / success condition. */
-  success: string;
+  technologies: string[];
+  simulation: string;
+  interpret: string;
 };
 
-/**
- * Seeing / Why / Try pedagogy for play drills (light stage chrome).
- */
 export function DrillTeach({ lesson }: { lesson: DrillLesson }) {
   const reduced = usePrefersReducedMotion();
-  const key = `${lesson.seeing.slice(0, 28)}|${lesson.tryNext ?? ""}`;
+  const key = `${lesson.simulate.slice(0, 24)}|${lesson.simulation.slice(0, 24)}|${lesson.interpret.slice(0, 24)}`;
 
   return (
     <AnimatePresence mode="wait">
       <motion.aside
         key={key}
         role="note"
-        aria-label="How this drill teaches"
+        aria-label="Training brief"
         aria-live="polite"
         initial={reduced ? false : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -38,19 +34,21 @@ export function DrillTeach({ lesson }: { lesson: DrillLesson }) {
       >
         <div className="border-b border-[color:var(--drill-line)] bg-[color-mix(in_srgb,var(--drill-signal)_6%,transparent)] px-4 py-3.5 sm:px-5">
           <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
-            This experiment
+            What we simulate
           </p>
           <p className="mt-1.5 text-[0.95rem] leading-relaxed text-[color:var(--drill-fg)]">
-            {lesson.experiment}
+            {lesson.simulate}
           </p>
         </div>
         <dl className="grid gap-0 sm:grid-cols-2">
-          <TeachCell kicker="Seeing" body={lesson.seeing} />
-          <TeachCell kicker="So what" body={lesson.why} muted />
-          {lesson.tryNext ? (
-            <TeachCell kicker="Try" body={lesson.tryNext} accent />
-          ) : null}
-          <TeachCell kicker="Win" body={lesson.success} muted />
+          <TeachCell kicker="Why it matters" body={lesson.why} />
+          <TeachCell
+            kicker="Technologies"
+            body={lesson.technologies.join(" · ")}
+            muted
+          />
+          <TeachCell kicker="Simulation" body={lesson.simulation} accent />
+          <TeachCell kicker="Interpret results" body={lesson.interpret} muted />
         </dl>
       </motion.aside>
     </AnimatePresence>
@@ -69,7 +67,7 @@ function TeachCell({
   accent?: boolean;
 }) {
   return (
-    <div className="border-t border-[color:var(--drill-line)] px-4 py-3.5 sm:border-l sm:border-t-0 sm:px-5 sm:first:border-l-0">
+    <div className="border-t border-[color:var(--drill-line)] px-4 py-3.5 sm:border-l sm:border-t-0 sm:px-5 sm:odd:border-l-0">
       <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
         {kicker}
       </dt>

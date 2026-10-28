@@ -128,7 +128,7 @@ export function narrateTrafficSurge(input: {
   return frame(
     segments,
     tone,
-    `Good: p95 ≤ ${p95Limit} ms, queue not climbing, success stays useful — shed early rather than serve everyone slowly.`,
+    `Good: p95 ≤ ${p95Limit} ms, queue not climbing, success stays useful. shed early rather than serve everyone slowly.`,
   );
 }
 
@@ -159,7 +159,7 @@ export function narrateCascade(input: {
     return frame(
       ["Checkout healthy", "Auth and DB will wobble", "isolate before the blast spreads"],
       "calm",
-      "Good: checkout stays up while a dependency fails — circuit + bulkhead both landed.",
+      "Good: checkout stays up while a dependency fails. circuit + bulkhead both landed.",
     );
   }
 
@@ -187,7 +187,7 @@ export function narrateCascade(input: {
   return frame(
     segments,
     tone,
-    "Good: failing dependency is isolated — edge health holds while auth/pay/db recover behind a circuit and bulkhead.",
+    "Good: failing dependency is isolated. edge health holds while auth/pay/db recover behind a circuit and bulkhead.",
   );
 }
 

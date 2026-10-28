@@ -10,7 +10,7 @@ const listen = alsoLinks.filter((link) => link.group === "listen");
 const elsewhere = alsoLinks.filter((link) => link.group === "elsewhere");
 const ease = [0.22, 1, 0.36, 1] as const;
 
-/** About-only culture — kinetic listen rows, quiet elsewhere. Not a homepage dump. */
+/** About-only culture. kinetic listen rows, quiet elsewhere. Not a homepage dump. */
 export function AboutListen() {
   const reduce = usePrefersReducedMotion();
 
@@ -20,7 +20,7 @@ export function AboutListen() {
         <div>
           <p className="kicker text-cinnabar">Listen · Baodium</p>
           <p className="mt-3 max-w-md text-[1.02rem] leading-relaxed text-muted">
-            Music under the same name — another way the work moves.
+            Music under the same name: another way the work moves.
           </p>
           <ul className="mt-6 space-y-2">
             {listen.map((link, index) => (

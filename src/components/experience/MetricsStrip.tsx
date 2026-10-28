@@ -173,16 +173,15 @@ export function MetricsStrip({
       <p className="mt-3 text-xs leading-relaxed text-[color:var(--exp-muted)]">
         {tailHot ? (
           <>
-            <span className="font-medium text-[color:var(--exp-fg)]">p50 can look fine</span> while
-            p99 stretches — acquire wait on the recommendations path hits a minority hardest. Slate
-            = wait; teal = total. Pair with Ops{" "}
+            The median is still calm while p99 stretches. Acquire wait on the recommendations path
+            hits a minority hardest. Slate = wait; teal = total. Pair with Ops{" "}
             <span className="font-mono">acquire.wait.p99</span>.
           </>
         ) : (
           <>
             <span className="font-medium text-[color:var(--exp-fg)]">p50</span> is the median
             completion; <span className="font-medium text-[color:var(--exp-fg)]">p99</span> is the
-            slowest 1%. Under contention, the spread opens first — then{" "}
+            slowest 1%. Under contention, the spread opens first, then{" "}
             <span className="font-mono">pool.pending</span> shows on the grid.
           </>
         )}

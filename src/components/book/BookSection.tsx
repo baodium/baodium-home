@@ -12,7 +12,6 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
-import { LatencyFigure } from "@/components/book/LatencyChart";
 import { Magnetic } from "@/components/Magnetic";
 import { AmbientField } from "@/components/motion/AmbientField";
 import { useIdleDrift } from "@/components/motion/IdleDrift";
@@ -145,7 +144,7 @@ export function BookSection() {
                     >
                       <span className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                       <span className="relative transition-colors duration-500 group-hover:text-white">
-                        Read for free
+                        Read the book for free
                       </span>
                       <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-ember text-cream transition-transform duration-500 group-hover:translate-x-0.5">
                         <BookOpen
@@ -217,10 +216,6 @@ export function BookSection() {
             </Link>
             </motion.div>
           </div>
-
-          <Reveal className="mt-8 border-t border-white/10 pt-6 md:mt-10 md:pt-8">
-            <LatencyFigure />
-          </Reveal>
         </div>
       </div>
     </section>

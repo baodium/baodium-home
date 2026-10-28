@@ -36,7 +36,7 @@ export function ExperienceHub() {
           transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.08, ease }}
         >
           Read the book for the reasoning. Run Chapter 1 like an on-call drill: pool.* metrics,
-          acquire waits, mitigations, and a kill switch that doesn&apos;t kill in-flight work —
+          acquire waits, mitigations, and a kill switch that doesn&apos;t kill in-flight work . 
           with live narration that names what you&apos;re seeing.
         </motion.p>
         <motion.div

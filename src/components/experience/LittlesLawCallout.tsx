@@ -53,8 +53,8 @@ export function LittlesLawCallout({
         At ~{littles.lambda.toFixed(0)} req/s with mean hold {littles.W.toFixed(3)}s, expected
         occupancy is ~{littles.L.toFixed(0)} connections ({formatLittles(littles)}).
         {over
-          ? " Demand exceeds the 40-slot pool — waiters appear; busy slots stay capped at 40."
-          : " Demand fits in the pool — waiters should stay near zero."}
+          ? " Demand exceeds the 40-slot pool. waiters appear; busy slots stay capped at 40."
+          : " Demand fits in the pool. waiters should stay near zero."}
       </p>
 
       <div className="mt-4">
@@ -90,7 +90,7 @@ export function LittlesLawCallout({
         </p>
         {over ? (
           <p className="mt-2 rounded-lg border border-[color-mix(in_srgb,var(--exp-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_7%,transparent)] px-3 py-2 text-xs leading-relaxed text-[color:var(--exp-fg)]">
-            Teaching point: λ×W can exceed 40. Active connections cannot. The surplus is waiting —
+            Teaching point: λ×W can exceed 40. Active connections cannot. The surplus is waiting . 
             not a fake 41st busy slot.
           </p>
         ) : null}

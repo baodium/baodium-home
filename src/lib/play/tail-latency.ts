@@ -1,7 +1,7 @@
-/** Pure engine — Tail Latency: shared workers, queueing, hedging tradeoffs. */
+/** Pure engine. Tail Latency: shared workers, queueing, hedging tradeoffs. */
 
 export type TailControls = {
-  /** Worker pool size — drives queueing under load. */
+  /** Worker pool size. drives queueing under load. */
   concurrency: number;
   /** Duplicate slow requests (hedging). */
   hedge: boolean;
@@ -52,7 +52,7 @@ export type TailState = {
   lastMessage: string;
 };
 
-/** Mulberry32 — deterministic per-run RNG so controls, not luck, decide. */
+/** Mulberry32. deterministic per-run RNG so controls, not luck, decide. */
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
@@ -88,7 +88,7 @@ export function emptyTailSnap(message?: string): TailSnap {
     goodput: 0,
     queueDepth: 0,
     util: 0,
-    message: message ?? "Idle — start a run to compare p50 vs p99.",
+    message: message ?? "Idle. Start a run to compare p50 vs p99.",
   };
 }
 
@@ -148,7 +148,7 @@ export function tickTail(
 
     let work = 1;
     if (controls.hedge && latency > controls.hedgeAfterMs) {
-      // Hedge launches a duplicate after hedgeAfterMs — costs a worker slot.
+      // Hedge launches a duplicate after hedgeAfterMs. costs a worker slot.
       work += 1;
       hedgeExtra += 1;
       const hedgeLat =
@@ -186,12 +186,12 @@ export function tickTail(
   const costPer = totalDone === 0 ? 1 : cost / totalDone;
 
   let message = state.lastMessage;
-  if (samples.length < 8) message = "Collecting samples — p99 needs a window.";
-  else if (t > 10 && t < 14) message = "Stragglers landing — watch p99, not p50.";
+  if (samples.length < 8) message = "Collecting samples. P99 needs a window.";
+  else if (t > 10 && t < 14) message = "Stragglers landing. Watch p99, not p50.";
   else if (controls.hedge && costPer > 1.55)
-    message = `Hedges helping the tail — cost ${costPer.toFixed(2)}× work/request.`;
+    message = `Hedges helping the tail. cost ${costPer.toFixed(2)}× work/request.`;
   else if (util > 1.05)
-    message = `Workers saturated (${(util * 100).toFixed(0)}% util) — queue wait dominates the tail.`;
+    message = `Workers saturated (${(util * 100).toFixed(0)}% util). queue wait dominates the tail.`;
   else if (p99 > P99_BUDGET_MS)
     message = "p99 over budget. Mean / p50 still look fine.";
   else if (p50 < 90 && p99 < P99_BUDGET_MS)
@@ -245,23 +245,23 @@ export function tickTail(
         reason: won
           ? "Tail inside budget without torching capacity on hedges."
           : p99 > P99_BUDGET_MS
-            ? "p99 still too high — the average lied."
+            ? "p99 still too high. The average lied."
             : costPer >= 1.8
-              ? "Hedge storm — duplicate work ate the pool."
+              ? "Hedge storm. Duplicate work ate the pool."
               : "Too many timeouts; goodput fell apart.",
         chapterHref: "/system-design/chapter-2",
-        chapterLabel: "Ch.2 — Modeling requests, latency, and throughput",
+        chapterLabel: "Ch.2. Modeling requests, latency, and throughput",
         takeaway:
-          "Users notice the tail, not the mean — hedging helps only when the duplicate work fits.",
+          "Users notice the tail, not the mean. Hedging helps only when the duplicate work fits.",
         debrief,
         before:
-          "Stragglers plus an undersized pool — p50 stays calm while p99 walks off the SLO.",
+          "Stragglers plus an undersized pool. P50 stays calm while p99 walks off the SLO.",
         after: `p50 ${p50.toFixed(0)}ms, p99 ${p99.toFixed(0)}ms, goodput ${(goodput * 100).toFixed(0)}%, cost ${costPer.toFixed(2)}×, workers ${workers}${controls.hedge ? `, hedge after ${controls.hedgeAfterMs}ms` : ", no hedge"}.`,
         changed:
           controls.hedge && costPer < 1.8 && won
-            ? "Hedges cut the tail while duplicate work still fit — cost stayed under the storm line."
+            ? "Hedges cut the tail while duplicate work still fit. Cost stayed under the storm line."
             : controls.hedge && costPer >= 1.8
-              ? "Hedge copies ate the pool — p99 may improve briefly while goodput and cost collapse."
+              ? "Hedge copies ate the pool. P99 may improve briefly while goodput and cost collapse."
               : "Right-sized concurrency dropped queue wait; without a fitting hedge budget, stragglers still own p99.",
         metrics: [
           {

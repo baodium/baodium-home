@@ -1,0 +1,57 @@
+"use client";
+
+import { motion } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+
+export type TrainingBriefProps = {
+  simulate: string;
+  why: string;
+  technologies: string[];
+  simulation: string;
+  interpret: string;
+};
+
+/**
+ * Fixed briefing block for Chapter labs (EC-Council training order).
+ */
+export function TrainingBrief({
+  simulate,
+  why,
+  technologies,
+  simulation,
+  interpret,
+}: TrainingBriefProps) {
+  const reduced = usePrefersReducedMotion();
+  const rows = [
+    { k: "What we simulate", v: simulate },
+    { k: "Why it matters", v: why },
+    { k: "Technologies", v: technologies.join(" · ") },
+    { k: "Simulation", v: simulation },
+    { k: "Interpret results", v: interpret },
+  ];
+
+  return (
+    <motion.section
+      aria-label="Training brief"
+      initial={reduced ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.12, ease: [0.22, 1, 0.36, 1] }}
+      className="mt-6 overflow-hidden rounded-2xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] shadow-[0_18px_40px_-28px_rgba(26,35,48,0.18)]"
+    >
+      <ol className="divide-y divide-[color:var(--exp-line)]">
+        {rows.map((row, index) => (
+          <li
+            key={row.k}
+            className="grid gap-2 px-4 py-3.5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-5 sm:px-5"
+          >
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--exp-amber)]">
+              <span className="mr-2 text-[color:var(--exp-faint)]">0{index + 1}</span>
+              {row.k}
+            </p>
+            <p className="text-sm leading-relaxed text-[color:var(--exp-fg)]/90">{row.v}</p>
+          </li>
+        ))}
+      </ol>
+    </motion.section>
+  );
+}

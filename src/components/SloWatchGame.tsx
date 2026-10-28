@@ -26,7 +26,7 @@ import { getPlayGame } from "@/data/play-games";
 const catalog = getPlayGame("slo-watch");
 
 const initialSnap: TickSnapshot = emptySloSnap(
-  "Warm traffic. Defaults won’t survive Wave 3 — size up.",
+  "Warm traffic. Defaults won’t survive Wave 3. size up.",
 );
 
 function Meter({
@@ -153,7 +153,7 @@ export function SloWatchGame({
     );
     try {
       if (navigator.share) {
-        await navigator.share({ title: "SLO Watch — Baodium", text, url });
+        await navigator.share({ title: "SLO Watch · Baodium", text, url });
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -167,57 +167,57 @@ export function SloWatchGame({
   const setRetry = (retries: RetryPolicy) =>
     setControls((c) => ({ ...c, retries }));
 
+  const technologies =
+    catalog?.technologies ??
+    ["Error budgets", "Connection pools", "Concurrency limits", "Retry policy", "Load shedding"];
+  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
+  const win =
+    catalog?.success ??
+    `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`;
+
   const lesson = useMemo((): DrillLesson => {
     if (phase === "intro") {
       return {
-        experiment:
-          "Three traffic waves hit checkout. Defaults will not hold Wave 3 — size capacity, pick retries, shed if you must.",
-        seeing:
-          "Pool utilization, arrivals, success rate, and remaining error budget. Wave labels mark each surge.",
+        simulate:
+          "Three traffic waves hit checkout while you choose pool size, concurrency, retries, and shedding.",
         why: "An SLO is a promise with a budget. Aggressive retries under saturation spend that budget twice and can cascade.",
-        tryNext: "Raise pool size before Wave 3, keep retries cautious, enable shedding if utilization saturates.",
-        success:
-          catalog?.success ??
-          `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`,
+        technologies,
+        simulation:
+          "Set the dials, then start the shift. Watch pool util, arrivals, success rate, and remaining error budget as each wave lands.",
+        interpret: win,
       };
     }
     if (phase === "running") {
       return {
-        experiment: `Wave ${snap.wave} is live — occupancy and retries decide whether the budget survives.`,
-        seeing: snap.message,
+        simulate: `Wave ${snap.wave} is live. Occupancy and retries decide whether the budget survives.`,
         why:
           controls.retries === "aggressive" && snap.poolUtil > 0.85
-            ? "Aggressive retries multiply arrivals while the pool is already full — that spends the budget twice."
+            ? "Aggressive retries multiply arrivals while the pool is already full, which spends the budget twice."
             : "Capacity and retries are coupled. Under saturation, more retries usually means more failures, not more recoveries.",
-        tryNext:
+        technologies,
+        simulation:
           snap.errorBudget < 40
-            ? "Shed load or cut retries before the budget hits zero."
-            : "Watch utilization into the next wave; size up before it crests.",
-        success:
-          catalog?.success ??
-          `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`,
+            ? `${snap.message} Shed load or cut retries before the budget hits zero.`
+            : `${snap.message} Watch utilization into the next wave and size up before it crests.`,
+        interpret: win,
       };
     }
     if (phase === "won") {
       return {
-        experiment: "Checkout held inside the SLO for the full shift.",
-        seeing: result?.reason ?? "Error budget survived all three waves.",
-        why:
-          catalog?.takeaway ??
-          "Capacity and retries are coupled under saturation.",
-        success: "Win locked. Try aggressive retries once to see the budget burn faster.",
+        simulate: "Checkout held inside the SLO for the full shift.",
+        why: takeaway || "Capacity and retries are coupled under saturation.",
+        technologies,
+        simulation: result?.reason ?? "Error budget survived all three waves.",
+        interpret: "Win locked. Try aggressive retries once to see the budget burn faster.",
       };
     }
     return {
-      experiment: "The budget emptied or the system cascaded.",
-      seeing: result?.reason ?? "SLO breached under the waves.",
-      why:
-        catalog?.takeaway ??
-        "Capacity and retries are coupled under saturation.",
-      tryNext: "Size the pool, keep retries cautious, and shed before Wave 3 saturates.",
-      success:
-        catalog?.success ??
-        `Hold success rate at ${(SLO_TARGET * 100).toFixed(1)}% for ${DURATION_S}s without cascading.`,
+      simulate: "The budget emptied or the system cascaded.",
+      why: takeaway || "Capacity and retries are coupled under saturation.",
+      technologies,
+      simulation: result?.reason ?? "SLO breached under the waves.",
+      interpret:
+        "Size the pool, keep retries cautious, and shed before Wave 3 saturates. " + win,
     };
   }, [
     controls.retries,
@@ -227,6 +227,9 @@ export function SloWatchGame({
     snap.message,
     snap.poolUtil,
     snap.wave,
+    takeaway,
+    technologies,
+    win,
   ]);
 
   const narrator = useMemo(
@@ -291,8 +294,8 @@ export function SloWatchGame({
       ) : (
         <div className="flex flex-wrap items-end justify-between gap-3">
           <p className="max-w-xl text-[0.95rem] leading-relaxed text-[color:var(--drill-muted)]">
-            Three traffic waves. Defaults will not hold Wave 3 — size up, pick retries carefully,
-            shed if you must.
+            Three traffic waves. Defaults will not hold Wave 3. Size up, pick retries carefully,
+            and shed if you must.
           </p>
           <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
             SLO {(SLO_TARGET * 100).toFixed(1)}% · {DURATION_S}s
@@ -403,7 +406,7 @@ export function SloWatchGame({
           <label className="block">
             <DrillControlLabel
               label="Pool size"
-              tip="How many workers/connections checkout can hold at once. Pool caps holds; concurrency caps admission — they are different levers."
+              tip="How many workers/connections checkout can hold at once. Pool caps holds; concurrency caps admission. They are different levers."
               value={controls.poolSize}
             />
             <input
@@ -557,13 +560,13 @@ export function SloWatchGame({
           <details className="border border-[color:var(--drill-line)] p-3 text-sm leading-relaxed text-[color:var(--drill-muted)]">
             <summary className="cursor-pointer text-[color:var(--drill-fg)]">Assumptions</summary>
             <ul className="mt-3 list-disc space-y-2 pl-5">
-              <li>Synthetic checkout traffic — not production telemetry.</li>
+              <li>Synthetic checkout traffic. not production telemetry.</li>
               <li>
                 Pool size caps concurrent connection holds. Concurrency limit caps
                 admission (in-flight + pending). When concurrency ≫ pool, pending grows.
               </li>
               <li>
-                Aggressive retries multiply arrivals under saturation and can cascade —
+                Aggressive retries multiply arrivals under saturation and can cascade . 
                 the chapter-4 lesson.
               </li>
               <li>Shedding cuts offered load but spends some success rate on 503s.</li>

@@ -23,7 +23,7 @@ import {
 const catalog = getPlayGame("cache-roulette");
 
 const idleSnap: CacheSnap = emptyCacheSnap(
-  "Warm cache. Keys expire on a TTL — watch origin when they do.",
+  "Warm cache. Keys expire on a TTL. watch origin when they do.",
 );
 
 export function CacheRouletteGame() {
@@ -75,7 +75,7 @@ export function CacheRouletteGame() {
     engineRef.current = createCache();
     setResult(null);
     setCopied(false);
-    setSnap(emptyCacheSnap("Run started — watch the next TTL edge."));
+    setSnap(emptyCacheSnap("Run started. watch the next TTL edge."));
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -92,10 +92,10 @@ export function CacheRouletteGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/cache-roulette`;
-    const text = `Cache Roulette on Baodium — score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Cache Roulette on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Cache Roulette — Baodium", text, url });
+        await navigator.share({ title: "Cache Roulette · Baodium", text, url });
         return;
       }
       await navigator.clipboard.writeText(text);
@@ -106,85 +106,92 @@ export function CacheRouletteGame() {
     }
   };
 
+  const technologies =
+    catalog?.technologies ??
+    ["TTL caches", "Singleflight / coalescing", "Soft TTL (SWR)", "Origin fill latency", "Thundering herd"];
+  const takeaway = catalog?.takeaway ?? catalog?.matters ?? "";
+  const win =
+    catalog?.success ??
+    "Hold hit rate high and keep origin load under capacity for the full run.";
+
   const lesson = useMemo((): DrillLesson => {
     if (phase === "intro") {
       return {
-        experiment:
-          "A hot key expires on a timer. Without coalescing, every waiting client fetches origin at once — a thundering herd.",
-        seeing:
-          "Hit rate, origin load, peak origin, and in-flight misses during the fill window (~1.4s). The bar strip spikes when origin is stampeded.",
+        simulate:
+          "A hot key expires on a timer. Without coalescing, every waiting client fetches origin at once (a thundering herd).",
         why: "TTL expiry is normal. The outage comes from N identical refreshes competing for limited origin workers.",
-        tryNext:
-          "Turn on singleflight before you start. Optionally enable soft TTL, then run the drill.",
-        success:
-          catalog?.success ??
-          "Hold hit rate high and keep origin load under capacity for the full run.",
+        technologies,
+        simulation:
+          "Turn on singleflight before you start. Optionally enable soft TTL, then run the drill. Watch hit rate, origin load, and in-flight misses during the fill window.",
+        interpret: win,
       };
     }
     if (phase === "running") {
       if (snap.stampeded) {
         return {
-          experiment:
-            "Expiry just turned into a herd — many clients are punching origin together.",
-          seeing: `${snap.inFlightMisses} in-flight misses · origin load ${(snap.originLoad * 100).toFixed(0)}%. The strip turns cinnabar when origin saturates.`,
+          simulate:
+            "Expiry just turned into a herd. Many clients are punching origin together.",
           why: "Without singleflight, each miss is independent. Soft TTL alone cannot stop a herd if every client still refreshes.",
-          tryNext:
-            "Enable singleflight (and soft TTL if you want users served stale while one revalidate runs).",
-          success:
-            catalog?.success ??
-            "Hold hit rate high and keep origin load under capacity for the full run.",
+          technologies,
+          simulation: `${snap.inFlightMisses} in-flight misses · origin load ${(snap.originLoad * 100).toFixed(0)}%. Enable singleflight (and soft TTL if you want users served stale while one revalidate runs).`,
+          interpret: win,
         };
       }
       if (controls.singleflight && controls.softTtl) {
         return {
-          experiment: "Singleflight + soft TTL — one revalidate, users stay warm.",
-          seeing: snap.message,
+          simulate: "Singleflight and soft TTL are on: one revalidate, users stay warm.",
           why: "Stale-while-revalidate keeps hit rate up while one leader refreshes. Origin sees one worker, not a stampede.",
-          tryNext: "Shorten TTL and watch whether origin stays calm under more expiry storms.",
-          success:
-            catalog?.success ??
-            "Hold hit rate high and keep origin load under capacity for the full run.",
+          technologies,
+          simulation: `${snap.message} Shorten TTL and watch whether origin stays calm under more expiry storms.`,
+          interpret: win,
         };
       }
       if (controls.singleflight) {
         return {
-          experiment: "Singleflight is on — concurrent misses coalesce to one leader.",
-          seeing: snap.message,
+          simulate: "Singleflight is on. Concurrent misses coalesce to one leader.",
           why: "Others wait for the leader’s result instead of each calling origin. That is request coalescing.",
-          tryNext: "Enable soft TTL so users keep getting a response while the leader revalidates.",
-          success:
-            catalog?.success ??
-            "Hold hit rate high and keep origin load under capacity for the full run.",
+          technologies,
+          simulation: `${snap.message} Enable soft TTL so users keep getting a response while the leader revalidates.`,
+          interpret: win,
         };
       }
       return {
-        experiment: "Keys are expiring without coalescing — origin will take the heat.",
-        seeing: snap.message,
+        simulate: "Keys are expiring without coalescing. Origin will take the heat.",
         why: "A short TTL means more expiry storms. Origin workers are the capacity wall the herd hits.",
-        tryNext: "Enable singleflight before the next expiry, or raise TTL / origin workers to buy time.",
-        success:
-          catalog?.success ??
-          "Hold hit rate high and keep origin load under capacity for the full run.",
+        technologies,
+        simulation: `${snap.message} Enable singleflight before the next expiry, or raise TTL / origin workers to buy time.`,
+        interpret: win,
       };
     }
     if (phase === "won") {
       return {
-        experiment: "Origin lived through expiry — coalescing beat the herd.",
-        seeing: result?.reason ?? "Hit rate held and origin stayed under capacity.",
-        why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-        success: "You met the win condition. Try a shorter TTL next to pressure the same defenses.",
+        simulate: "Origin lived through expiry. Coalescing beat the herd.",
+        why: result?.takeaway ?? takeaway,
+        technologies,
+        simulation: result?.reason ?? "Hit rate held and origin stayed under capacity.",
+        interpret: "You met the win condition. Try a shorter TTL next to pressure the same defenses.",
       };
     }
     return {
-      experiment: "The herd won — expiry became an origin stampede or hit rate collapsed.",
-      seeing: result?.reason ?? "Origin overloaded or the cache spent more than it saved.",
-      why: result?.takeaway ?? catalog?.matters ?? catalog?.takeaway ?? "",
-      tryNext: "Reset with singleflight on before the first expiry, then add soft TTL.",
-      success:
-        catalog?.success ??
-        "Hold hit rate high and keep origin load under capacity for the full run.",
+      simulate: "The herd won. Expiry became an origin stampede or hit rate collapsed.",
+      why: result?.takeaway ?? takeaway,
+      technologies,
+      simulation: result?.reason ?? "Origin overloaded or the cache spent more than it saved.",
+      interpret: "Reset with singleflight on before the first expiry, then add soft TTL.",
     };
-  }, [controls.singleflight, controls.softTtl, phase, result, snap.inFlightMisses, snap.message, snap.originLoad, snap.stampeded]);
+  }, [
+    controls.singleflight,
+    controls.softTtl,
+    phase,
+    result,
+    snap.inFlightMisses,
+    snap.message,
+    snap.originLoad,
+    snap.stampeded,
+    takeaway,
+    technologies,
+    win,
+  ]);
 
   return (
     <div className="slo-game">
@@ -206,7 +213,7 @@ export function CacheRouletteGame() {
                 TTL
               </span>
             </DrillTip>
-            . Coalesce concurrent misses — or watch every client hit origin at
+            . Coalesce concurrent misses, or watch every client hit origin at
             once for {CACHE_DURATION_S}s.
           </p>
         </div>
@@ -405,7 +412,7 @@ export function CacheRouletteGame() {
             />
             <DrillTip
               label="Step mode"
-              tip="Advance one simulation tick at a time. Default when reduced motion is on — fully playable without animation."
+              tip="Advance one simulation tick at a time. Default when reduced motion is on. fully playable without animation."
             >
               <span>Step mode</span>
             </DrillTip>

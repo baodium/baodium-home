@@ -57,13 +57,13 @@ export function PlayHub() {
               Play · Interactive hub
             </p>
             <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
-              Break a production invariant. Leave knowing what changed.
+              Operate a failure mode. Leave with a clear debrief.
             </h1>
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
               Each drill is a short ops shift from{" "}
-              <em className="text-ink">Practical System Design</em>. You tune
-              real levers, watch the meters move, then get a before/after
-              debrief — not a vibe check.
+              <em className="text-ink">Practical System Design</em>. You get a
+              training brief, tune real levers, watch the meters move, then read
+              the results against a production takeaway.
             </p>
           </motion.div>
 
@@ -99,18 +99,18 @@ export function PlayHub() {
   );
 }
 
-function SoWhat({ game, compact }: { game: PlayGame; compact?: boolean }) {
+function TrainingOutline({ game, compact }: { game: PlayGame; compact?: boolean }) {
   const rows = [
-    { k: "Learn", v: game.learn },
-    { k: "Changed", v: game.changed },
-    { k: "Matters", v: game.matters },
+    { k: "Why it matters", v: game.matters },
+    { k: "Technologies", v: game.technologies.join(" · ") },
+    { k: "Interpret", v: game.success },
   ];
   return (
     <dl
       className={`grid gap-3 ${compact ? "" : "sm:grid-cols-3"} border-t border-ink/8 pt-4`}
     >
       {rows.map((row) => (
-        <div key={row.k} className={compact ? "" : ""}>
+        <div key={row.k}>
           <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
             {row.k}
           </dt>
@@ -162,13 +162,10 @@ function HubFeatured({
             {game.title}
           </h2>
           <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
+            <span className="font-medium text-ink">What we simulate. </span>
             {game.feel}
           </p>
-          <p className="mt-4 max-w-lg text-[0.9rem] leading-relaxed text-ink/75">
-            <span className="font-medium text-ink">Win — </span>
-            {game.success}
-          </p>
-          <SoWhat game={game} />
+          <TrainingOutline game={game} />
           <span className="mt-6 inline-flex items-center gap-2 text-[0.92rem] text-[color-mix(in_srgb,#3d7a8c_95%,#1a2330)] transition-transform duration-300 group-hover:translate-x-1">
             Run this drill
             <span aria-hidden="true">→</span>
@@ -245,7 +242,7 @@ function HubBand({
             {game.title}
           </h2>
           <p className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</p>
-          <SoWhat game={game} compact />
+          <TrainingOutline game={game} compact />
         </div>
       </Link>
     </motion.div>

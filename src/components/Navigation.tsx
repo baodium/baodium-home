@@ -143,12 +143,12 @@ export function Navigation() {
         <div className="flex items-center gap-1.5">
           <a
             href={book.readPath}
-            className="group inline-flex min-h-10 items-center gap-1.5 rounded-full bg-cream px-4 text-[0.82rem] font-medium text-ink transition-colors hover:bg-white"
+            className="group inline-flex min-h-10 max-w-[11.5rem] items-center gap-1.5 rounded-full bg-cream px-3.5 text-[0.72rem] font-medium leading-tight text-ink transition-colors hover:bg-white sm:max-w-none sm:px-4 sm:text-[0.82rem] sm:leading-none"
           >
-            Free read
+            Read the book for free
             <ArrowUpRight
               aria-hidden="true"
-              className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               strokeWidth={2}
             />
           </a>

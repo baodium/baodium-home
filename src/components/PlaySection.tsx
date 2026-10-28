@@ -80,11 +80,12 @@ export function PlaySection() {
                 id="play-heading"
                 className="mt-5 font-serif text-[clamp(2.15rem,4.6vw,3.6rem)] leading-[1.02] tracking-[-0.035em] text-ink"
               >
-                Break a production invariant. Leave knowing what changed.
+                Operate a failure mode. Leave with a clear debrief.
               </h2>
               <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-muted">
-                Short ops drills from the book — each one ends with a before/after
-                debrief: what you learned, what changed, why it matters.
+                Short ops drills from the book. Each one follows a training brief:
+                what we simulate, why it matters, the technologies in play, then a
+                live run and how to read the results.
               </p>
             </div>
             <Link
@@ -134,14 +135,22 @@ export function PlaySection() {
   );
 }
 
-function SoWhatStrip({ game }: { game: PlayGame }) {
+function TrainingStrip({ game }: { game: PlayGame }) {
   return (
-    <p className="mt-3 max-w-xl text-[0.88rem] leading-relaxed text-ink/75">
-      <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
-        So what —{" "}
-      </span>
-      {game.matters}
-    </p>
+    <div className="mt-3 max-w-xl space-y-2 text-[0.88rem] leading-relaxed text-ink/75">
+      <p>
+        <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
+          Why it matters{" "}
+        </span>
+        {game.matters}
+      </p>
+      <p className="text-[0.8rem] text-muted">
+        <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
+          Technologies{" "}
+        </span>
+        {game.technologies.join(" · ")}
+      </p>
+    </div>
   );
 }
 
@@ -193,10 +202,10 @@ function FeaturedDrill({
             {game.feel}
           </span>
           <span className="mt-4 max-w-lg text-[0.88rem] leading-relaxed text-ink/75">
-            <span className="font-medium text-ink">Win — </span>
+            <span className="font-medium text-ink">Interpret: </span>
             {game.success}
           </span>
-          <SoWhatStrip game={game} />
+          <TrainingStrip game={game} />
           <span className="mt-6 inline-flex items-center gap-2 text-[0.9rem] text-[color-mix(in_srgb,#3d7a8c_95%,#1a2330)] transition-transform duration-300 group-hover:translate-x-1">
             Run this drill
             <span aria-hidden="true">→</span>
@@ -286,7 +295,7 @@ function DrillBand({
             {game.title}
           </span>
           <span className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</span>
-          <SoWhatStrip game={game} />
+          <TrainingStrip game={game} />
         </div>
       </Link>
     </motion.div>

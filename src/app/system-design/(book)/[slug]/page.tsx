@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const chapter = getChapter(slug);
   if (!chapter) return {};
   return {
-    title: `${chapter.title} — ${book.title}`,
+    title: `${chapter.title} · ${book.title}`,
     description: `Read “${chapter.title}” from ${book.title} by ${book.author}.`,
     alternates: { canonical: `${book.readPath}/${slug}` },
   };

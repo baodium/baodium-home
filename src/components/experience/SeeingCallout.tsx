@@ -6,11 +6,11 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-/** Step-level “what you’re seeing” — teaches the scene, not just the next button. */
+/** Step-level “what you’re seeing”. teaches the scene, not just the next button. */
 const STEP_SEEING: Partial<Record<GuidedStepId, { title: string; body: string }>> = {
   inspect: {
     title: "What you’re seeing",
-    body: "Two product pages, same request path. Recommendations are still behind a flag — toggling preview only changes the mock UI, not production traffic.",
+    body: "Two product pages, same request path. Recommendations are still behind a flag. Toggling preview only changes the mock UI, not production traffic.",
   },
   review: {
     title: "What you’re seeing",
@@ -26,7 +26,7 @@ const STEP_SEEING: Partial<Record<GuidedStepId, { title: string; body: string }>
   },
   inspect_prod: {
     title: "What you’re seeing",
-    body: "Busy slots never exceed 40. Little’s Law estimates demand as λ × W. When demand > 40, overflow waits — it does not invent a 41st busy slot.",
+    body: "Busy slots never exceed 40. Little’s Law estimates demand as λ × W. When demand > 40, overflow waits. It does not invent a 41st busy slot.",
   },
   pressure: {
     title: "What you’re seeing",
@@ -42,7 +42,7 @@ const STEP_SEEING: Partial<Record<GuidedStepId, { title: string; body: string }>
   },
   sandbox: {
     title: "What you’re seeing",
-    body: "Same invariants as guided mode. Pressure the pool, then disable — watch new arrivals skip the long path while in-flight holds drain.",
+    body: "Same rules as guided mode. Pressure the pool, then disable. Watch new arrivals skip the long path while in-flight holds drain.",
   },
 };
 
@@ -50,7 +50,7 @@ function liveInsight(snap: EngineSnapshot): { title: string; body: string } | nu
   if (snap.waitingCount > 0) {
     return {
       title: "Live reading",
-      body: `${snap.activeCount} busy (capped at ${snap.poolSize}) · ${snap.waitingCount} waiting. Overflow queues — the pool does not grow past capacity.`,
+      body: `${snap.activeCount} busy (capped at ${snap.poolSize}) · ${snap.waitingCount} waiting. Overflow queues. the pool does not grow past capacity.`,
     };
   }
   if (snap.littles.overDemand) {
@@ -62,13 +62,13 @@ function liveInsight(snap: EngineSnapshot): { title: string; body: string } | nu
   if (snap.controls.featureDisabledForNew) {
     return {
       title: "Live reading",
-      body: "New traffic takes the baseline path. In-flight recommendation holds keep their slots until they finish — disable is not a kill switch.",
+      body: "New traffic takes the baseline path. In-flight recommendation holds keep their slots until they finish. Disable is not a kill switch.",
     };
   }
   if (snap.controls.paused) {
     return {
       title: "Live reading",
-      body: `Exposure frozen at ${snap.controls.exposurePct}% — traffic continues at that mix. Pausing does not drain the pool; disable or shed to cut recommendation demand.`,
+      body: `Exposure frozen at ${snap.controls.exposurePct}%. traffic continues at that mix. Pausing does not drain the pool; disable or shed to cut recommendation demand.`,
     };
   }
   return null;
