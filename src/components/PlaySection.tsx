@@ -129,22 +129,33 @@ export function PlaySection() {
   );
 }
 
-function TrainingStrip({ game }: { game: PlayGame }) {
+function TrainingStrip({ game, compact }: { game: PlayGame; compact?: boolean }) {
+  const rows = [
+    { k: "Why it matters", v: game.matters },
+    { k: "Technologies", v: game.technologies.join(" · ") },
+    { k: "Interpret", v: game.success },
+  ];
   return (
-    <div className="mt-3 max-w-xl space-y-2 text-[0.88rem] leading-relaxed text-ink/75">
-      <p>
-        <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
-          Why it matters{" "}
-        </span>
-        {game.matters}
-      </p>
-      <p className="text-[0.8rem] text-muted">
-        <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
-          Technologies{" "}
-        </span>
-        {game.technologies.join(" · ")}
-      </p>
-    </div>
+    <dl
+      className={`mt-4 grid gap-3 border-t border-ink/8 pt-4 ${
+        compact ? "" : "sm:grid-cols-3"
+      }`}
+    >
+      {rows.map((row) => (
+        <div key={row.k}>
+          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]">
+            {row.k}
+          </dt>
+          <dd
+            className={`mt-1.5 leading-relaxed text-ink/80 ${
+              compact ? "text-[0.8rem]" : "text-[0.88rem]"
+            }`}
+          >
+            {row.v}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -193,11 +204,8 @@ function FeaturedDrill({
             {game.title}
           </span>
           <span className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-muted">
+            <span className="font-medium text-ink">What we simulate. </span>
             {game.feel}
-          </span>
-          <span className="mt-4 max-w-lg text-[0.88rem] leading-relaxed text-ink/75">
-            <span className="font-medium text-ink">Interpret: </span>
-            {game.success}
           </span>
           <TrainingStrip game={game} />
           <span className="mt-6 inline-flex items-center gap-2 text-[0.9rem] text-[color-mix(in_srgb,#3d7a8c_95%,#1a2330)] transition-transform duration-300 group-hover:translate-x-1">
@@ -289,7 +297,7 @@ function DrillBand({
             {game.title}
           </span>
           <span className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</span>
-          <TrainingStrip game={game} />
+          <TrainingStrip game={game} compact />
         </div>
       </Link>
     </motion.div>

@@ -74,6 +74,15 @@ export function SideProjectsView() {
             Interview practice that follows your answers, and a status page that
             stays true across every profile.
           </motion.p>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.65, delay: reduce ? 0 : 0.36, ease }}
+            className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-cream/55"
+          >
+            Two live products from Baodium. Open either one, or scroll for a
+            full-page walkthrough.
+          </motion.p>
 
           <motion.ul
             initial={reduce ? false : { opacity: 0, y: 12 }}

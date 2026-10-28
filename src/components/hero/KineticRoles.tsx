@@ -73,12 +73,22 @@ export function KineticRoles({
               {/* No overflow clip / filter blur: roles must stay optically sharp. */}
               <span className="block pb-[0.08em] text-[clamp(2.45rem,5.1vw,4.85rem)] font-semibold leading-[1.02] tracking-[-0.05em] [filter:none]">
                 <span className="sr-only">{role.word}.</span>
-                <span
+                <motion.span
                   aria-hidden="true"
                   ref={(node) => {
                     wordRefs.current[line] = node;
                   }}
                   className="inline-flex"
+                  animate={
+                    reduce || !isActive
+                      ? undefined
+                      : { x: [0, 1.5, 0, -0.8, 0] }
+                  }
+                  transition={
+                    reduce || !isActive
+                      ? undefined
+                      : { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
+                  }
                 >
                   {letters.map((letter, k) => (
                     <motion.span
@@ -103,7 +113,7 @@ export function KineticRoles({
                       {letter}
                     </motion.span>
                   ))}
-                </span>
+                </motion.span>
               </span>
             </span>
           );

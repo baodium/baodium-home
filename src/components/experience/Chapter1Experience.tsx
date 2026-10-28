@@ -464,7 +464,7 @@ export function Chapter1Experience() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.45, ease }}
         >
-          Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min
+          Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min · Guided + sandbox
         </motion.p>
         <motion.h1
           className="mt-2 font-serif text-[clamp(1.95rem,4.2vw,2.9rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]"
@@ -474,6 +474,16 @@ export function Chapter1Experience() {
         >
           {scenario.meta.title}
         </motion.h1>
+        {scenario.meta.subtitle ? (
+          <motion.p
+            className="mt-2 font-serif text-[1.05rem] italic leading-snug text-[color:var(--exp-amber)] sm:text-[1.12rem]"
+            initial={reduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.08, ease }}
+          >
+            {scenario.meta.subtitle}
+          </motion.p>
+        ) : null}
         <motion.p
           className="mt-3 text-base leading-relaxed text-[color:var(--exp-muted)] sm:text-lg"
           initial={reduced ? false : { opacity: 0, y: 10 }}
@@ -482,6 +492,20 @@ export function Chapter1Experience() {
         >
           {scenario.brief}
         </motion.p>
+        {!reduced ? (
+          <motion.div
+            aria-hidden="true"
+            initial={{ scaleX: 0.08, opacity: 0.2 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.2, ease }}
+            className="mt-6 h-px origin-left bg-[color-mix(in_srgb,var(--exp-accent)_45%,transparent)]"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="mt-6 h-px bg-[color-mix(in_srgb,var(--exp-accent)_45%,transparent)]"
+          />
+        )}
       </header>
 
       <TrainingBrief
@@ -586,7 +610,7 @@ export function Chapter1Experience() {
                       className="exp-btn exp-btn-ghost mt-3"
                       onClick={() => setPredictionAnswered(true)}
                     >
-                      I&apos;ve made my prediction. show me
+                      I have made my prediction. Show me
                     </button>
                   </div>
                 ) : null}

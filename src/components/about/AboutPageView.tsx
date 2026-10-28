@@ -118,17 +118,18 @@ export function AboutPageView() {
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.32, ease }}
-              className="mt-6 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cream/55"
+              className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cream/55"
             >
-              <li className="text-amber/90">Engineer</li>
-              <li aria-hidden="true" className="text-cream/25">
-                /
-              </li>
-              <li>Philanthropist</li>
-              <li aria-hidden="true" className="text-cream/25">
-                /
-              </li>
-              <li>Author</li>
+              {(["Engineer", "Philanthropist", "Author"] as const).map((role, index) => (
+                <li key={role} className="flex items-center gap-4">
+                  {index > 0 ? (
+                    <span aria-hidden="true" className="text-cream/25">
+                      /
+                    </span>
+                  ) : null}
+                  <span className={index === 0 ? "text-amber/90" : undefined}>{role}</span>
+                </li>
+              ))}
             </motion.ul>
 
             <motion.p

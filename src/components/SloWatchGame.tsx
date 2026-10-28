@@ -26,7 +26,7 @@ import { getPlayGame } from "@/data/play-games";
 const catalog = getPlayGame("slo-watch");
 
 const initialSnap: TickSnapshot = emptySloSnap(
-  "Warm traffic. Defaults won’t survive Wave 3. size up.",
+  "Warm traffic. Defaults will not survive Wave 3. Size up.",
 );
 
 function Meter({
