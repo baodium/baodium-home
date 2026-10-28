@@ -193,8 +193,9 @@ export function TrafficSurgeGame() {
             under {P95_LIMIT_MS}ms for {SURGE_DURATION_S}s without starving the floor.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
-          Success <span className="text-[color:var(--drill-fg)]">p95 ≤ {P95_LIMIT_MS}ms</span>
+        <p className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
+          Hold p95 under{" "}
+          <span className="tabular-nums text-[color:var(--drill-fg)]">{P95_LIMIT_MS}ms</span>
         </p>
       </div>
 

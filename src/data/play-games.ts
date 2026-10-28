@@ -166,7 +166,7 @@ export const playGames: PlayGame[] = [
     notice:
       "p50 is the median; p99 is the slowest 1%. They diverge under stragglers and queueing.",
     success: "Keep p99 inside budget without work cost running away.",
-    learn: "Users notice the tail, not the mean. Hedging only helps when duplicate work still fits.",
+    learn: "The slowest requests shape the customer experience. Hedging only helps when duplicate work still fits.",
     changed:
       "Right-sized concurrency drops queue wait; hedges cut p99 only while cost stays under ~1.8×.",
     matters:
@@ -183,7 +183,7 @@ export const playGames: PlayGame[] = [
     chapterHref: "/system-design/chapter-2",
     chapterLabel: "Ch.2 · Latency and throughput",
     takeaway:
-      "Users notice the tail, not the mean. Hedging helps only when the duplicate work fits.",
+      "The slowest requests shape the customer experience. Hedging helps only when the duplicate work fits.",
     preview: {
       primary: { label: "p99", value: "1.4s", tone: "bad" },
       secondary: { label: "p50", value: "48ms", tone: "ok" },

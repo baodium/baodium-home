@@ -18,9 +18,9 @@ export function buildCorrectionMailto({
   sectionTitle?: string;
   url: string;
 }): string {
-  const subject = `Correction — ${chapterTitle}`;
+  const subject = `Correction: ${chapterTitle}`;
   const lines = [
-    "Hi Baodium — I spotted something to correct:",
+    "Hi Baodium, I spotted something to correct:",
     "",
     `Chapter: ${chapterTitle} (${chapterSlug})`,
     sectionTitle ? `Section: ${sectionTitle}` : null,

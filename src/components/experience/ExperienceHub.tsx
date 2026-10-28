@@ -27,7 +27,7 @@ export function ExperienceHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.55, delay: reduced ? 0 : 0.04, ease }}
         >
-          Operate the incident
+          Run the chapter as an on-call drill
         </motion.h1>
         <motion.p
           className="mt-4 text-lg leading-relaxed text-[color:var(--exp-muted)]"
@@ -35,9 +35,9 @@ export function ExperienceHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.08, ease }}
         >
-          Read the book for the reasoning. Run Chapter 1 like an on-call drill: pool.*
-          metrics, acquire waits, mitigations, and a kill switch that does not kill
-          in-flight work, with live narration that names what you are seeing.
+          Read the book for the reasoning. In Chapter 1 you work pool metrics, acquire
+          waits, mitigations, and a kill switch that leaves in-flight work alone, with
+          live narration that names what you are seeing.
         </motion.p>
         <motion.div
           className="mt-6 flex flex-wrap gap-3"
@@ -104,8 +104,8 @@ export function ExperienceHub() {
                   {ch.subtitle}
                 </p>
                 {ready ? (
-                  <p className="relative mt-4 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-accent)]">
-                    Guided · ops metrics · mitigations →
+                  <p className="relative mt-4 text-[0.85rem] text-[color:var(--exp-accent)]">
+                    Open the lab →
                   </p>
                 ) : null}
               </Link>

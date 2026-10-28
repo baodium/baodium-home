@@ -6,7 +6,6 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Mail } from "lucide-react";
 import { AboutListen } from "@/components/about/AboutListen";
-import { AmbientField } from "@/components/motion/AmbientField";
 import { Reveal, SplitHeading } from "@/components/motion/Reveal";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { site } from "@/data/site";
@@ -205,7 +204,6 @@ export function AboutPageView() {
         className="relative overflow-hidden pb-20 pt-16 md:pb-28 md:pt-24"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <AmbientField tone="moss" density={14} className="opacity-40" />
           {!reduce ? (
             <span className="absolute inset-x-[18%] top-[22%] h-px overflow-hidden opacity-50">
               <span className="signal-scan block h-full w-1/3 bg-moss-soft/70" />

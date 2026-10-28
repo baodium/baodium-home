@@ -14,6 +14,7 @@ import { ArrowRight } from "lucide-react";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
+import { book } from "@/data/writing";
 import { useHeroMotionOk, usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -182,14 +183,20 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
           >
             <Magnetic>
-              <a
-                href="#play"
-                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-cinnabar px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.55)] transition-colors duration-300 hover:bg-[#c45a3e]"
+              <Link
+                href={book.readPath}
+                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-cream px-6 text-[0.95rem] font-medium text-ink shadow-[0_10px_40px_-12px_rgba(244,236,224,0.45)] transition-colors duration-300 hover:bg-white"
               >
-                <span className="relative">Interactive hub</span>
+                <span className="relative">Read the book for free</span>
                 <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
-              </a>
+              </Link>
             </Magnetic>
+            <Link
+              href="/play"
+              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+            >
+              Play drills
+            </Link>
             <Link
               href="/projects"
               className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"

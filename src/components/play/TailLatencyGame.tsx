@@ -149,7 +149,7 @@ export function TailLatencyGame() {
       return {
         simulate:
           "Stragglers are live. You are trading concurrency, hedge delay, and timeout against work cost.",
-        why: "Users notice the tail, not the mean. A green p50 does not mean the SLO is safe.",
+        why: "The slowest requests shape the customer experience. A green median does not mean the SLO is safe.",
         technologies,
         simulation: controls.hedge
           ? `${snap.message} If cost climbs, delay the hedge further so only true stragglers get a duplicate.`
@@ -210,8 +210,9 @@ export function TailLatencyGame() {
             {TAIL_DURATION_S}s.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
-          Success <span className="text-[color:var(--drill-fg)]">p99 ≤ {P99_BUDGET_MS}ms</span>
+        <p className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
+          Hold p99 under{" "}
+          <span className="tabular-nums text-[color:var(--drill-fg)]">{P99_BUDGET_MS}ms</span>
         </p>
       </div>
 
@@ -451,7 +452,7 @@ export function TailLatencyGame() {
           </div>
           <p className="text-sm leading-relaxed text-[color:var(--drill-muted)]">
             Modest concurrency + late hedges beat blasting duplicates on every
-            request. A green p50 does not mean the SLO is safe.
+            request. A green median does not mean the SLO is safe.
           </p>
         </div>
       </div>

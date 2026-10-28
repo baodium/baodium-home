@@ -212,8 +212,8 @@ export function CascadeGame() {
             , and fail fast. Keep checkout alive for {CASCADE_DURATION_S}s.
           </p>
         </div>
-        <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
-          Success <span className="text-[color:var(--drill-fg)]">checkout stays up</span>
+        <p className="max-w-[14rem] text-right text-[0.82rem] leading-snug text-[color:var(--drill-muted)]">
+          Keep checkout answering while a dependency is sick
         </p>
       </div>
 

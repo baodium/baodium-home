@@ -203,7 +203,7 @@ export function selectPedagogyLesson(
       eyebrow: "What’s happening",
       title: "Deployed, not enabled",
       seeing: "Flag is ON at 0% exposure. Code is live, but no user is hashed into the cohort.",
-      why: "Deploy ≠ enable. You ship dark, then raise exposure so risk is controlled by the flag, not by a redeploy.",
+      why: "Shipping code is not the same as enabling it. You ship dark, then raise exposure so risk is controlled by the flag, not by a redeploy.",
       next: "Trace one forced request, then raise exposure.",
       prod: "Dark launch: binary present, cohort empty. Roll forward/back with exposure, not builds.",
       tone: "calm",
@@ -287,7 +287,7 @@ export function selectPedagogyLesson(
       return {
         id: "step-decide",
         eyebrow: "Learn this",
-        title: "Operate the incident",
+        title: "Decide what to do next",
         seeing: "Pause freezes exposure % (demand stays). Disable stops new recommendation holds. Investigate leaves pressure running.",
         why: "Your choice changes this same system. Next you will see what actually happened to new vs in-flight work.",
         prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",

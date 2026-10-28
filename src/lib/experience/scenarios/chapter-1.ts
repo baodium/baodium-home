@@ -52,7 +52,7 @@ export const chapter1Scenario: ChapterScenario = {
     {
       id: "review",
       title: "Review the change",
-      body: "The diff is small: an extra lookup behind a feature flag. Deploy at 0% first. Ship code without anyone on the new path. Deploy ≠ enable.",
+      body: "The diff is small: an extra lookup behind a feature flag. Deploy at 0% first so the code is live without anyone on the new path. Shipping is not enabling.",
       require: "deploy_zero",
     },
     {

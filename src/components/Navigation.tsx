@@ -11,7 +11,7 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 const links = [
   { id: "projects", label: "Projects", href: "/projects" },
   { id: "book", label: "Book", href: "/#book" },
-  { id: "play", label: "Play", href: "/#play" },
+  { id: "play", label: "Play", href: "/play" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
   { id: "about", label: "About", href: "/about" },
 ];
@@ -22,12 +22,19 @@ export function Navigation() {
   const pathname = usePathname();
   const onProjects = pathname === "/projects";
   const onAbout = pathname === "/about";
+  const onPlay = pathname === "/play" || pathname.startsWith("/play/");
   const reduce = usePrefersReducedMotion();
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [tucked, setTucked] = useState(false);
   const [entered, setEntered] = useState(false);
-  const active = onAbout ? "about" : onProjects ? "projects" : sectionActive;
+  const active = onAbout
+    ? "about"
+    : onProjects
+      ? "projects"
+      : onPlay
+        ? "play"
+        : sectionActive;
 
   /** The bar steps out of the way while reading downward and returns on any upward scroll. */
   useEffect(() => {
@@ -48,11 +55,17 @@ export function Navigation() {
   }, [reduce]);
 
   useEffect(() => {
-    if (onProjects || onAbout) return;
+    if (onProjects || onAbout || onPlay) return;
 
-    const sections = links
-      .filter((link) => link.href.startsWith("/#") || link.href.startsWith("#"))
-      .map((link) => document.getElementById(link.id))
+    const sectionIds = [
+      ...links
+        .filter((link) => link.href.startsWith("/#") || link.href.startsWith("#"))
+        .map((link) => link.id),
+      "play",
+      "projects",
+    ];
+    const sections = [...new Set(sectionIds)]
+      .map((id) => document.getElementById(id))
       .filter((section): section is HTMLElement => section !== null);
 
     const observer = new IntersectionObserver(
@@ -73,7 +86,7 @@ export function Navigation() {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
-  }, [onProjects, onAbout]);
+  }, [onProjects, onAbout, onPlay]);
 
   useEffect(() => {
     if (!open) return;
@@ -94,14 +107,18 @@ export function Navigation() {
           ? { duration: 0 }
           : entered
             ? { duration: 0.45, ease }
-            : { duration: 0.9, delay: onProjects || onAbout ? 0.15 : 1.4, ease }
+            : {
+                duration: 0.9,
+                delay: onProjects || onAbout || onPlay ? 0.15 : 1.4,
+                ease,
+              }
       }
       onAnimationComplete={() => setEntered(true)}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >
       <div
         className={`mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl ${
-          onProjects || onAbout
+          onProjects || onAbout || onPlay
             ? "bg-[#1a2330]/[0.92]"
             : "bg-[#2a211c]/[0.92]"
         }`}

@@ -24,9 +24,7 @@ export function DrillNarrator({ frame }: { frame: DrillNarratorFrame }) {
       >
         <div className="flex items-center gap-2">
           <span aria-hidden="true" className="drill-live-dot" />
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--drill-signal)]">
-            Now
-          </p>
+          <span className="sr-only">Live state</span>
         </div>
         <p className="drill-narrator-chain mt-2">
           {frame.segments.map((seg, i) => (

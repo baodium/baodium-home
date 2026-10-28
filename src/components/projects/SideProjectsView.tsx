@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { ProjectCard } from "@/components/ProjectCard";
-import { AmbientField } from "@/components/motion/AmbientField";
 import { Reveal, SplitHeading } from "@/components/motion/Reveal";
 import { projects, type Project } from "@/data/projects";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
@@ -37,7 +36,6 @@ export function SideProjectsView() {
             style={{ y: mistY, opacity: mistOpacity }}
             className="absolute inset-0 bg-[#1a2a2e]"
           />
-          <AmbientField tone="tide" density={18} className="opacity-40" />
           {!reduce ? (
             <span className="absolute inset-x-[12%] top-[38%] h-px overflow-hidden opacity-60">
               <span className="signal-scan block h-full w-1/3 bg-tide-soft/70" />

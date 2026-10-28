@@ -252,7 +252,7 @@ export function tickTail(
         chapterHref: "/system-design/chapter-2",
         chapterLabel: "Ch.2. Modeling requests, latency, and throughput",
         takeaway:
-          "Users notice the tail, not the mean. Hedging helps only when the duplicate work fits.",
+          "The slowest requests shape the customer experience. Hedging helps only when the duplicate work fits.",
         debrief,
         before:
           "Stragglers plus an undersized pool. P50 stays calm while p99 walks off the SLO.",

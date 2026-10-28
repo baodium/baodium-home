@@ -39,7 +39,7 @@ export function GuidedProgress({
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
           {mode === "sandbox"
-            ? "Sandbox · free exploration"
+            ? "Open practice"
             : `Step ${activeIdx + 1} of ${guided.length} · ${guided[activeIdx]?.title ?? ""}`}
         </p>
         {mode === "guided" && !reduced ? (
@@ -48,9 +48,9 @@ export function GuidedProgress({
             initial={{ opacity: 0, x: 6 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="hidden font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--exp-amber)] sm:block"
+            className="hidden text-[0.75rem] text-[color:var(--exp-amber)] sm:block"
           >
-            Finish the step, then continue
+            Complete this step, then continue
           </motion.p>
         ) : null}
       </div>
