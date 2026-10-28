@@ -171,7 +171,7 @@ function spawnRequest(engine: Engine): SimRequest {
   const req: SimRequest = {
     id,
     userId,
-    // Copper slots = recs cohort work (including cache hits). Shed falls back to baseline.
+    // Recs-cohort slots (including cache hits). Shed falls back to baseline.
     exposed: path === "recs",
     featureOnAtArrival: featureOn,
     arrivalTime: engine.t,

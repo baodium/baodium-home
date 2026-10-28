@@ -47,7 +47,7 @@ export function BookChapterView({
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const committingRef = useRef(false);
-  const { setChromeVisible, settingsOpen, sidebarOpen } = useReader();
+  const { setChromeVisible, settingsOpen, sidebarOpen, exploreOpen } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const [flipHintOpen, setFlipHintOpen] = useState(false);
   const [dragDir, setDragDir] = useState<0 | 1 | -1>(0);
@@ -144,8 +144,8 @@ export function BookChapterView({
   }, [chapter.slug, dragX, maxTravel, reduceMotion, setChromeVisible, stageWidth]);
 
   useEffect(() => {
-    if (settingsOpen || sidebarOpen) setChromeVisible(true);
-  }, [settingsOpen, sidebarOpen, setChromeVisible]);
+    if (settingsOpen || sidebarOpen || exploreOpen) setChromeVisible(true);
+  }, [settingsOpen, sidebarOpen, exploreOpen, setChromeVisible]);
 
   useEffect(() => {
     const measure = () => {
@@ -173,7 +173,7 @@ export function BookChapterView({
       const y = el.scrollTop;
       const delta = y - last;
       if (Math.abs(delta) < 8) return;
-      if (settingsOpen || sidebarOpen) {
+      if (settingsOpen || sidebarOpen || exploreOpen) {
         setChromeVisible(true);
       } else {
         setChromeVisible(delta < 0 || y < 48);
@@ -182,7 +182,7 @@ export function BookChapterView({
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [chapter.slug, setChromeVisible, settingsOpen, sidebarOpen]);
+  }, [chapter.slug, setChromeVisible, settingsOpen, sidebarOpen, exploreOpen]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -281,7 +281,9 @@ export function BookChapterView({
               />
               <motion.div
                 aria-hidden="true"
-                className="book-page-curl pointer-events-none absolute inset-0 z-[2] rounded-[1.15rem]"
+                className={`book-page-curl pointer-events-none absolute inset-0 z-[2] rounded-[1.15rem] ${
+                  peelOnRight ? "" : "[transform:scaleX(-1)]"
+                }`}
                 style={{ opacity: pageShade }}
               />
               <motion.div

@@ -175,15 +175,12 @@ export function AboutPageView() {
                 <span className="sr-only"> — opens email to {site.emailLabel}</span>
               </a>
               <a
-                href={site.scholar}
+                href={site.personal}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex min-h-12 items-center gap-2 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
               >
-                Google Scholar
-                <span className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-amber/90 no-underline">
-                  {site.scholarCitations}
-                </span>
+                obadimu.com
                 <ArrowUpRight
                   aria-hidden="true"
                   className="h-3.5 w-3.5 opacity-60 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"

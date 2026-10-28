@@ -55,12 +55,13 @@ export function BookToolbar({
     chromeVisible,
     settingsOpen,
     setSettingsOpen,
+    exploreOpen,
+    setExploreOpen,
   } = useReader();
   const reduceMotion = usePrefersReducedMotion();
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
   const exploreBtnRef = useRef<HTMLButtonElement>(null);
   const exploreMenuRef = useRef<HTMLDivElement>(null);
-  const [exploreOpen, setExploreOpen] = useState(false);
   const [explorePos, setExplorePos] = useState({ top: 64, left: 16 });
   const [copied, setCopied] = useState(false);
   const mounted = useSyncExternalStore(subscribeNowhere, () => true, () => false);
@@ -240,7 +241,7 @@ export function BookToolbar({
                 <button
                   ref={exploreBtnRef}
                   type="button"
-                  onClick={() => setExploreOpen((v) => !v)}
+                  onClick={() => setExploreOpen(!exploreOpen)}
                   className="inline-flex h-9 items-center gap-1 rounded-full px-2 text-sm text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
                   aria-expanded={exploreOpen}
                   aria-haspopup="menu"

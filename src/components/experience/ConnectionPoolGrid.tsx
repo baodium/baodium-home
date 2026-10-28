@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { EngineSnapshot, SimRequest } from "@/lib/experience/types";
 
@@ -45,31 +45,16 @@ export function ConnectionPoolGrid({
 
   const fillRatio = snap.activeCount / snap.poolSize;
   const wall = snap.waitingCount > 0 || snap.littles.overDemand;
-  const callout =
+  /** Visual pressure only — rail TeachingOverlay owns the prose so-what. */
+  const statusLine =
     snap.controls.featureDisabledForNew && snap.activeCount > 0
-      ? {
-          id: "drain",
-          title: "In-flight still holding",
-          body: "Disable stopped new recommendation acquires. Recommendation holds finish, then release.",
-        }
+      ? "Disable draining — in-flight holds finishing"
       : snap.timeoutCount > 0 && snap.controls.acquireTimeoutSec !== null
-        ? {
-            id: "timeouts",
-            title: "Acquire timeouts firing",
-            body: `${snap.timeoutCount} timed out waiting for a slot (connectionTimeout ${(snap.controls.acquireTimeoutSec * 1000).toFixed(0)}ms). Saturation → errors.`,
-          }
+        ? `${snap.timeoutCount} acquire timeout${snap.timeoutCount === 1 ? "" : "s"}`
         : snap.waitingCount > 0
-          ? {
-              id: "wall",
-              title: "Capacity wall",
-              body: `${snap.waitingCount} waiter${snap.waitingCount === 1 ? "" : "s"} · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)}ms. Busy stays capped; excess queues.`,
-            }
+          ? `${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)}ms`
           : fillRatio > 0.85
-            ? {
-                id: "thin",
-                title: "Thin headroom",
-                body: `Util ${(fillRatio * 100).toFixed(0)}%. A small surge will create waiters without inventing new connections.`,
-              }
+            ? `Util ${(fillRatio * 100).toFixed(0)}% — thin headroom`
             : null;
 
   return (
@@ -113,23 +98,11 @@ export function ConnectionPoolGrid({
         />
       </div>
 
-      <AnimatePresence mode="wait">
-        {callout ? (
-          <motion.div
-            key={callout.id}
-            initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
-            transition={{ duration: reducedMotion ? 0 : 0.3 }}
-            className="exp-pool-callout mt-3"
-          >
-            <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-accent)]">
-              {callout.title}
-            </p>
-            <p className="mt-1 text-xs leading-relaxed text-[color:var(--exp-fg)]">{callout.body}</p>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {statusLine ? (
+        <p className="mt-3 font-mono text-[0.68rem] leading-snug text-[color:var(--exp-accent)]">
+          {statusLine}
+        </p>
+      ) : null}
 
       <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start">
         <svg

@@ -148,10 +148,13 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         </motion.div>
       </motion.div>
 
-      {/* Near plane: type and the signature trace */}
-      <div className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
+      {/* Near plane: type and the signature trace — fade with type so path never desyncs mid-scroll */}
+      <motion.div
+        style={{ opacity: typeExitOpacity }}
+        className="pointer-events-none absolute inset-0 z-[4] hidden lg:block"
+      >
         <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={reduce ? 0 : TRACE_DELAY} instant={!!reduce} />
-      </div>
+      </motion.div>
 
       <div
         className="relative z-[3] -mt-28 px-5 pb-12 sm:px-8 md:-mt-32 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"

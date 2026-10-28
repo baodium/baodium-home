@@ -22,7 +22,7 @@ export function BookEdgeCues({
       {prevHref ? (
         <button
           type="button"
-          title="Previous chapter · Swipe right or ←"
+          title="Previous chapter · ←"
           aria-label="Previous chapter"
           className="pointer-events-auto absolute left-1 top-1/2 flex h-14 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_72%,transparent)] text-[var(--reader-muted)] opacity-0 shadow-[0_12px_28px_-18px_rgba(28,22,16,0.45)] backdrop-blur-md transition-[opacity,transform,color] hover:translate-x-0.5 hover:text-cinnabar group-hover/stage:opacity-100 focus-visible:opacity-100 lg:left-2"
           onClick={() => flipNavigate(router, prevHref, -1)}
@@ -33,7 +33,7 @@ export function BookEdgeCues({
       {nextHref ? (
         <button
           type="button"
-          title="Next chapter · Swipe left or →"
+          title="Next chapter · →"
           aria-label="Next chapter"
           className="pointer-events-auto absolute right-1 top-1/2 flex h-14 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_72%,transparent)] text-[var(--reader-muted)] opacity-0 shadow-[0_12px_28px_-18px_rgba(28,22,16,0.45)] backdrop-blur-md transition-[opacity,transform,color] hover:-translate-x-0.5 hover:text-cinnabar group-hover/stage:opacity-100 focus-visible:opacity-100 lg:right-2"
           onClick={() => flipNavigate(router, nextHref, 1)}
