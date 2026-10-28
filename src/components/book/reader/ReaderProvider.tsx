@@ -22,6 +22,8 @@ type ReaderContextValue = {
   setSidebarOpen: (open: boolean) => void;
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
+  exploreOpen: boolean;
+  setExploreOpen: (open: boolean) => void;
   chromeVisible: boolean;
   setChromeVisible: (visible: boolean) => void;
 };
@@ -34,6 +36,7 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
   const [chromeVisible, setChromeVisible] = useState(true);
 
   const setPrefs = useCallback((patch: Partial<ReaderPrefs>) => {
@@ -52,10 +55,12 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
       setSidebarOpen,
       settingsOpen,
       setSettingsOpen,
+      exploreOpen,
+      setExploreOpen,
       chromeVisible,
       setChromeVisible,
     }),
-    [prefs, setPrefs, sidebarOpen, settingsOpen, chromeVisible],
+    [prefs, setPrefs, sidebarOpen, settingsOpen, exploreOpen, chromeVisible],
   );
 
   return <ReaderContext.Provider value={value}>{children}</ReaderContext.Provider>;
