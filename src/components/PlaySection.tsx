@@ -39,7 +39,6 @@ export function PlaySection() {
 
   const panelY = useTransform(smooth, [0.05, 0.45], reduce ? [0, 0] : [64, 0]);
   const panelScale = useTransform(smooth, [0.08, 0.42], reduce ? [1, 1] : [0.965, 1]);
-  const glowY = useTransform(smooth, [0, 1], reduce ? [0, 0] : [70, -80]);
   const headerY = useTransform(smooth, [0.12, 0.55], reduce ? [0, 0] : [28, -8]);
   const railScale = useTransform(smooth, [0.2, 0.55], reduce ? [1, 1] : [0.08, 1]);
   const stageOpacity = useTransform(smooth, [0.18, 0.4], reduce ? [1, 1] : [0.35, 1]);
@@ -58,12 +57,7 @@ export function PlaySection() {
         className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_100px_-56px_rgba(26,35,48,0.18)] md:rounded-[3.25rem]"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <AmbientField tone="slate" density={16} className="opacity-40 mix-blend-screen" />
-          <motion.div
-            style={{ y: glowY }}
-            className="absolute -left-[20%] top-[-30%] h-[70%] w-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.14),transparent)] blur-3xl"
-          />
-          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#f4f7fa]/90 to-transparent" />
+          <AmbientField tone="slate" density={16} className="opacity-35" />
         </div>
 
         <div className="relative z-[2] mx-auto w-full max-w-[84rem] px-5 py-11 md:px-10 md:py-16">
@@ -102,7 +96,7 @@ export function PlaySection() {
           <motion.div
             aria-hidden="true"
             style={{ scaleX: railScale }}
-            className="mt-8 h-px origin-left bg-gradient-to-r from-[color-mix(in_srgb,#3d7a8c_50%,transparent)] via-cinnabar/30 to-transparent md:mt-10"
+            className="mt-8 h-px origin-left bg-[color-mix(in_srgb,#3d7a8c_55%,transparent)] md:mt-10"
           />
 
           <motion.div style={{ opacity: stageOpacity }} className="mt-9 space-y-4 md:mt-11 md:space-y-5">
@@ -260,7 +254,7 @@ function DrillBand({
         {accent ? (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-cinnabar via-[color-mix(in_srgb,#3d7a8c_70%,transparent)] to-transparent"
+            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-cinnabar"
           />
         ) : null}
 

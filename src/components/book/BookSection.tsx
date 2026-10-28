@@ -59,8 +59,6 @@ export function BookSection() {
   const rotateY = useTransform(() => scrollTurn.get() + driftX.get() * 34);
   const rotateX = useTransform(() => 4 + driftY.get() * -22);
   const sheen = useTransform(driftX, [-0.5, 0.5], [110, -10]);
-  const glowX = useTransform(driftX, (v) => v * 60);
-  const glowY = useTransform(driftY, (v) => v * 40);
 
   return (
     <section
@@ -86,7 +84,7 @@ export function BookSection() {
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-[18%] h-px overflow-hidden opacity-60"
           >
-            <div className="signal-scan h-full w-1/3 bg-gradient-to-r from-transparent via-amber/70 to-transparent" />
+            <div className="signal-scan h-full w-1/3 bg-amber/70" />
           </div>
         ) : null}
         <div className="shell relative z-[2]">
@@ -114,7 +112,7 @@ export function BookSection() {
                       className="block overflow-hidden pb-[0.04em]"
                     >
                       <motion.span
-                        className={`block ${line.flame ? "text-flame-animated" : ""}`}
+                        className={`block ${line.flame ? "text-flame" : ""}`}
                         variants={{
                           hidden: { y: reduce ? "0%" : "105%" },
                           shown: {
@@ -142,7 +140,7 @@ export function BookSection() {
                       href={book.readPath}
                       className="group relative inline-flex min-h-14 items-center gap-3 overflow-hidden rounded-full bg-cream py-2 pl-7 pr-2 text-base font-medium text-ink shadow-[0_18px_50px_-12px_rgba(173,79,54,0.55)]"
                     >
-                      <span className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
+                      <span className="absolute inset-0 origin-left scale-x-0 bg-cinnabar transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                       <span className="relative transition-colors duration-500 group-hover:text-white">
                         Read the book for free
                       </span>
@@ -161,7 +159,7 @@ export function BookSection() {
                       className="group relative inline-flex min-h-14 items-center gap-3 rounded-full border border-cream/30 py-2 pl-7 pr-2 text-base font-medium text-cream transition-colors duration-500 hover:border-cream/60 hover:bg-white/[0.06]"
                     >
                       Experience lab
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#cf7752] via-cinnabar to-crimson text-white transition-transform duration-500 group-hover:rotate-6">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-cinnabar text-white transition-transform duration-500 group-hover:rotate-6">
                         <FlaskConical aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                       </span>
                     </Link>
@@ -197,13 +195,6 @@ export function BookSection() {
               aria-label={`Read ${book.title} for free`}
               className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60"
             >
-              <motion.div
-                aria-hidden="true"
-                style={{ x: glowX, y: glowY }}
-                className="pointer-events-none absolute inset-0 flex items-center justify-center"
-              >
-                <div className="absolute h-[120%] w-[120%] rounded-full bg-[radial-gradient(closest-side,rgba(190,84,58,0.5),rgba(190,84,58,0.16)_48%,transparent_72%)] opacity-80 blur-2xl transition-opacity duration-700 group-hover/cover:opacity-100" />
-              </motion.div>
               <div className="relative py-1 lg:py-10">
                 <Book3D rotateX={rotateX} rotateY={rotateY} sheen={sheen} />
                 <span

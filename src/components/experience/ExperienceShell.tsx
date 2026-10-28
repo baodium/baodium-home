@@ -21,7 +21,7 @@ export function ExperienceShell({
             aria-label="Baodium home"
           >
             <span aria-hidden="true" className="relative h-2.5 w-2.5 shrink-0">
-              <span className="absolute inset-0 rounded-[3px] bg-gradient-to-br from-amber to-crimson transition-transform duration-500 group-hover:rotate-45" />
+              <span className="absolute inset-0 rounded-[3px] bg-cinnabar transition-transform duration-500 group-hover:rotate-45" />
             </span>
             <span className="font-mono text-[0.72rem] font-medium tracking-[0.22em] text-[color:var(--exp-fg)]">
               BAODIUM

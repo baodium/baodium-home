@@ -38,13 +38,12 @@ export function AboutListen() {
                     ease,
                   }}
                   whileHover={reduce ? undefined : { x: 6 }}
-                  className="group flex min-h-[4.25rem] items-center gap-4 rounded-2xl border border-ink/8 bg-gradient-to-r from-white/70 via-paper/40 to-transparent px-4 py-3 transition-colors hover:border-cinnabar/25 hover:from-white"
+                  className="group flex min-h-[4.25rem] items-center gap-4 rounded-2xl border border-ink/8 bg-white/80 px-4 py-3 transition-colors hover:border-cinnabar/25 hover:bg-white"
                 >
                   <span
                     aria-hidden="true"
-                    className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ember text-cream"
+                    className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cinnabar text-cream"
                   >
-                    <span className="absolute inset-0 bg-gradient-to-br from-amber/50 via-cinnabar to-crimson opacity-90 transition-opacity group-hover:opacity-100" />
                     <span className="relative flex items-end gap-[3px]">
                       {[0.55, 1, 0.7, 0.9].map((h, i) => (
                         <motion.span

@@ -23,7 +23,6 @@ const elsewhere: Link[] = [
 export function Footer() {
   const year = new Date().getFullYear();
   const letters = site.brand.split("");
-  const markRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
   /** The wordmark rises as the footer arrives, and is whole while the links are still in reading position. */
   const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start 1.08", "start 0.58"] });
@@ -31,13 +30,6 @@ export function Footer() {
   return (
     <footer ref={footerRef} className="bg-cream px-3 pb-3 md:px-5 md:pb-5">
       <div className="grain relative overflow-hidden rounded-[1.5rem] bg-[#1a2330] pt-7 md:rounded-[2rem] md:pt-9">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[50%]"
-        >
-          <div className="breathe absolute bottom-[-40%] left-1/2 h-[90%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.28),rgba(173,79,54,0.18)_42%,transparent)] blur-3xl" />
-        </div>
-
         <div className="shell relative z-[2]">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <nav aria-label="Elsewhere">
@@ -71,17 +63,7 @@ export function Footer() {
             </nav>
           </div>
 
-          <div
-            ref={markRef}
-            className="wordmark relative mb-0.5 mt-4 md:mb-1 md:mt-5"
-            onPointerMove={(event) => {
-              const el = markRef.current;
-              if (!el || event.pointerType !== "mouse") return;
-              const rect = el.getBoundingClientRect();
-              el.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-              el.style.setProperty("--my", `${event.clientY - rect.top}px`);
-            }}
-          >
+          <div className="relative mb-0.5 mt-4 md:mb-1 md:mt-5">
             <span className="sr-only">{site.brand}</span>
             <p
               aria-hidden="true"
@@ -89,19 +71,6 @@ export function Footer() {
             >
               {letters.map((letter, index) => (
                 <RisingLetter key={index} letter={letter} index={index} progress={scrollYProgress} />
-              ))}
-            </p>
-            <p
-              aria-hidden="true"
-              className="wordmark-light pointer-events-none absolute inset-0 flex select-none justify-between text-[clamp(1.35rem,5.5vw,3.35rem)] font-semibold leading-[0.88] tracking-[-0.05em]"
-            >
-              {letters.map((letter, index) => (
-                <span
-                  key={index}
-                  className="inline-block pb-[0.06em] text-cinnabar"
-                >
-                  {letter}
-                </span>
               ))}
             </p>
           </div>
@@ -135,7 +104,7 @@ function RisingLetter({ letter, index, progress }: { letter: string; index: numb
     <span className="inline-block overflow-hidden pb-[0.06em]">
       <motion.span
         style={{ y }}
-        className="inline-block bg-gradient-to-b from-cream via-[#d8e4e8] to-[#8eb0b8] bg-clip-text text-transparent"
+        className="inline-block text-cream/90"
       >
         {letter}
       </motion.span>

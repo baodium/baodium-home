@@ -60,21 +60,9 @@ export function AboutPageView() {
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
           <motion.div
             style={{ y: mistY, opacity: mistOpacity }}
-            className="absolute left-[4%] top-[-18%] h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.46),rgba(151,64,49,0.14)_52%,transparent)] blur-2xl"
+            className="absolute inset-0 bg-[#2a1712]"
           />
-          <motion.div
-            style={{ y: mistY }}
-            animate={
-              reduce
-                ? undefined
-                : {
-                    scale: [1, 1.06, 1],
-                    opacity: [0.55, 0.85, 0.55],
-                  }
-            }
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-[-28%] right-[-16%] h-[52vmax] w-[52vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.28),transparent)] blur-3xl"
-          />
+          <div className="absolute inset-0 bg-night/50" />
           <div className="grain absolute inset-0 opacity-45 mix-blend-soft-light" />
         </div>
 
@@ -98,8 +86,9 @@ export function AboutPageView() {
               className="object-cover object-[78%_18%]"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-night via-night/55 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-night via-transparent to-night/35" />
+            <div className="absolute inset-y-0 left-0 w-[55%] bg-night/90" />
+            <div className="absolute inset-x-0 bottom-0 h-[35%] bg-night/70" />
+            <div className="absolute inset-x-0 top-0 h-[20%] bg-night/40" />
             <div className="absolute inset-0 bg-night/20 mix-blend-multiply" />
           </motion.div>
         </motion.div>
@@ -164,7 +153,7 @@ export function AboutPageView() {
               >
                 <span
                   aria-hidden="true"
-                  className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-cinnabar/15 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                  className="absolute inset-0 -translate-x-full bg-cinnabar/10 transition-transform duration-700 group-hover:translate-x-full"
                 />
                 <Mail aria-hidden="true" className="relative h-4 w-4 text-cinnabar" strokeWidth={2} />
                 <span className="relative">Write Baodium</span>
@@ -205,7 +194,7 @@ export function AboutPageView() {
               className="object-cover object-[72%_12%]"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-night via-night/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-[55%] bg-night/75" />
           </motion.div>
         </div>
       </section>
@@ -216,11 +205,9 @@ export function AboutPageView() {
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <AmbientField tone="moss" density={14} className="opacity-40" />
-          <div className="absolute right-[-18%] top-[4%] h-[44vmax] w-[44vmax] rounded-full bg-[radial-gradient(closest-side,rgba(92,107,66,0.16),transparent)] blur-2xl" />
-          <div className="absolute bottom-[-24%] left-[-16%] h-[38vmax] w-[38vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.14),transparent)] blur-3xl" />
           {!reduce ? (
             <span className="absolute inset-x-[18%] top-[22%] h-px overflow-hidden opacity-50">
-              <span className="signal-scan block h-full w-1/3 bg-gradient-to-r from-transparent via-moss-soft/70 to-transparent" />
+              <span className="signal-scan block h-full w-1/3 bg-moss-soft/70" />
             </span>
           ) : null}
         </div>
@@ -284,7 +271,7 @@ export function AboutPageView() {
             <motion.div
               aria-hidden="true"
               style={{ scaleX: ruleScale, opacity: ruleOpacity }}
-              className="mt-12 h-px origin-left bg-gradient-to-r from-cinnabar/60 via-cinnabar/25 to-transparent md:mt-14"
+              className="mt-12 h-px origin-left bg-cinnabar/45 md:mt-14"
             />
 
             <Reveal y={14} delay={0.05} className="mt-10 md:mt-12">

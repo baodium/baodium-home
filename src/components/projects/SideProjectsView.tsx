@@ -33,24 +33,14 @@ export function SideProjectsView() {
         className="relative isolate overflow-hidden bg-night pb-16 pt-28 text-cream md:pb-24 md:pt-36"
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          <AmbientField tone="tide" density={18} className="opacity-45 mix-blend-screen" />
           <motion.div
             style={{ y: mistY, opacity: mistOpacity }}
-            className="absolute left-[12%] top-[-10%] h-[58vmax] w-[58vmax] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,126,0.42),rgba(173,79,54,0.14)_55%,transparent)] blur-2xl"
+            className="absolute inset-0 bg-[#1a2a2e]"
           />
-          <motion.div
-            style={{ y: mistY }}
-            animate={
-              reduce
-                ? undefined
-                : { scale: [1, 1.07, 1], opacity: [0.5, 0.85, 0.5] }
-            }
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-[-30%] right-[-8%] h-[46vmax] w-[46vmax] rounded-full bg-[radial-gradient(closest-side,rgba(148,168,196,0.28),transparent)] blur-3xl"
-          />
+          <AmbientField tone="tide" density={18} className="opacity-40" />
           {!reduce ? (
             <span className="absolute inset-x-[12%] top-[38%] h-px overflow-hidden opacity-60">
-              <span className="signal-scan block h-full w-1/3 bg-gradient-to-r from-transparent via-tide-soft/70 to-transparent" />
+              <span className="signal-scan block h-full w-1/3 bg-tide-soft/70" />
             </span>
           ) : null}
           <div className="grain absolute inset-0 opacity-40 mix-blend-soft-light" />
@@ -113,10 +103,6 @@ export function SideProjectsView() {
       </section>
 
       <section aria-label="Project showcases" className="relative pb-20 pt-4 md:pb-28 md:pt-8">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-[18%] h-[50vmax] w-[70vmax] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.2),transparent)] blur-2xl" />
-        </div>
-
         <div className="shell relative z-[2] space-y-16 md:space-y-24">
           {ordered.map((project, index) => (
             <ProjectFeature key={project.slug} project={project} index={index} />
@@ -157,7 +143,7 @@ function ProjectFeature({ project, index }: { project: Project; index: number })
                 <motion.span
                   aria-hidden="true"
                   style={{ scaleX: rule, opacity: glow }}
-                  className="h-px origin-left flex-1 bg-gradient-to-r from-cinnabar/45 to-transparent"
+                  className="h-px origin-left flex-1 bg-cinnabar/45"
                 />
               </div>
               <h2
@@ -190,36 +176,10 @@ function ProjectFeature({ project, index }: { project: Project; index: number })
       <motion.div style={{ y: cardY }}>
         <Reveal delay={0.08} y={22}>
           <div className="relative">
-            <AmbientGlow tone={project.tone} />
             <ProjectCard project={project} />
           </div>
         </Reveal>
       </motion.div>
     </article>
-  );
-}
-
-function AmbientGlow({ tone }: { tone: Project["tone"] }) {
-  const reduce = usePrefersReducedMotion();
-  return (
-    <motion.div
-      aria-hidden="true"
-      animate={
-        reduce
-          ? undefined
-          : {
-              opacity: [0.45, 0.75, 0.45],
-              scale: [1, 1.06, 1],
-            }
-      }
-      transition={reduce ? undefined : { duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
-      className={`pointer-events-none absolute -inset-10 -z-10 rounded-[3rem] blur-3xl md:-inset-14 ${
-        tone === "cinnabar"
-          ? "bg-[radial-gradient(closest-side,rgba(173,79,54,0.28),transparent_70%)]"
-          : tone === "tide"
-            ? "bg-[radial-gradient(closest-side,rgba(61,122,126,0.3),transparent_70%)]"
-            : "bg-[radial-gradient(closest-side,rgba(222,162,124,0.32),transparent_70%)]"
-      }`}
-    />
   );
 }

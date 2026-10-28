@@ -94,24 +94,16 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
       onPointerLeave={() => setSteering(false)}
       className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px]"
     >
-      {/* Far plane: warm light that keeps drifting (hero look preserved) */}
+      {/* Far plane: solid warm field that drifts with scroll — no decorative blobs */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
           style={{ y: mistDrift }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2.4, ease }}
-          className="aurora absolute left-[34%] top-[8%] h-[72vmax] w-[72vmax] rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.34),rgba(151,64,49,0.1)_55%,transparent)] blur-2xl max-lg:left-[5%] max-lg:top-[-12%]"
+          className="absolute inset-0 bg-[#2a1712]"
         />
-        {!reduce ? (
-          <motion.div
-            style={{ y: mistDrift }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0.35, 0.7, 0.4, 0.65, 0.35] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-            className="aurora-slow absolute bottom-[-18%] left-[-8%] h-[48vmax] w-[48vmax] rounded-full bg-[radial-gradient(closest-side,rgba(222,162,124,0.18),transparent)] blur-3xl max-lg:hidden"
-          />
-        ) : null}
+        <div className="absolute inset-0 bg-night/55" />
       </div>
       {/* Mid plane: the portrait, melted into the field */}
       <motion.div
@@ -130,7 +122,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               <Portrait hasVideo={hasVideo && motionOk} />
               {/* Lifts only the photo's black backdrop to the warm field; anything brighter, like skin, passes through. */}
               <div aria-hidden="true" className="absolute inset-0 bg-night mix-blend-lighten" />
-              <div aria-hidden="true" className="portrait-sweep absolute inset-y-0 -left-1/2 w-1/2" />
               <motion.div
                 aria-hidden="true"
                 initial={{ opacity: 1 }}
@@ -170,7 +161,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : 0.2, ease }}
               className="block text-[clamp(2.65rem,6.4vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
             >
-              <span className="text-flame-animated">BAODIUM</span>
+              <span className="text-flame">BAODIUM</span>
             </motion.span>
             <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
           </h1>
@@ -184,9 +175,8 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             <Magnetic>
               <a
                 href="#play"
-                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#cf7752] via-cinnabar to-crimson px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.6)]"
+                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-cinnabar px-6 text-[0.95rem] font-medium text-white shadow-[0_10px_40px_-10px_rgba(173,79,54,0.55)] transition-colors duration-300 hover:bg-[#c45a3e]"
               >
-                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 <span className="relative">Interactive hub</span>
                 <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
               </a>

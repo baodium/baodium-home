@@ -3,7 +3,7 @@
 import type { PointerEvent } from "react";
 import { useMotionValue, useReducedMotion, useSpring } from "motion/react";
 
-/** Pointer-driven 3D tilt. Also writes --mx / --my (percent) on the element for spotlight and glare layers. */
+/** Pointer-driven 3D tilt for cards and covers. */
 export function useTilt(max = 6) {
   const reduce = useReducedMotion();
   const rx = useMotionValue(0);

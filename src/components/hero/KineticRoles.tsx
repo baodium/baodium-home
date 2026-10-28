@@ -41,7 +41,7 @@ export function KineticRoles({
     <>
       <span className="relative mt-5 flex flex-col gap-[0.07em] max-lg:pl-5 md:mt-6">
         {/* Phones and tablets: the signal runs down a rail beside the numbers and rests on the chosen role. */}
-        <span aria-hidden="true" className="pointer-events-none absolute bottom-[10%] left-0.5 top-[10%] w-px bg-gradient-to-b from-transparent via-cinnabar/45 to-transparent lg:hidden" />
+        <span aria-hidden="true" className="pointer-events-none absolute bottom-[10%] left-0.5 top-[10%] w-px bg-cinnabar/45 lg:hidden" />
         <motion.span
           aria-hidden="true"
           initial={false}

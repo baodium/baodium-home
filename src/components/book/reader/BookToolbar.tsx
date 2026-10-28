@@ -231,7 +231,7 @@ export function BookToolbar({
                   aria-hidden="true"
                   className="relative h-2.5 w-2.5 shrink-0"
                 >
-                  <span className="absolute inset-0 rounded-[3px] bg-gradient-to-br from-amber to-crimson transition-transform duration-500 group-hover:rotate-45" />
+                  <span className="absolute inset-0 rounded-[3px] bg-cinnabar transition-transform duration-500 group-hover:rotate-45" />
                 </span>
                 <span className="whitespace-nowrap font-mono text-[0.7rem] font-medium tracking-[0.2em]">
                   BAODIUM
@@ -322,7 +322,7 @@ export function BookToolbar({
               aria-label="Baodium home"
             >
               <span aria-hidden="true" className="relative h-2 w-2 shrink-0">
-                <span className="absolute inset-0 rounded-[2px] bg-gradient-to-br from-amber to-crimson" />
+                <span className="absolute inset-0 rounded-[2px] bg-cinnabar" />
               </span>
               <span className="whitespace-nowrap font-mono text-[0.62rem] font-medium tracking-[0.18em]">
                 BAODIUM

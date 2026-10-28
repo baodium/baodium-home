@@ -36,7 +36,7 @@ export function useIdleDrift(
       return;
     }
     let frame = 0;
-    let start = performance.now();
+    const start = performance.now();
     const tick = (now: number) => {
       const t = (now - start) / periodMs;
       idleX.set(Math.sin(t * Math.PI * 2) * ampX);

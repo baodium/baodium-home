@@ -83,7 +83,7 @@ export function ExperienceHub() {
                 {ready ? (
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[radial-gradient(closest-side,rgba(173,79,54,0.18),transparent)] transition-transform duration-500 group-hover:scale-125"
+                    className="pointer-events-none absolute right-0 top-0 h-1 w-12 bg-cinnabar/70 transition-[width] duration-500 group-hover:w-20"
                   />
                 ) : null}
                 <div className="relative flex items-baseline justify-between gap-3">

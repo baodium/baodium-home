@@ -130,32 +130,11 @@ html {
 }
 
 .text-flame {
-  background-image: linear-gradient(96deg, #efcbac 0%, #e09a78 45%, #cc7253 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #e09a78;
 }
 
 .text-flame-animated {
-  background-image: linear-gradient(
-    96deg,
-    #d27a5a 0%,
-    #e39d7b 30%,
-    #cf7455 60%,
-    #e39d7b 80%,
-    #d27a5a 100%
-  );
-  background-size: 250% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: flame-pan 6s linear infinite;
-}
-
-@keyframes flame-pan {
-  to {
-    background-position: -250% 0;
-  }
+  color: #e09a78;
 }
 
 .text-outline {
@@ -308,24 +287,6 @@ html {
   }
 }
 
-/* Spotlight + glare layers driven by --mx / --my from pointer tracking */
-.spotlight {
-  background: radial-gradient(
-    520px circle at var(--mx, 50%) var(--my, 30%),
-    rgba(205, 120, 88, 0.22),
-    transparent 45%
-  );
-}
-
-.spotlight-border {
-  background: radial-gradient(
-    420px circle at var(--mx, 50%) var(--my, 0%),
-    rgba(218, 150, 114, 0.95),
-    rgba(170, 72, 54, 0.5) 30%,
-    rgba(255, 255, 255, 0.08) 60%
-  );
-}
-
 /* Play section live cue */
 .play-cue-ring {
   animation: play-cue 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -378,8 +339,7 @@ html {
   .scroll-cue,
   .play-cue-ring,
   .play-orbit,
-  .play-orbit-slow,
-  .text-flame-animated {
+  .play-orbit-slow {
     animation: none !important;
   }
 
@@ -445,50 +405,6 @@ html {
   }
 }
 
-/* Footer wordmark: a red light follows the cursor across the letters */
-.wordmark-light {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  -webkit-mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), #000 0%, transparent 70%);
-  mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), #000 0%, transparent 70%);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .wordmark:hover .wordmark-light {
-    opacity: 1;
-  }
-}
-
-/* Hero: a warm light band crosses the portrait once on load, then rarely. Opacity/transform only. */
-.portrait-sweep {
-  background: linear-gradient(100deg, transparent 0%, rgba(255, 196, 160, 0.13) 45%, rgba(255, 226, 200, 0.2) 50%, rgba(255, 196, 160, 0.13) 55%, transparent 100%);
-  mix-blend-mode: screen;
-  transform: translate3d(0, 0, 0);
-  animation: portrait-sweep 11s cubic-bezier(0.65, 0, 0.35, 1) 0.5s infinite;
-  opacity: 0;
-}
-
-@keyframes portrait-sweep {
-  0% {
-    transform: translate3d(0, 0, 0);
-    opacity: 0;
-  }
-  2% {
-    opacity: 1;
-  }
-  17% {
-    opacity: 1;
-  }
-  20% {
-    transform: translate3d(300%, 0, 0);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(300%, 0, 0);
-    opacity: 0;
-  }
-}
-
 .sig-pulse {
   stroke-dasharray: 0.07 1;
   stroke-dashoffset: 0.07;
@@ -496,7 +412,6 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .portrait-sweep,
   .sig-pulse {
     animation: none !important;
     display: none;
@@ -580,9 +495,7 @@ html[data-reader-theme="light"] {
   --reader-page: #ffffff;
   --reader-fg: #121110;
   --reader-muted: rgba(18, 17, 16, 0.48);
-  --reader-desk:
-    radial-gradient(80% 50% at 50% 0%, rgba(255, 255, 255, 0.22), transparent 62%),
-    linear-gradient(180deg, #d4d3ce 0%, #c8c7c1 55%, #c1c0ba 100%);
+  --reader-desk: #c8c7c1;
 }
 
 html[data-reader-theme="dark"] {
@@ -591,9 +504,7 @@ html[data-reader-theme="dark"] {
   --reader-page: #080707;
   --reader-fg: #f3eee6;
   --reader-muted: rgba(243, 238, 230, 0.58);
-  --reader-desk:
-    radial-gradient(80% 50% at 50% 0%, rgba(70, 48, 36, 0.18), transparent 55%),
-    linear-gradient(180deg, #161310 0%, #100e0c 55%, #0c0b0a 100%);
+  --reader-desk: #100e0c;
 }
 
 html[data-reader-theme="paper"] {
@@ -602,9 +513,7 @@ html[data-reader-theme="paper"] {
   --reader-page: #f6edd9;
   --reader-fg: #2b221d;
   --reader-muted: rgba(43, 34, 29, 0.56);
-  --reader-desk:
-    radial-gradient(90% 60% at 50% 0%, rgba(255, 248, 230, 0.4), transparent 58%),
-    linear-gradient(180deg, #e8dfcc 0%, #ddd2bc 55%, #d6caba 100%);
+  --reader-desk: #ddd2bc;
 }
 
 html[data-reader-scale="sm"] {
@@ -636,9 +545,7 @@ html[data-reader-measure="wide"] {
   --reader-muted: rgba(18, 17, 16, 0.48);
   --reader-font-size: 1.12rem;
   --reader-measure: 40rem;
-  --reader-desk:
-    radial-gradient(80% 50% at 50% 0%, rgba(255, 255, 255, 0.22), transparent 62%),
-    linear-gradient(180deg, #d4d3ce 0%, #c8c7c1 55%, #c1c0ba 100%);
+  --reader-desk: #c8c7c1;
   position: relative;
   isolation: isolate;
   font-size: var(--reader-font-size, 1.12rem);
@@ -651,8 +558,7 @@ html[data-reader-measure="wide"] {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 40%, transparent 48%, rgba(20, 18, 16, 0.12) 100%);
+  background: transparent;
   transition: opacity 0.45s ease, filter 0.45s ease;
 }
 
@@ -726,9 +632,7 @@ html[data-reader-measure="wide"] {
 }
 
 .book-flip-flash {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(255, 248, 235, 0.55), transparent 72%),
-    linear-gradient(90deg, rgba(173, 79, 54, 0.08), transparent 40%, rgba(173, 79, 54, 0.08));
+  background: rgba(255, 248, 235, 0.35);
 }
 
 .book-page-gutter {
@@ -785,9 +689,7 @@ html[data-reader-theme="dark"] .book-page-peel {
 }
 
 html[data-reader-theme="dark"] .book-flip-flash {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(255, 236, 210, 0.12), transparent 72%),
-    linear-gradient(90deg, rgba(173, 79, 54, 0.12), transparent 40%, rgba(173, 79, 54, 0.12));
+  background: rgba(255, 236, 210, 0.08);
 }
 
 html[data-reader-theme="light"] .book-page-grain {
@@ -833,9 +735,7 @@ html[data-reader-theme="dark"] .book-page-grain {
 }
 
 html[data-reader-theme="dark"] .book-reader-atmosphere {
-  background:
-    radial-gradient(ellipse 65% 50% at 50% 38%, transparent 40%, rgba(0, 0, 0, 0.4) 100%),
-    radial-gradient(ellipse 36% 28% at 88% 10%, rgba(173, 79, 54, 0.08), transparent 70%);
+  background: transparent;
 }
 
 .book-prose {
@@ -1225,11 +1125,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   --drill-track: color-mix(in srgb, #1a2330 8%, transparent);
   color-scheme: light;
   color: var(--drill-fg);
-  background:
-    radial-gradient(ellipse 62% 48% at 6% -10%, rgba(47, 122, 126, 0.14), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 96% 0%, rgba(173, 79, 54, 0.1), transparent 52%),
-    radial-gradient(ellipse 42% 28% at 70% 100%, rgba(61, 74, 92, 0.06), transparent 60%),
-    linear-gradient(168deg, #fbfcfe 0%, #f4f7fa 45%, #eef3f7 100%);
+  background: #f4f7fa;
   border: 1px solid var(--drill-line);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 80%, transparent),
@@ -1247,10 +1143,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
     --drill-panel-soft: #181c22;
     --drill-track: color-mix(in srgb, #e8edf4 10%, transparent);
     color-scheme: dark;
-    background:
-      radial-gradient(ellipse 60% 45% at 8% -8%, rgba(47, 122, 126, 0.18), transparent 55%),
-      radial-gradient(ellipse 48% 36% at 94% 2%, rgba(173, 79, 54, 0.12), transparent 52%),
-      linear-gradient(168deg, #0a0c0f 0%, #0e1116 50%, #12151a 100%);
+    background: #0e1116;
     box-shadow: 0 36px 80px -48px rgba(0, 0, 0, 0.65);
   }
 }
@@ -1272,12 +1165,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .drill-narrator {
   border: 1px solid color-mix(in srgb, var(--drill-signal) 28%, transparent);
-  background:
-    linear-gradient(
-      120deg,
-      color-mix(in srgb, var(--drill-signal) 8%, var(--drill-panel)) 0%,
-      color-mix(in srgb, var(--drill-panel) 92%, transparent) 100%
-    );
+  background: color-mix(in srgb, var(--drill-signal) 7%, var(--drill-panel));
   border-radius: 1rem;
   padding: 0.85rem 1.05rem;
   box-shadow: 0 14px 36px -28px rgba(26, 35, 48, 0.35);
@@ -1285,12 +1173,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .drill-narrator[data-tone="warn"] {
   border-color: color-mix(in srgb, var(--drill-accent) 35%, transparent);
-  background:
-    linear-gradient(
-      120deg,
-      color-mix(in srgb, var(--drill-accent) 9%, var(--drill-panel)) 0%,
-      color-mix(in srgb, var(--drill-panel) 92%, transparent) 100%
-    );
+  background: color-mix(in srgb, var(--drill-accent) 8%, var(--drill-panel));
 }
 
 .drill-narrator-chain {
@@ -1415,11 +1298,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   --exp-amber: #2f7a7e;
   --exp-signal: #2f7a7e;
   color-scheme: light;
-  background:
-    radial-gradient(ellipse 70% 45% at 8% -8%, rgba(47, 122, 126, 0.13), transparent 55%),
-    radial-gradient(ellipse 55% 38% at 96% 4%, rgba(173, 79, 54, 0.09), transparent 52%),
-    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(61, 74, 92, 0.05), transparent 60%),
-    linear-gradient(168deg, #fbfcfe 0%, #f4f7fa 42%, #eef3f7 100%);
+  background: #f4f7fa;
   color: var(--exp-fg);
 }
 
@@ -1434,10 +1313,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
     --exp-panel-raise: #181c22;
     --exp-slot-free: color-mix(in srgb, #e8edf4 8%, #12151a);
     color-scheme: dark;
-    background:
-      radial-gradient(ellipse 65% 42% at 8% -8%, rgba(47, 122, 126, 0.16), transparent 55%),
-      radial-gradient(ellipse 50% 36% at 96% 4%, rgba(173, 79, 54, 0.1), transparent 52%),
-      linear-gradient(168deg, #0a0c0f 0%, #0e1116 50%, #12151a 100%);
+    background: #0e1116;
   }
 }
 
@@ -1452,12 +1328,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .exp-narrator {
   border: 1px solid color-mix(in srgb, var(--exp-amber) 30%, transparent);
-  background:
-    linear-gradient(
-      115deg,
-      color-mix(in srgb, var(--exp-amber) 9%, var(--exp-panel-raise)) 0%,
-      color-mix(in srgb, var(--exp-panel) 94%, transparent) 100%
-    );
+  background: color-mix(in srgb, var(--exp-amber) 8%, var(--exp-panel-raise));
   border-radius: 1.05rem;
   padding: 0.9rem 1.1rem;
   box-shadow: 0 16px 40px -30px rgba(26, 35, 48, 0.32);
@@ -1465,12 +1336,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .exp-narrator[data-tone="warn"] {
   border-color: color-mix(in srgb, var(--exp-accent) 38%, transparent);
-  background:
-    linear-gradient(
-      115deg,
-      color-mix(in srgb, var(--exp-accent) 10%, var(--exp-panel-raise)) 0%,
-      color-mix(in srgb, var(--exp-panel) 94%, transparent) 100%
-    );
+  background: color-mix(in srgb, var(--exp-accent) 9%, var(--exp-panel-raise));
 }
 
 .exp-panel {
@@ -1678,8 +1544,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 .exp-storefront {
   border: 1px solid var(--exp-line);
   border-radius: 0.9rem;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f3f7fa 100%);
+  background: #ffffff;
   overflow: hidden;
 }
 
@@ -1690,8 +1555,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .exp-teach {
   border-radius: 1.15rem;
-  background:
-    linear-gradient(165deg, color-mix(in srgb, #ffffff 94%, #e8f2f2) 0%, var(--exp-panel) 100%);
+  background: var(--exp-panel-raise);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 70%, transparent),
     0 22px 48px -30px rgba(26, 35, 48, 0.28);

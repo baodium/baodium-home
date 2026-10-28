@@ -25,21 +25,12 @@ export function PlayHub() {
     damping: reduce ? 40 : 28,
     mass: 0.4,
   });
-  const glowY = useTransform(smooth, [0, 1], reduce ? [0, 0] : [36, -44]);
   const rail = useTransform(smooth, [0.15, 0.45], reduce ? [1, 1] : [0.1, 1]);
   const [featured, ...rest] = playGames;
 
   return (
     <div ref={ref} className="shell">
       <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_90px_-56px_rgba(26,35,48,0.18)] md:rounded-[3.25rem]">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <motion.div
-            style={{ y: glowY }}
-            className="absolute -left-[18%] top-[-28%] h-[62%] w-[62%] rounded-full bg-[radial-gradient(closest-side,rgba(61,122,140,0.12),transparent)] blur-3xl"
-          />
-          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#f4f7fa]/85 to-transparent" />
-        </div>
-
         <div className="relative z-[2] px-5 py-11 md:px-10 md:py-16">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 18 }}
@@ -70,7 +61,7 @@ export function PlayHub() {
           <motion.div
             aria-hidden="true"
             style={{ scaleX: rail }}
-            className="mt-9 h-px origin-left bg-gradient-to-r from-[color-mix(in_srgb,#3d7a8c_55%,transparent)] via-cinnabar/35 to-transparent"
+            className="mt-9 h-px origin-left bg-[color-mix(in_srgb,#3d7a8c_55%,transparent)]"
           />
 
           <div className="mt-9 space-y-4 md:mt-11 md:space-y-5">
@@ -209,7 +200,7 @@ function HubBand({
         {accent ? (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-cinnabar via-[color-mix(in_srgb,#3d7a8c_70%,transparent)] to-transparent"
+            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-cinnabar"
           />
         ) : null}
         <div
