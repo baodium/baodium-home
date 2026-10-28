@@ -562,31 +562,23 @@ html[data-reader-measure="wide"] {
   scrollbar-color: color-mix(in srgb, var(--reader-fg) 22%, transparent) transparent;
 }
 
-.book-page-curl {
+.book-page-underlay {
+  transform-origin: center center;
+}
+
+.book-page-hinge-shade {
   background: linear-gradient(
-    105deg,
-    transparent 48%,
-    rgba(40, 24, 12, 0.06) 68%,
-    rgba(40, 24, 12, 0.14) 86%,
+    90deg,
+    transparent 0%,
+    rgba(40, 24, 12, 0.08) 45%,
     rgba(40, 24, 12, 0.22) 100%
   );
   mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
-.book-page-peel {
-  background: linear-gradient(
-    100deg,
-    transparent 0%,
-    rgba(255, 252, 246, 0.08) 38%,
-    rgba(40, 24, 12, 0.1) 72%,
-    rgba(40, 24, 12, 0.2) 100%
-  );
-  mix-blend-mode: multiply;
-  transform-origin: right center;
-}
-
-.book-flip-flash {
-  background: rgba(255, 248, 235, 0.35);
+.book-page-leaf {
+  transform-origin: center center;
 }
 
 .book-page-gutter {
@@ -620,30 +612,14 @@ html[data-reader-theme="dark"] .book-page {
     -1px 0 0 rgba(255, 255, 255, 0.03);
 }
 
-html[data-reader-theme="dark"] .book-page-curl {
+html[data-reader-theme="dark"] .book-page-hinge-shade {
   background: linear-gradient(
-    105deg,
-    transparent 48%,
-    rgba(255, 255, 255, 0.03) 68%,
-    rgba(255, 255, 255, 0.08) 86%,
-    rgba(255, 255, 255, 0.14) 100%
-  );
-  mix-blend-mode: screen;
-}
-
-html[data-reader-theme="dark"] .book-page-peel {
-  background: linear-gradient(
-    100deg,
+    90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.04) 38%,
-    rgba(255, 255, 255, 0.08) 72%,
-    rgba(255, 255, 255, 0.14) 100%
+    rgba(0, 0, 0, 0.28) 45%,
+    rgba(0, 0, 0, 0.55) 100%
   );
-  mix-blend-mode: screen;
-}
-
-html[data-reader-theme="dark"] .book-flip-flash {
-  background: rgba(255, 236, 210, 0.08);
+  mix-blend-mode: multiply;
 }
 
 html[data-reader-theme="light"] .book-page-grain {
@@ -922,80 +898,85 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
   min-height: 6.5rem;
 }
 
-/* React ViewTransition classes (nav-forward / nav-back via transitionTypes) */
+/* React ViewTransition — shared hinge flip for swipe, keyboard, and links */
 ::view-transition {
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(.nav-forward) {
-    animation:
-      160ms ease-in both book-vt-fade reverse,
-      420ms cubic-bezier(0.4, 0, 0.2, 1) both book-vt-out-left;
-    transform-origin: left center;
-  }
-  ::view-transition-new(.nav-forward) {
-    animation:
-      240ms ease-out 140ms both book-vt-fade,
-      560ms cubic-bezier(0.22, 1, 0.36, 1) both book-vt-in-right;
-    transform-origin: right center;
-  }
-  ::view-transition-old(.nav-back) {
-    animation:
-      160ms ease-in both book-vt-fade reverse,
-      420ms cubic-bezier(0.4, 0, 0.2, 1) both book-vt-out-right;
-    transform-origin: right center;
-  }
+  ::view-transition-old(.nav-forward),
+  ::view-transition-new(.nav-forward),
+  ::view-transition-old(.nav-back),
   ::view-transition-new(.nav-back) {
-    animation:
-      240ms ease-out 140ms both book-vt-fade,
-      560ms cubic-bezier(0.22, 1, 0.36, 1) both book-vt-in-left;
-    transform-origin: left center;
-  }
-
-  /* Gesture commits: Motion already turned the page — VT must not snap a second time. */
-  ::view-transition-old(.nav-gesture-forward),
-  ::view-transition-old(.nav-gesture-back),
-  ::view-transition-new(.nav-gesture-forward),
-  ::view-transition-new(.nav-gesture-back) {
-    animation: none;
-    mix-blend-mode: normal;
     height: 100%;
     overflow: clip;
-  }
-  ::view-transition-group(.nav-gesture-forward),
-  ::view-transition-group(.nav-gesture-back) {
-    animation: none;
+    mix-blend-mode: normal;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  @keyframes book-vt-fade {
+  ::view-transition-old(.nav-forward) {
+    transform-origin: left center;
+    animation: 480ms both book-vt-flip-out-forward;
+  }
+  ::view-transition-new(.nav-forward) {
+    transform-origin: right center;
+    animation: 560ms both book-vt-flip-in-forward;
+  }
+  ::view-transition-old(.nav-back) {
+    transform-origin: right center;
+    animation: 480ms both book-vt-flip-out-back;
+  }
+  ::view-transition-new(.nav-back) {
+    transform-origin: left center;
+    animation: 560ms both book-vt-flip-in-back;
+  }
+
+  @keyframes book-vt-flip-out-forward {
     from {
-      filter: blur(4px);
-      opacity: 0;
-    }
-    to {
-      filter: blur(0);
+      transform: perspective(1600px) rotateY(0deg);
       opacity: 1;
+      filter: brightness(1);
     }
-  }
-  @keyframes book-vt-out-left {
     to {
-      transform: translateX(-64px) rotateY(16deg) scale(0.96);
+      transform: perspective(1600px) rotateY(-72deg);
+      opacity: 0;
+      filter: brightness(0.82);
     }
   }
-  @keyframes book-vt-in-right {
+  @keyframes book-vt-flip-in-forward {
     from {
-      transform: translateX(80px) rotateY(-16deg) scale(0.94);
+      transform: perspective(1600px) rotateY(58deg);
+      opacity: 0;
+      filter: brightness(0.88);
     }
-  }
-  @keyframes book-vt-out-right {
     to {
-      transform: translateX(64px) rotateY(-16deg) scale(0.96);
+      transform: perspective(1600px) rotateY(0deg);
+      opacity: 1;
+      filter: brightness(1);
     }
   }
-  @keyframes book-vt-in-left {
+  @keyframes book-vt-flip-out-back {
     from {
-      transform: translateX(-80px) rotateY(16deg) scale(0.94);
+      transform: perspective(1600px) rotateY(0deg);
+      opacity: 1;
+      filter: brightness(1);
+    }
+    to {
+      transform: perspective(1600px) rotateY(72deg);
+      opacity: 0;
+      filter: brightness(0.82);
+    }
+  }
+  @keyframes book-vt-flip-in-back {
+    from {
+      transform: perspective(1600px) rotateY(-58deg);
+      opacity: 0;
+      filter: brightness(0.88);
+    }
+    to {
+      transform: perspective(1600px) rotateY(0deg);
+      opacity: 1;
+      filter: brightness(1);
     }
   }
 
@@ -1025,16 +1006,14 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 @media (prefers-reduced-motion: reduce) {
   .book-page-stage,
-  .book-flip-card,
-  .book-flip-flash,
-  .book-page-peel,
-  .book-page-curl {
+  .book-page-leaf,
+  .book-page-hinge-shade,
+  .book-flip-card {
     animation: none !important;
     transition: none !important;
   }
 
-  .book-flip-flash,
-  .book-page-peel {
+  .book-page-hinge-shade {
     opacity: 0 !important;
   }
 
