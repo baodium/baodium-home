@@ -57,7 +57,7 @@ export function PlayHub() {
               Play · Interactive hub
             </p>
             <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
-              Operate a failure mode. Leave with a clear debrief.
+              Reliability drills with a training brief and debrief.
             </h1>
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
               Each drill is a short ops shift from{" "}

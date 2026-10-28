@@ -80,7 +80,7 @@ export function PlaySection() {
                 id="play-heading"
                 className="mt-5 font-serif text-[clamp(2.15rem,4.6vw,3.6rem)] leading-[1.02] tracking-[-0.035em] text-ink"
               >
-                Operate a failure mode. Leave with a clear debrief.
+                Reliability drills with a training brief and debrief.
               </h2>
               <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-muted">
                 Short ops drills from the book. Each one follows a training brief:
