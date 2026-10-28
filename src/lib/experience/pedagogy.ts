@@ -1,4 +1,4 @@
-import type { EngineSnapshot, GuidedStepId } from "@/lib/experience/types";
+import type { EngineSnapshot, GuidedStepId, LabMode } from "@/lib/experience/types";
 
 export type PedagogyLesson = {
   id: string;
@@ -22,7 +22,7 @@ export type PedagogyLesson = {
 export function selectPedagogyLesson(
   snap: EngineSnapshot,
   stepId: GuidedStepId,
-  mode: "guided" | "sandbox",
+  mode: LabMode,
 ): PedagogyLesson {
   const { littles, controls } = snap;
   const fill = snap.utilization;
@@ -78,8 +78,8 @@ export function selectPedagogyLesson(
       seeing: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${acqP99ms.toFixed(0)} ms. No 41st slot; excess sits in the waiter queue.`,
       why: `Little’s Law estimates demand ≈ ${littles.L.toFixed(0)} (= λ × W). When that exceeds 40, correct code still waits because the pool is shared and finite.`,
       next:
-        mode === "guided" && stepId === "pressure"
-          ? "Predict: disable vs pause. Then decide in the next step."
+        mode === "guided" && stepId === "saturation"
+          ? "Predict: disable vs pause. Then investigate and mitigate."
           : "Try disable, shed-at-util, or acquire timeout. Compare new vs in-flight.",
       prod: "pool.active ≈ max · pool.pending > 0 sustained = saturation. Size from λ×W with headroom, or cut W.",
       tone: "warn",
@@ -233,12 +233,13 @@ export function selectPedagogyLesson(
         next: "Toggle the preview, then continue.",
         tone: "calm",
       };
-    case "review":
+    case "deploy":
       return {
-        id: "step-review",
+        id: "step-deploy",
         eyebrow: "Learn this",
         title: "Ship dark first",
-        seeing: "The flagged branch acquires from a shared pool only when enabled for the user.",
+        seeing:
+          "Product Page can call Recommendation only when the flag exposes the user. The shared pool lives in Recommendation, not on Product Page.",
         why: "Feature flags separate deploy from enable so you can stop new demand without rolling back code.",
         next: "Deploy at 0% exposure.",
         tone: "calm",
@@ -248,67 +249,75 @@ export function selectPedagogyLesson(
         id: "step-trace",
         eyebrow: "Learn this",
         title: "Follow one request",
-        seeing: "A single forced request will highlight the code line, acquire a slot, query, then release.",
+        seeing:
+          "A single personalized request will call Recommendation, acquire a pool slot, query, then release.",
         why: "One correct request is harmless. Many concurrent correct requests compete for the same 40 slots.",
         next: "Send one request and watch the pool.",
         tone: "calm",
       };
-    case "rollout":
+    case "exposure":
       return {
-        id: "step-rollout",
+        id: "step-exposure",
         eyebrow: "Learn this",
         title: "Exposure changes who pays W",
         seeing: "Stable hashing keeps the same users in or out as you move the percentage.",
-        why: "Raising exposure raises the fraction of arrivals that take the long hold. L = λ × W climbs with that mix.",
+        why: "Raising exposure raises the fraction of arrivals that take the long hold on Recommendation’s pool. L = λ × W climbs with that mix.",
         next: "Predict before 25%, then set exposure.",
         tone: "calm",
       };
-    case "inspect_prod":
+    case "saturation":
       return {
-        id: "step-inspect-prod",
+        id: "step-saturation",
         eyebrow: "Learn this",
-        title: "Read the pool like production",
+        title: "Demand hits the capacity wall",
         seeing: `Busy ${snap.activeCount}/${snap.poolSize} · pending ${snap.waitingCount} · util ${(snap.utilization * 100).toFixed(0)}% · demand ≈ ${snap.demandOccupancy.toFixed(0)}.`,
-        why: "Active never exceeds the pool. If λ×W > 40, the overflow is waiting. Not fake extra busy slots.",
+        why: "Active never exceeds the pool. If λ×W > 40, the overflow is waiting. Not fake extra busy slots. Product Page itself is not holding those connections.",
+        next: "Surge if needed, then predict disable semantics.",
         prod: "Map: pool.active · pool.idle · pool.pending · acquire.wait.{p50,p99} · acquire.timeouts · throughput.",
-        tone: "insight",
-      };
-    case "pressure":
-      return {
-        id: "step-pressure",
-        eyebrow: "Learn this",
-        title: "Surge until the wall",
-        seeing: "Traffic and hold time will push demand past 40. Watch waiters appear beside the grid.",
-        why: "Resource contention is a capacity story: correct code + shared finite pool + enough concurrency.",
-        next: "Surge, then predict disable semantics.",
         tone: "warn",
       };
-    case "decide":
+    case "investigate":
       return {
-        id: "step-decide",
+        id: "step-investigate",
         eyebrow: "Learn this",
-        title: "Decide what to do next",
-        seeing: "Pause freezes exposure % (demand stays). Disable stops new recommendation holds. Investigate leaves pressure running.",
+        title: "Read before you flip levers",
+        seeing: `p50 ≈ ${(snap.latencyP50 * 1000).toFixed(0)} ms · p99 ≈ ${(snap.latencyP99 * 1000).toFixed(0)} ms · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)} ms.`,
+        why: "Saturation shows in the tail and in pending first. Form a hypothesis from Ops metrics before you mitigate.",
+        next: "Continue when you can name what you would change and why.",
+        tone: "insight",
+      };
+    case "mitigate":
+      return {
+        id: "step-mitigate",
+        eyebrow: "Learn this",
+        title: "Choose a response",
+        seeing:
+          "Pause freezes exposure %. Disable stops new recommendation holds. Leaving pressure on lets you try timeout, shed, or cache.",
         why: "Your choice changes this same system. Next you will see what actually happened to new vs in-flight work.",
         prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",
         tone: "insight",
       };
-    case "debrief":
+    case "review":
       return {
-        id: "step-debrief",
+        id: "step-review-outcome",
         eyebrow: "Takeaway",
         title: "Name the shared resource",
-        seeing: "Correct code waited because every exposed request held a connection from the same 40-slot pool.",
+        seeing:
+          "Correct code waited because every exposed request held a connection from Recommendation’s 40-slot pool.",
         why: "Disable stops new recommendation work; in-flight holds finish. The pool, not the feature idea, was the bottleneck.",
         prod: "Leave with: λ×W sizing, acquire.wait alerts, deploy≠enable, disable≠kill in-flight.",
         tone: "insight",
       };
     default:
       return {
-        id: "sandbox-default",
-        eyebrow: "Sandbox",
-        title: "Pressure the shared pool",
-        seeing: "Vary λ, exposure, lookup duration, acquire timeout, shed, and cache. Busy stays ≤ 40; waiters / timeouts absorb the rest.",
+        id: mode === "challenge" ? "challenge-default" : "practice-default",
+        eyebrow: mode === "challenge" ? "Challenge" : "Practice",
+        title:
+          mode === "challenge"
+            ? "Clear saturation under the clock"
+            : "Pressure the shared pool",
+        seeing:
+          "Vary λ, exposure, lookup duration, acquire timeout, shed, and cache. Busy stays ≤ 40; waiters / timeouts absorb the rest.",
         why: "If you can explain waiters, Little’s Law, disable-vs-inflight, and which mitigation cuts W vs demand, the chapter stuck.",
         prod: "Treat this panel like a runbook rehearsal: change one lever, read pool.* and path latency, then decide.",
         tone: "calm",

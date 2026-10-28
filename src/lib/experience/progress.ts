@@ -1,6 +1,6 @@
-import type { DecisionKind, GuidedStepId } from "@/lib/experience/types";
+import type { DecisionKind, GuidedStepId, LabMode } from "@/lib/experience/types";
 
-const KEY = "baodium-experience-ch1-v1";
+const KEY = "baodium-experience-ch1-v2";
 
 export type Chapter1Progress = {
   stepId: GuidedStepId;
@@ -8,6 +8,7 @@ export type Chapter1Progress = {
   completed: boolean;
   previewToggled: boolean;
   deployedZero: boolean;
+  mode: LabMode;
   updatedAt: number;
 };
 
@@ -17,6 +18,7 @@ export const defaultProgress = (): Chapter1Progress => ({
   completed: false,
   previewToggled: false,
   deployedZero: false,
+  mode: "guided",
   updatedAt: Date.now(),
 });
 

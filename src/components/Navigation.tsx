@@ -11,7 +11,8 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 const links = [
   { id: "projects", label: "Projects", href: "/projects" },
   { id: "book", label: "Book", href: "/#book" },
-  { id: "play", label: "Play", href: "/play" },
+  { id: "labs", label: "Labs", href: "/system-design/experience" },
+  { id: "play", label: "Drills", href: "/play" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
   { id: "about", label: "About", href: "/about" },
 ];
@@ -23,6 +24,9 @@ export function Navigation() {
   const onProjects = pathname === "/projects";
   const onAbout = pathname === "/about";
   const onPlay = pathname === "/play" || pathname.startsWith("/play/");
+  const onLabs =
+    pathname === "/system-design/experience" ||
+    pathname.startsWith("/system-design/experience/");
   const reduce = usePrefersReducedMotion();
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -32,9 +36,11 @@ export function Navigation() {
     ? "about"
     : onProjects
       ? "projects"
-      : onPlay
-        ? "play"
-        : sectionActive;
+      : onLabs
+        ? "labs"
+        : onPlay
+          ? "play"
+          : sectionActive;
 
   /** The bar steps out of the way while reading downward and returns on any upward scroll. */
   useEffect(() => {
@@ -55,7 +61,7 @@ export function Navigation() {
   }, [reduce]);
 
   useEffect(() => {
-    if (onProjects || onAbout || onPlay) return;
+    if (onProjects || onAbout || onPlay || onLabs) return;
 
     const sectionIds = [
       ...links
@@ -86,7 +92,7 @@ export function Navigation() {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
-  }, [onProjects, onAbout, onPlay]);
+  }, [onProjects, onAbout, onPlay, onLabs]);
 
   useEffect(() => {
     if (!open) return;
@@ -109,7 +115,7 @@ export function Navigation() {
             ? { duration: 0.45, ease }
             : {
                 duration: 0.9,
-                delay: onProjects || onAbout || onPlay ? 0.15 : 1.4,
+                delay: onProjects || onAbout || onPlay || onLabs ? 0.15 : 1.4,
                 ease,
               }
       }
@@ -118,7 +124,7 @@ export function Navigation() {
     >
       <div
         className={`mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl ${
-          onProjects || onAbout || onPlay
+          onProjects || onAbout || onPlay || onLabs
             ? "bg-[#1a2330]/[0.92]"
             : "bg-[#2a211c]/[0.92]"
         }`}

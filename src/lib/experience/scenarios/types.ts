@@ -1,4 +1,7 @@
-import type { GuidedStepId } from "@/lib/experience/types";
+import type {
+  ChallengeCriteria,
+  GuidedStepId,
+} from "@/lib/experience/types";
 
 export type ExperienceChapterMeta = {
   id: string;
@@ -13,6 +16,8 @@ export type ExperienceChapterMeta = {
 
 export type GuidedStepDef = {
   id: GuidedStepId;
+  /** Stage letter A–H for progress chrome. */
+  letter: string;
   title: string;
   body: string;
   /** Prediction prompt shown before advancing when set. */
@@ -29,6 +34,14 @@ export type GuidedStepDef = {
     | "none";
 };
 
+export type ChallengeBrief = {
+  title: string;
+  objective: string;
+  criteria: ChallengeCriteria;
+  success: string;
+  gettingStarted: string;
+};
+
 export type ChapterScenario = {
   meta: ExperienceChapterMeta;
   brief: string;
@@ -40,4 +53,5 @@ export type ChapterScenario = {
     disable_feature: string;
     investigate: string;
   };
+  challenge: ChallengeBrief;
 };

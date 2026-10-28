@@ -5,6 +5,7 @@ import { Pause, Play, RotateCcw, SkipForward } from "lucide-react";
 export function SimControls({
   running,
   speed,
+  logicalTimeSec,
   onPlayPause,
   onStep,
   onReplay,
@@ -13,6 +14,8 @@ export function SimControls({
 }: {
   running: boolean;
   speed: number;
+  /** Shared sim clock (logical seconds). */
+  logicalTimeSec?: number;
   onPlayPause: () => void;
   onStep: () => void;
   onReplay: () => void;
@@ -46,8 +49,16 @@ export function SimControls({
         aria-label="Replay from start"
       >
         <RotateCcw className="h-4 w-4" />
-        Replay
+        Reset
       </button>
+      {logicalTimeSec !== undefined ? (
+        <p
+          className="font-mono text-[0.7rem] tabular-nums text-[color:var(--exp-faint)]"
+          title="Logical simulation time"
+        >
+          t = {logicalTimeSec.toFixed(1)}s
+        </p>
+      ) : null}
       <div className="ml-auto flex items-center gap-1 rounded-full border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-1">
         {[0.5, 1, 2, 4].map((s) => (
           <button
@@ -66,7 +77,7 @@ export function SimControls({
       </div>
       {reducedMotion ? (
         <p className="w-full font-mono text-[0.65rem] text-[color:var(--exp-faint)]">
-          Reduced motion. step mode friendly; essential state stays readable.
+          Reduced motion. Step mode friendly; essential state stays readable.
         </p>
       ) : null}
     </div>

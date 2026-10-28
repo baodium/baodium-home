@@ -24,12 +24,19 @@ import type {
   DecisionKind,
   EngineSnapshot,
   GuidedStepId,
+  LabMode,
 } from "@/lib/experience/types";
+import {
+  challengeStatusCopy,
+  evaluateChallenge,
+  type ChallengeStatus,
+} from "@/lib/experience/challenge";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { CodePanel } from "@/components/experience/CodePanel";
 import { ConnectionPoolGrid } from "@/components/experience/ConnectionPoolGrid";
 import { FeatureFlagPanel } from "@/components/experience/FeatureFlagPanel";
 import { GuidedProgress } from "@/components/experience/GuidedProgress";
+import { LabIntro } from "@/components/experience/LabIntro";
 import { LittlesLawCallout } from "@/components/experience/LittlesLawCallout";
 import { MetricsStrip } from "@/components/experience/MetricsStrip";
 import { MitigationControls } from "@/components/experience/MitigationControls";
@@ -40,15 +47,18 @@ import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
 import { SimControls } from "@/components/experience/SimControls";
 import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
-import { TrainingBrief } from "@/components/experience/TrainingBrief";
 import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
 import { narrateChapter1 } from "@/lib/experience/narrator";
+import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { CH1_GUIDED_STAGE_COUNT } from "@/lib/learning/registry";
 
 const STEP_ORDER = chapter1Scenario.steps.map((s) => s.id);
 const ease = [0.22, 1, 0.36, 1] as const;
 
 function emptySnap(): EngineSnapshot {
-  return snapshot(createEngine(42, { arrivalRate: 0, featureEnabled: false, exposurePct: 0 }));
+  return snapshot(
+    createEngine(42, { arrivalRate: 0, featureEnabled: false, exposurePct: 0 }),
+  );
 }
 
 function fillDebrief(kind: DecisionKind, snap: EngineSnapshot): string {
@@ -62,6 +72,10 @@ function fillDebrief(kind: DecisionKind, snap: EngineSnapshot): string {
   return tpl
     .replace("{exposure}", String(snap.controls.exposurePct))
     .replace("{waiterOutcome}", waiterOutcome);
+}
+
+function isOpenMode(mode: LabMode) {
+  return mode === "practice" || mode === "challenge";
 }
 
 export function Chapter1Experience() {
@@ -93,14 +107,17 @@ export function Chapter1Experience() {
   const [decision, setDecision] = useState<DecisionKind | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [predictionAnswered, setPredictionAnswered] = useState(false);
-  const [mode, setMode] = useState<"guided" | "sandbox">("guided");
+  const [mode, setMode] = useState<LabMode>("guided");
   const [actionLog, setActionLog] = useState<string[]>([]);
   const [replaySeed, setReplaySeed] = useState(42);
   const [focusedReq, setFocusedReq] = useState<SimRequest | null>(null);
+  const [challengeStartT, setChallengeStartT] = useState(0);
+  const [challengeStatus, setChallengeStatus] = useState<ChallengeStatus>("idle");
   const rafRef = useRef<number | null>(null);
 
   const stepDef = scenario.steps.find((s) => s.id === stepId)!;
   const stepIndex = STEP_ORDER.indexOf(stepId);
+  const guidedCount = STEP_ORDER.length;
 
   const sync = useCallback(() => {
     const s = snapshot(engineRef.current);
@@ -123,7 +140,8 @@ export function Chapter1Experience() {
       decision,
       previewToggled,
       deployedZero,
-      completed: mode === "sandbox" || stepId === "sandbox",
+      mode,
+      completed: isOpenMode(mode) || stepId === "review",
     };
     saveProgress(patch);
   }, [stepId, decision, previewToggled, deployedZero, mode]);
@@ -139,7 +157,6 @@ export function Chapter1Experience() {
     stopLoop();
     if (!running) return;
     rafRef.current = window.setInterval(() => {
-      // ~50ms wall ≈ 5 fine ticks at 1× so 12ms baseline holds resolve credibly.
       const steps = Math.max(1, Math.round(5 * speed));
       for (let i = 0; i < steps; i++) tick(engineRef.current, 0.01);
       sync();
@@ -147,8 +164,24 @@ export function Chapter1Experience() {
     return stopLoop;
   }, [running, speed, stopLoop, sync]);
 
+  useEffect(() => {
+    if (mode !== "challenge" || challengeStatus === "idle") return;
+    if (challengeStatus === "passed" || challengeStatus === "failed") return;
+    const next = evaluateChallenge(
+      snap,
+      scenario.challenge.criteria,
+      challengeStartT,
+    );
+    if (next !== "running") {
+      setChallengeStatus(next);
+      if (next === "passed" || next === "failed") setRunning(false);
+    }
+  }, [snap, mode, challengeStatus, challengeStartT, scenario.challenge.criteria]);
+
   const logAction = (msg: string) => {
-    setActionLog((prev) => [`t=${engineRef.current.t.toFixed(1)}s. ${msg}`, ...prev].slice(0, 24));
+    setActionLog((prev) =>
+      [`t=${engineRef.current.t.toFixed(1)}s. ${msg}`, ...prev].slice(0, 24),
+    );
   };
 
   const onTogglePreview = () => {
@@ -201,7 +234,6 @@ export function Chapter1Experience() {
 
   const startPressure = () => {
     // λ×W must exceed 40 so waiters appear (never fake busy > 40).
-    // 550 × (0.012 + 0.09) ≈ 56 demand → ~40 busy + waiters.
     setControls(engineRef.current, {
       featureEnabled: true,
       featureDisabledForNew: false,
@@ -219,8 +251,9 @@ export function Chapter1Experience() {
   const applyDecision = (kind: DecisionKind) => {
     setDecision(kind);
     if (kind === "pause_exposure") {
-      logAction(`Decision: pause exposure at ${engineRef.current.controls.exposurePct}% (traffic continues; cohort frozen)`);
-      // Freeze exposure only. do not secretly cut λ (that taught the wrong lesson).
+      logAction(
+        `Decision: pause exposure at ${engineRef.current.controls.exposurePct}% (traffic continues; cohort frozen)`,
+      );
       setControls(engineRef.current, { paused: true });
     } else if (kind === "disable_feature") {
       setControls(engineRef.current, {
@@ -273,28 +306,16 @@ export function Chapter1Experience() {
   const goNext = () => {
     const next = STEP_ORDER[stepIndex + 1];
     if (!next) return;
-    if (next === "inspect_prod") {
-      setControls(engineRef.current, {
-        arrivalRate: 80,
-        exposurePct: Math.max(25, engineRef.current.controls.exposurePct),
-        featureEnabled: true,
-      });
-      setRunning(true);
-    }
-    if (next === "pressure") {
+    if (next === "saturation") {
       setPredictionAnswered(false);
       startPressure();
     }
-    if (next === "rollout") setPredictionAnswered(false);
-    if (next === "sandbox") {
-      setMode("sandbox");
+    if (next === "exposure") setPredictionAnswered(false);
+    if (next === "investigate") {
       setControls(engineRef.current, {
-        arrivalRate: 100,
-        exposurePct: 25,
+        arrivalRate: Math.max(80, engineRef.current.controls.arrivalRate),
+        exposurePct: Math.max(25, engineRef.current.controls.exposurePct),
         featureEnabled: true,
-        featureDisabledForNew: false,
-        recLookupSec: 0.07,
-        paused: false,
       });
       setRunning(true);
     }
@@ -302,9 +323,9 @@ export function Chapter1Experience() {
     sync();
   };
 
-  const enterSandbox = () => {
-    setMode("sandbox");
-    setStepId("sandbox");
+  const enterPractice = () => {
+    setMode("practice");
+    setChallengeStatus("idle");
     setControls(engineRef.current, {
       arrivalRate: 100,
       exposurePct: 25,
@@ -317,21 +338,54 @@ export function Chapter1Experience() {
     sync();
   };
 
+  const enterChallenge = () => {
+    setMode("challenge");
+    stopLoop();
+    const seed = replaySeed + 31;
+    setReplaySeed(seed);
+    engineRef.current = createEngine(seed, {
+      arrivalRate: 520,
+      exposurePct: 100,
+      featureEnabled: true,
+      featureDisabledForNew: false,
+      recLookupSec: 0.09,
+      baselineHoldSec: 0.012,
+      paused: false,
+      acquireTimeoutSec: null,
+      shedAtUtil: null,
+      cacheHitRate: 0,
+    });
+    // Warm the incident so the learner starts mid-saturation.
+    for (let i = 0; i < 400; i++) tick(engineRef.current, 0.01);
+    setChallengeStartT(engineRef.current.t);
+    setChallengeStatus("running");
+    setDecision(null);
+    setSelectedId(null);
+    setFocusedReq(null);
+    setRunning(true);
+    sync();
+    logAction("Challenge started under live pressure");
+  };
+
   const onReplay = () => {
     stopLoop();
     setRunning(false);
+    if (mode === "challenge") {
+      enterChallenge();
+      return;
+    }
     const nextSeed = replaySeed + 17;
     setReplaySeed(nextSeed);
     engineRef.current = createEngine(nextSeed, {
-      arrivalRate: mode === "sandbox" ? 100 : 0,
-      featureEnabled: mode === "sandbox",
-      exposurePct: mode === "sandbox" ? 25 : 0,
+      arrivalRate: mode === "practice" ? 100 : 0,
+      featureEnabled: mode === "practice",
+      exposurePct: mode === "practice" ? 25 : 0,
     });
     setSelectedId(null);
     setFocusedReq(null);
     setTraced(false);
     setSawWaiters(false);
-    logAction("Replay. Engine reset");
+    logAction("Reset. Engine cleared");
     sync();
   };
 
@@ -355,6 +409,7 @@ export function Chapter1Experience() {
     setSelectedId(null);
     setPredictionAnswered(false);
     setActionLog([]);
+    setChallengeStatus("idle");
     setSnap(snapshot(engineRef.current));
   };
 
@@ -365,8 +420,8 @@ export function Chapter1Experience() {
       : tracedReq?.phase === "done"
         ? CODE_LINES.respond
         : showRecs
-          ? 7
-          : 3;
+          ? CODE_LINES.callRec
+          : CODE_LINES.catalog;
 
   const debriefText = decision ? fillDebrief(decision, snap) : null;
   const liveFrame = useMemo(() => narrateChapter1(snap), [snap]);
@@ -390,33 +445,34 @@ export function Chapter1Experience() {
     setFocusedReq(live ? { ...live } : null);
   };
 
-  const showProduct =
-    stepId === "inspect" || stepId === "review" || mode === "sandbox";
+  const open = isOpenMode(mode);
+  const showProduct = stepId === "inspect" || stepId === "deploy" || open;
   const showPool =
-    mode === "sandbox" ||
-    ["trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    open ||
+    ["trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(stepId) ||
     snap.activeCount > 0 ||
     snap.waitingCount > 0;
   const showFlag =
-    mode === "sandbox" ||
-    ["review", "trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(
+    open ||
+    ["deploy", "trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(
       stepId,
     ) ||
     snap.controls.featureEnabled;
   const showMetrics =
-    mode === "sandbox" ||
-    ["rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    open ||
+    ["exposure", "saturation", "investigate", "mitigate", "review"].includes(stepId) ||
     snap.completedCount > 8;
   const showOps =
-    mode === "sandbox" ||
-    ["inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    open ||
+    ["saturation", "investigate", "mitigate", "review"].includes(stepId) ||
     snap.waitingCount > 0 ||
     snap.timeoutCount > 0 ||
     snap.slo.breached;
-  const showMitigations = mode === "sandbox" || stepId === "decide" || stepId === "debrief";
+  const showMitigations =
+    open || stepId === "mitigate" || stepId === "review" || stepId === "investigate";
   const showTrace =
-    mode === "sandbox" ||
-    ["trace", "rollout", "inspect_prod", "pressure", "decide", "debrief"].includes(stepId) ||
+    open ||
+    ["trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(stepId) ||
     focusedReq !== null;
 
   const applyMitigation = (patch: {
@@ -448,6 +504,12 @@ export function Chapter1Experience() {
     logAction(`Mitigation: ${bits.join(" · ")}`);
   };
 
+  const challengeElapsed = Math.max(0, snap.t - challengeStartT);
+  const challengeRemaining = Math.max(
+    0,
+    scenario.challenge.criteria.maxSimSec - challengeElapsed,
+  );
+
   return (
     <div ref={rootRef} className="relative mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       {!reduced ? (
@@ -464,7 +526,7 @@ export function Chapter1Experience() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.45, ease }}
         >
-          Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min
+          Labs / Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min
         </motion.p>
         <motion.h1
           className="mt-2 font-serif text-[clamp(1.95rem,4.2vw,2.9rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]"
@@ -508,24 +570,22 @@ export function Chapter1Experience() {
         )}
       </header>
 
-      <TrainingBrief
-        simulate="Recommendations behind a feature flag share a 40-slot database connection pool with the rest of the product page path."
-        why="Correct code can still exhaust a shared resource. Waiting, timeouts, and SLO burn show up before anyone finds a bug in the query."
-        technologies={[
-          "Feature flags",
-          "Connection pools",
-          "Little’s Law",
-          "Acquire timeout",
-          "Load shedding",
-          "Request-path cache",
-        ]}
-        simulation="Walk the incident first: inspect, deploy at 0%, trace one request, raise exposure, pressure the pool, then decide. Open practice unlocks the same levers afterward."
-        interpret="Read pool.active, pool.pending, acquire.wait.p99, and path latency. Busy stays ≤ 40; overflow waits. Disable cuts new demand while in-flight holds drain."
+      <LabIntro
+        challenge="Can you keep a 40-slot pool from drowning when recommendations turn on?"
+        situation="Product Page still talks to Catalog for the core page. Personalized traffic calls a separate Recommendation service. That service alone owns a shared 40-connection pool to the database. When too many users hit the long path, waiting appears even though every query is correct."
+        objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
+        terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the DB hold even starts. Busy slots never exceed 40; overflow waits beside the grid."
+        explore="Feature flags · Connection pools · Little’s Law · Acquire timeout · Load shedding · Request-path cache"
+        gettingStarted="Use Guided for stages A–H. Pause, step, or reset the shared clock anytime. Practice unlocks free levers after your first decision. Challenge starts mid-incident with exact pass/fail metrics and no recommended fix in the intro."
       />
 
       <div className="mt-6 space-y-4">
         <GuidedProgress
-          steps={scenario.steps.map((s) => ({ id: s.id, title: s.title }))}
+          steps={scenario.steps.map((s) => ({
+            id: s.id,
+            title: s.title,
+            letter: s.letter,
+          }))}
           stepId={stepId}
           mode={mode}
         />
@@ -536,7 +596,8 @@ export function Chapter1Experience() {
               type="button"
               onClick={() => {
                 setMode("guided");
-                if (stepId === "sandbox") setStepId(decision ? "debrief" : "inspect");
+                setChallengeStatus("idle");
+                if (isOpenMode(mode)) setStepId(decision ? "review" : "inspect");
               }}
               className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                 mode === "guided"
@@ -548,25 +609,43 @@ export function Chapter1Experience() {
             </button>
             <button
               type="button"
-              onClick={enterSandbox}
-              disabled={!decision && mode !== "sandbox"}
+              onClick={enterPractice}
+              disabled={!decision && mode === "guided"}
               title={
-                !decision && mode !== "sandbox"
+                !decision && mode === "guided"
                   ? "Finish the guided decision first"
                   : undefined
               }
               className={`rounded-full px-3.5 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                mode === "sandbox"
+                mode === "practice"
                   ? "bg-[color:var(--exp-fg)] text-white"
                   : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
               }`}
             >
               Practice
             </button>
+            <button
+              type="button"
+              onClick={enterChallenge}
+              disabled={!decision && mode === "guided"}
+              title={
+                !decision && mode === "guided"
+                  ? "Finish the guided path first"
+                  : undefined
+              }
+              className={`rounded-full px-3.5 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                mode === "challenge"
+                  ? "bg-[color:var(--exp-fg)] text-white"
+                  : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
+              }`}
+            >
+              Challenge
+            </button>
           </div>
           <SimControls
             running={running}
             speed={speed}
+            logicalTimeSec={snap.t}
             onPlayPause={() => setRunning((r) => !r)}
             onStep={() => {
               stepOnce(engineRef.current);
@@ -579,422 +658,518 @@ export function Chapter1Experience() {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)]">
-        <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <TeachingOverlay
-            lesson={lesson}
-            live={liveFrame}
-            reducedMotion={reduced}
-            compactTry={mode === "guided"}
-          />
+      <LearningWorkbench
+        rail={
+          <>
+            <TeachingOverlay
+              lesson={lesson}
+              live={liveFrame}
+              reducedMotion={reduced}
+              compactTry={mode === "guided"}
+            />
 
-          <AnimatePresence mode="wait">
-            {mode === "guided" ? (
-              <motion.div
-                key={`guided-${stepId}`}
-                className="exp-panel border-[color-mix(in_srgb,var(--exp-accent)_28%,transparent)]"
-                initial={reduced ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduced ? undefined : { opacity: 0, y: -6 }}
-                transition={{ duration: reduced ? 0 : 0.35, ease }}
-              >
-                <p className="exp-kicker">
-                  Step {stepIndex + 1} of {STEP_ORDER.length}
-                </p>
-                <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
-                  {stepDef.title}
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                  {stepDef.body}
-                </p>
-
-                {stepDef.prediction && !predictionAnswered ? (
-                  <div className="mt-4 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] p-3">
-                    <p className="text-sm text-[color:var(--exp-fg)]">{stepDef.prediction}</p>
-                    <button
-                      type="button"
-                      className="exp-btn exp-btn-ghost mt-3"
-                      onClick={() => setPredictionAnswered(true)}
-                    >
-                      I have made my prediction. Show me
-                    </button>
-                  </div>
-                ) : null}
-
-                {stepDef.prediction && predictionAnswered && stepId === "rollout" ? (
-                  <PredictionOutcome
-                    snap={snap}
-                    answered={predictionAnswered}
-                    reducedMotion={reduced}
-                  />
-                ) : null}
-
-                {stepDef.prediction && predictionAnswered && stepId === "pressure" ? (
-                  <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                    <span className="text-[color:var(--exp-fg)]">Expected answer: </span>
-                    Disable stops <em>new</em> recommendation acquires; in-flight busy slots keep
-                    their connections until release. pool.pending drains as those holds finish . 
-                    disable ≠ kill.
+            <AnimatePresence mode="wait">
+              {mode === "guided" ? (
+                <motion.div
+                  key={`guided-${stepId}`}
+                  className="exp-panel border-[color-mix(in_srgb,var(--exp-accent)_28%,transparent)]"
+                  initial={reduced ? false : { opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? undefined : { opacity: 0, y: -6 }}
+                  transition={{ duration: reduced ? 0 : 0.35, ease }}
+                >
+                  <p className="exp-kicker">
+                    Step {stepIndex + 1} of {guidedCount || CH1_GUIDED_STAGE_COUNT} ·{" "}
+                    {stepDef.letter}
                   </p>
-                ) : null}
+                  <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
+                    {stepDef.title}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                    {stepDef.body}
+                  </p>
 
-                {stepId === "inspect" ? (
-                  <button type="button" onClick={onTogglePreview} className="exp-btn exp-btn-primary mt-4">
-                    Toggle page preview
-                  </button>
-                ) : null}
+                  {stepDef.prediction && !predictionAnswered ? (
+                    <div className="mt-4 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] p-3">
+                      <p className="text-sm text-[color:var(--exp-fg)]">{stepDef.prediction}</p>
+                      <button
+                        type="button"
+                        className="exp-btn exp-btn-ghost mt-3"
+                        onClick={() => setPredictionAnswered(true)}
+                      >
+                        I have made my prediction. Show me
+                      </button>
+                    </div>
+                  ) : null}
 
-                {stepId === "review" ? (
-                  <button type="button" onClick={onDeployZero} className="exp-btn exp-btn-primary mt-4">
-                    Deploy at 0% exposure
-                  </button>
-                ) : null}
+                  {stepDef.prediction && predictionAnswered && stepId === "exposure" ? (
+                    <PredictionOutcome
+                      snap={snap}
+                      answered={predictionAnswered}
+                      reducedMotion={reduced}
+                    />
+                  ) : null}
 
-                {stepId === "trace" ? (
-                  <button type="button" onClick={onTrace} className="exp-btn exp-btn-primary mt-4">
-                    Send one request
-                  </button>
-                ) : null}
+                  {stepDef.prediction && predictionAnswered && stepId === "saturation" ? (
+                    <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                      <span className="text-[color:var(--exp-fg)]">Expected answer: </span>
+                      Disable stops <em>new</em> calls into Recommendation; in-flight busy slots
+                      keep their connections until release. pool.pending drains as those holds
+                      finish. Disable is not the same as killing in-flight work.
+                    </p>
+                  ) : null}
 
-                {stepId === "rollout" ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => onExposure(5)} className="exp-btn exp-btn-ghost">
-                      Set 5%
-                    </button>
+                  {stepId === "inspect" ? (
                     <button
                       type="button"
-                      disabled={!predictionAnswered && stepDef.prediction !== undefined}
-                      onClick={() => {
-                        setPredictionAnswered(true);
-                        onExposure(25);
-                      }}
-                      className="exp-btn exp-btn-primary"
+                      onClick={onTogglePreview}
+                      className="exp-btn exp-btn-primary mt-4"
                     >
-                      Set 25%
+                      Toggle page preview
                     </button>
-                  </div>
-                ) : null}
+                  ) : null}
 
-                {stepId === "pressure" ? (
-                  <button type="button" onClick={startPressure} className="exp-btn exp-btn-primary mt-4">
-                    Surge traffic
-                  </button>
-                ) : null}
+                  {stepId === "deploy" ? (
+                    <button
+                      type="button"
+                      onClick={onDeployZero}
+                      className="exp-btn exp-btn-primary mt-4"
+                    >
+                      Deploy at 0% exposure
+                    </button>
+                  ) : null}
 
-                {stepId === "decide" ? (
-                  <div className="mt-4 flex flex-col gap-2">
-                    {(
-                      [
-                        ["pause_exposure", "Pause exposure"],
-                        ["disable_feature", "Disable feature"],
-                        ["investigate", "Keep investigating"],
-                      ] as const
-                    ).map(([k, label]) => (
+                  {stepId === "trace" ? (
+                    <button type="button" onClick={onTrace} className="exp-btn exp-btn-primary mt-4">
+                      Send one request
+                    </button>
+                  ) : null}
+
+                  {stepId === "exposure" ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
                       <button
-                        key={k}
                         type="button"
-                        onClick={() => applyDecision(k)}
-                        className={`exp-btn w-full justify-start ${
-                          decision === k ? "exp-btn-primary" : "exp-btn-ghost"
-                        }`}
+                        onClick={() => onExposure(5)}
+                        className="exp-btn exp-btn-ghost"
                       >
-                        {label}
+                        Set 5%
                       </button>
-                    ))}
-                  </div>
-                ) : null}
-
-                {stepId === "debrief" && debriefText ? (
-                  <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                    <div className="space-y-3 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3.5 py-3">
-                      <p className="text-[color:var(--exp-fg)]">
-                        Exposed traffic held the 40-slot pool longer (~12ms → ~80ms). Arrivals kept
-                        coming; waiters grew while busy stayed capped at 40.
-                      </p>
-                      <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
-                      <p className="text-[color:var(--exp-fg)]">
-                        Correct code still waits on a shared finite pool. Disable cuts new demand;
-                        in-flight holds drain on their own. Cache cuts hold time; shedding and
-                        timeouts trade errors for headroom. Same signature you would page on.
-                      </p>
+                      <button
+                        type="button"
+                        disabled={!predictionAnswered && stepDef.prediction !== undefined}
+                        onClick={() => {
+                          setPredictionAnswered(true);
+                          onExposure(25);
+                        }}
+                        className="exp-btn exp-btn-primary"
+                      >
+                        Set 25%
+                      </button>
                     </div>
-                    <ul className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                  ) : null}
+
+                  {stepId === "saturation" ? (
+                    <button
+                      type="button"
+                      onClick={startPressure}
+                      className="exp-btn exp-btn-primary mt-4"
+                    >
+                      Surge traffic
+                    </button>
+                  ) : null}
+
+                  {stepId === "mitigate" ? (
+                    <div className="mt-4 flex flex-col gap-2">
                       {(
                         [
-                          ["Util", `${(snap.utilization * 100).toFixed(0)}%`],
-                          ["Pending", `${snap.waitingCount}`],
-                          [
-                            "Acquire p99",
-                            `${(snap.acquireWaitP99 * 1000).toFixed(0)} ms`,
-                          ],
-                          ["Timeouts", `${snap.timeoutCount}`],
+                          ["pause_exposure", "Pause exposure"],
+                          ["disable_feature", "Disable feature"],
+                          ["investigate", "Keep investigating"],
                         ] as const
-                      ).map(([label, value]) => (
-                        <li
-                          key={label}
-                          className="flex items-baseline justify-between gap-2 rounded-lg border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2"
+                      ).map(([k, label]) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => applyDecision(k)}
+                          className={`exp-btn w-full justify-start ${
+                            decision === k ? "exp-btn-primary" : "exp-btn-ghost"
+                          }`}
                         >
-                          <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-                            {label}
-                          </span>
-                          <span className="tabular-nums text-[color:var(--exp-fg)]">{value}</span>
-                        </li>
+                          {label}
+                        </button>
                       ))}
-                    </ul>
-                    {actionLog.length > 0 ? (
-                      <div>
-                        <p className="text-[0.8rem] text-[color:var(--exp-faint)]">Actions this run</p>
-                        <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-[color:var(--exp-faint)]">
-                          {actionLog.map((a) => (
-                            <li key={a}>{a}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                    </div>
+                  ) : null}
 
-                {stepId !== "sandbox" ? (
+                  {stepId === "review" && debriefText ? (
+                    <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                      <div className="space-y-3 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3.5 py-3">
+                        <p className="text-[color:var(--exp-fg)]">
+                          Exposed traffic held Recommendation’s 40-slot pool longer (~12ms → ~80ms).
+                          Arrivals kept coming; waiters grew while busy stayed capped at 40. Product
+                          Page never owned that pool.
+                        </p>
+                        <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
+                        <p className="text-[color:var(--exp-fg)]">
+                          Correct code still waits on a shared finite pool. Disable cuts new demand;
+                          in-flight holds drain on their own. Cache cuts hold time; shedding and
+                          timeouts trade errors for headroom.
+                        </p>
+                      </div>
+                      <ul className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        {(
+                          [
+                            ["Util", `${(snap.utilization * 100).toFixed(0)}%`],
+                            ["Pending", `${snap.waitingCount}`],
+                            ["Acquire p99", `${(snap.acquireWaitP99 * 1000).toFixed(0)} ms`],
+                            ["Timeouts", `${snap.timeoutCount}`],
+                          ] as const
+                        ).map(([label, value]) => (
+                          <li
+                            key={label}
+                            className="flex items-baseline justify-between gap-2 rounded-lg border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2"
+                          >
+                            <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                              {label}
+                            </span>
+                            <span className="tabular-nums text-[color:var(--exp-fg)]">{value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {actionLog.length > 0 ? (
+                        <div>
+                          <p className="text-[0.8rem] text-[color:var(--exp-faint)]">
+                            Actions this run
+                          </p>
+                          <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-[color:var(--exp-faint)]">
+                            {actionLog.map((a) => (
+                              <li key={a}>{a}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   <button
                     type="button"
                     disabled={!canContinue}
-                    onClick={goNext}
+                    onClick={() => {
+                      if (stepId === "review") {
+                        enterPractice();
+                        return;
+                      }
+                      goNext();
+                    }}
                     className="exp-btn exp-btn-solid mt-5 w-full sm:w-auto"
                   >
-                    {stepId === "debrief" ? "Open practice" : "Continue"}
+                    {stepId === "review" ? "Open practice" : "Continue"}
                   </button>
-                ) : null}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="sandbox"
-                className="exp-panel"
-                initial={reduced ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduced ? 0 : 0.35, ease }}
-              >
-                <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Open practice</h2>
-                <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
-                  Pressure the pool, then respond: disable, shed, timeout, or cache. Read Ops like
-                  an on-call dashboard. Same rules as the guided path.
-                </p>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    data-testid="demo-pressure"
-                    onClick={() => {
-                      startPressure();
-                      logAction("Sandbox demo pressure preset");
-                    }}
-                    className="exp-btn exp-btn-primary"
-                  >
-                    Demo pressure
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="demo-shed"
-                    onClick={() => {
-                      startPressure();
-                      applyMitigation({ shedAtUtil: 0.85 });
-                      logAction("Sandbox shed@85% under pressure");
-                    }}
-                    className="exp-btn exp-btn-ghost"
-                  >
-                    Pressure + shed
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="demo-timeout"
-                    onClick={() => {
-                      startPressure();
-                      applyMitigation({ acquireTimeoutSec: 0.1 });
-                      logAction("Sandbox timeout 100ms under pressure");
-                    }}
-                    className="exp-btn exp-btn-ghost"
-                  >
-                    Pressure + timeout
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      applyDecision("disable_feature");
-                      setRunning(true);
-                    }}
-                    className="exp-btn exp-btn-ghost"
-                  >
-                    Disable new traffic
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setControls(engineRef.current, {
-                        arrivalRate: 80,
-                        exposurePct: 25,
-                        featureEnabled: true,
-                        featureDisabledForNew: false,
-                        recLookupSec: 0.07,
-                        paused: false,
-                        acquireTimeoutSec: null,
-                        shedAtUtil: null,
-                        cacheHitRate: 0,
-                      });
-                      setRunning(true);
-                      sync();
-                      logAction("Sandbox calm preset");
-                    }}
-                    className="exp-btn exp-btn-ghost"
-                  >
-                    Calm 25%
-                  </button>
-                </div>
-
-                <label className="mt-5 block text-sm text-[color:var(--exp-muted)]">
-                  Arrival rate:{" "}
-                  <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
-                    {snap.controls.arrivalRate}
-                  </span>{" "}
-                  req/s
-                  <input
-                    type="range"
-                    min={20}
-                    max={600}
-                    step={10}
-                    value={snap.controls.arrivalRate}
-                    onChange={(e) => {
-                      setControls(
-                        engineRef.current,
-                        { arrivalRate: Number(e.target.value) },
-                        false,
-                      );
-                      setRunning(true);
-                      sync();
-                    }}
-                    className="mt-2 w-full accent-[color:var(--exp-accent)]"
-                  />
-                </label>
-                <label className="mt-3 block text-sm text-[color:var(--exp-muted)]">
-                  Rec lookup:{" "}
-                  <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
-                    {(snap.controls.recLookupSec * 1000).toFixed(0)}
-                  </span>{" "}
-                  ms
-                  <input
-                    type="range"
-                    min={20}
-                    max={200}
-                    step={5}
-                    value={Math.round(snap.controls.recLookupSec * 1000)}
-                    onChange={(e) => {
-                      setControls(
-                        engineRef.current,
-                        { recLookupSec: Number(e.target.value) / 1000 },
-                        false,
-                      );
-                      sync();
-                    }}
-                    className="mt-2 w-full accent-[color:var(--exp-accent)]"
-                  />
-                </label>
-                <label className="mt-3 block text-sm text-[color:var(--exp-muted)]">
-                  Exposure:{" "}
-                  <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
-                    {snap.controls.exposurePct}%
-                  </span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    step={5}
-                    value={snap.controls.exposurePct}
-                    disabled={
-                      !snap.controls.featureEnabled || snap.controls.featureDisabledForNew
-                    }
-                    onChange={(e) => onExposure(Number(e.target.value))}
-                    className="mt-2 w-full accent-[color:var(--exp-accent)] disabled:opacity-40"
-                  />
-                </label>
-
-                <Link
-                  href={scenario.meta.bookHref}
-                  className="mt-4 inline-flex text-sm text-[color:var(--exp-amber)] underline-offset-4 hover:underline"
+                </motion.div>
+              ) : mode === "challenge" ? (
+                <motion.div
+                  key="challenge"
+                  className="exp-panel border-[color-mix(in_srgb,var(--exp-accent)_28%,transparent)]"
+                  initial={reduced ? false : { opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduced ? 0 : 0.35, ease }}
                 >
-                  Read Chapter 1 in the book →
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <p className="exp-kicker">Challenge</p>
+                  <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
+                    {scenario.challenge.title}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                    {scenario.challenge.objective}
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                        Your objective
+                      </p>
+                      <p className="mt-1 text-sm text-[color:var(--exp-fg)]">
+                        {scenario.challenge.success}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                        Getting started
+                      </p>
+                      <p className="mt-1 text-sm text-[color:var(--exp-muted)]">
+                        {scenario.challenge.gettingStarted}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2.5">
+                      <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                        Live metrics
+                      </p>
+                      <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                        {(
+                          [
+                            ["Status", challengeStatusCopy(challengeStatus)],
+                            ["Time left", `${challengeRemaining.toFixed(1)} s`],
+                            ["Pending", `${snap.waitingCount}`],
+                            ["Util", `${(snap.utilization * 100).toFixed(0)}%`],
+                            ["p99", `${(snap.latencyP99 * 1000).toFixed(0)} ms`],
+                            ["SLO", `${(snap.slo.targetP99Sec * 1000).toFixed(0)} ms`],
+                          ] as const
+                        ).map(([label, value]) => (
+                          <li key={label} className="text-sm">
+                            <span className="text-[color:var(--exp-faint)]">{label}: </span>
+                            <span className="text-[color:var(--exp-fg)]">{value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    {challengeStatus === "passed" || challengeStatus === "failed" ? (
+                      <p
+                        className={`text-sm leading-relaxed ${
+                          challengeStatus === "passed"
+                            ? "text-[color:var(--exp-amber)]"
+                            : "text-[color:var(--exp-accent)]"
+                        }`}
+                      >
+                        {challengeStatusCopy(challengeStatus)}
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={enterChallenge}
+                      className="exp-btn exp-btn-primary"
+                    >
+                      {challengeStatus === "idle" ? "Start challenge" : "Restart challenge"}
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="practice"
+                  className="exp-panel"
+                  initial={reduced ? false : { opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduced ? 0 : 0.35, ease }}
+                >
+                  <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Practice</h2>
+                  <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
+                    Pressure Recommendation’s pool, then respond: disable, shed, timeout, or cache.
+                    Read Ops like an on-call dashboard. Same rules as the guided path.
+                  </p>
 
-          <div className="exp-panel-flat">
-            <p className="text-[0.8rem] text-[color:var(--exp-faint)]">What this sim assumes</p>
-            <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[color:var(--exp-muted)]">
-              {scenario.assumptions.map((a) => (
-                <li key={a}>· {a}</li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              onClick={onFullReset}
-              className="mt-3 text-xs text-[color:var(--exp-faint)] underline-offset-2 hover:text-[color:var(--exp-muted)] hover:underline"
-            >
-              Reset guided progress
-            </button>
-          </div>
-        </aside>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      data-testid="demo-pressure"
+                      onClick={() => {
+                        startPressure();
+                        logAction("Practice demo pressure preset");
+                      }}
+                      className="exp-btn exp-btn-primary"
+                    >
+                      Demo pressure
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="demo-shed"
+                      onClick={() => {
+                        startPressure();
+                        applyMitigation({ shedAtUtil: 0.85 });
+                        logAction("Practice shed@85% under pressure");
+                      }}
+                      className="exp-btn exp-btn-ghost"
+                    >
+                      Pressure + shed
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="demo-timeout"
+                      onClick={() => {
+                        startPressure();
+                        applyMitigation({ acquireTimeoutSec: 0.1 });
+                        logAction("Practice timeout 100ms under pressure");
+                      }}
+                      className="exp-btn exp-btn-ghost"
+                    >
+                      Pressure + timeout
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        applyDecision("disable_feature");
+                        setRunning(true);
+                      }}
+                      className="exp-btn exp-btn-ghost"
+                    >
+                      Disable new traffic
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setControls(engineRef.current, {
+                          arrivalRate: 80,
+                          exposurePct: 25,
+                          featureEnabled: true,
+                          featureDisabledForNew: false,
+                          recLookupSec: 0.07,
+                          paused: false,
+                          acquireTimeoutSec: null,
+                          shedAtUtil: null,
+                          cacheHitRate: 0,
+                        });
+                        setRunning(true);
+                        sync();
+                        logAction("Practice calm preset");
+                      }}
+                      className="exp-btn exp-btn-ghost"
+                    >
+                      Calm 25%
+                    </button>
+                  </div>
 
-        <div className="space-y-4">
-          <RequestPath snap={snap} reducedMotion={reduced} />
-          {showProduct ? (
-            <ProductPreview showRecs={showRecs} onToggle={onTogglePreview} />
-          ) : null}
-          <CodePanel lines={scenario.codeLines} highlightLine={highlight} />
-          {showFlag ? (
-            <FeatureFlagPanel
-              snap={snap}
-              onToggleFeature={(on) => {
-                setControls(engineRef.current, {
-                  featureEnabled: on,
-                  featureDisabledForNew: on
-                    ? false
-                    : engineRef.current.controls.featureDisabledForNew,
-                });
-                setRunning(true);
-                sync();
-                logAction(`Flag ${on ? "ON" : "OFF"}`);
-              }}
-              onExposure={onExposure}
-              onDisableNew={() => applyDecision("disable_feature")}
-            />
-          ) : null}
-          {showPool ? (
-            <ConnectionPoolGrid
-              snap={snap}
-              selectedId={selectedId}
-              onSelect={selectRequest}
-              reducedMotion={reduced}
-            />
-          ) : null}
-          {showMetrics ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              <LittlesLawCallout snap={snap} reducedMotion={reduced} />
-              <MetricsStrip snap={snap} reducedMotion={reduced} />
+                  <label className="mt-5 block text-sm text-[color:var(--exp-muted)]">
+                    Arrival rate:{" "}
+                    <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
+                      {snap.controls.arrivalRate}
+                    </span>{" "}
+                    req/s
+                    <input
+                      type="range"
+                      min={20}
+                      max={600}
+                      step={10}
+                      value={snap.controls.arrivalRate}
+                      onChange={(e) => {
+                        setControls(
+                          engineRef.current,
+                          { arrivalRate: Number(e.target.value) },
+                          false,
+                        );
+                        setRunning(true);
+                        sync();
+                      }}
+                      className="mt-2 w-full accent-[color:var(--exp-accent)]"
+                    />
+                  </label>
+                  <label className="mt-3 block text-sm text-[color:var(--exp-muted)]">
+                    Rec lookup:{" "}
+                    <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
+                      {(snap.controls.recLookupSec * 1000).toFixed(0)}
+                    </span>{" "}
+                    ms
+                    <input
+                      type="range"
+                      min={20}
+                      max={200}
+                      step={5}
+                      value={Math.round(snap.controls.recLookupSec * 1000)}
+                      onChange={(e) => {
+                        setControls(
+                          engineRef.current,
+                          { recLookupSec: Number(e.target.value) / 1000 },
+                          false,
+                        );
+                        sync();
+                      }}
+                      className="mt-2 w-full accent-[color:var(--exp-accent)]"
+                    />
+                  </label>
+                  <label className="mt-3 block text-sm text-[color:var(--exp-muted)]">
+                    Exposure:{" "}
+                    <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
+                      {snap.controls.exposurePct}%
+                    </span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={5}
+                      value={snap.controls.exposurePct}
+                      disabled={
+                        !snap.controls.featureEnabled || snap.controls.featureDisabledForNew
+                      }
+                      onChange={(e) => onExposure(Number(e.target.value))}
+                      className="mt-2 w-full accent-[color:var(--exp-accent)] disabled:opacity-40"
+                    />
+                  </label>
+
+                  <Link
+                    href={scenario.meta.bookHref}
+                    className="mt-4 inline-flex text-sm text-[color:var(--exp-amber)] underline-offset-4 hover:underline"
+                  >
+                    Read Chapter 1 in the book →
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="exp-panel-flat">
+              <p className="text-[0.8rem] text-[color:var(--exp-faint)]">What this sim assumes</p>
+              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[color:var(--exp-muted)]">
+                {scenario.assumptions.map((a) => (
+                  <li key={a}>· {a}</li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={onFullReset}
+                className="mt-3 text-xs text-[color:var(--exp-faint)] underline-offset-2 hover:text-[color:var(--exp-muted)] hover:underline"
+              >
+                Reset guided progress
+              </button>
             </div>
-          ) : null}
-          {showOps ? (
-            <OpsMetricsPanel snap={snap} reducedMotion={reduced} />
-          ) : null}
-          {showMitigations ? (
-            <MitigationControls
-              snap={snap}
-              onChange={applyMitigation}
-              reducedMotion={reduced}
-            />
-          ) : null}
-          {showTrace ? (
-            <RequestTrace req={tracedReq} now={snap.t} reducedMotion={reduced} />
-          ) : null}
-        </div>
-      </div>
+          </>
+        }
+        canvas={
+          <>
+            <RequestPath snap={snap} reducedMotion={reduced} />
+            {showProduct ? (
+              <ProductPreview showRecs={showRecs} onToggle={onTogglePreview} />
+            ) : null}
+            <CodePanel lines={scenario.codeLines} highlightLine={highlight} />
+            {showFlag ? (
+              <FeatureFlagPanel
+                snap={snap}
+                onToggleFeature={(on) => {
+                  setControls(engineRef.current, {
+                    featureEnabled: on,
+                    featureDisabledForNew: on
+                      ? false
+                      : engineRef.current.controls.featureDisabledForNew,
+                  });
+                  setRunning(true);
+                  sync();
+                  logAction(`Flag ${on ? "ON" : "OFF"}`);
+                }}
+                onExposure={onExposure}
+                onDisableNew={() => applyDecision("disable_feature")}
+              />
+            ) : null}
+            {showPool ? (
+              <ConnectionPoolGrid
+                snap={snap}
+                selectedId={selectedId}
+                onSelect={selectRequest}
+                reducedMotion={reduced}
+              />
+            ) : null}
+            {showMetrics ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                <LittlesLawCallout snap={snap} reducedMotion={reduced} />
+                <MetricsStrip snap={snap} reducedMotion={reduced} />
+              </div>
+            ) : null}
+            {showOps ? <OpsMetricsPanel snap={snap} reducedMotion={reduced} /> : null}
+            {showMitigations ? (
+              <MitigationControls
+                snap={snap}
+                onChange={applyMitigation}
+                reducedMotion={reduced}
+              />
+            ) : null}
+            {showTrace ? (
+              <RequestTrace req={tracedReq} now={snap.t} reducedMotion={reduced} />
+            ) : null}
+          </>
+        }
+      />
     </div>
   );
 }

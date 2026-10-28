@@ -16,14 +16,19 @@ export const DEFAULT_TICK_SEC = 0.01;
 /** Rolling window for throughput / recent stats (sim seconds). */
 export const METRIC_WINDOW_SEC = 5;
 
-/** 1-based lines matching chapter1Scenario.codeLines */
+/**
+ * 1-based lines matching chapter1Scenario.codeLines.
+ * Product Page calls Recommendation; the shared pool lives only in Recommendation.
+ */
 const CODE = {
   entry: 1,
-  flagCheck: 5,
-  acquire: 7,
-  query: 9,
-  release: 14,
-  respond: 17,
+  catalog: 2,
+  flagCheck: 4,
+  callRec: 6,
+  acquire: 13,
+  query: 15,
+  release: 20,
+  respond: 8,
 } as const;
 
 export type Engine = {
@@ -199,7 +204,9 @@ function tryAcquire(engine: Engine, req: SimRequest): boolean {
   req.slotIndex = free;
   req.acquireTime = engine.t;
   req.phase = "holding";
-  req.codeLine = req.path === "recs" ? CODE.query : CODE.acquire;
+  // Baseline stays on Product Page → Catalog (no Recommendation pool hold).
+  // Recs path: Recommendation acquires from the shared 40-conn pool.
+  req.codeLine = req.path === "recs" ? CODE.acquire : CODE.catalog;
   return true;
 }
 
@@ -291,14 +298,13 @@ function advanceHolders(engine: Engine, dt: number) {
     if (req.phase !== "holding" || req.acquireTime === null) continue;
     const held = engine.t + dt - req.acquireTime;
     if (req.path === "recs") {
-      if (held < req.holdSec * 0.25) req.codeLine = CODE.flagCheck;
-      else if (held < req.holdSec * 0.45) req.codeLine = CODE.acquire;
-      else if (held < req.holdSec * 0.85) req.codeLine = CODE.query;
-      else req.codeLine = CODE.release;
-    } else {
-      if (held < req.holdSec * 0.4) req.codeLine = CODE.acquire;
+      if (held < req.holdSec * 0.15) req.codeLine = CODE.callRec;
+      else if (held < req.holdSec * 0.35) req.codeLine = CODE.acquire;
       else if (held < req.holdSec * 0.8) req.codeLine = CODE.query;
       else req.codeLine = CODE.release;
+    } else {
+      if (held < req.holdSec * 0.5) req.codeLine = CODE.catalog;
+      else req.codeLine = CODE.respond;
     }
     if (held >= req.holdSec) {
       completeRequest(engine, req, false);

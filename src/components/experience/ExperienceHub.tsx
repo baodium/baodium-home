@@ -55,7 +55,7 @@ export function ExperienceHub() {
             Book overview
           </Link>
           <Link href="/play" className="exp-btn exp-btn-ghost !min-h-12 !px-6">
-            Play drills
+            Drills
           </Link>
         </motion.div>
       </header>
