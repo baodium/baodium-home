@@ -12,7 +12,7 @@ export const chapter1Scenario: ChapterScenario = {
     durationMin: 12,
   },
   brief:
-    "You’re adding recommendations to the product page. Code is ready; tests pass. Enable for a small group and operate the system like an on-call engineer: pool metrics, mitigations, and a kill switch that does not kill in-flight work.",
+    "You are adding recommendations to the product page. Code is ready; tests pass. Enable for a small group and operate the system like an on-call engineer: pool metrics, mitigations, and a kill switch that does not kill in-flight work.",
   assumptions: [
     "Simulated metrics shaped like pool.active / pool.pending / acquire.wait / acquire.timeouts (not live telemetry).",
     "Pool size fixed at 40 connections (shared across the product service).",

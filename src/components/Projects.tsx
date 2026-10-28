@@ -36,7 +36,7 @@ export function Projects() {
       ref={sectionRef}
       id="projects"
       aria-labelledby="projects-heading"
-      className="relative overflow-hidden bg-[#eef3f4] py-12 text-ink md:py-16"
+      className="relative overflow-hidden bg-[#eef3f4] py-14 text-ink md:py-20"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <AmbientField tone="tide" density={14} className="opacity-45" />
@@ -56,6 +56,9 @@ export function Projects() {
             >
               baodium
             </DriftChip>
+            <span className="absolute inset-x-[20%] top-[12%] h-px overflow-hidden opacity-50">
+              <span className="signal-scan block h-full w-1/3 bg-tide-soft/60" />
+            </span>
           </>
         ) : null}
       </div>

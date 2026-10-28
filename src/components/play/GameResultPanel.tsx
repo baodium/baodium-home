@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 export type DebriefMetric = {
   label: string;
@@ -42,15 +46,19 @@ export function GameResultPanel({
   copied?: boolean;
 }) {
   const held = outcome === "won";
+  const reduced = usePrefersReducedMotion();
 
   return (
-    <div
+    <motion.div
       className={`mt-6 rounded-2xl border p-5 ${
         held
           ? "border-[color-mix(in_srgb,var(--drill-signal)_45%,transparent)] bg-[color-mix(in_srgb,var(--drill-signal)_7%,var(--drill-panel))]"
           : "border-[color-mix(in_srgb,var(--drill-accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--drill-accent)_7%,var(--drill-panel))]"
       }`}
       role="status"
+      initial={reduced ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduced ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-signal)]">
@@ -161,6 +169,6 @@ export function GameResultPanel({
           All drills
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }

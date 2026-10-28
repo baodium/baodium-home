@@ -166,6 +166,15 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
           </h1>
 
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.15, ease }}
+            className="mt-6 max-w-[28rem] text-[clamp(1.02rem,1.45vw,1.18rem)] leading-relaxed text-cream/68"
+          >
+            Home for products and technical publishing from production failures.
+          </motion.p>
+
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -196,6 +205,19 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
           </motion.div>
         </motion.div>
       </div>
+
+      {!reduce ? (
+        <a
+          href="#projects"
+          aria-label="Scroll to side projects"
+          className="absolute bottom-6 left-1/2 z-[5] hidden -translate-x-1/2 flex-col items-center gap-2 text-cream/45 transition-colors hover:text-cream/75 lg:flex"
+        >
+          <span className="font-mono text-[0.58rem] uppercase tracking-[0.2em]">Scroll</span>
+          <span aria-hidden="true" className="relative h-8 w-px overflow-hidden bg-cream/20">
+            <span className="scroll-cue absolute inset-x-0 top-0 h-full bg-cream/70" />
+          </span>
+        </a>
+      ) : null}
     </section>
   );
 }

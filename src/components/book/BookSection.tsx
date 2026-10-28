@@ -131,7 +131,11 @@ export function BookSection() {
                 <p className="mt-8 max-w-lg font-serif text-[clamp(1.45rem,2.4vw,2rem)] italic leading-[1.15] text-cream/88">
                   Failures from production, written so the next design holds.
                 </p>
-                <p className="mt-4 text-sm text-cream/55">by {book.author}</p>
+                <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-cream/55">
+                  Free to read here. Pair a chapter with its experience lab when
+                  you want to operate the failure, not only study it.
+                </p>
+                <p className="mt-4 text-sm text-cream/45">by {book.author}</p>
               </Reveal>
               <Reveal delay={0.1}>
                 <div className="mt-9 flex flex-wrap items-center gap-3 sm:gap-4">
