@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Mail } from "lucide-react";
 import { AboutListen } from "@/components/about/AboutListen";
-import { Reveal, SplitHeading } from "@/components/motion/Reveal";
+import { Reveal } from "@/components/motion/Reveal";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { site } from "@/data/site";
 
@@ -215,21 +215,19 @@ export function AboutPageView() {
           <motion.div style={{ y: letterY, opacity: letterOpacity }}>
             <Reveal y={14}>
               <p className="kicker text-moss">Baodium</p>
-              <SplitHeading
+              <h2
                 id="about-letter-heading"
-                text="Products you can try. Failures you can study."
-                accent={["Failures", "study"]}
-                className="mt-5 max-w-[16ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
-                accentClassName="font-serif font-normal italic text-cinnabar"
-                delay={0.04}
-              />
+                className="mt-5 max-w-[18ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
+              >
+                The studio behind the products and the book.
+              </h2>
             </Reveal>
 
             <Reveal y={12} delay={0.08} className="mt-8 max-w-[40rem]">
               <p className="text-[clamp(1.12rem,1.6vw,1.32rem)] leading-relaxed text-ink/88">
                 Adewale builds Interview Coach and UpTo under Baodium, and turns
-                production failures into design practice. The book, labs, and
-                drills are one product: read the failure, then operate it.
+                production failures into design practice. Read a chapter, then
+                operate the same failure in a lab or drill.
               </p>
             </Reveal>
 

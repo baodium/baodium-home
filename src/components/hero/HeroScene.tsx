@@ -11,7 +11,6 @@ import {
   useTransform,
 } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { HeroLabPreview } from "@/components/hero/HeroLabPreview";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
@@ -118,7 +117,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
             initial={{ scale: 1.06 }}
             animate={{ scale: 1 }}
             transition={{ duration: 2.2, ease }}
-            className="absolute inset-0 lg:inset-auto lg:bottom-0 lg:right-0 lg:aspect-[2752/1536] lg:h-[80%] lg:min-w-[70%] xl:h-[90%]"
+            className="absolute inset-0 lg:inset-auto lg:bottom-0 lg:right-0 lg:aspect-[2752/1536] lg:h-[88%] lg:min-w-[74%] xl:h-[96%]"
           >
             <div className="hero-photo-mask absolute inset-0 overflow-hidden">
               <Portrait hasVideo={hasVideo && motionOk} />
@@ -204,22 +203,13 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               </Link>
             </motion.div>
           </motion.div>
-
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.85, delay: reduce ? 0 : 1.45, ease }}
-            className="w-full max-w-[26rem] self-start lg:mb-10 lg:self-end"
-          >
-            <HeroLabPreview />
-          </motion.div>
         </div>
       </div>
 
       {!reduce ? (
         <a
-          href="#book"
-          aria-label="Scroll to the book"
+          href="#live-path"
+          aria-label="Scroll to the Chapter 1 live path"
           className="absolute bottom-6 left-1/2 z-[5] hidden -translate-x-1/2 flex-col items-center gap-2 text-cream/45 transition-colors hover:text-cream/75 lg:flex"
         >
           <span className="font-mono text-[0.58rem] uppercase tracking-[0.2em]">Scroll</span>

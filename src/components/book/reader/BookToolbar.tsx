@@ -210,7 +210,7 @@ export function BookToolbar({
             animate={{ y: 0, opacity: 1 }}
             exit={reduceMotion ? { opacity: 0 } : { y: -10, opacity: 0 }}
             transition={{ duration: reduceMotion ? 0.01 : 0.28, ease }}
-            className="book-reader-hud relative mx-auto flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] items-center gap-1.5 overflow-visible rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_7%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_78%,transparent)] px-2 py-1 shadow-[0_10px_28px_-20px_rgba(18,17,16,0.4)] backdrop-blur-xl sm:rounded-full sm:px-2.5 sm:gap-2"
+            className="book-reader-hud relative mx-auto flex w-full max-w-[calc(var(--reader-measure)+3.5rem)] items-center gap-1.5 overflow-visible rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] bg-[color-mix(in_srgb,var(--reader-page)_92%,transparent)] px-2 py-1 shadow-[0_6px_18px_-14px_rgba(18,17,16,0.28)] backdrop-blur-sm sm:rounded-full sm:px-2.5 sm:gap-2"
             style={{ viewTransitionName: "reader-hud" }}
           >
             <div className="flex min-w-0 shrink-0 items-center gap-0.5">

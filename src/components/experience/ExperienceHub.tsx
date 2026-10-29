@@ -49,7 +49,7 @@ export function ExperienceHub() {
             href="/system-design/experience/chapter-1"
             className="exp-btn exp-btn-primary !min-h-12 !px-6"
           >
-            Start Chapter 1 experience
+            Open Chapter 1
           </Link>
           <Link href="/system-design" className="exp-btn exp-btn-ghost !min-h-12 !px-6">
             Book overview
@@ -77,18 +77,12 @@ export function ExperienceHub() {
             >
               <Link
                 href={href}
-                className={`group relative block overflow-hidden rounded-[1.15rem] border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-5 shadow-[0_18px_40px_-28px_rgba(26,35,48,0.22)] transition-[border-color,transform] duration-300 ${
+                className={`group relative block overflow-hidden border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-5 transition-[border-color] duration-300 ${
                   ready
-                    ? "hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)]"
+                    ? "hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)]"
                     : "opacity-75 hover:border-[color:var(--exp-line-strong)]"
                 }`}
               >
-                {ready ? (
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute right-0 top-0 h-1 w-12 bg-cinnabar/70 transition-[width] duration-500 group-hover:w-20"
-                  />
-                ) : null}
                 <div className="relative flex items-baseline justify-between gap-3">
                   <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[color:var(--exp-faint)]">
                     Chapter {ch.number}

@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { ProjectCard } from "@/components/ProjectCard";
-import { Reveal, SplitHeading } from "@/components/motion/Reveal";
+import { Reveal } from "@/components/motion/Reveal";
 import { projects, type Project } from "@/data/projects";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -54,15 +54,14 @@ export function SideProjectsView() {
             Projects
           </motion.p>
 
-          <SplitHeading
-            as="h1"
+          <h1
             id="side-projects-heading"
-            text="Interview Coach and UpTo, live now."
-            accent={["live", "now"]}
-            className="mt-5 max-w-[16ch] text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
-            accentClassName="font-serif font-normal italic text-flame"
-            delay={0.08}
-          />
+            className="mt-5 max-w-[14ch] text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
+          >
+            Interview Coach{" "}
+            <span className="font-serif font-normal italic text-flame">and</span>{" "}
+            UpTo.
+          </h1>
 
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 14 }}
@@ -79,8 +78,7 @@ export function SideProjectsView() {
             transition={{ duration: reduce ? 0 : 0.65, delay: reduce ? 0 : 0.36, ease }}
             className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-cream/55"
           >
-            Two live Baodium products. Open either site, or scroll through a
-            real full-page preview of each.
+            Open either product, or scroll through a full-page preview of each.
           </motion.p>
 
           <motion.ul
