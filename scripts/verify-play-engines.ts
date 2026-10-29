@@ -350,4 +350,52 @@ function runSlo(controls: Controls) {
   );
 }
 
+// Exact win matrices (Adewale Phase 3) — lock engine pass/fail thresholds.
+{
+  const goodTail = runTail({
+    concurrency: 36,
+    hedge: true,
+    hedgeAfterMs: 140,
+    timeoutMs: 550,
+  });
+  assert(goodTail.done?.outcome === "won", "sized+hedge tail should meet exact pass criteria");
+  assert(goodTail.snap.p99 <= 420, "tail win requires p99 ≤ 420");
+  assert(goodTail.snap.cost < 1.8, "tail win requires work cost < 1.8×");
+  assert(goodTail.snap.goodput >= 0.9, "tail win requires goodput ≥ 90%");
+  assert(goodTail.snap.sampleCount >= 40, "tail win requires ≥40 samples");
+
+  const goodSurge = runSurge({ admit: 0.7, queueCap: 50, vipFirst: true });
+  assert(goodSurge.done?.outcome === "won", "shed+VIP surge should meet exact pass criteria");
+  const drownSurge = runSurge({ admit: 1, queueCap: 200, vipFirst: false });
+  assert(drownSurge.done?.outcome === "lost", "admit-all surge should miss exact pass criteria");
+
+  const goodCascade = runCascade({
+    tripAt: 0.2,
+    bulkheadAuth: true,
+    bulkheadPay: true,
+    timeoutMs: 80,
+  });
+  assert(goodCascade.done?.outcome === "won", "isolated cascade should meet exact pass criteria");
+
+  const goodSlo = runSlo({
+    poolSize: 160,
+    concurrencyLimit: 120,
+    retries: "cautious",
+    shedding: true,
+  });
+  assert(goodSlo.done?.outcome === "won", "sized+shed+cautious SLO should meet exact pass criteria");
+
+  // calm cache already asserted won above
+  console.log(
+    JSON.stringify({
+      exactWins: {
+        tail: goodTail.done?.outcome,
+        surge: goodSurge.done?.outcome,
+        cascade: goodCascade.done?.outcome,
+        slo: goodSlo.done?.outcome,
+      },
+    }),
+  );
+}
+
 console.log("verify-play-engines: ok");

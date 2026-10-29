@@ -44,7 +44,8 @@ export const playGames: PlayGame[] = [
     feel: "Three traffic waves hit checkout. You set pool size, concurrency, and retries before the error budget runs out.",
     notice:
       "Watch error budget and pool util together. Aggressive retries under saturation burn the budget twice.",
-    success: "Hold success ≥ 99.5% for the full shift without a cascade.",
+    success:
+      "Budget > 0 for 48s, success ≥ 98.3%, no cascade, peak pool util < 120%.",
     learn: "Pool size and concurrency are different levers: one caps holds, the other caps admission.",
     changed:
       "Sizing the pool without capping admission still queues; capping admission without retries still fails under Wave 3.",
@@ -76,7 +77,8 @@ export const playGames: PlayGame[] = [
     challenge: "Can you keep p95 under budget through the spike?",
     feel: "A spike lands around 12 seconds against fixed capacity. Admit, queue, and shed so latency survives.",
     notice: "Past the cliff, shedding cuts errors faster than any capacity you do not have.",
-    success: "Keep p95 under budget most of the run while still serving most traffic.",
+    success:
+      "Serve ≥ 55%, under-budget ≥ 55% of the run with peak p95 < 588ms, success > 48%, VIP ≥ 72% if priority on.",
     learn: "When capacity is fixed, early shedding is the only lever that protects latency.",
     changed:
       "Dropping admit rate at the cliff keeps p95 inside budget; serving everyone slowly breaches it for everyone.",
@@ -99,16 +101,16 @@ export const playGames: PlayGame[] = [
       primary: { label: "p95", value: "840ms", tone: "bad" },
       secondary: { label: "Served", value: "61%", tone: "warn" },
       spark: [0.25, 0.28, 0.32, 0.9, 0.95, 0.7, 0.45, 0.38],
-      caption: "Cliff at 12s · capacity fixed · shed or drown",
+      caption: "Cliff at 12s · capacity fixed · dual admission lanes",
     },
   },
   {
     slug: "cascade",
     title: "Cascade",
     challenge: "Can you keep checkout alive when a dependency fails?",
-    feel: "Auth and DB wobble. Trip circuits and add bulkheads before one dependency takes checkout down.",
-    notice: "Blast radius shrinks only after both the circuit and the bulkhead land.",
-    success: "Keep checkout alive through the wobble without a site-wide outage.",
+    feel: "Auth and DB wobble on a shared pool. Keep checkout alive as dependency health drops.",
+    notice: "Watch topology health, open breakers, and cascade risk together — blast radius is visible on the graph.",
+    success: "Checkout ok ≥ 60%, edge health > 42%, peak cascade risk < 82%. No auth bypass.",
     learn: "A circuit without a bulkhead still shares the pool. Isolation needs both.",
     changed:
       "Fail-fast frees slots; bulkheads stop auth/DB failure from starving checkout’s shared workers.",
@@ -138,9 +140,9 @@ export const playGames: PlayGame[] = [
     slug: "cache-roulette",
     title: "Cache Roulette",
     challenge: "Can you survive a hot-key expiry without stampeding origin?",
-    feel: "Cached keys expire on a timer. Coalesce concurrent misses, or every client hits origin at once.",
-    notice: "Compare one miss refresh (singleflight) with a herd of identical origin fetches.",
-    success: "Hold hit rate high and keep origin load under capacity for the full run.",
+    feel: "Cached keys expire on a timer. Watch origin load when the hot key's TTL fires.",
+    notice: "Compare heatmap age, fill-window coalesce state, and origin load at each expiry.",
+    success: "Hit rate ≥ 70%, stampede < 2.2s, peak origin load < 1.45×.",
     learn: "Without request coalescing, a TTL expiry becomes an origin stampede for the whole fill window.",
     changed: "Singleflight collapses N miss fills into one; soft TTL hides the wait from clients.",
     matters:
@@ -172,7 +174,7 @@ export const playGames: PlayGame[] = [
     feel: "Stragglers arrive after about 10 seconds. Hold p99 under budget without drowning the fleet in hedge copies.",
     notice:
       "p50 is the median; p99 is the slowest 1%. They diverge under stragglers and queueing.",
-    success: "Keep p99 inside budget without work cost running away.",
+    success: "p99 ≤ 420ms, goodput ≥ 90%, work cost < 1.8×, ≥40 samples.",
     learn: "The slowest requests shape the customer experience. Hedging only helps when duplicate work still fits.",
     changed:
       "Right-sized concurrency drops queue wait; hedges cut p99 only while cost stays under ~1.8×.",

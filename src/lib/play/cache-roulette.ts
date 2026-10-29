@@ -20,6 +20,11 @@ export type CacheSnap = {
   stampeded: boolean;
   filling: boolean;
   fillRemainingSec: number;
+  /** Age of the hot key toward TTL. */
+  keyAge: number;
+  ttlSec: number;
+  waitingOnFill: number;
+  stampededSec: number;
   rps: number;
   message: string;
 };
@@ -87,6 +92,10 @@ export function emptyCacheSnap(message?: string): CacheSnap {
     stampeded: false,
     filling: false,
     fillRemainingSec: 0,
+    keyAge: 4,
+    ttlSec: 6,
+    waitingOnFill: 0,
+    stampededSec: 0,
     rps: 0,
     message: message ?? "Idle. Start a run to see hit rate and origin load.",
   };
@@ -226,6 +235,10 @@ export function tickCache(
     stampeded,
     filling,
     fillRemainingSec: Math.max(0, fillRemaining),
+    keyAge,
+    ttlSec: ttl,
+    waitingOnFill,
+    stampededSec,
     rps,
     message,
   };

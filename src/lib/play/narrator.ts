@@ -45,9 +45,9 @@ export function narrateSloWatch(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Shift armed", "three waves ahead", "defaults will not hold Wave 3"],
+      ["Shift armed", "three waves ahead", "watch the budget burn"],
       "calm",
-      `Good: success ≥ ${(sloTarget * 100).toFixed(1)}% with budget left when the clock ends.`,
+      `Pass: success ≥ ${(sloTarget * 100).toFixed(1)}% with budget left, no cascade, peak util under 120%.`,
     );
   }
 
@@ -128,7 +128,7 @@ export function narrateTrafficSurge(input: {
   return frame(
     segments,
     tone,
-    `Good: p95 ≤ ${p95Limit} ms, queue not climbing, success stays useful. shed early rather than serve everyone slowly.`,
+    `Pass: p95 ≤ ${p95Limit} ms most of the run, served share stays useful, VIP lane protected if priority is on.`,
   );
 }
 
@@ -157,9 +157,9 @@ export function narrateCascade(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Checkout healthy", "Auth and DB will wobble", "isolate before the blast spreads"],
+      ["Checkout healthy", "Auth and DB will wobble", "watch blast radius on the topology"],
       "calm",
-      "Good: checkout stays up while a dependency fails. circuit + bulkhead both landed.",
+      "Pass: checkout ok ≥ 60%, edge health above 42%, peak cascade risk under 82%.",
     );
   }
 
@@ -187,7 +187,7 @@ export function narrateCascade(input: {
   return frame(
     segments,
     tone,
-    "Good: failing dependency is isolated. edge health holds while auth/pay/db recover behind a circuit and bulkhead.",
+    "Pass: edge holds while Auth/Pay/DB recover. Breakers and isolation shrink blast radius; there is no auth bypass.",
   );
 }
 
@@ -216,9 +216,9 @@ export function narrateCacheRoulette(input: {
 
   if (phase === "intro") {
     return frame(
-      [`TTL ${ttlSec}s`, "keys will expire together", "coalesce misses or stampede origin"],
+      [`TTL ${ttlSec}s`, "hot keys share an expiry edge", "watch origin during the fill window"],
       "calm",
-      `Good: hit rate stays high and origin stays under ~${originWorkers} workers through expiry edges.`,
+      `Pass: hit rate ≥ 70%, stampede under 2.2s, peak origin under 1.45×.`,
     );
   }
 
@@ -241,7 +241,7 @@ export function narrateCacheRoulette(input: {
   return frame(
     segments,
     tone,
-    "Good: one refresh per key (singleflight), origin under capacity, hit rate recovers after each TTL edge.",
+    "Pass: hit rate recovers after each TTL edge while origin stays under capacity during the fill window.",
   );
 }
 
@@ -270,9 +270,9 @@ export function narrateTailLatency(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Median is calm", "stragglers arrive ~10s", "hedge carefully"],
+      ["Collecting a latency window", "stragglers arrive after ~10s", "compare p50 with p99"],
       "calm",
-      `Good: p99 ≤ ${budget} ms without work-cost runaway from hedge copies.`,
+      `Pass: p99 ≤ ${budget} ms, goodput ≥ 90%, work cost under 1.8×, ≥40 samples.`,
     );
   }
 
@@ -298,6 +298,6 @@ export function narrateTailLatency(input: {
   return frame(
     segments,
     tone,
-    `Good: p99 inside ${budget} ms, spread not exploding, hedge copies fit in spare capacity.`,
+    `Pass: p99 inside ${budget} ms, goodput holds, and hedge copies keep work cost under 1.8×.`,
   );
 }

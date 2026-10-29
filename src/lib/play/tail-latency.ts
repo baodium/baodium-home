@@ -18,6 +18,10 @@ export type TailSnap = {
   goodput: number;
   queueDepth: number;
   util: number;
+  /** Recent latency samples for the distribution viz. */
+  samples: number[];
+  hedgeExtra: number;
+  sampleCount: number;
   message: string;
 };
 
@@ -88,6 +92,9 @@ export function emptyTailSnap(message?: string): TailSnap {
     goodput: 0,
     queueDepth: 0,
     util: 0,
+    samples: [],
+    hedgeExtra: 0,
+    sampleCount: 0,
     message: message ?? "Idle. Start a run to compare p50 vs p99.",
   };
 }
@@ -218,6 +225,9 @@ export function tickTail(
     goodput,
     queueDepth,
     util: Math.min(1.5, util),
+    samples: samples.slice(-240),
+    hedgeExtra,
+    sampleCount: samples.length,
     message,
   };
 
