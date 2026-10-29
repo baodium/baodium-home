@@ -38,9 +38,12 @@ export function ConnectionPoolGrid({
     }
     prevBusy.current = next;
     if (acquired.size === 0 || reducedMotion) return;
-    setFreshIds(acquired);
-    const t = window.setTimeout(() => setFreshIds(new Set()), 450);
-    return () => window.clearTimeout(t);
+    const show = window.setTimeout(() => setFreshIds(acquired), 0);
+    const clear = window.setTimeout(() => setFreshIds(new Set()), 450);
+    return () => {
+      window.clearTimeout(show);
+      window.clearTimeout(clear);
+    };
   }, [snap.slots, snap.t, reducedMotion]);
 
   const fillRatio = snap.activeCount / snap.poolSize;

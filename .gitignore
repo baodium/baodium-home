@@ -44,3 +44,9 @@ Baodium_System_Design_Final_Language_Pass_Web.zip
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

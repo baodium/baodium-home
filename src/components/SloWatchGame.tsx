@@ -21,6 +21,7 @@ import {
   DrillTakeaway,
   type DrillProse,
 } from "@/components/play/DrillTeach";
+import { DrillTransport } from "@/components/play/DrillTransport";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import {
@@ -117,14 +118,12 @@ function ControlsPanel({
   stepMode,
   setStepOverride,
   phase,
+  paused,
   start,
   applyTick,
-  stopLoop,
-  setPhase,
-  setSnap,
-  setSeries,
-  setPeakUtil,
-  setCascaded,
+  onPause,
+  onResume,
+  onReset,
   takeaway,
   showTakeaway,
   showAllDrillsLink,
@@ -135,14 +134,12 @@ function ControlsPanel({
   stepMode: boolean;
   setStepOverride: (v: boolean) => void;
   phase: GamePhase;
+  paused: boolean;
   start: () => void;
   applyTick: () => void;
-  stopLoop: () => void;
-  setPhase: Dispatch<SetStateAction<GamePhase>>;
-  setSnap: Dispatch<SetStateAction<TickSnapshot>>;
-  setSeries: Dispatch<SetStateAction<SloWavePoint[]>>;
-  setPeakUtil: Dispatch<SetStateAction<number>>;
-  setCascaded: Dispatch<SetStateAction<boolean>>;
+  onPause: () => void;
+  onResume: () => void;
+  onReset: () => void;
   takeaway: string;
   showTakeaway: boolean;
   showAllDrillsLink: boolean;
@@ -264,50 +261,16 @@ function ControlsPanel({
       </label>
 
       <div className="mt-auto flex flex-wrap gap-3 pt-2">
-        {phase !== "running" ? (
-          <button type="button" className="slo-btn-primary" onClick={start}>
-            {phase === "intro" ? "Start drill" : "Play again"}
-          </button>
-        ) : (
-          <>
-            {stepMode ? (
-              <button type="button" className="slo-btn-primary" onClick={applyTick}>
-                Step →
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="slo-btn-secondary"
-                onClick={() => {
-                  stopLoop();
-                  setPhase("intro");
-                  setSnap(initialSnap);
-                  setSeries([]);
-                  setPeakUtil(0);
-                  setCascaded(false);
-                }}
-              >
-                Abort
-              </button>
-            )}
-            {stepMode ? (
-              <button
-                type="button"
-                className="slo-btn-secondary"
-                onClick={() => {
-                  stopLoop();
-                  setPhase("intro");
-                  setSnap(initialSnap);
-                  setSeries([]);
-                  setPeakUtil(0);
-                  setCascaded(false);
-                }}
-              >
-                Reset
-              </button>
-            ) : null}
-          </>
-        )}
+        <DrillTransport
+          phase={phase}
+          stepMode={stepMode}
+          paused={paused}
+          onStart={start}
+          onPause={onPause}
+          onResume={onResume}
+          onStep={applyTick}
+          onReset={onReset}
+        />
         {showAllDrillsLink ? (
           <Link href="/play" className="slo-btn-secondary">
             All drills
@@ -331,6 +294,7 @@ export function SloWatchGame({
   const reduced = usePrefersReducedMotion();
   const [mode, setMode] = useState<DrillMode>("practice");
   const [phase, setPhase] = useState<GamePhase>("intro");
+  const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<Controls>({
     poolSize: 100,
     concurrencyLimit: 90,
@@ -398,6 +362,7 @@ export function SloWatchGame({
     setSeries([]);
     setPeakUtil(0);
     setCascaded(false);
+    setPaused(false);
     setPhase("running");
 
     if (stepMode) {
@@ -412,6 +377,34 @@ export function SloWatchGame({
   }, [applyTick, reduced, stepMode, stopLoop]);
 
   useEffect(() => () => stopLoop(), [stopLoop]);
+
+  const onPause = useCallback(() => {
+    stopLoop();
+    setPaused(true);
+  }, [stopLoop]);
+
+  const onResume = useCallback(() => {
+    if (stepMode) return;
+    setPaused(false);
+    if (rafRef.current !== null) return;
+    const interval = window.setInterval(() => {
+      applyTick();
+    }, reduced ? TICK_MS * 2 : TICK_MS);
+    rafRef.current = interval;
+  }, [applyTick, reduced, stepMode]);
+
+  const onReset = useCallback(() => {
+    stopLoop();
+    engineRef.current = createEngine();
+    setPaused(false);
+    setPhase("intro");
+    setSnap(initialSnap);
+    setSeries([]);
+    setPeakUtil(0);
+    setCascaded(false);
+    setResult(null);
+  }, [stopLoop]);
+
 
   const share = async () => {
     if (!result) return;
@@ -551,7 +544,9 @@ export function SloWatchGame({
     phase === "intro"
       ? "Ready"
       : phase === "running"
-        ? `Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
+        ? paused
+          ? `Paused · Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
+          : `Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
         : phase === "won"
           ? "Held"
           : "Breached";
@@ -563,14 +558,12 @@ export function SloWatchGame({
     stepMode,
     setStepOverride,
     phase,
+    paused,
     start,
     applyTick,
-    stopLoop,
-    setPhase,
-    setSnap,
-    setSeries,
-    setPeakUtil,
-    setCascaded,
+    onPause,
+    onResume,
+    onReset,
     takeaway,
   };
 
