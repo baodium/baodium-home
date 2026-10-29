@@ -1,5 +1,7 @@
 /** Catalog for the /play interactive hub (reliability drills). */
 
+import { drillChapterMeta } from "@/lib/learning/registry";
+
 export type PlayDifficulty = "easy" | "medium" | "spicy";
 
 export type PlayGame = {
@@ -60,8 +62,9 @@ export const playGames: PlayGame[] = [
     ],
     difficulty: "medium",
     minutes: "~1 min",
-    chapterHref: "/system-design/chapter-1",
-    chapterLabel: "Ch.1 · Resource contention",
+    chapterHref: drillChapterMeta("slo-watch")?.chapterHref ?? "/system-design/chapter-1",
+    chapterLabel:
+      drillChapterMeta("slo-watch")?.chapterLabel ?? "Ch.1 · Resource contention",
     takeaway:
       "Capacity and retries are coupled: aggressive retries under saturation spend the budget twice.",
     preview: {
@@ -93,8 +96,11 @@ export const playGames: PlayGame[] = [
     ],
     difficulty: "easy",
     minutes: "~45s",
-    chapterHref: "/system-design/chapter-2",
-    chapterLabel: "Ch.2 · Latency and throughput",
+    chapterHref:
+      drillChapterMeta("traffic-surge")?.chapterHref ?? "/system-design/chapter-2",
+    chapterLabel:
+      drillChapterMeta("traffic-surge")?.chapterLabel ??
+      "Ch.2 · Requests, latency, throughput",
     takeaway:
       "Shedding early protects the customers you can serve. Serving everyone slowly serves no one.",
     preview: {
@@ -125,8 +131,9 @@ export const playGames: PlayGame[] = [
     ],
     difficulty: "spicy",
     minutes: "~1 min",
-    chapterHref: "/system-design/chapter-4",
-    chapterLabel: "Ch.4 · Cascading failure",
+    chapterHref: drillChapterMeta("cascade")?.chapterHref ?? "/system-design/chapter-4",
+    chapterLabel:
+      drillChapterMeta("cascade")?.chapterLabel ?? "Ch.4 · Cascading failure",
     takeaway:
       "Isolate failure domains first. A circuit without a bulkhead still shares the blast radius.",
     preview: {
@@ -156,8 +163,10 @@ export const playGames: PlayGame[] = [
     ],
     difficulty: "medium",
     minutes: "~50s",
-    chapterHref: "/system-design/chapter-5",
-    chapterLabel: "Ch.5 · Caching",
+    chapterHref:
+      drillChapterMeta("cache-roulette")?.chapterHref ?? "/system-design/chapter-5",
+    chapterLabel:
+      drillChapterMeta("cache-roulette")?.chapterLabel ?? "Ch.5 · Caching",
     takeaway:
       "Without request coalescing, a TTL expiry becomes an origin stampede.",
     preview: {
@@ -189,8 +198,11 @@ export const playGames: PlayGame[] = [
     ],
     difficulty: "medium",
     minutes: "~45s",
-    chapterHref: "/system-design/chapter-2",
-    chapterLabel: "Ch.2 · Latency and throughput",
+    chapterHref:
+      drillChapterMeta("tail-latency")?.chapterHref ?? "/system-design/chapter-2",
+    chapterLabel:
+      drillChapterMeta("tail-latency")?.chapterLabel ??
+      "Ch.2 · Requests, latency, throughput",
     takeaway:
       "The slowest requests shape the customer experience. Hedging helps only when the duplicate work still fits.",
     preview: {

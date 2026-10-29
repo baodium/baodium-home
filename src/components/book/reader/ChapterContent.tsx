@@ -1,11 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { InteractiveConcept } from "@/components/book/reader/InteractiveConcept";
+import { splitHtmlAroundConcepts } from "@/lib/book/split-concepts";
+import { conceptsForChapter } from "@/lib/learning/interactive-concepts";
 
-export function ChapterContent({ html }: { html: string }) {
+export function ChapterContent({
+  html,
+  chapterSlug,
+}: {
+  html: string;
+  chapterSlug: string;
+}) {
   const rootRef = useRef<HTMLElement>(null);
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
+
+  const segments = useMemo(() => {
+    const concepts = conceptsForChapter(chapterSlug);
+    return splitHtmlAroundConcepts(html, concepts);
+  }, [html, chapterSlug]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -97,7 +111,7 @@ export function ChapterContent({ html }: { html: string }) {
     });
 
     return () => cleanups.forEach((fn) => fn());
-  }, [html]);
+  }, [html, segments]);
 
   useEffect(() => {
     if (!zoomSrc) return;
@@ -110,11 +124,19 @@ export function ChapterContent({ html }: { html: string }) {
 
   return (
     <>
-      <article
-        ref={rootRef}
-        className="book-prose"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <article ref={rootRef} className="book-prose">
+        {segments.map((segment, index) =>
+          segment.type === "html" ? (
+            <div
+              // Manuscript segments stay verbatim; keys are stable by offset order.
+              key={`html-${index}`}
+              dangerouslySetInnerHTML={{ __html: segment.html }}
+            />
+          ) : (
+            <InteractiveConcept key={segment.concept.id} concept={segment.concept} />
+          ),
+        )}
+      </article>
       {zoomSrc ? (
         <button
           type="button"

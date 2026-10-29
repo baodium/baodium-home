@@ -6,6 +6,12 @@
 
 export type LessonKind = "book" | "lab" | "drill";
 
+export type DrillLink = {
+  slug: string;
+  title: string;
+  href: string;
+};
+
 export type ChapterRecord = {
   id: string;
   slug: string;
@@ -19,6 +25,8 @@ export type ChapterRecord = {
   labStatus: "ready" | "soon" | "none";
   /** One-line lab subtitle when a lab exists or is planned. */
   labSubtitle: string;
+  /** Play drills that deepen this chapter (implemented only). */
+  drills: DrillLink[];
 };
 
 /** Canonical chapter list aligned with Practical System Design manuscript. */
@@ -33,6 +41,9 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-1",
     labStatus: "ready",
     labSubtitle: "Recommendations, a feature flag, and a 40-slot pool",
+    drills: [
+      { slug: "slo-watch", title: "SLO Watch", href: "/play/slo-watch" },
+    ],
   },
   {
     id: "chapter-2",
@@ -44,6 +55,10 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labStatus: "soon",
     labSubtitle: "Model arrival rate before you size the pool",
+    drills: [
+      { slug: "traffic-surge", title: "Traffic Surge", href: "/play/traffic-surge" },
+      { slug: "tail-latency", title: "Tail Latency", href: "/play/tail-latency" },
+    ],
   },
   {
     id: "chapter-3",
@@ -55,6 +70,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labStatus: "soon",
     labSubtitle: "What identity and sticky state cost under load",
+    drills: [],
   },
   {
     id: "chapter-4",
@@ -66,6 +82,21 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labStatus: "soon",
     labSubtitle: "Retries that amplify a saturated dependency",
+    drills: [{ slug: "cascade", title: "Cascade", href: "/play/cascade" }],
+  },
+  {
+    id: "chapter-5",
+    slug: "chapter-5",
+    number: 5,
+    title: "Caching and the Cost of Remembering",
+    shortTitle: "Caching",
+    bookHref: "/system-design/chapter-5",
+    labHref: null,
+    labStatus: "soon",
+    labSubtitle: "TTL expiry without a stampede on origin",
+    drills: [
+      { slug: "cache-roulette", title: "Cache Roulette", href: "/play/cache-roulette" },
+    ],
   },
 ];
 
@@ -81,6 +112,16 @@ export function chapterLabel(slug: string): string {
 
 export function labChapters(): ChapterRecord[] {
   return CHAPTERS.filter((c) => c.labStatus !== "none");
+}
+
+/** Map a Play drill slug to its book chapter label + href from the registry. */
+export function drillChapterMeta(drillSlug: string): {
+  chapterHref: string;
+  chapterLabel: string;
+} | null {
+  const ch = CHAPTERS.find((c) => c.drills.some((d) => d.slug === drillSlug));
+  if (!ch) return null;
+  return { chapterHref: ch.bookHref, chapterLabel: chapterLabel(ch.slug) };
 }
 
 /** Guided stages A–H for Chapter 1 (Practice/Challenge are modes, not stages). */

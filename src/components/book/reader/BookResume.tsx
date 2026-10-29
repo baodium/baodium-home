@@ -36,7 +36,7 @@ export function BookResume({ chapters }: { chapters: BookChapterMeta[] }) {
     <div className="mb-4 rounded-2xl border border-[color-mix(in_srgb,var(--cinnabar)_25%,transparent)] bg-[color-mix(in_srgb,var(--cinnabar)_8%,var(--reader-page))] px-4 py-3">
       <p className="flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-cinnabar">
         <Bookmark className="h-3.5 w-3.5" aria-hidden="true" />
-        Resume on this device
+        Continue reading on this device
       </p>
       <Link
         href={`/system-design/${slug}`}

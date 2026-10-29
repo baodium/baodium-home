@@ -14,6 +14,8 @@ export type ReaderPrefs = {
   feedbackDismissedAt?: number;
   /** Coach mark for swipe / ←→ chapter flips */
   flipHintDismissedAt?: number;
+  /** Desktop contents rail collapsed to chapter numbers. */
+  tocCollapsed?: boolean;
 };
 
 /** Light = white page (default). Paper stays optional cream. */
@@ -21,6 +23,7 @@ export const defaultReaderPrefs: ReaderPrefs = {
   theme: "light",
   fontScale: "md",
   measure: "comfortable",
+  tocCollapsed: false,
 };
 
 const THEME_ALIASES: Record<string, ReaderTheme> = {
