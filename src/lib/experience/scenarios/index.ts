@@ -1,4 +1,5 @@
 import { chapter1Scenario } from "@/lib/experience/scenarios/chapter-1";
+import { getShortLab } from "@/lib/experience/short-labs";
 import type {
   ChapterScenario,
   ExperienceChapterMeta,
@@ -17,7 +18,7 @@ export const experienceChapters: ExperienceChapterMeta[] = labChapters().map((ch
     subtitle: ch.labSubtitle,
     bookHref: ch.bookHref,
     status: ch.labStatus === "ready" ? "ready" : "soon",
-    durationMin: 10,
+    durationMin: getShortLab(ch.slug)?.durationMin ?? 10,
   };
 });
 

@@ -47,10 +47,10 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
           </div>
 
           <p className="mt-10 text-lg leading-relaxed text-[var(--reader-muted)]">
-            Fourteen illustrative production incidents. and the design decisions behind reliable
-            systems. Baodium, the company in these stories, is fictional; the failures and tradeoffs
-            are teaching material, not claims about a real employer. Read online for free. no account
-            required.
+            Fourteen production incidents, and the design decisions behind reliable systems.
+            Baodium, the company in these stories, is fictional. The failures and tradeoffs are
+            teaching material, not claims about a real employer. Read online for free, with no
+            account required.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -102,27 +102,37 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
               Table of contents
             </h2>
             <ol className="mt-4 space-y-1.5 font-serif text-lg">
-              {chapters.map((chapter) => (
-                <li key={chapter.slug}>
-                  <Link
-                    href={`/system-design/${chapter.slug}`}
-                    prefetch
-                    transitionTypes={["nav-forward"]}
-                    className="group grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-baseline gap-3 rounded-lg py-1.5 transition-colors hover:text-cinnabar"
+              {chapters.map((chapter) => {
+                const lab = getChapter(chapter.slug);
+                return (
+                  <li
+                    key={chapter.slug}
+                    className="grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-baseline gap-3 rounded-lg py-1.5"
                   >
-                    <span className="font-mono text-xs tracking-[0.08em] text-[var(--reader-muted)] group-hover:text-cinnabar">
+                    <span className="font-mono text-xs tracking-[0.08em] text-[var(--reader-muted)]">
                       {chapterNumberLabel(chapter.slug)}
                     </span>
-                    <span className="min-w-0">{chapter.title}</span>
-                    <span
-                      aria-hidden="true"
-                      className="text-sm text-[var(--reader-muted)] opacity-0 transition-opacity group-hover:opacity-100"
+                    <Link
+                      href={`/system-design/${chapter.slug}`}
+                      prefetch
+                      transitionTypes={["nav-forward"]}
+                      className="min-w-0 transition-colors hover:text-cinnabar"
                     >
-                      →
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                      {chapter.title}
+                    </Link>
+                    {lab?.labHref ? (
+                      <Link
+                        href={lab.labHref}
+                        className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
+                      >
+                        Lab
+                      </Link>
+                    ) : (
+                      <span aria-hidden="true" />
+                    )}
+                  </li>
+                );
+              })}
             </ol>
           </div>
 

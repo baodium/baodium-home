@@ -17,7 +17,6 @@ export function ExperienceShell({
       kicker={kicker}
       title={title}
       bookHref="/system-design"
-      chapterProseHref="/system-design/chapter-1"
     >
       {children}
     </LearningShell>

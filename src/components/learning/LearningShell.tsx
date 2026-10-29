@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
+import { LabPathChrome } from "@/components/learning/LabPathChrome";
 import { ReturnToReading } from "@/components/learning/ReturnToReading";
 
 export type LearningSurface = "lab" | "drill" | "book";
@@ -57,7 +58,9 @@ export function LearningShell({
           >
             {surfaceLabel}
           </Link>
-          {title ? (
+          {surface === "lab" ? (
+            <LabPathChrome title={title} />
+          ) : title ? (
             <>
               <span className="hidden text-[color:var(--exp-faint)] md:inline" aria-hidden="true">
                 /
@@ -89,7 +92,9 @@ export function LearningShell({
             >
               Book
             </Link>
-            {chapterProseHref ? (
+            {surface === "lab" ? (
+              <LabPathChrome prose />
+            ) : chapterProseHref ? (
               <Link
                 href={chapterProseHref}
                 className="exp-btn exp-btn-ghost !min-h-9 !px-3 text-sm"

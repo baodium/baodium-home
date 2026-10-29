@@ -127,6 +127,12 @@ export function LivePathSection() {
               >
                 Read chapter 1
               </Link>
+              <Link
+                href="/system-design/experience"
+                className="inline-flex min-h-11 items-center text-[0.95rem] text-muted underline decoration-ink/20 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/45"
+              >
+                All labs
+              </Link>
             </div>
           </div>
 

@@ -130,8 +130,8 @@ export function BookSection() {
                   Failures from production, written so the next design holds.
                 </p>
                 <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-cream/55">
-                  Free to read here. The Chapter 1 lab above lets you operate the
-                  same failure path.
+                  Free to read here. The labs operate the same incidents, from the
+                  pool above through deadlines, replicas, and consumer lag.
                 </p>
                 <p className="mt-4 text-sm text-cream/45">by {book.author}</p>
               </Reveal>
@@ -155,6 +155,12 @@ export function BookSection() {
                       </span>
                     </Link>
                   </Magnetic>
+                  <Link
+                    href="/system-design/experience"
+                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                  >
+                    Labs
+                  </Link>
                   <a
                     href={book.href}
                     target="_blank"

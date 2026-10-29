@@ -148,6 +148,21 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
     ],
   },
   {
+    id: "ch2-littles",
+    chapterSlug: "chapter-2",
+    afterSectionId: "average-concurrency",
+    concept: "Concurrency from rate and time",
+    lead: "Open the Chapter 2 lab and size the workers from arrival rate and service time before the queue takes off.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-2",
+        label: "Chapter 2 lab",
+        detail: "Little's Law and the worker count",
+      },
+    ],
+  },
+  {
     id: "ch2-tail",
     chapterSlug: "chapter-2",
     afterSectionId: "sec:ch02-variation",
@@ -178,6 +193,21 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
     ],
   },
   {
+    id: "ch3-identity",
+    chapterSlug: "chapter-3",
+    afterSectionId: "payment-outcomes-after-timeout",
+    concept: "A charge with one identity",
+    lead: "The provider can answer after the client has given up. Run the lab and keep the charge to a single operation.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-3",
+        label: "Chapter 3 lab",
+        detail: "Timeout, identity, and the outbox",
+      },
+    ],
+  },
+  {
     id: "ch4-cascade",
     chapterSlug: "chapter-4",
     afterSectionId: "how-a-failure-crosses-service-boundaries",
@@ -193,6 +223,21 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
     ],
   },
   {
+    id: "ch4-deadline",
+    chapterSlug: "chapter-4",
+    afterSectionId: "deadlines-between-services",
+    concept: "Time left on the call",
+    lead: "A child with its own timeout can still be working after checkout has returned. Pass the remaining deadline and see the leftover work go to zero.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-4",
+        label: "Chapter 4 lab",
+        detail: "Deadline, cancel, and leftover work",
+      },
+    ],
+  },
+  {
     id: "ch5-cache",
     chapterSlug: "chapter-5",
     afterSectionId: "concurrent-misses-and-refresh-work",
@@ -204,6 +249,66 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
         href: "/play/cache-roulette",
         label: "Cache Roulette",
         detail: "Singleflight versus thundering herd",
+      },
+    ],
+  },
+  {
+    id: "ch5-aside",
+    chapterSlug: "chapter-5",
+    afterSectionId: "the-cache-aside-read-path",
+    concept: "The cache-aside read",
+    lead: "Follow a read from the app to the cache and on to origin, then line the expiries up and bring origin back down.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-5",
+        label: "Chapter 5 lab",
+        detail: "Hits, fills, and origin rate",
+      },
+    ],
+  },
+  {
+    id: "ch7-ryw",
+    chapterSlug: "chapter-7",
+    afterSectionId: "read-your-writes",
+    concept: "Read your own write",
+    lead: "Replica lag hides a row you just wrote. Keep those reads correct without sending every read to the primary.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-7",
+        label: "Chapter 7 lab",
+        detail: "Lag, the primary, and a bound",
+      },
+    ],
+  },
+  {
+    id: "ch12-age",
+    chapterSlug: "chapter-12",
+    afterSectionId: "backlog-dynamics",
+    concept: "Backlog age",
+    lead: "Produce rate, partitions, and a redelivered message. Hold the age of the oldest message, and do not send it twice.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-12",
+        label: "Chapter 12 lab",
+        detail: "Lag, partitions, and redelivery",
+      },
+    ],
+  },
+  {
+    id: "ch14-budget",
+    chapterSlug: "chapter-14",
+    afterSectionId: "deadline-propagation-and-dependency-budgets",
+    concept: "The checkout budget",
+    lead: "The regional path has to add up. When the provider slows, decide what still sits inside the 500 ms budget.",
+    targets: [
+      {
+        kind: "lab",
+        href: "/system-design/experience/chapter-14",
+        label: "Chapter 14 lab",
+        detail: "Path time, retries, and the provider",
       },
     ],
   },

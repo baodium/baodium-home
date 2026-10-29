@@ -9,6 +9,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 export function ExperienceHub() {
   const reduced = usePrefersReducedMotion();
+  const [featured, ...rest] = experienceChapters;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -27,7 +28,7 @@ export function ExperienceHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.55, delay: reduced ? 0 : 0.04, ease }}
         >
-          Experience labs from the book
+          Operate the chapter
         </motion.h1>
         <motion.p
           className="mt-4 text-lg leading-relaxed text-[color:var(--exp-muted)]"
@@ -35,73 +36,76 @@ export function ExperienceHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.08, ease }}
         >
-          Read the book for the reasoning. In Chapter 1 you work pool metrics, acquire
-          waits, mitigations, and a kill switch that leaves in-flight work alone, with
-          live narration that names what you are seeing.
+          The book has the reasoning. A lab is the same incident with the numbers
+          moving: guided first, then the controls on their own, then a result you
+          have to earn. Other chapters stay on the page until there is a lab that
+          can carry them.
         </motion.p>
-        <motion.div
-          className="mt-6 flex flex-wrap gap-3"
-          initial={reduced ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : 0.12, ease }}
-        >
-          <Link
-            href="/system-design/experience/chapter-1"
-            className="exp-btn exp-btn-primary !min-h-12 !px-6"
-          >
-            Open Chapter 1
-          </Link>
-          <Link href="/system-design" className="exp-btn exp-btn-ghost !min-h-12 !px-6">
-            Book overview
-          </Link>
-          <Link href="/play" className="exp-btn exp-btn-ghost !min-h-12 !px-6">
-            Drills
-          </Link>
-        </motion.div>
       </header>
 
-      <ol className="mt-14 grid gap-4 sm:grid-cols-2">
-        {experienceChapters.map((ch, index) => {
-          const ready = ch.status === "ready";
-          const href = ready ? `/system-design/experience/${ch.slug}` : ch.bookHref;
+      {featured ? (
+        <motion.div
+          className="mt-12"
+          initial={reduced ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.1, ease }}
+        >
+          <Link
+            href={`/system-design/experience/${featured.slug}`}
+            className="group grid gap-6 border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-6 transition-[border-color] duration-300 hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)] sm:p-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-10"
+          >
+            <p className="font-serif text-[clamp(3rem,6vw,4.5rem)] leading-none tracking-[-0.04em] text-[color:var(--exp-faint)]">
+              {String(featured.number).padStart(2, "0")}
+            </p>
+            <div>
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[color:var(--exp-faint)]">
+                Start here · {featured.durationMin} min
+              </p>
+              <h2 className="mt-2 font-serif text-[clamp(1.6rem,3vw,2.2rem)] leading-tight text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent)]">
+                {featured.title}
+              </h2>
+              <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-[color:var(--exp-muted)]">
+                {featured.subtitle}
+              </p>
+              <p className="mt-5 text-[0.95rem] text-[color:var(--exp-accent)]">Open Chapter 1</p>
+            </div>
+          </Link>
+        </motion.div>
+      ) : null}
+
+      <ol className="mt-6 divide-y divide-[color:var(--exp-line)] border-y border-[color:var(--exp-line)]">
+        {rest.map((chapter, index) => {
+          const ready = chapter.status === "ready";
+          const href = ready ? `/system-design/experience/${chapter.slug}` : chapter.bookHref;
           return (
             <motion.li
-              key={ch.id}
-              initial={reduced ? false : { opacity: 0, y: 16 }}
+              key={chapter.id}
+              initial={reduced ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                duration: reduced ? 0 : 0.5,
-                delay: reduced ? 0 : 0.08 + index * 0.05,
+                duration: reduced ? 0 : 0.4,
+                delay: reduced ? 0 : 0.12 + index * 0.03,
                 ease,
               }}
             >
               <Link
                 href={href}
-                className={`group relative block overflow-hidden border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-5 transition-[border-color] duration-300 ${
-                  ready
-                    ? "hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)]"
-                    : "opacity-75 hover:border-[color:var(--exp-line-strong)]"
-                }`}
+                className="group grid grid-cols-[3.2rem_minmax(0,1fr)_auto] items-baseline gap-3 py-4 sm:grid-cols-[4rem_minmax(0,1fr)_auto] sm:gap-6 sm:py-5"
               >
-                <div className="relative flex items-baseline justify-between gap-3">
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[color:var(--exp-faint)]">
-                    Chapter {ch.number}
-                  </p>
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-amber)]">
-                    {ready ? `~${ch.durationMin} min` : "Soon · read prose"}
-                  </p>
-                </div>
-                <h2 className="relative mt-2 font-serif text-xl text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent)]">
-                  {ch.title}
-                </h2>
-                <p className="relative mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                  {ch.subtitle}
-                </p>
-                {ready ? (
-                  <p className="relative mt-4 text-[0.85rem] text-[color:var(--exp-accent)]">
-                    Open the lab →
-                  </p>
-                ) : null}
+                <span className="font-mono text-sm tabular-nums text-[color:var(--exp-faint)]">
+                  {String(chapter.number).padStart(2, "0")}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-serif text-xl text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent)]">
+                    {chapter.title}
+                  </span>
+                  <span className="mt-1 block text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                    {chapter.subtitle}
+                  </span>
+                </span>
+                <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                  {ready ? `${chapter.durationMin} min` : "Read"}
+                </span>
               </Link>
             </motion.li>
           );
