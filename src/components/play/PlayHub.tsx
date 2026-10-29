@@ -30,7 +30,7 @@ export function PlayHub() {
 
   return (
     <div ref={ref} className="shell">
-      <div className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_90px_-56px_rgba(26,35,48,0.18)] md:rounded-[3.25rem]">
+      <div className="relative overflow-hidden border border-ink/10 bg-white text-ink">
         <div className="relative z-[2] px-5 py-11 md:px-10 md:py-16">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 18 }}
@@ -105,7 +105,7 @@ function HubFeatured({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.28)] md:grid-cols-12 md:rounded-[2rem] [&_*]:no-underline"
+        className="group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color] duration-300 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
         <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7fa] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
           <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#1a2330)]">
@@ -169,11 +169,11 @@ function HubBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-34px_rgba(26,35,48,0.26)] sm:flex-row [&_*]:no-underline ${
+        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color] duration-300 sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"
-        } rounded-[1.15rem] md:rounded-[1.4rem]`}
+        }`}
       >
         {accent ? (
           <span

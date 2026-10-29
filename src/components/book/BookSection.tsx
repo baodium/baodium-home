@@ -10,7 +10,7 @@ import {
 } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 import { Book3D } from "@/components/book/Book3D";
 import { Magnetic } from "@/components/Magnetic";
 import { useIdleDrift } from "@/components/motion/IdleDrift";
@@ -130,8 +130,8 @@ export function BookSection() {
                   Failures from production, written so the next design holds.
                 </p>
                 <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-cream/55">
-                  Free to read here. When you want to operate the failure, open
-                  the matching lab.
+                  Free to read here. The Chapter 1 lab above lets you operate the
+                  same failure path.
                 </p>
                 <p className="mt-4 text-sm text-cream/45">by {book.author}</p>
               </Reveal>
@@ -152,17 +152,6 @@ export function BookSection() {
                           className="h-4 w-4"
                           strokeWidth={2}
                         />
-                      </span>
-                    </Link>
-                  </Magnetic>
-                  <Magnetic>
-                    <Link
-                      href="/system-design/experience/chapter-1"
-                      className="group relative inline-flex min-h-14 items-center gap-3 rounded-full border border-cream/30 py-2 pl-7 pr-2 text-base font-medium text-cream transition-colors duration-500 hover:border-cream/60 hover:bg-white/[0.06]"
-                    >
-                      Chapter 1 lab
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-cinnabar text-white transition-transform duration-500 group-hover:rotate-6">
-                        <FlaskConical aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                       </span>
                     </Link>
                   </Magnetic>

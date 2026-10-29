@@ -53,7 +53,7 @@ export function PlaySection() {
     >
       <motion.div
         style={{ y: panelY, scale: panelScale }}
-        className="relative overflow-hidden rounded-[2rem] border border-ink/10 bg-white text-ink shadow-[0_40px_100px_-56px_rgba(26,35,48,0.18)] md:rounded-[3.25rem]"
+        className="relative overflow-hidden border border-ink/10 bg-white text-ink"
       >
         <div className="relative z-[2] mx-auto w-full max-w-[84rem] px-5 py-11 md:px-10 md:py-16">
           <motion.div style={{ y: headerY }} className="flex flex-wrap items-end justify-between gap-6">
@@ -144,7 +144,7 @@ function FeaturedDrill({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden rounded-[1.5rem] border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] hover:shadow-[0_28px_64px_-40px_rgba(26,35,48,0.26)] md:grid-cols-12 md:rounded-[2rem] [&_*]:no-underline"
+        className="group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color] duration-300 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
         <motion.div
           style={{ y: previewY }}
@@ -221,11 +221,11 @@ function DrillBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-34px_rgba(26,35,48,0.24)] sm:flex-row [&_*]:no-underline ${
+        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color] duration-300 sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"
-        } rounded-[1.15rem] md:rounded-[1.4rem]`}
+        }`}
       >
         {accent ? (
           <span

@@ -28,13 +28,9 @@ export function Writing() {
       className="relative bg-cream pb-16 pt-28 text-ink md:pb-24 md:pt-36"
     >
       <div className="shell relative z-[2]">
-        <div>
-          <div>
-            <Reveal y={12}>
-              <h2 id="writing-heading" className="kicker text-cinnabar">Writing</h2>
-            </Reveal>
-          </div>
-        </div>
+        <Reveal y={12}>
+          <h2 id="writing-heading" className="kicker text-cinnabar">Writing</h2>
+        </Reveal>
 
         <ol className="mt-14 border-t border-ink/10 md:mt-20">
           {writing.map((piece, index) => (

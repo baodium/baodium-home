@@ -34,7 +34,7 @@ export function Projects() {
         <motion.div style={{ y: rowY }}>
           <Link
             href="/projects"
-            className="group relative flex flex-col gap-5 overflow-hidden rounded-[1.35rem] border border-tide/20 bg-white px-5 py-6 transition-[border-color,box-shadow] duration-500 hover:border-tide/40 hover:shadow-[0_36px_72px_-48px_rgba(30,60,70,0.4)] sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-8 sm:py-7 md:rounded-[1.75rem]"
+            className="group relative flex flex-col gap-5 overflow-hidden border border-tide/20 bg-white px-5 py-6 transition-[border-color] duration-500 hover:border-tide/40 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-8 sm:py-7"
           >
             <motion.span
               aria-hidden="true"

@@ -1,6 +1,7 @@
 import { BookSection } from "@/components/book/BookSection";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
+import { LivePathSection } from "@/components/hero/LivePathSection";
 import { Navigation } from "@/components/Navigation";
 import { PlaySection } from "@/components/PlaySection";
 import { Projects } from "@/components/Projects";
@@ -12,6 +13,7 @@ export default function Home() {
       <Navigation />
       <main id="main" className="relative">
         <Hero />
+        <LivePathSection />
         <BookSection />
         <PlaySection />
         <Projects />
