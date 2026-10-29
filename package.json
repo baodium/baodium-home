@@ -14,7 +14,8 @@
     "enhance-book": "node scripts/enhance-book-html.mjs",
     "verify:concepts": "npx --yes tsx scripts/verify-interactive-concepts.ts",
     "verify:play": "npx --yes tsx scripts/verify-play-engines.ts",
-    "verify:ch1": "npx --yes tsx scripts/verify-ch1-engine.ts"
+    "verify:ch1": "npx --yes tsx scripts/verify-ch1-engine.ts",
+    "verify:labs": "npx --yes tsx scripts/verify-short-labs.ts"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",

@@ -54,7 +54,11 @@ export function PlayHub() {
               Short SRE drills from{" "}
               <em className="text-ink">Practical System Design</em>. Each one
               opens with a clear challenge, explains the metrics in plain
-              English, then lets you operate the levers yourself.
+              English, then lets you operate the levers yourself. The{" "}
+              <Link href="/system-design/experience" className="text-ink underline decoration-ink/20 underline-offset-4 hover:decoration-ink/50">
+                chapter labs
+              </Link>{" "}
+              are the longer walk through the same ideas.
             </p>
           </motion.div>
 

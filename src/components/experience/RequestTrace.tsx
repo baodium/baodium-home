@@ -17,7 +17,7 @@ export function RequestTrace({
       <div className="exp-panel">
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Request trace</h3>
         <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
-          Send or select a request to see wait / lookup / rest timing. and why total latency grows
+          Send or select a request to see wait, lookup, and the rest of the time, and why total latency grows
           under contention.
         </p>
       </div>

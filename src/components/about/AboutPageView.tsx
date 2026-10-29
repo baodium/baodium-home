@@ -85,10 +85,7 @@ export function AboutPageView() {
               className="object-cover object-[78%_18%]"
               priority
             />
-            <div className="absolute inset-y-0 left-0 w-[55%] bg-night/90" />
-            <div className="absolute inset-x-0 bottom-0 h-[35%] bg-night/70" />
-            <div className="absolute inset-x-0 top-0 h-[20%] bg-night/40" />
-            <div className="absolute inset-0 bg-night/20 mix-blend-multiply" />
+            <div className="absolute inset-y-0 left-0 w-[22%] bg-night" />
           </motion.div>
         </motion.div>
 

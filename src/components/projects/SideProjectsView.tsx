@@ -91,7 +91,7 @@ export function SideProjectsView() {
               <li key={project.slug}>
                 <a
                   href={`#${project.slug}`}
-                  className="group inline-flex min-h-10 items-center gap-2.5 text-[0.95rem] text-cream/70 transition-colors hover:text-cream"
+                  className="group inline-flex min-h-10 items-center gap-2.5 text-[0.95rem] text-cream/70 transition-colors hover:text-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
                 >
                   <span className="font-mono text-[0.72rem] tracking-[0.14em] text-amber/80">
                     0{index + 1}
