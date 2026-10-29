@@ -31,7 +31,7 @@ export function PlayChrome({
             {crumb ? (
               <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-[0.84rem]">
                 <Link href="/play" className="text-muted transition-colors hover:text-ink">
-                  Play
+                  Drills
                 </Link>
                 <span className="text-ink/25" aria-hidden="true">
                   /
@@ -45,10 +45,16 @@ export function PlayChrome({
                 )}
               </nav>
             ) : (
-              <span className="text-[0.84rem] text-ink">Play</span>
+              <span className="text-[0.84rem] text-ink">Drills</span>
             )}
           </div>
           <div className="flex items-center gap-3 text-[0.84rem] sm:gap-4">
+            <Link
+              href="/system-design/experience"
+              className="hidden text-muted transition-colors hover:text-ink sm:inline"
+            >
+              Labs
+            </Link>
             <Link href="/about" className="hidden text-muted transition-colors hover:text-ink sm:inline">
               About
             </Link>

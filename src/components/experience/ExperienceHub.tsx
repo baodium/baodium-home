@@ -27,7 +27,7 @@ export function ExperienceHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.55, delay: reduced ? 0 : 0.04, ease }}
         >
-          Run the chapter as an on-call drill
+          Experience labs from the book
         </motion.h1>
         <motion.p
           className="mt-4 text-lg leading-relaxed text-[color:var(--exp-muted)]"

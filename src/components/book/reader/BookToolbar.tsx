@@ -30,11 +30,11 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 const exploreLinks = [
   { href: "/", label: "Home" },
-  { href: "/projects", label: "Projects" },
-  { href: "/about", label: "About" },
   { href: "/system-design", label: "Book overview" },
   { href: "/system-design/experience", label: "Labs" },
   { href: "/play", label: "Drills" },
+  { href: "/projects", label: "Projects" },
+  { href: "/about", label: "About" },
 ] as const;
 
 function subscribeNowhere() {
@@ -255,8 +255,9 @@ export function BookToolbar({
                 className="ml-1 hidden items-center gap-0.5 md:flex"
               >
                 {[
+                  { href: "/system-design/experience", label: "Labs" },
+                  { href: "/play", label: "Drills" },
                   { href: "/projects", label: "Projects" },
-                  { href: "/play", label: "Play" },
                   { href: "/about", label: "About" },
                 ].map((link) => (
                   <Link

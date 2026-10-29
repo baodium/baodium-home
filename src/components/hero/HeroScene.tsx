@@ -11,6 +11,7 @@ import {
   useTransform,
 } from "motion/react";
 import { ArrowRight } from "lucide-react";
+import { HeroLabPreview } from "@/components/hero/HeroLabPreview";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
 import { Magnetic } from "@/components/Magnetic";
@@ -143,80 +144,82 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={reduce ? 0 : TRACE_DELAY} instant={!!reduce} />
       </motion.div>
 
-      <div
-        className="relative z-[3] -mt-28 px-5 pb-12 sm:px-8 md:-mt-32 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0"
-      >
-        <motion.div
-          data-hero-line
-          style={{
-            x: typeX,
-            y: typeY,
-            opacity: typeExitOpacity,
-          }}
-          className="lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:max-w-[40rem]"
-        >
-          <h1>
-            <motion.span
-              initial={reduce ? false : { opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : 0.2, ease }}
-              className="block text-[clamp(2.65rem,6.4vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
-            >
-              <span className="text-flame">BAODIUM</span>
-            </motion.span>
-            <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
-          </h1>
-
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.15, ease }}
-            className="mt-6 max-w-[28rem] text-[clamp(1.02rem,1.45vw,1.18rem)] leading-relaxed text-cream/68"
+      <div className="relative z-[3] -mt-28 px-5 pb-12 sm:px-8 md:-mt-32 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0">
+        <div className="flex w-full flex-col gap-8 lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:mr-[max(1.5rem,calc((100vw-84rem)/2))] lg:max-w-[84rem] lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+          <motion.div
+            data-hero-line
+            style={{
+              x: typeX,
+              y: typeY,
+              opacity: typeExitOpacity,
+            }}
+            className="lg:max-w-[38rem]"
           >
-            Home for products and technical publishing from production failures.
-          </motion.p>
+            <h1>
+              <motion.span
+                initial={reduce ? false : { opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : 0.2, ease }}
+                className="block text-[clamp(2.65rem,6.4vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
+              >
+                <span className="text-flame">BAODIUM</span>
+              </motion.span>
+              <KineticRoles active={active} wordRefs={wordRefs} onSelect={select} />
+            </h1>
+
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.15, ease }}
+              className="mt-6 max-w-[28rem] text-[clamp(1.02rem,1.45vw,1.18rem)] leading-relaxed text-cream/68"
+            >
+              Products, a free system-design book, and labs that let you operate
+              the failures the chapters explain.
+            </motion.p>
+
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.35, ease }}
+              className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
+            >
+              <Magnetic>
+                <Link
+                  href={book.readPath}
+                  className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-cream px-6 text-[0.95rem] font-medium text-ink shadow-[0_10px_40px_-12px_rgba(244,236,224,0.45)] transition-colors duration-300 hover:bg-white"
+                >
+                  <span className="relative">Read the book for free</span>
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                    strokeWidth={2}
+                  />
+                </Link>
+              </Magnetic>
+              <Link
+                href="/system-design/experience/chapter-1"
+                className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+              >
+                Chapter 1 lab
+              </Link>
+            </motion.div>
+          </motion.div>
 
           <motion.div
-            initial={reduce ? false : { opacity: 0, y: 14 }}
+            initial={reduce ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.35, ease }}
-            className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
+            transition={{ duration: reduce ? 0 : 0.85, delay: reduce ? 0 : 1.45, ease }}
+            className="w-full max-w-[26rem] self-start lg:mb-10 lg:self-end"
           >
-            <Magnetic>
-              <Link
-                href={book.readPath}
-                className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-cream px-6 text-[0.95rem] font-medium text-ink shadow-[0_10px_40px_-12px_rgba(244,236,224,0.45)] transition-colors duration-300 hover:bg-white"
-              >
-                <span className="relative">Read the book for free</span>
-                <ArrowRight aria-hidden="true" className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
-              </Link>
-            </Magnetic>
-            <Link
-              href="/play"
-              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
-            >
-              Play drills
-            </Link>
-            <Link
-              href="/projects"
-              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
-            >
-              Side projects
-            </Link>
-            <Link
-              href="/about"
-              className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
-            >
-              About
-            </Link>
+            <HeroLabPreview />
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
       {!reduce ? (
         <a
-          href="#projects"
-          aria-label="Scroll to side projects"
+          href="#book"
+          aria-label="Scroll to the book"
           className="absolute bottom-6 left-1/2 z-[5] hidden -translate-x-1/2 flex-col items-center gap-2 text-cream/45 transition-colors hover:text-cream/75 lg:flex"
         >
           <span className="font-mono text-[0.58rem] uppercase tracking-[0.2em]">Scroll</span>

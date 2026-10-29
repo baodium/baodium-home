@@ -11,12 +11,10 @@ export default function Home() {
     <>
       <Navigation />
       <main id="main" className="relative">
-        <div className="relative">
-          <Hero />
-          <Projects />
-        </div>
+        <Hero />
         <BookSection />
         <PlaySection />
+        <Projects />
         <Writing />
       </main>
       <Footer />

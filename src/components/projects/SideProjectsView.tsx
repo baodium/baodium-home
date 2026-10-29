@@ -51,13 +51,13 @@ export function SideProjectsView() {
             transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.05, ease }}
             className="kicker text-tide-soft"
           >
-            Recent side projects
+            Projects
           </motion.p>
 
           <SplitHeading
             id="side-projects-heading"
-            text="Interview Coach and UpTo, open now."
-            accent={["open", "now"]}
+            text="Interview Coach and UpTo, live now."
+            accent={["live", "now"]}
             className="mt-5 max-w-[16ch] text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
             accentClassName="font-serif font-normal italic text-flame"
             delay={0.08}
@@ -78,8 +78,8 @@ export function SideProjectsView() {
             transition={{ duration: reduce ? 0 : 0.65, delay: reduce ? 0 : 0.36, ease }}
             className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-cream/55"
           >
-            Two live products from Baodium. Open either one, or scroll for a
-            full-page walkthrough.
+            Two live Baodium products. Open either site, or scroll through a
+            real full-page preview of each.
           </motion.p>
 
           <motion.ul

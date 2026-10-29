@@ -45,7 +45,7 @@ export function PlayHub() {
                 <span className="absolute inset-0 rounded-full bg-[color:var(--tide)]" />
                 <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--tide)]" />
               </span>
-              Play
+              Drills
             </p>
             <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
               Reliability drills from the book.

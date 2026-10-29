@@ -96,17 +96,20 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           <Link href="/" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
             Home
           </Link>
+          <Link href="/system-design" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Book
+          </Link>
+          <Link href="/system-design/experience" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Labs
+          </Link>
+          <Link href="/play" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Drills
+          </Link>
           <Link href="/projects" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
             Projects
           </Link>
           <Link href="/about" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
             About
-          </Link>
-          <Link href="/system-design" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
-            Overview
-          </Link>
-          <Link href="/play" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
-            Drills
           </Link>
           <a
             href={book.href}

@@ -9,7 +9,7 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
  * Natural headings only; never "Training brief" / stage chrome.
  */
 export type DrillProse = {
-  /** Short title after "Play /" */
+  /** Short title after "Drills /" */
   title: string;
   /** Clear challenge question for the H1 */
   challenge: string;
@@ -43,7 +43,7 @@ export function DrillProseHeader({
   return (
     <div className="drill-prose">
       <div className="max-w-3xl">
-        <p className="drill-kicker">Play / {prose.title}</p>
+        <p className="drill-kicker">Drills / {prose.title}</p>
         <h1 className="mt-3 font-serif text-[clamp(1.85rem,4.2vw,2.85rem)] leading-[1.08] tracking-[-0.03em] text-[color:var(--drill-fg)]">
           {prose.challenge}
         </h1>

@@ -20,7 +20,7 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Homepage Play strip — light paper stage, live previews, thin copy.
+ * Homepage Drills strip — light paper stage, live previews, thin copy.
  * No decorative orbits or constellation fields.
  */
 export function PlaySection() {
@@ -63,7 +63,7 @@ export function PlaySection() {
                   <span className="absolute inset-0 rounded-full bg-[color:var(--tide)]" />
                   <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--tide)]" />
                 </span>
-                Play
+                Drills
               </p>
               <h2
                 id="play-heading"
