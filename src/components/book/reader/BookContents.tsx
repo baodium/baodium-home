@@ -1,13 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
+import { Activity, ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
 import { BookResume } from "@/components/book/reader/BookResume";
+import { getChapter } from "@/lib/learning/registry";
+import { withReturnToReading } from "@/lib/learning/interactive-concepts";
 
 export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
   const start = chapters.find((c) => c.slug === "chapter-1") ?? chapters[0];
+  const ch1 = getChapter("chapter-1");
+  const labHref = ch1?.labHref
+    ? withReturnToReading(ch1.labHref, "chapter-1", "synchronous-dependencies")
+    : "/system-design/experience/chapter-1";
+  const primaryDrill = ch1?.drills[0];
 
   return (
     <div className="book-contents-wrap mx-auto w-full max-w-[calc(var(--reader-measure)+3rem)] pt-2 md:pt-3">
@@ -59,12 +66,25 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
               </Link>
             ) : null}
             <Link
-              href="/system-design/experience/chapter-1"
+              href={labHref}
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_18%,transparent)] px-6 text-sm font-medium text-[var(--reader-fg)] transition-colors hover:border-cinnabar hover:text-cinnabar"
             >
               <FlaskConical className="h-4 w-4" aria-hidden="true" />
               Operate this incident
             </Link>
+            {primaryDrill ? (
+              <Link
+                href={withReturnToReading(
+                  primaryDrill.href,
+                  "chapter-1",
+                  "connection-demand-and-utilization",
+                )}
+                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] px-5 text-sm font-medium text-[var(--reader-muted)] transition-colors hover:border-cinnabar hover:text-cinnabar"
+              >
+                <Activity className="h-4 w-4" aria-hidden="true" />
+                {primaryDrill.title}
+              </Link>
+            ) : null}
             <a
               href={book.href}
               target="_blank"

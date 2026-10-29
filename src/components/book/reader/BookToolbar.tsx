@@ -33,8 +33,8 @@ const exploreLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/system-design", label: "Book overview" },
-  { href: "/system-design/experience", label: "Experience lab" },
-  { href: "/play", label: "Play" },
+  { href: "/system-design/experience", label: "Labs" },
+  { href: "/play", label: "Drills" },
 ] as const;
 
 function subscribeNowhere() {

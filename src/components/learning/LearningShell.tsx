@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
+import { ReturnToReading } from "@/components/learning/ReturnToReading";
 
 export type LearningSurface = "lab" | "drill" | "book";
 
@@ -99,6 +100,9 @@ export function LearningShell({
           </div>
         </div>
         <p className="sr-only">{kicker}</p>
+        <Suspense fallback={null}>
+          <ReturnToReading />
+        </Suspense>
       </header>
       <main id="main" className="relative z-[1]">
         {children}
