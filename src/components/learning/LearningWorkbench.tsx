@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 
 /**
- * Shared workbench layout: sticky teaching rail + live system canvas.
- * Used by Chapter labs (and later drills that need the same shell).
+ * Viz-dominant workbench.
+ * The live canvas is the wide first column. The teaching rail is the narrow
+ * sticky column beside it, and it follows the chart on small screens.
  */
 export function LearningWorkbench({
   rail,
@@ -17,10 +18,12 @@ export function LearningWorkbench({
 }) {
   return (
     <div
-      className={`learn-workbench mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.4fr)] ${className}`}
+      className={`learn-workbench mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1.9fr)_minmax(17.5rem,0.62fr)] lg:gap-6 ${className}`}
     >
-      <aside className="learn-rail space-y-4 lg:sticky lg:top-4 lg:self-start">{rail}</aside>
-      <div className="learn-canvas space-y-4">{canvas}</div>
+      <div className="learn-canvas min-w-0 space-y-4">{canvas}</div>
+      <aside className="learn-rail min-w-0 space-y-4 lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+        {rail}
+      </aside>
     </div>
   );
 }

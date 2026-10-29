@@ -4,6 +4,7 @@ import {
   tick,
   POOL_SIZE,
 } from "../src/lib/experience/engine";
+import { poolIsOutsideProductPage, SERVICE_EDGES } from "../src/lib/experience/service-topology";
 
 function assert(cond: boolean, msg: string) {
   if (!cond) {
@@ -182,4 +183,14 @@ function assert(cond: boolean, msg: string) {
   );
 }
 
-console.log(JSON.stringify({ ok: true }));
+assert(poolIsOutsideProductPage(), "pool must be acquired by Recommendation, not Product Page");
+assert(
+  SERVICE_EDGES.some((edge) => edge.source === "product" && edge.target === "catalog"),
+  "baseline edge Product Page → Catalog missing",
+);
+assert(
+  SERVICE_EDGES.some((edge) => edge.source === "pool" && edge.target === "db"),
+  "pool → DB edge missing",
+);
+
+console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));

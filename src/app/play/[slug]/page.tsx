@@ -61,8 +61,8 @@ export default async function PlayGamePage({ params }: Props) {
         title={game.title}
         chapterProseHref={game.chapterHref}
       >
-        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 md:py-12">
-          <div className="drill-stage overflow-hidden rounded-[2rem] p-5 md:rounded-[3rem] md:p-10">
+        <div className="mx-auto w-full max-w-[88rem] px-4 py-8 sm:px-6 md:py-10">
+          <div className="drill-stage overflow-hidden rounded-[1.5rem] p-4 md:rounded-[1.75rem] md:p-6">
             <GameBySlug slug={slug} />
           </div>
         </div>

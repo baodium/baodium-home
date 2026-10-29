@@ -20,7 +20,7 @@ export function ReturnToReading() {
 
   return (
     <div className="border-b border-[color:var(--learn-line,var(--exp-line))] bg-[color-mix(in_srgb,#fff_70%,transparent)]">
-      <div className="mx-auto flex w-full max-w-6xl items-center px-4 py-2 sm:px-6">
+      <div className="mx-auto flex w-full max-w-[88rem] items-center px-4 py-2 sm:px-6">
         <Link
           href={returnPath}
           className="inline-flex min-h-9 items-center gap-2 rounded-full px-2 text-sm text-[color:var(--exp-muted)] transition-colors hover:text-[color:var(--exp-fg)]"
