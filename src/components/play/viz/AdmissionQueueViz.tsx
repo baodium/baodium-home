@@ -1,7 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
+import * as d3 from "d3";
+
+const W = 640;
+const H = 200;
+const PAD = { t: 16, r: 18, b: 28, l: 78 };
+
 /**
- * Dual admission lanes: VIP priority vs regular, with shed overflow.
+ * D3 bars for the two admission lanes against a fixed queue cap.
  */
 export function AdmissionQueueViz({
   vipQueue,
@@ -22,11 +29,21 @@ export function AdmissionQueueViz({
   p95Limit: number;
   arrivals: number;
 }) {
-  const cap = Math.max(1, queueCap);
-  const vipSlots = 18;
-  const restSlots = 24;
-  const vipFill = Math.min(vipSlots, Math.round((vipQueue / cap) * vipSlots * (vipFirst ? 1.4 : 1)));
-  const restFill = Math.min(restSlots, Math.round((restQueue / cap) * restSlots));
+  const chart = useMemo(() => {
+    const rows = [
+      { key: "vip", label: "VIP", value: vipQueue, fill: "var(--drill-signal)" },
+      { key: "regular", label: "Regular", value: restQueue, fill: "var(--drill-accent)" },
+    ];
+    const max = Math.max(queueCap, vipQueue, restQueue, 1) * 1.08;
+    const x = d3.scaleLinear().domain([0, max]).range([PAD.l, W - PAD.r]);
+    const y = d3
+      .scaleBand()
+      .domain(rows.map((row) => row.key))
+      .range([PAD.t, H - PAD.b])
+      .padding(0.38);
+    return { rows, x, y, capX: x(queueCap) };
+  }, [vipQueue, restQueue, queueCap]);
+
   const shedHint = admit < 0.95;
 
   return (
@@ -36,8 +53,9 @@ export function AdmissionQueueViz({
           <p className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
             Admission queue
           </p>
-          <p className="mt-1 text-sm text-[color:var(--drill-muted)]">
-            VIP and regular lanes · capacity fixed · admit {(admit * 100).toFixed(0)}%
+          <p className="mt-1 max-w-xl text-sm text-[color:var(--drill-muted)]">
+            VIP and regular wait in separate lanes. The mark is the queue cap
+            {vipFirst ? ", and VIP drains first." : "."} Admit is {(admit * 100).toFixed(0)}%.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">
@@ -45,88 +63,73 @@ export function AdmissionQueueViz({
         </p>
       </div>
 
-      <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5">
-        <Lane
-          title="VIP"
-          subtitle={vipFirst ? "Priority drain" : "Fair share"}
-          depth={vipQueue}
-          filled={vipFill}
-          slots={vipSlots}
-          accent="var(--drill-signal)"
-        />
-        <Lane
-          title="Regular"
-          subtitle={shedHint ? "Shed lands here first" : "Shared with VIP"}
-          depth={restQueue}
-          filled={restFill}
-          slots={restSlots}
-          accent="var(--drill-accent)"
-        />
-      </div>
-
-      <div className="border-t border-[color:var(--drill-line)] px-4 py-3 sm:px-5">
-        <div className="flex items-center justify-between gap-3 text-[0.72rem] text-[color:var(--drill-muted)]">
-          <span>Queue cap {queueCap}</span>
-          <span className="tabular-nums">
-            Depth {Math.round(vipQueue + restQueue)} / {queueCap}
-          </span>
-        </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[color:var(--drill-track)]">
-          <div
-            className="h-full rounded-full bg-[color:var(--drill-signal)] transition-[width] duration-200"
-            style={{
-              width: `${Math.min(100, ((vipQueue + restQueue) / cap) * 100)}%`,
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Lane({
-  title,
-  subtitle,
-  depth,
-  filled,
-  slots,
-  accent,
-}: {
-  title: string;
-  subtitle: string;
-  depth: number;
-  filled: number;
-  slots: number;
-  accent: string;
-}) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-2">
-        <div>
-          <p className="font-medium text-[color:var(--drill-fg)]">{title}</p>
-          <p className="text-[0.78rem] text-[color:var(--drill-muted)]">{subtitle}</p>
-        </div>
-        <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">
-          {Math.round(depth)}
-        </p>
-      </div>
-      <div
-        className="mt-3 grid gap-1"
-        style={{ gridTemplateColumns: `repeat(${Math.min(8, slots)}, minmax(0, 1fr))` }}
-        aria-hidden
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="h-auto w-full"
+        role="img"
+        aria-label={`Admission queues. VIP depth ${Math.round(vipQueue)}, regular depth ${Math.round(restQueue)}, cap ${queueCap}.`}
       >
-        {Array.from({ length: slots }, (_, i) => (
-          <span
-            key={i}
-            className="aspect-square rounded-[3px] border border-[color:var(--drill-line)]"
-            style={{
-              background:
-                i < filled
-                  ? `color-mix(in srgb, ${accent} ${55 + (i % 3) * 8}%, transparent)`
-                  : "var(--drill-panel-soft)",
-            }}
-          />
-        ))}
+        <line
+          x1={chart.capX}
+          x2={chart.capX}
+          y1={PAD.t}
+          y2={H - PAD.b}
+          stroke="var(--drill-fg)"
+          strokeDasharray="3 3"
+          strokeWidth={1.2}
+        />
+        <text
+          x={chart.capX}
+          y={12}
+          textAnchor="middle"
+          fill="var(--drill-faint)"
+          fontSize="10"
+          fontFamily="ui-monospace, monospace"
+        >
+          cap {queueCap}
+        </text>
+        {chart.rows.map((row) => {
+          const y = chart.y(row.key) ?? 0;
+          const h = chart.y.bandwidth();
+          return (
+            <g key={row.key}>
+              <text
+                x={PAD.l - 10}
+                y={y + h / 2 + 4}
+                textAnchor="end"
+                fill="var(--drill-fg)"
+                fontSize="12"
+              >
+                {row.label}
+              </text>
+              <rect
+                x={PAD.l}
+                y={y}
+                width={Math.max(0, chart.x(row.value) - PAD.l)}
+                height={h}
+                rx={3}
+                fill={row.fill}
+                fillOpacity={0.82}
+              />
+              <text
+                x={Math.max(PAD.l + 8, chart.x(row.value) + 6)}
+                y={y + h / 2 + 4}
+                fill="var(--drill-muted)"
+                fontSize="11"
+                fontFamily="ui-monospace, monospace"
+              >
+                {Math.round(row.value)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <div className="border-t border-[color:var(--drill-line)] px-4 py-3 text-[0.75rem] leading-relaxed text-[color:var(--drill-muted)] sm:px-5">
+        Depth {Math.round(vipQueue + restQueue)} of {queueCap}.
+        {shedHint
+          ? " Shedding is on, so regular arrivals are the ones turned away first."
+          : " Everyone who arrives is still being admitted."}
       </div>
     </div>
   );

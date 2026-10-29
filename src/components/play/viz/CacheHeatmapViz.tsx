@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
+import * as d3 from "d3";
 
 /**
- * Hot-key heatmap with TTL age + singleflight coalesce state.
- * Engine is single-hot-key; we project a neighbor grid from that TTL cycle.
+ * Hot-key heatmap. Cell color is a D3 sequential scale from cool panel to accent.
+ * The engine tracks one hot key; neighbors are a projection of that TTL cycle.
  */
 export function CacheHeatmapViz({
   t,
@@ -32,10 +33,14 @@ export function CacheHeatmapViz({
   stampeded: boolean;
 }) {
   const ttl = Math.max(0.8, ttlSec);
+  const color = useMemo(
+    () => d3.scaleSequential(d3.interpolateRgb("#e7eef3", "#ad4f36")).domain([0, 1]),
+    [],
+  );
   const cells = useMemo(() => {
     const rows = 5;
     const cols = 8;
-    const out: { id: string; heat: number; ageFrac: number; hot: boolean }[] = [];
+    const out: { id: string; heat: number; hot: boolean }[] = [];
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const dist = Math.hypot(r - 2, c - 3);
@@ -43,20 +48,27 @@ export function CacheHeatmapViz({
         const neighborAge = filling && dist < 1.6 ? 1 : Math.min(1, phase + dist * 0.04);
         const hot = dist < 1.15;
         const ageFrac = hot ? Math.min(1, keyAge / ttl) : neighborAge;
-        const heat = filling && hot
-          ? stampeded
-            ? 1
-            : 0.72
-          : ageFrac > 0.85
-            ? 0.55 + ageFrac * 0.35
-            : 0.12 + ageFrac * 0.35;
-        out.push({ id: `${r}-${c}`, heat, ageFrac, hot });
+        const heat =
+          filling && hot
+            ? stampeded
+              ? 1
+              : 0.72
+            : ageFrac > 0.85
+              ? 0.55 + ageFrac * 0.35
+              : 0.12 + ageFrac * 0.35;
+        out.push({ id: `${r}-${c}`, heat: Math.max(0, Math.min(1, heat)), hot });
       }
     }
     return out;
   }, [t, ttl, keyAge, filling, stampeded]);
 
   const ttlPct = Math.min(100, (keyAge / ttl) * 100);
+  const cell = 36;
+  const gap = 5;
+  const cols = 8;
+  const rows = 5;
+  const svgW = cols * cell + (cols - 1) * gap;
+  const svgH = rows * cell + (rows - 1) * gap;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[color:var(--drill-line)] bg-[color:var(--drill-panel)]">
@@ -66,7 +78,7 @@ export function CacheHeatmapViz({
             Heatmap · TTL · singleflight
           </p>
           <p className="mt-1 text-sm text-[color:var(--drill-muted)]">
-            Hot key age vs neighbors · coalesce state during fill
+            Hot key age against its neighbors. Outlined cells are the key everyone is asking for.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">
@@ -74,32 +86,41 @@ export function CacheHeatmapViz({
         </p>
       </div>
 
-      <div className="grid gap-5 p-4 sm:grid-cols-[1.15fr_0.85fr] sm:p-5">
+      <div className="grid gap-5 p-4 sm:grid-cols-[1.2fr_0.8fr] sm:p-5">
         <div>
-          <div
-            className="grid gap-1"
-            style={{ gridTemplateColumns: "repeat(8, minmax(0, 1fr))" }}
+          <svg
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            className="h-auto w-full"
             role="img"
-            aria-label="Cache key heat map"
+            aria-label="Cache key heat map. Brighter cells are closer to expiry."
           >
-            {cells.map((cell) => (
-              <span
-                key={cell.id}
-                className={`aspect-square rounded-[3px] border ${
-                  cell.hot
-                    ? "border-[color:var(--drill-signal)]"
-                    : "border-[color:var(--drill-line)]"
-                }`}
-                style={{
-                  background: `color-mix(in srgb, var(--drill-accent) ${Math.round(cell.heat * 78)}%, var(--drill-panel-soft))`,
-                }}
-                title={cell.hot ? "Hot key" : undefined}
-              />
-            ))}
+            {cells.map((item, i) => {
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              return (
+                <rect
+                  key={item.id}
+                  x={col * (cell + gap)}
+                  y={row * (cell + gap)}
+                  width={cell}
+                  height={cell}
+                  rx={3}
+                  fill={color(item.heat)}
+                  stroke={item.hot ? "#2f7a7e" : "transparent"}
+                  strokeWidth={item.hot ? 2 : 0}
+                />
+              );
+            })}
+          </svg>
+          <div className="mt-3 flex items-center gap-2 text-[0.72rem] text-[color:var(--drill-muted)]">
+            <span>Fresh</span>
+            <span className="flex h-2 flex-1 overflow-hidden rounded-sm" aria-hidden>
+              {d3.range(8).map((step) => (
+                <span key={step} className="h-full flex-1" style={{ background: color(step / 7) }} />
+              ))}
+            </span>
+            <span>Near expiry</span>
           </div>
-          <p className="mt-2 text-[0.72rem] text-[color:var(--drill-muted)]">
-            Brighter cells are closer to expiry. Outlined cell is the hot key.
-          </p>
         </div>
 
         <div className="space-y-4">
@@ -129,14 +150,14 @@ export function CacheHeatmapViz({
                 </p>
                 <p className="mt-1 text-[0.82rem] leading-relaxed text-[color:var(--drill-muted)]">
                   {singleflight
-                    ? `Singleflight: 1 leader + ${Math.round(waitingOnFill)} waiters coalesce on one origin fill.`
-                    : `Herd: ~${inFlightMisses} concurrent misses punch origin.`}
-                  {softTtl ? " Soft TTL still serves stale." : ""}
+                    ? `Singleflight: 1 leader and ${Math.round(waitingOnFill)} waiters share one origin fill.`
+                    : `Herd: about ${inFlightMisses} concurrent misses reach origin together.`}
+                  {softTtl ? " Soft TTL still serves the stale value while that fill runs." : ""}
                 </p>
               </>
             ) : (
-              <p className="mt-1.5 text-sm text-[color:var(--drill-muted)]">
-                Warm. Next expiry lands when TTL age reaches the limit.
+              <p className="mt-1.5 text-sm leading-relaxed text-[color:var(--drill-muted)]">
+                The key is warm. The next miss lands when TTL age reaches the limit.
               </p>
             )}
           </div>

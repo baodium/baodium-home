@@ -35,7 +35,7 @@ export function LearningShell({
     <div className="learn-root exp-root relative min-h-[100dvh]" data-surface={surface}>
       <div aria-hidden="true" className="exp-atmosphere" />
       <header className="sticky top-0 z-40 border-b border-[color:var(--learn-line,var(--exp-line))] bg-[color-mix(in_srgb,#fbfcfe_88%,transparent)] backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-[88rem] items-center gap-3 px-4 py-3 sm:px-6">
           <Link
             href="/"
             className="group inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-2.5 transition-colors hover:bg-[color-mix(in_srgb,var(--exp-fg)_5%,transparent)]"

@@ -38,6 +38,7 @@ import { FeatureFlagPanel } from "@/components/experience/FeatureFlagPanel";
 import { GuidedProgress } from "@/components/experience/GuidedProgress";
 import { LabIntro } from "@/components/experience/LabIntro";
 import { LittlesLawCallout } from "@/components/experience/LittlesLawCallout";
+import { LatencyBreakdownChart } from "@/components/experience/LatencyBreakdownChart";
 import { MetricsStrip } from "@/components/experience/MetricsStrip";
 import { MitigationControls } from "@/components/experience/MitigationControls";
 import { OpsMetricsPanel } from "@/components/experience/OpsMetricsPanel";
@@ -514,7 +515,7 @@ export function Chapter1Experience() {
   );
 
   return (
-    <div ref={rootRef} className="relative mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+    <div ref={rootRef} className="relative mx-auto w-full max-w-[88rem] px-4 py-4 sm:px-6 sm:py-5">
       {!reduced ? (
         <motion.div
           aria-hidden="true"
@@ -549,38 +550,7 @@ export function Chapter1Experience() {
             {scenario.meta.subtitle}
           </motion.p>
         ) : null}
-        <motion.p
-          className="mt-3 text-base leading-relaxed text-[color:var(--exp-muted)] sm:text-lg"
-          initial={reduced ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduced ? 0 : 0.55, delay: reduced ? 0 : 0.1, ease }}
-        >
-          {scenario.brief}
-        </motion.p>
-        {!reduced ? (
-          <motion.div
-            aria-hidden="true"
-            initial={{ scaleX: 0.08, opacity: 0.2 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.9, delay: 0.2, ease }}
-            className="mt-6 h-px origin-left bg-[color-mix(in_srgb,var(--exp-accent)_45%,transparent)]"
-          />
-        ) : (
-          <div
-            aria-hidden="true"
-            className="mt-6 h-px bg-[color-mix(in_srgb,var(--exp-accent)_45%,transparent)]"
-          />
-        )}
       </header>
-
-      <LabIntro
-        challenge="Can you keep a 40-slot pool healthy when recommendations turn on?"
-        situation="Product Page still talks to Catalog for the core page. Personalized traffic calls a separate Recommendation service. That service alone owns a shared 40-connection pool to the database. When too many users hit the long path, waiting appears even though every query is correct."
-        objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
-        terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the DB hold even starts. Busy slots never exceed 40; overflow waits beside the grid."
-        explore="Feature flags · Connection pools · Little’s Law · Acquire timeout · Load shedding · Request-path cache"
-        gettingStarted="Use Guided for stages A–H. Pause, step, or reset the shared clock anytime. Practice unlocks free levers after your first decision. Challenge starts mid-incident with exact pass/fail metrics and no recommended fix in the intro."
-      />
 
       <div className="mt-6 space-y-4">
         <GuidedProgress
@@ -664,6 +634,15 @@ export function Chapter1Experience() {
       <LearningWorkbench
         rail={
           <>
+            <LabIntro
+              embedded
+              challenge="Can you keep a 40-slot pool healthy when recommendations turn on?"
+              situation={`${scenario.brief} Product Page still talks to Catalog for the core page. Personalized traffic calls Recommendation, which alone owns the shared 40-connection pool. When too many users hit the long path, waiting appears even though every query is correct.`}
+              objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
+              terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the database hold even starts. Busy slots never exceed 40; overflow waits beside the grid."
+              explore="Feature flags, connection pools, Little’s Law, acquire timeout, load shedding, and a request-path cache."
+              gettingStarted="Use Guided for the eight stages. Pause, step, or reset the shared clock anytime. Practice unlocks the levers after your first decision. Challenge starts mid-incident with exact pass and fail numbers, and the intro does not name the fix."
+            />
             <TeachingOverlay
               lesson={lesson}
               live={liveFrame}
@@ -1123,6 +1102,7 @@ export function Chapter1Experience() {
         canvas={
           <>
             <RequestPath snap={snap} reducedMotion={reduced} />
+            <LatencyBreakdownChart snap={snap} />
             {showProduct ? (
               <ProductPreview showRecs={showRecs} onToggle={onTogglePreview} />
             ) : null}
