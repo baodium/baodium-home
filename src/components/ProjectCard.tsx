@@ -108,17 +108,20 @@ export function ProjectCard({ project }: { project: Project }) {
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#3d7a8c]" />
                   <span className="truncate">{host}</span>
                 </span>
-                <span className="hidden shrink-0 text-ink/55 [@media(hover:hover)]:group-hover:inline">Move to scroll ↕</span>
+                <span className="hidden shrink-0 text-ink/55 [@media(hover:hover)]:group-hover:inline">
+                  Scroll the live page ↕
+                </span>
               </span>
-              <span ref={frameRef} className="relative block aspect-[16/10] overflow-hidden">
+              <span ref={frameRef} className="relative block aspect-[16/10] overflow-hidden bg-white">
                 <motion.span style={{ y: pageY }} className="block will-change-transform">
                   <Image
                     src={project.page.src}
-                    alt=""
+                    alt={`Full-page preview of ${project.name}`}
                     width={PAGE_WIDTH}
                     height={project.page.height}
                     sizes="(min-width: 1024px) 40rem, 100vw"
                     className="block h-auto w-full"
+                    priority={project.featured}
                   />
                 </motion.span>
                 <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-white/90" />

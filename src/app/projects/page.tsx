@@ -5,14 +5,14 @@ import { SideProjectsView } from "@/components/projects/SideProjectsView";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Recent side projects",
+  title: "Projects",
   description:
-    "Interview Coach and UpTo. open now. Interview practice that follows your answers, and a status page that stays true.",
+    "Interview Coach and UpTo. Interview practice that follows your answers, and a status page that stays true across every profile.",
   alternates: { canonical: `${site.url}/projects` },
   openGraph: {
-    title: "Recent side projects · Baodium",
+    title: "Projects · Baodium",
     description:
-      "Interview Coach and UpTo. open now. Interview practice that follows your answers, and a status page that stays true.",
+      "Interview Coach and UpTo. Interview practice that follows your answers, and a status page that stays true across every profile.",
     url: `${site.url}/projects`,
   },
 };

@@ -137,8 +137,8 @@ export function AboutPageView() {
               transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 0.4, ease }}
               className="mt-7 max-w-lg text-[clamp(1.08rem,1.65vw,1.28rem)] leading-relaxed text-cream/72"
             >
-              Baodium is his home for products and technical publishing: failures from
-              production, written so the next design holds.
+              Founder of Baodium: products, a free system-design book, and labs
+              drawn from production failures.
             </motion.p>
 
             <motion.div
@@ -214,12 +214,12 @@ export function AboutPageView() {
         <div ref={letterRef} className="shell relative z-[2]">
           <motion.div style={{ y: letterY, opacity: letterOpacity }}>
             <Reveal y={14}>
-              <p className="kicker text-moss">Founder</p>
+              <p className="kicker text-moss">Baodium</p>
               <SplitHeading
                 id="about-letter-heading"
-                text="Tools you can try. Failures you can study."
+                text="Products you can try. Failures you can study."
                 accent={["Failures", "study"]}
-                className="mt-5 max-w-[15ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
+                className="mt-5 max-w-[16ch] text-[clamp(2.25rem,5vw,3.85rem)] font-semibold leading-[1.02] tracking-[-0.042em] text-ink"
                 accentClassName="font-serif font-normal italic text-cinnabar"
                 delay={0.04}
               />
@@ -227,9 +227,9 @@ export function AboutPageView() {
 
             <Reveal y={12} delay={0.08} className="mt-8 max-w-[40rem]">
               <p className="text-[clamp(1.12rem,1.6vw,1.32rem)] leading-relaxed text-ink/88">
-                Not a pitch deck. Adewale builds Interview Coach and UpTo, and turns
-                production failures into design practice: labs and drills where
-                reliability is something you operate, not only read.
+                Adewale builds Interview Coach and UpTo under Baodium, and turns
+                production failures into design practice. The book, labs, and
+                drills are one product: read the failure, then operate it.
               </p>
             </Reveal>
 
@@ -274,22 +274,11 @@ export function AboutPageView() {
             />
 
             <Reveal y={14} delay={0.05} className="mt-10 md:mt-12">
-              <p className="kicker text-muted">Get in touch</p>
+              <p className="kicker text-muted">Contact</p>
               <p className="mt-4 max-w-md text-[1.05rem] leading-relaxed text-ink/85">
-                Products, Play, corrections, or a note: reach him directly.
+                Products, labs, drills, corrections, or a note: use the Write
+                Baodium button above.
               </p>
-              <a
-                href={site.email}
-                className="group mt-6 inline-flex min-h-12 items-center gap-2.5 rounded-full bg-ink px-6 text-[0.95rem] font-medium text-cream transition-colors hover:bg-cinnabar"
-              >
-                <Mail aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-                Write Baodium
-                <ArrowUpRight
-                  aria-hidden="true"
-                  className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                />
-                <span className="sr-only"> (opens email to {site.emailLabel})</span>
-              </a>
             </Reveal>
           </motion.div>
 
@@ -303,24 +292,24 @@ export function AboutPageView() {
                 href="/projects"
                 className="group inline-flex min-h-10 items-center gap-2 text-ink transition-colors hover:text-cinnabar"
               >
-                Side projects
+                Projects
                 <ArrowUpRight
                   aria-hidden="true"
                   className="h-3.5 w-3.5 opacity-55 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
               </Link>
               <Link
-                href="/#play"
+                href="/play"
                 className="group inline-flex min-h-10 items-center gap-2 text-ink transition-colors hover:text-cinnabar"
               >
-                Play
+                Drills
                 <ArrowUpRight
                   aria-hidden="true"
                   className="h-3.5 w-3.5 opacity-55 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
               </Link>
               <Link
-                href="/system-design/experience"
+                href="/system-design/experience/chapter-1"
                 className="group inline-flex min-h-10 items-center gap-2 text-ink transition-colors hover:text-cinnabar"
               >
                 Chapter 1 lab

@@ -8,11 +8,13 @@ import { ArrowUpRight } from "lucide-react";
 import { book, writing } from "@/data/writing";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
+/** Clear product nav: Home / Book / Labs / Drills / Projects / About */
 const links = [
-  { id: "projects", label: "Projects", href: "/projects" },
-  { id: "book", label: "Book", href: "/#book" },
+  { id: "home", label: "Home", href: "/" },
+  { id: "book", label: "Book", href: "/system-design" },
   { id: "labs", label: "Labs", href: "/system-design/experience" },
   { id: "play", label: "Drills", href: "/play" },
+  { id: "projects", label: "Projects", href: "/projects" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
   { id: "about", label: "About", href: "/about" },
 ];
@@ -21,12 +23,16 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Navigation() {
   const pathname = usePathname();
+  const onHome = pathname === "/";
   const onProjects = pathname === "/projects";
   const onAbout = pathname === "/about";
   const onPlay = pathname === "/play" || pathname.startsWith("/play/");
   const onLabs =
     pathname === "/system-design/experience" ||
     pathname.startsWith("/system-design/experience/");
+  const onBook =
+    pathname === "/system-design" ||
+    (pathname.startsWith("/system-design/") && !onLabs);
   const reduce = usePrefersReducedMotion();
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -40,14 +46,15 @@ export function Navigation() {
         ? "labs"
         : onPlay
           ? "play"
-          : sectionActive;
+          : onBook
+            ? "book"
+            : onHome
+              ? sectionActive ?? "home"
+              : sectionActive;
 
   /** The bar steps out of the way while reading downward and returns on any upward scroll. */
   useEffect(() => {
-    if (reduce) {
-      setTucked(false);
-      return;
-    }
+    if (reduce) return;
     let last = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
@@ -60,17 +67,13 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [reduce]);
 
-  useEffect(() => {
-    if (onProjects || onAbout || onPlay || onLabs) return;
+  const barHidden = !reduce && tucked && !open;
 
-    const sectionIds = [
-      ...links
-        .filter((link) => link.href.startsWith("/#") || link.href.startsWith("#"))
-        .map((link) => link.id),
-      "play",
-      "projects",
-    ];
-    const sections = [...new Set(sectionIds)]
+  useEffect(() => {
+    if (!onHome) return;
+
+    const sectionIds = ["book", "play", "projects"];
+    const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter((section): section is HTMLElement => section !== null);
 
@@ -92,7 +95,7 @@ export function Navigation() {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
-  }, [onProjects, onAbout, onPlay, onLabs]);
+  }, [onHome]);
 
   useEffect(() => {
     if (!open) return;
@@ -103,11 +106,13 @@ export function Navigation() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const coolChrome = onProjects || onAbout || onPlay || onLabs || onBook;
+
   return (
     <motion.header
       id="top"
       initial={reduce ? false : { y: -24, opacity: 0 }}
-      animate={tucked && !open && !reduce ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
+      animate={barHidden ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
       transition={
         reduce
           ? { duration: 0 }
@@ -115,7 +120,7 @@ export function Navigation() {
             ? { duration: 0.45, ease }
             : {
                 duration: 0.9,
-                delay: onProjects || onAbout || onPlay || onLabs ? 0.15 : 1.4,
+                delay: coolChrome ? 0.15 : 1.4,
                 ease,
               }
       }
@@ -123,10 +128,8 @@ export function Navigation() {
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >
       <div
-        className={`mx-auto flex max-w-[52rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl ${
-          onProjects || onAbout || onPlay || onLabs
-            ? "bg-[#1a2330]/[0.92]"
-            : "bg-[#2a211c]/[0.92]"
+        className={`mx-auto flex max-w-[62rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl ${
+          coolChrome ? "bg-[#1a2330]/[0.92]" : "bg-[#2a211c]/[0.92]"
         }`}
       >
         <Link
@@ -140,8 +143,8 @@ export function Navigation() {
           BAODIUM
         </Link>
 
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center text-[0.86rem] text-cream/65">
+        <nav aria-label="Primary" className="hidden lg:block">
+          <ul className="flex items-center text-[0.84rem] text-cream/65">
             {links.map((link) => (
               <li key={link.id} className="relative">
                 {active === link.id ? (
@@ -154,7 +157,7 @@ export function Navigation() {
                 <Link
                   href={link.href}
                   aria-current={active === link.id ? "page" : undefined}
-                  className="relative inline-flex min-h-10 items-center px-4 transition-colors hover:text-cream aria-[current]:text-cream"
+                  className="relative inline-flex min-h-10 items-center px-3 transition-colors hover:text-cream aria-[current]:text-cream xl:px-3.5"
                 >
                   {link.label}
                 </Link>
@@ -181,7 +184,7 @@ export function Navigation() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] md:hidden"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] lg:hidden"
           >
             <span
               aria-hidden="true"
@@ -204,8 +207,8 @@ export function Navigation() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.35, ease }}
-            className={`mx-auto mt-2 max-w-[52rem] overflow-hidden rounded-[1.75rem] border border-white/10 p-3 backdrop-blur-xl md:hidden ${
-              onProjects || onAbout ? "bg-[#1a2330]/[0.96]" : "bg-[#2a211c]/[0.96]"
+            className={`mx-auto mt-2 max-w-[62rem] overflow-hidden rounded-[1.75rem] border border-white/10 p-3 backdrop-blur-xl lg:hidden ${
+              coolChrome ? "bg-[#1a2330]/[0.96]" : "bg-[#2a211c]/[0.96]"
             }`}
           >
             <ul>

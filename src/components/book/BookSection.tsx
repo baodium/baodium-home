@@ -130,8 +130,8 @@ export function BookSection() {
                   Failures from production, written so the next design holds.
                 </p>
                 <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-cream/55">
-                  Free to read here. Pair a chapter with its experience lab when
-                  you want to operate the failure, not only study it.
+                  Free to read here. When you want to operate the failure, open
+                  the matching lab.
                 </p>
                 <p className="mt-4 text-sm text-cream/45">by {book.author}</p>
               </Reveal>
@@ -157,10 +157,10 @@ export function BookSection() {
                   </Magnetic>
                   <Magnetic>
                     <Link
-                      href="/system-design/experience"
+                      href="/system-design/experience/chapter-1"
                       className="group relative inline-flex min-h-14 items-center gap-3 rounded-full border border-cream/30 py-2 pl-7 pr-2 text-base font-medium text-cream transition-colors duration-500 hover:border-cream/60 hover:bg-white/[0.06]"
                     >
-                      Experience lab
+                      Chapter 1 lab
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-cinnabar text-white transition-transform duration-500 group-hover:rotate-6">
                         <FlaskConical aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                       </span>
@@ -177,14 +177,6 @@ export function BookSection() {
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </div>
-                <p className="mt-5">
-                  <Link
-                    href="/system-design"
-                    className="text-sm text-cream/55 transition-colors hover:text-cream"
-                  >
-                    Full contents on the book page →
-                  </Link>
-                </p>
               </Reveal>
             </motion.div>
 

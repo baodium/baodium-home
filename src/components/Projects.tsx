@@ -43,7 +43,7 @@ export function Projects() {
             />
 
             <div className="relative z-[1] min-w-0 flex-1">
-              <p className="kicker text-tide">Recent side projects</p>
+              <p className="kicker text-tide">Projects</p>
               <h2
                 id="projects-heading"
                 className="mt-2 max-w-[22ch] font-serif text-[clamp(1.55rem,2.8vw,2.1rem)] italic leading-[1.08] tracking-[-0.03em] text-ink"
@@ -51,8 +51,8 @@ export function Projects() {
                 Interview Coach and UpTo.
               </h2>
               <p className="mt-2 max-w-md text-[0.95rem] leading-relaxed text-muted">
-                One follows your answers in an interview. The other is a status
-                page you update once and share everywhere.
+                Live products with full-page walkthroughs. One follows your
+                interview answers. The other is a status page you update once.
               </p>
               <p className="mt-4 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-tide/80">
                 {projects.map((p) => p.name).join(" · ")}
@@ -60,7 +60,7 @@ export function Projects() {
             </div>
 
             <span className="relative z-[1] inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-full border border-tide/25 bg-[#f3f8f8] px-5 text-[0.92rem] font-medium text-tide transition-[background-color,border-color,color,transform] duration-500 group-hover:border-tide/45 group-hover:bg-white group-hover:text-ink sm:self-center">
-              View projects
+              Open projects
               <ArrowRight
                 aria-hidden="true"
                 className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
