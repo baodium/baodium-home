@@ -55,6 +55,7 @@ export function SideProjectsView() {
           </motion.p>
 
           <SplitHeading
+            as="h1"
             id="side-projects-heading"
             text="Interview Coach and UpTo, live now."
             accent={["live", "now"]}

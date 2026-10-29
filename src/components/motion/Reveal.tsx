@@ -43,7 +43,7 @@ export function SplitHeading({
 }: {
   text: string;
   accent?: string[];
-  as?: "h2" | "h3" | "p";
+  as?: "h1" | "h2" | "h3" | "p";
   id?: string;
   className?: string;
   accentClassName?: string;

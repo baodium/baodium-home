@@ -502,6 +502,7 @@ html[data-reader-measure="wide"] {
   --reader-desk: #c8c7c1;
   position: relative;
   isolation: isolate;
+  overflow-x: clip;
   font-size: var(--reader-font-size, 1.12rem);
   background: var(--reader-desk);
   color: var(--reader-fg);

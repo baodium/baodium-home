@@ -65,6 +65,8 @@ export function SimControls({
             key={s}
             type="button"
             onClick={() => onSpeed(s)}
+            aria-label={`Simulation speed ${s}×`}
+            aria-pressed={speed === s}
             className={`min-h-8 rounded-full px-2.5 font-mono text-[0.7rem] transition-colors ${
               speed === s
                 ? "bg-[color:var(--exp-fg)] text-white"

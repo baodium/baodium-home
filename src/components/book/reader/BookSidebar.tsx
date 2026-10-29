@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
@@ -11,10 +11,27 @@ import { BookPageOutline } from "@/components/book/reader/BookPageOutline";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
 import { flipTransitionTypes } from "@/lib/book/flip-navigate";
 
+function subscribeLg(onChange: () => void) {
+  const media = window.matchMedia("(min-width: 1024px)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function lgSnapshot() {
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
+
+function useIsLgUp() {
+  return useSyncExternalStore(subscribeLg, lgSnapshot, () => true);
+}
+
 export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
   const pathname = usePathname();
   const { sidebarOpen, setSidebarOpen, prefs, setPrefs } = useReader();
   const collapsed = Boolean(prefs.tocCollapsed);
+  const isLgUp = useIsLgUp();
+  /** Off-canvas drawer on small screens must not stay in the tab order. */
+  const drawerInert = !isLgUp && !sidebarOpen;
   const activeChapter = chapters.find((c) => pathname === `/system-design/${c.slug}`);
   const activeIndex = activeChapter
     ? chapters.findIndex((c) => c.slug === activeChapter.slug)
@@ -47,6 +64,9 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
             : "w-[min(100%,18.5rem)] lg:w-[15.75rem]"
         }`}
         aria-label="Table of contents"
+        aria-hidden={drawerInert ? true : undefined}
+        inert={drawerInert ? true : undefined}
+        data-open={sidebarOpen ? "true" : "false"}
         data-collapsed={collapsed ? "true" : "false"}
         style={{ viewTransitionName: "reader-sidebar" }}
       >

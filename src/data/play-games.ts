@@ -180,7 +180,7 @@ export const playGames: PlayGame[] = [
     slug: "tail-latency",
     title: "Tail Latency",
     challenge: "Can you keep p99 below 420 ms?",
-    feel: "Stragglers arrive after about 10 seconds. Hold p99 under budget without drowning the fleet in hedge copies.",
+    feel: "Stragglers arrive after about 10 seconds. Hold p99 under budget without multiplying work through careless hedges.",
     notice:
       "p50 is the median; p99 is the slowest 1%. They diverge under stragglers and queueing.",
     success: "p99 ≤ 420ms, goodput ≥ 90%, work cost < 1.8×, ≥40 samples.",

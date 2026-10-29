@@ -12,6 +12,7 @@ import {
   DrillTakeaway,
   type DrillProse,
 } from "@/components/play/DrillTeach";
+import { DrillTransport } from "@/components/play/DrillTransport";
 import { GameResultPanel } from "@/components/play/GameResultPanel";
 import { PlayMeter } from "@/components/play/PlayMeter";
 import { CascadeTopologyViz } from "@/components/play/viz/CascadeTopologyViz";
@@ -81,6 +82,7 @@ export function CascadeGame() {
   const reduced = usePrefersReducedMotion();
   const [mode, setMode] = useState<DrillMode>("practice");
   const [phase, setPhase] = useState<"intro" | "running" | "won" | "lost">("intro");
+  const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<CascadeControls>({
     tripAt: 0.35,
     bulkheadAuth: false,
@@ -131,6 +133,7 @@ export function CascadeGame() {
     setCopied(false);
     setPeakRisk(0);
     setSnap(emptyCascadeSnap("Faults inject at about 8 seconds."));
+    setPaused(false);
     setPhase("running");
     if (stepMode) {
       applyTick();
@@ -143,6 +146,32 @@ export function CascadeGame() {
   }, [applyTick, reduced, stepMode, stop]);
 
   useEffect(() => () => stop(), [stop]);
+
+  const onPause = useCallback(() => {
+    stop();
+    setPaused(true);
+  }, [stop]);
+
+  const onResume = useCallback(() => {
+    if (stepMode) return;
+    setPaused(false);
+    if (loopRef.current !== null) return;
+    loopRef.current = window.setInterval(
+      applyTick,
+      reduced ? CASCADE_TICK_MS * 2 : CASCADE_TICK_MS,
+    );
+  }, [applyTick, reduced, stepMode]);
+
+  const onReset = useCallback(() => {
+    stop();
+    engineRef.current = createCascade();
+    setPaused(false);
+    setPhase("intro");
+    setPeakRisk(0);
+    setSnap(idleSnap);
+    setResult(null);
+  }, [stop]);
+
 
   const share = async () => {
     if (!result) return;
@@ -241,7 +270,9 @@ export function CascadeGame() {
     phase === "intro"
       ? "Ready"
       : phase === "running"
-        ? `${snap.t.toFixed(1)}s`
+        ? paused
+          ? `Paused · ${snap.t.toFixed(1)}s`
+          : `${snap.t.toFixed(1)}s`
         : phase === "won"
           ? "Contained"
           : "Spread";
@@ -369,28 +400,16 @@ export function CascadeGame() {
               </label>
 
               <div className="mt-auto flex flex-wrap gap-3 pt-2">
-                {phase !== "running" ? (
-                  <button type="button" className="slo-btn-primary" onClick={start}>
-                    {phase === "intro" ? "Start drill" : "Play again"}
-                  </button>
-                ) : stepMode ? (
-                  <button type="button" className="slo-btn-primary" onClick={applyTick}>
-                    Step →
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="slo-btn-secondary"
-                    onClick={() => {
-                      stop();
-                      setSnap(idleSnap);
-                      setPeakRisk(0);
-                      setPhase("intro");
-                    }}
-                  >
-                    Abort
-                  </button>
-                )}
+                        <DrillTransport
+          phase={phase}
+          stepMode={stepMode}
+          paused={paused}
+          onStart={start}
+          onPause={onPause}
+          onResume={onResume}
+          onStep={applyTick}
+          onReset={onReset}
+        />
               </div>
 
               <DrillTakeaway>{takeaway}</DrillTakeaway>

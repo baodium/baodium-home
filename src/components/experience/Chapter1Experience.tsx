@@ -172,10 +172,13 @@ export function Chapter1Experience() {
       scenario.challenge.criteria,
       challengeStartT,
     );
-    if (next !== "running") {
+    if (next === "running") return;
+    // Defer so the effect stays a subscription to snap ticks, not a sync render cascade.
+    const id = window.setTimeout(() => {
       setChallengeStatus(next);
       if (next === "passed" || next === "failed") setRunning(false);
-    }
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [snap, mode, challengeStatus, challengeStartT, scenario.challenge.criteria]);
 
   const logAction = (msg: string) => {
@@ -571,7 +574,7 @@ export function Chapter1Experience() {
       </header>
 
       <LabIntro
-        challenge="Can you keep a 40-slot pool from drowning when recommendations turn on?"
+        challenge="Can you keep a 40-slot pool healthy when recommendations turn on?"
         situation="Product Page still talks to Catalog for the core page. Personalized traffic calls a separate Recommendation service. That service alone owns a shared 40-connection pool to the database. When too many users hit the long path, waiting appears even though every query is correct."
         objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
         terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the DB hold even starts. Busy slots never exceed 40; overflow waits beside the grid."

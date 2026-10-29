@@ -28,16 +28,15 @@ export function BookFeedback({
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (suppressToast) {
-      setPrompt(false);
-      return;
-    }
+    if (suppressToast) return;
     const prefs = loadReaderPrefs();
     const dismissed = prefs.feedbackDismissedAt ?? 0;
     if (Date.now() - dismissed < DISMISS_MS) return;
     const timer = window.setTimeout(() => setPrompt(true), 45000);
     return () => window.clearTimeout(timer);
   }, [chapterSlug, suppressToast]);
+
+  const showPrompt = prompt && !suppressToast;
 
   const url = `https://baodium.com/system-design/${chapterSlug}`;
   const reviewHref = amazonReviewUrl();
@@ -118,7 +117,7 @@ export function BookFeedback({
       </div>
 
       <AnimatePresence>
-        {prompt ? (
+        {showPrompt ? (
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

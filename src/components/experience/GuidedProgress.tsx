@@ -35,6 +35,7 @@ export function GuidedProgress({
               data-done={done ? "true" : "false"}
               data-active={active ? "true" : "false"}
               title={`${s.letter}. ${s.title}`}
+              aria-label={`${s.letter}. ${s.title}${done ? ", done" : active ? ", current" : ""}`}
             />
           );
         })}
