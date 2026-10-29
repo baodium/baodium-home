@@ -119,7 +119,8 @@ export function ProjectCard({ project }: { project: Project }) {
                     alt={`Full-page preview of ${project.name}`}
                     width={PAGE_WIDTH}
                     height={project.page.height}
-                    sizes="(min-width: 1024px) 40rem, 100vw"
+                    sizes="(min-width: 1024px) 1200px, 100vw"
+                    quality={88}
                     className="block h-auto w-full"
                     priority={project.featured}
                   />
