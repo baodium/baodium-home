@@ -157,7 +157,9 @@ export function Navigation() {
                 <Link
                   href={link.href}
                   aria-current={active === link.id ? "page" : undefined}
-                  className="relative inline-flex min-h-10 items-center px-3 transition-colors hover:text-cream aria-[current]:text-cream xl:px-3.5"
+                  className={`relative inline-flex min-h-10 items-center rounded-full px-3 transition-colors hover:text-cream aria-[current]:text-cream xl:px-3.5 ${
+                    active === link.id ? "" : "hover:bg-white/[0.06]"
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -169,7 +171,7 @@ export function Navigation() {
         <div className="flex items-center gap-1.5">
           <a
             href={book.readPath}
-            className="group inline-flex min-h-10 max-w-[11.5rem] items-center gap-1.5 rounded-full bg-cream px-3.5 text-[0.72rem] font-medium leading-tight text-ink transition-colors hover:bg-white sm:max-w-none sm:px-4 sm:text-[0.82rem] sm:leading-none"
+            className="btn btn-cream group !min-h-10 max-w-[11.5rem] !px-3.5 text-[0.72rem] leading-tight sm:max-w-none sm:!px-4 sm:text-[0.82rem] sm:leading-none"
           >
             Read the book for free
             <ArrowUpRight
@@ -222,7 +224,9 @@ export function Navigation() {
                   <Link
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="flex min-h-14 items-center justify-between rounded-2xl px-4 text-2xl tracking-[-0.02em] text-cream active:bg-white/5"
+                    className={`flex min-h-14 items-center justify-between rounded-2xl px-4 text-2xl tracking-[-0.02em] text-cream active:bg-white/5 ${
+                      active === link.id ? "bg-white/[0.08]" : ""
+                    }`}
                   >
                     {link.label}
                     <span className="font-mono text-xs text-cream/55">0{index + 1}</span>

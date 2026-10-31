@@ -53,7 +53,7 @@ export function PlaySection() {
     >
       <motion.div
         style={{ y: panelY, scale: panelScale }}
-        className="relative overflow-hidden border border-ink/10 bg-white text-ink"
+        className="stage-sheet relative overflow-hidden border border-ink/10 bg-white text-ink"
       >
         <div className="relative z-[2] mx-auto w-full max-w-[84rem] px-5 py-11 md:px-10 md:py-16">
           <motion.div style={{ y: headerY }} className="flex flex-wrap items-end justify-between gap-6">
@@ -67,7 +67,7 @@ export function PlaySection() {
               </p>
               <h2
                 id="play-heading"
-                className="mt-5 font-serif text-[clamp(2.15rem,4.6vw,3.6rem)] leading-[1.02] tracking-[-0.035em] text-ink"
+                className="mt-5 text-balance font-serif text-[clamp(2.15rem,4.6vw,3.6rem)] leading-[1.02] tracking-[-0.035em] text-ink"
               >
                 Reliability drills from the book.
               </h2>
@@ -78,7 +78,7 @@ export function PlaySection() {
             </div>
             <Link
               href="/play"
-              className="group inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,#3d7a8c_35%,transparent)] bg-[#f3f7fa] px-6 text-[0.92rem] text-ink transition-[border-color,background-color] duration-300 hover:border-[color-mix(in_srgb,#3d7a8c_55%,transparent)] hover:bg-white"
+              className="btn btn-quiet group min-h-12 px-6 text-[0.92rem]"
             >
               <span>All drills</span>
               <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">
@@ -144,7 +144,7 @@ function FeaturedDrill({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color] duration-300 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
+        className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
         <motion.div
           style={{ y: previewY }}
@@ -221,7 +221,7 @@ function DrillBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color] duration-300 sm:flex-row [&_*]:no-underline ${
+        className={`lift-card group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"

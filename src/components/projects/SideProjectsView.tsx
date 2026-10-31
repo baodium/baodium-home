@@ -56,7 +56,7 @@ export function SideProjectsView() {
 
           <h1
             id="side-projects-heading"
-            className="mt-5 max-w-[14ch] text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
+            className="mt-5 max-w-[14ch] text-balance text-[clamp(2.4rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-cream"
           >
             Interview Coach{" "}
             <span className="font-serif font-normal italic text-flame">and</span>{" "}
@@ -166,7 +166,7 @@ function ProjectFeature({ project, index }: { project: Project; index: number })
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/10 bg-white/50 px-5 text-[0.92rem] font-medium text-ink transition-colors hover:border-cinnabar/30 hover:bg-white hover:text-cinnabar"
+            className="btn btn-line group min-h-11 px-5 text-[0.92rem]"
           >
             Open {host}
             <ArrowUpRight

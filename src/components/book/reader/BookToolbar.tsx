@@ -144,7 +144,7 @@ export function BookToolbar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2, ease }}
-            className="fixed z-[90] min-w-[12rem] overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] py-1 shadow-[0_18px_40px_-24px_rgba(28,22,16,0.5)]"
+            className="fixed z-[90] min-w-[12.5rem] overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] p-1 shadow-[0_18px_40px_-22px_rgba(28,22,16,0.45)]"
             style={{ top: explorePos.top, left: explorePos.left }}
           >
             {exploreLinks.map((link) => (
@@ -153,7 +153,7 @@ export function BookToolbar({
                 href={link.href}
                 role="menuitem"
                 onClick={() => setExploreOpen(false)}
-                className="block px-3.5 py-2.5 text-sm text-[var(--reader-fg)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)]"
+                className="block rounded-xl px-3 py-2.5 text-sm text-[var(--reader-fg)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)]"
               >
                 {link.label}
               </Link>
@@ -168,7 +168,7 @@ export function BookToolbar({
               rel="noopener noreferrer"
               role="menuitem"
               onClick={() => setExploreOpen(false)}
-              className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)] hover:text-[var(--reader-fg)]"
+              className="flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] hover:text-[var(--reader-fg)]"
             >
               Amazon
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -180,7 +180,7 @@ export function BookToolbar({
               rel="noopener noreferrer"
               role="menuitem"
               onClick={() => setExploreOpen(false)}
-              className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_8%,transparent)] hover:text-[var(--reader-fg)]"
+              className="flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] hover:text-[var(--reader-fg)]"
             >
               Rate the book
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -216,7 +216,7 @@ export function BookToolbar({
             <div className="flex min-w-0 shrink-0 items-center gap-0.5">
               <button
                 type="button"
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)] lg:hidden"
+                className="icon-btn lg:hidden"
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open table of contents"
               >
@@ -224,7 +224,7 @@ export function BookToolbar({
               </button>
               <Link
                 href="/"
-                className="group inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-2 text-[var(--reader-fg)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)]"
+                className="text-btn group !h-9 shrink-0 gap-2 !px-2 !text-[var(--reader-fg)]"
                 aria-label="Baodium home"
               >
                 <span
@@ -242,7 +242,7 @@ export function BookToolbar({
                   ref={exploreBtnRef}
                   type="button"
                   onClick={() => setExploreOpen(!exploreOpen)}
-                  className="inline-flex h-9 items-center gap-1 rounded-full px-2 text-sm text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
+                  className="text-btn gap-1 text-sm"
                   aria-expanded={exploreOpen}
                   aria-haspopup="menu"
                 >
@@ -263,7 +263,7 @@ export function BookToolbar({
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="inline-flex h-9 items-center rounded-full px-2 text-[0.78rem] text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
+                    className="text-btn !px-2 text-[0.78rem]"
                   >
                     {link.label}
                   </Link>
@@ -279,7 +279,7 @@ export function BookToolbar({
               <button
                 type="button"
                 onClick={onOpenSearch}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)]"
+                className="icon-btn"
                 aria-label="Search book"
                 title="Search · ⌘/Ctrl K"
               >
@@ -290,11 +290,8 @@ export function BookToolbar({
                 type="button"
                 data-reader-settings-trigger
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                  settingsOpen
-                    ? "bg-[color-mix(in_srgb,var(--cinnabar)_12%,transparent)] text-[var(--reader-fg)]"
-                    : "text-[var(--reader-muted)] hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)]"
-                }`}
+                className="icon-btn"
+                data-open={settingsOpen ? "true" : "false"}
                 aria-label="Reading settings"
                 aria-expanded={settingsOpen}
               >
@@ -303,7 +300,7 @@ export function BookToolbar({
               <button
                 type="button"
                 onClick={shareChapter}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)]"
+                className="icon-btn"
                 aria-label={copied ? "Chapter link copied" : "Share chapter"}
                 title={copied ? "Copied" : "Share"}
               >
@@ -317,7 +314,8 @@ export function BookToolbar({
                 href={reviewHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-cinnabar"
+                className="icon-btn"
+                data-tone="cinnabar"
                 aria-label="Rate Practical System Design on Amazon"
                 title="Rate on Amazon"
               >

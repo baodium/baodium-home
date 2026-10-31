@@ -63,7 +63,7 @@ export function PlayChrome({
             </Link>
             <Link
               href={book.readPath}
-              className="inline-flex min-h-9 items-center rounded-full bg-ink px-3.5 text-[0.8rem] font-medium text-cream transition-colors hover:bg-cinnabar"
+              className="btn btn-ink !min-h-9 !px-3.5 text-[0.8rem]"
             >
               Read the book for free
             </Link>

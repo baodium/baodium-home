@@ -185,7 +185,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               <Magnetic>
                 <Link
                   href={book.readPath}
-                  className="group relative inline-flex min-h-12 items-center gap-2 overflow-hidden rounded-full bg-cream px-6 text-[0.95rem] font-medium text-ink shadow-[0_10px_40px_-12px_rgba(244,236,224,0.45)] transition-colors duration-300 hover:bg-white"
+                  className="btn btn-cream group relative min-h-12 overflow-hidden px-6 text-[0.95rem]"
                 >
                   <span className="relative">Read the book for free</span>
                   <ArrowRight

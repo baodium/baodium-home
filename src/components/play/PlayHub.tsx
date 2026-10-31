@@ -30,7 +30,7 @@ export function PlayHub() {
 
   return (
     <div ref={ref} className="shell">
-      <div className="relative overflow-hidden border border-ink/10 bg-white text-ink">
+      <div className="stage-sheet relative overflow-hidden border border-ink/10 bg-white text-ink">
         <div className="relative z-[2] px-5 py-11 md:px-10 md:py-16">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 18 }}
@@ -47,7 +47,7 @@ export function PlayHub() {
               </span>
               Drills
             </p>
-            <h1 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
+            <h1 className="mt-5 max-w-3xl text-balance font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
               Reliability drills from the book.
             </h1>
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
@@ -109,7 +109,7 @@ function HubFeatured({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline transition-[border-color] duration-300 hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
+        className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
         <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7fa] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
           <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#1a2330)]">
@@ -173,7 +173,7 @@ function HubBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline transition-[border-color] duration-300 sm:flex-row [&_*]:no-underline ${
+        className={`lift-card group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-cinnabar/30 hover:border-cinnabar/50"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"

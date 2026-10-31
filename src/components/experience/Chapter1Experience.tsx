@@ -48,6 +48,7 @@ import { RequestPath } from "@/components/experience/RequestPath";
 import { RequestTrace } from "@/components/experience/RequestTrace";
 import { SimControls } from "@/components/experience/SimControls";
 import { TeachingOverlay } from "@/components/experience/TeachingOverlay";
+import { Segmented } from "@/components/ui/Segmented";
 import { selectPedagogyLesson } from "@/lib/experience/pedagogy";
 import { narrateChapter1 } from "@/lib/experience/narrator";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
@@ -564,57 +565,42 @@ export function Chapter1Experience() {
         />
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex rounded-full border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-1">
-            <button
-              type="button"
-              onClick={() => {
+          <Segmented<LabMode>
+            label="Lab mode"
+            layoutId="ch1-mode"
+            value={mode}
+            onChange={(id) => {
+              if (id === "guided") {
                 setMode("guided");
                 setChallengeStatus("idle");
                 if (isOpenMode(mode)) setStepId(decision ? "review" : "inspect");
-              }}
-              className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${
-                mode === "guided"
-                  ? "bg-[color:var(--exp-fg)] text-white"
-                  : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
-              }`}
-            >
-              Guided
-            </button>
-            <button
-              type="button"
-              onClick={enterPractice}
-              disabled={!decision && mode === "guided"}
-              title={
-                !decision && mode === "guided"
-                  ? "Finish the guided decision first"
-                  : undefined
+                return;
               }
-              className={`rounded-full px-3.5 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                mode === "practice"
-                  ? "bg-[color:var(--exp-fg)] text-white"
-                  : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
-              }`}
-            >
-              Practice
-            </button>
-            <button
-              type="button"
-              onClick={enterChallenge}
-              disabled={!decision && mode === "guided"}
-              title={
-                !decision && mode === "guided"
-                  ? "Finish the guided path first"
-                  : undefined
-              }
-              className={`rounded-full px-3.5 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                mode === "challenge"
-                  ? "bg-[color:var(--exp-fg)] text-white"
-                  : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
-              }`}
-            >
-              Challenge
-            </button>
-          </div>
+              if (id === "practice") enterPractice();
+              else enterChallenge();
+            }}
+            options={[
+              { id: "guided", label: "Guided" },
+              {
+                id: "practice",
+                label: "Practice",
+                disabled: !decision && mode === "guided",
+                title:
+                  !decision && mode === "guided"
+                    ? "Finish the guided decision first"
+                    : undefined,
+              },
+              {
+                id: "challenge",
+                label: "Challenge",
+                disabled: !decision && mode === "guided",
+                title:
+                  !decision && mode === "guided"
+                    ? "Finish the guided path first"
+                    : undefined,
+              },
+            ]}
+          />
           <SimControls
             running={running}
             speed={speed}

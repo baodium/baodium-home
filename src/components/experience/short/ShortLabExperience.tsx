@@ -8,6 +8,7 @@ import { ShortSeriesChart } from "@/components/experience/short/ShortSeriesChart
 import { controlsFor, getShortLab } from "@/lib/experience/short-labs/catalog";
 import type { ControlValues, LabControl, LabMode } from "@/lib/experience/short-labs/types";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { Segmented } from "@/components/ui/Segmented";
 
 const DT = 0.25;
 
@@ -103,36 +104,17 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div
-            className="inline-flex rounded-full border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-1"
-            role="group"
-            aria-label="Lab mode"
-          >
-            {(
-              [
-                { id: "guided", label: "Guided" },
-                { id: "practice", label: "Practice" },
-                { id: "challenge", label: "Challenge" },
-              ] as const
-            ).map((option) => {
-              const active = mode === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => applyMode(option.id)}
-                  className={`min-h-9 rounded-full px-3.5 text-sm transition-colors ${
-                    active
-                      ? "bg-[color:var(--exp-fg)] text-[color:var(--exp-panel)]"
-                      : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
+          <Segmented<LabMode>
+            label="Lab mode"
+            layoutId={`short-lab-mode-${lab.slug}`}
+            value={mode}
+            onChange={applyMode}
+            options={[
+              { id: "guided", label: "Guided" },
+              { id: "practice", label: "Practice" },
+              { id: "challenge", label: "Challenge" },
+            ]}
+          />
         </div>
       </header>
 
