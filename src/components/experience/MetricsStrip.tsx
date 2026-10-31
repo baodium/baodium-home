@@ -1,6 +1,7 @@
 "use client";
 
 import type { EngineSnapshot } from "@/lib/experience/types";
+import { MetricValue } from "@/components/ui/MetricValue";
 
 export function MetricsStrip({
   snap,
@@ -15,45 +16,33 @@ export function MetricsStrip({
 
   return (
     <div className="exp-panel h-full">
-      <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Latency</h3>
+      <h3 className="font-serif text-lg tracking-[-0.02em] text-[color:var(--exp-fg)]">Latency</h3>
       <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">
         Read these next to the chart. p50 is the median completion. p99 is the slowest 1%.
       </p>
-      <dl className="mt-4 grid grid-cols-2 gap-4">
-        <div>
-          <dt className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-            p50
-          </dt>
-          <dd className="font-mono text-sm tabular-nums text-[color:var(--exp-fg)]">
-            {p50ms.toFixed(0)} ms
+      <dl className="mt-4 grid grid-cols-2 gap-2.5">
+        <div className="instrument">
+          <dt className="instrument-label">p50</dt>
+          <dd className="mt-2 text-[color:var(--exp-fg)]">
+            <MetricValue value={p50ms} unit="ms" />
           </dd>
         </div>
-        <div>
-          <dt className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-            p99
-          </dt>
-          <dd
-            className={`font-mono text-sm tabular-nums ${
-              tailHot ? "text-[color:var(--exp-accent)]" : "text-[color:var(--exp-fg)]"
-            }`}
-          >
-            {p99ms.toFixed(0)} ms
+        <div className="instrument" data-hot={tailHot ? "true" : undefined}>
+          <dt className="instrument-label">p99</dt>
+          <dd className={tailHot ? "mt-2 text-[color:var(--exp-accent)]" : "mt-2 text-[color:var(--exp-fg)]"}>
+            <MetricValue value={p99ms} unit="ms" />
           </dd>
         </div>
-        <div>
-          <dt className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-            Spread
-          </dt>
-          <dd className="font-mono text-sm tabular-nums text-[color:var(--exp-fg)]">
-            {spread.toFixed(0)} ms
+        <div className="instrument">
+          <dt className="instrument-label">Spread</dt>
+          <dd className="mt-2 text-[color:var(--exp-fg)]">
+            <MetricValue value={spread} unit="ms" />
           </dd>
         </div>
-        <div>
-          <dt className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-            Done
-          </dt>
-          <dd className="font-mono text-sm tabular-nums text-[color:var(--exp-fg)]">
-            {snap.completedCount}
+        <div className="instrument">
+          <dt className="instrument-label">Done</dt>
+          <dd className="mt-2 text-[color:var(--exp-fg)]">
+            <MetricValue value={snap.completedCount} />
           </dd>
         </div>
       </dl>

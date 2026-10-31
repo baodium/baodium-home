@@ -86,7 +86,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              className="hidden h-8 w-8 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)] lg:inline-flex"
+              className="icon-btn hidden h-8 w-8 lg:inline-flex"
               onClick={toggleCollapsed}
               aria-pressed={collapsed}
               aria-label={collapsed ? "Expand table of contents" : "Collapse table of contents"}
@@ -100,7 +100,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
             </button>
             <button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--reader-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] hover:text-[var(--reader-fg)] lg:hidden"
+              className="icon-btn h-8 w-8 lg:hidden"
               onClick={() => setSidebarOpen(false)}
               aria-label="Close contents"
             >

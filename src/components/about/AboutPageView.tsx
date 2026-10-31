@@ -105,7 +105,7 @@ export function AboutPageView() {
               initial={reduce ? false : { opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 1.05, delay: reduce ? 0 : 0.12, ease }}
-              className="mt-5 max-w-[13ch] font-serif text-[clamp(3rem,8vw,5.75rem)] italic leading-[0.96] tracking-[-0.04em] text-cream"
+              className="mt-5 max-w-[13ch] text-balance font-serif text-[clamp(3rem,8vw,5.75rem)] italic leading-[0.96] tracking-[-0.04em] text-cream"
             >
               {site.credit}
             </motion.h1>
@@ -146,17 +146,13 @@ export function AboutPageView() {
             >
               <a
                 href={site.email}
-                className="group relative inline-flex min-h-12 items-center gap-2.5 overflow-hidden rounded-full bg-cream px-6 text-[0.95rem] font-medium text-ink shadow-[0_14px_40px_-16px_rgba(173,79,54,0.55)] transition-colors hover:bg-white"
+                className="btn btn-cream group min-h-12 px-6 text-[0.95rem]"
               >
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 -translate-x-full bg-cinnabar/10 transition-transform duration-700 group-hover:translate-x-full"
-                />
-                <Mail aria-hidden="true" className="relative h-4 w-4 text-cinnabar" strokeWidth={2} />
-                <span className="relative">Write Baodium</span>
+                <Mail aria-hidden="true" className="h-4 w-4 text-cinnabar" strokeWidth={2} />
+                <span>Write Baodium</span>
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="relative h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
                 <span className="sr-only"> (opens email to {site.emailLabel})</span>
               </a>

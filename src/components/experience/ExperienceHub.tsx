@@ -23,7 +23,7 @@ export function ExperienceHub() {
           Practical System Design
         </motion.p>
         <motion.h1
-          className="mt-3 font-serif text-[clamp(2.1rem,5vw,3.25rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]"
+          className="mt-3 text-balance font-serif text-[clamp(2.1rem,5vw,3.25rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]"
           initial={reduced ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.55, delay: reduced ? 0 : 0.04, ease }}
@@ -52,7 +52,7 @@ export function ExperienceHub() {
         >
           <Link
             href={`/system-design/experience/${featured.slug}`}
-            className="group grid gap-6 border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-6 transition-[border-color] duration-300 hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)] sm:p-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-10"
+            className="lift-card group grid gap-6 overflow-hidden border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-6 hover:border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)] sm:p-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-10"
           >
             <p className="font-serif text-[clamp(3rem,6vw,4.5rem)] leading-none tracking-[-0.04em] text-[color:var(--exp-faint)]">
               {String(featured.number).padStart(2, "0")}
@@ -67,7 +67,12 @@ export function ExperienceHub() {
               <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-[color:var(--exp-muted)]">
                 {featured.subtitle}
               </p>
-              <p className="mt-5 text-[0.95rem] text-[color:var(--exp-accent)]">Open Chapter 1</p>
+              <p className="mt-5 inline-flex items-center gap-2 text-[0.95rem] text-[color:var(--exp-accent)]">
+                Open Chapter 1
+                <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
+                  →
+                </span>
+              </p>
             </div>
           </Link>
         </motion.div>
@@ -90,7 +95,7 @@ export function ExperienceHub() {
             >
               <Link
                 href={href}
-                className="group grid grid-cols-[3.2rem_minmax(0,1fr)_auto] items-baseline gap-3 py-4 sm:grid-cols-[4rem_minmax(0,1fr)_auto] sm:gap-6 sm:py-5"
+                className="group grid grid-cols-[3.2rem_minmax(0,1fr)_auto] items-baseline gap-3 rounded-xl px-2 py-4 transition-colors duration-300 hover:bg-[color-mix(in_srgb,var(--exp-fg)_4%,transparent)] sm:grid-cols-[4rem_minmax(0,1fr)_auto] sm:gap-6 sm:py-5"
               >
                 <span className="font-mono text-sm tabular-nums text-[color:var(--exp-faint)]">
                   {String(chapter.number).padStart(2, "0")}

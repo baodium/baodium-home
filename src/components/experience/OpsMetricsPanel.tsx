@@ -190,18 +190,15 @@ function Gauge({
   const detail = [tip, good ? `Good: ${good}` : null].filter(Boolean).join(" · ");
   return (
     <div
-      className={`group/gauge relative rounded-lg border px-2.5 py-2 ${
-        hot
-          ? "border-[color-mix(in_srgb,var(--exp-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_7%,transparent)]"
-          : "border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)]"
-      }`}
+      className="instrument group/gauge relative"
+      data-hot={hot ? "true" : undefined}
       tabIndex={detail ? 0 : undefined}
     >
-      <p className="truncate font-mono text-[0.55rem] uppercase tracking-[0.12em] text-[color:var(--exp-faint)]">
+      <p className="instrument-label truncate">
         {name}
       </p>
       <p
-        className={`mt-1 font-mono text-base tabular-nums ${
+        className={`instrument-value instrument-value-sm mt-2 ${
           hot ? "text-[color:var(--exp-accent)]" : "text-[color:var(--exp-fg)]"
         }`}
       >

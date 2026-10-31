@@ -35,7 +35,7 @@ export function LearningShell({
   return (
     <div className="learn-root exp-root relative min-h-[100dvh]" data-surface={surface}>
       <div aria-hidden="true" className="exp-atmosphere" />
-      <header className="sticky top-0 z-40 border-b border-[color:var(--learn-line,var(--exp-line))] bg-[color-mix(in_srgb,#fbfcfe_88%,transparent)] backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-[color:var(--learn-line,var(--exp-line))] bg-[color-mix(in_srgb,var(--exp-panel-raise)_90%,transparent)] shadow-[0_1px_0_rgba(26,35,48,0.04)] backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[88rem] items-center gap-3 px-4 py-3 sm:px-6">
           <Link
             href="/"
@@ -72,24 +72,15 @@ export function LearningShell({
           ) : null}
           <div className="ml-auto flex items-center gap-2">
             {surface !== "drill" ? (
-              <Link
-                href="/play"
-                className="hidden min-h-10 items-center rounded-full px-3 text-sm text-[color:var(--exp-muted)] transition-colors hover:text-[color:var(--exp-fg)] sm:inline-flex"
-              >
+              <Link href="/play" className="chrome-link hidden sm:inline-flex">
                 Drills
               </Link>
             ) : (
-              <Link
-                href="/system-design/experience"
-                className="hidden min-h-10 items-center rounded-full px-3 text-sm text-[color:var(--exp-muted)] transition-colors hover:text-[color:var(--exp-fg)] sm:inline-flex"
-              >
+              <Link href="/system-design/experience" className="chrome-link hidden sm:inline-flex">
                 Labs
               </Link>
             )}
-            <Link
-              href={bookHref}
-              className="inline-flex min-h-10 items-center rounded-full px-3 text-sm text-[color:var(--exp-muted)] transition-colors hover:text-[color:var(--exp-fg)]"
-            >
+            <Link href={bookHref} className="chrome-link">
               Book
             </Link>
             {surface === "lab" ? (

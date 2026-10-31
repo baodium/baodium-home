@@ -1,6 +1,7 @@
 "use client";
 
 import { Pause, Play, RotateCcw, SkipForward } from "lucide-react";
+import { Segmented } from "@/components/ui/Segmented";
 
 export function SimControls({
   running,
@@ -59,24 +60,19 @@ export function SimControls({
           t = {logicalTimeSec.toFixed(1)}s
         </p>
       ) : null}
-      <div className="ml-auto flex items-center gap-1 rounded-full border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-1">
-        {[0.5, 1, 2, 4].map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => onSpeed(s)}
-            aria-label={`Simulation speed ${s}×`}
-            aria-pressed={speed === s}
-            className={`min-h-8 rounded-full px-2.5 font-mono text-[0.7rem] transition-colors ${
-              speed === s
-                ? "bg-[color:var(--exp-fg)] text-white"
-                : "text-[color:var(--exp-muted)] hover:text-[color:var(--exp-fg)]"
-            }`}
-          >
-            {s}×
-          </button>
-        ))}
-      </div>
+      <Segmented
+        className="ml-auto"
+        size="sm"
+        label="Simulation speed"
+        layoutId="sim-speed"
+        value={String(speed)}
+        onChange={(id) => onSpeed(Number(id))}
+        options={[0.5, 1, 2, 4].map((s) => ({
+          id: String(s),
+          label: `${s}×`,
+          title: `Simulation speed ${s}×`,
+        }))}
+      />
       {reducedMotion ? (
         <p className="w-full font-mono text-[0.65rem] text-[color:var(--exp-faint)]">
           Reduced motion. Step mode friendly; essential state stays readable.

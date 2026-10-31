@@ -140,7 +140,7 @@ export function BookSection() {
                   <Magnetic>
                     <Link
                       href={book.readPath}
-                      className="group relative inline-flex min-h-14 items-center gap-3 overflow-hidden rounded-full bg-cream py-2 pl-7 pr-2 text-base font-medium text-ink shadow-[0_18px_50px_-12px_rgba(173,79,54,0.55)]"
+                      className="pressable group relative inline-flex min-h-14 items-center gap-3 overflow-hidden rounded-full bg-cream py-2 pl-7 pr-2 text-base font-medium tracking-[-0.012em] text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_16px_40px_-20px_rgba(36,28,24,0.55)]"
                     >
                       <span className="absolute inset-0 origin-left scale-x-0 bg-cinnabar transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                       <span className="relative transition-colors duration-500 group-hover:text-white">
