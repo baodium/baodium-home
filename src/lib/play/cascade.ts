@@ -74,7 +74,7 @@ export function createCascade(): CascadeState {
     checkoutFail: 0,
     peakRisk: 0,
     trips: 0,
-    lastMessage: "All green. Auth starts wobbling around 8s.",
+    lastMessage: "Checkout is healthy. The dependencies are answering.",
   };
 }
 
@@ -278,16 +278,16 @@ export function tickCascade(
 
   let message = state.lastMessage;
   if (circuit.auth && !controls.bulkheadAuth)
-    message = "Auth circuit open. Shared threads still pile on pay/edge.";
+    message = "Auth's breaker is open. The shared workers are still busy, so Pay and the edge are waiting too.";
   else if (circuit.auth)
-    message = "Auth circuit open. Bulkhead holds the edge concurrency budget.";
+    message = "Auth's breaker is open. Auth is on its own worker budget, so the edge still has room.";
   else if (health.db < 0.45)
-    message = "DB wobbling. Trip it or watch pay fan the fire.";
+    message = "The database is slow. Pay and the edge are waiting on workers the database is holding.";
   else if (t > 8 && health.auth < 0.7)
-    message = `Auth errors ~${(errRate.auth * 100).toFixed(0)}%. trip at ${(controls.tripAt * 100).toFixed(0)}%.`;
+    message = `Auth is failing about ${(errRate.auth * 100).toFixed(0)} percent of calls. The breaker opens at ${(controls.tripAt * 100).toFixed(0)} percent.`;
   else if (controls.timeoutMs < 100 && health.auth < 0.7)
-    message = "Fail-fast timeout cutting hangs. Slots free sooner.";
-  else if (t > 30) message = "Storm easing. Keep isolation on.";
+    message = "Calls are returning workers at the timeout, so fewer slots stay stuck.";
+  else if (t > 30) message = "The slowdown is easing. Watch whether edge health comes back.";
 
   const next: CascadeState = {
     t,
@@ -331,7 +331,7 @@ export function tickCascade(
         Math.max(0, 40 - controls.timeoutMs / 10) +
         (won ? 160 : 25),
     );
-    const debrief = `Checkout ok ${(okRate * 100).toFixed(0)}% · edge health ${(health.edge * 100).toFixed(0)}% · peak cascade risk ${(peakRisk * 100).toFixed(0)}% · circuits tripped ${trips}×. Timeout ${controls.timeoutMs}ms${controls.bulkheadAuth ? ", auth bulkhead" : ""}${controls.bulkheadPay ? ", pay/db bulkhead" : ""}. Fail-fast frees slots; bulkheads stop shared-pool contagion.`;
+    const debrief = `Checkout ok ${(okRate * 100).toFixed(0)} percent. Edge health ${(health.edge * 100).toFixed(0)} percent. Peak cascade risk ${(peakRisk * 100).toFixed(0)} percent. Circuits tripped ${trips} times. Timeout ${controls.timeoutMs} ms${controls.bulkheadAuth ? ", Auth on its own workers" : ""}${controls.bulkheadPay ? ", Pay and the database on their own workers" : ""}.`;
 
     return {
       state: next,
@@ -340,26 +340,26 @@ export function tickCascade(
         outcome: won ? "won" : "lost",
         score,
         reason: won
-          ? "Checkout stayed up. Circuits and bulkheads contained the blast."
+          ? "Checkout stayed up. The slow calls stopped occupying the workers the edge needed."
           : health.edge < 0.42
-            ? "Edge melted. Failures fanned across shared pools."
+            ? "Edge health fell through the line. The slowdown spread through the shared workers."
             : peakRisk >= 0.82
-              ? "Cascade risk peaked too high. Isolation landed too late."
-              : "Too many checkout failures; the outage spread.",
+              ? "Cascade risk climbed past the line. The wait spread farther than the pass allows."
+              : "Too many checkouts failed. The slowdown reached the customers.",
         chapterHref: "/system-design/chapter-4",
         chapterLabel: "Ch.4. Service communication and cascading failure",
         takeaway:
-          "Isolate failure domains first. A circuit without a bulkhead still shares the blast radius.",
+          "A breaker returns a worker by stopping the call. Checkout stays up only when that dependency is not still using the shared pool.",
         debrief,
         before:
-          "Auth/DB wobble with a shared worker pool. One slow dependency holds threads every checkout path needs.",
+          "Auth slows, then the database. They start on the same worker pool as the rest of checkout.",
         after: `Checkout ok ${(okRate * 100).toFixed(0)}%, edge health ${(health.edge * 100).toFixed(0)}%, peak cascade risk ${(peakRisk * 100).toFixed(0)}%, circuits tripped ${trips}× (timeout ${controls.timeoutMs}ms${controls.bulkheadAuth ? ", auth bulkhead" : ""}${controls.bulkheadPay ? ", pay/db bulkhead" : ""}).`,
         changed:
           controls.bulkheadAuth && controls.bulkheadPay && won
-            ? "Bulkheads capped auth/DB contagion while fail-fast freed slots. Checkout kept its own budget."
+            ? "Auth and Pay had their own workers, and calls gave those workers back instead of holding them. Checkout kept room for the edge."
             : !controls.bulkheadAuth && peakRisk >= 0.7
-              ? "Circuits alone still shared the pool. Auth failure starved checkout workers."
-              : "Isolation landed partly. Blast radius shrinks only when both circuit and bulkhead are in place.",
+              ? "Opening a breaker still left Auth on the shared pool, so Auth's wait took workers checkout needed."
+              : "Some of the wait was contained. Checkout keeps its workers only when the slow dependency both stops being called and stops sharing the pool.",
         metrics: [
           {
             label: "Checkout ok",

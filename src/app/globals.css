@@ -1455,12 +1455,42 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .service-node {
   width: 176px;
-  min-height: 72px;
+  min-height: 76px;
   border: 1px solid var(--learn-line-strong, rgba(26, 35, 48, 0.18));
   border-radius: 12px;
   background: var(--learn-panel-raise, #fff);
   padding: 10px 12px;
   white-space: normal;
+}
+
+.service-node-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.service-mark {
+  display: grid;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: var(--learn-signal, #2f7a7e);
+}
+
+.service-mark svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.service-node[data-tone="pressure"] .service-mark {
+  color: var(--learn-accent, #ad4f36);
+}
+
+.service-node[data-tone="dim"] .service-mark {
+  color: var(--learn-muted, #5b6778);
 }
 
 .service-node[data-tone="active"] {
@@ -1483,6 +1513,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .service-node-label {
+  min-width: 0;
   color: var(--learn-fg, #1a2330);
   font-size: 13px;
   font-weight: 560;

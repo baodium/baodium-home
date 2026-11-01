@@ -14,6 +14,7 @@ import {
   type NodeChange,
   type NodeProps,
 } from "@xyflow/react";
+import { ServiceMark } from "@/components/learning/ServiceMark";
 
 export type FlowServiceData = {
   label: string;
@@ -35,7 +36,10 @@ export function FlowServiceNodeView({ data }: NodeProps<FlowServiceNode>) {
       {data.target === "top" ? (
         <Handle type="target" position={Position.Top} id="in" className="service-handle" isConnectable={false} />
       ) : null}
-      <p className="service-node-label">{data.label}</p>
+      <div className="service-node-head">
+        <ServiceMark label={data.label} />
+        <p className="service-node-label">{data.label}</p>
+      </div>
       <p className="service-node-detail">{data.detail}</p>
       {data.sourceRight ? (
         <Handle type="source" position={Position.Right} id="out" className="service-handle" isConnectable={false} />

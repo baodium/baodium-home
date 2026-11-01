@@ -39,7 +39,7 @@ import {
 const catalog = getPlayGame("cascade");
 
 const idleSnap: CascadeSnap = emptyCascadeSnap(
-  "All green. Auth starts wobbling around 8 seconds.",
+  "Checkout is healthy. The dependencies are answering.",
 );
 
 function liveCascadeCriteria(
@@ -193,9 +193,11 @@ export function CascadeGame() {
   const technologies =
     catalog?.technologies ??
     ["Circuit breakers", "Bulkheads", "Fail-fast timeouts", "Shared worker pools", "Dependency health"];
-  const takeaway =
-    catalog?.takeaway ??
-    "Isolate failure domains first. A circuit without a bulkhead still shares the blast radius.";
+  const practiceTakeaway =
+    "Failing a call quickly returns the worker. It does not, by itself, stop that dependency from using the same pool as the rest of checkout.";
+  const challengeTakeaway =
+    "The service that slows down is not always the only one whose health falls. Watch whether the edge moves with it.";
+  const takeaway = mode === "challenge" ? challengeTakeaway : practiceTakeaway;
 
   const okRate =
     snap.checkoutOk + snap.checkoutFail <= 0
@@ -210,7 +212,10 @@ export function CascadeGame() {
 
   const prose = useMemo((): DrillProse => {
     const challengeQ = "Can you keep checkout alive when a dependency fails?";
-    const objective = `Checkout ok ≥ 60%, edge health > 42%, and peak cascade risk < 82% over ${CASCADE_DURATION_S}s. Isolation is breakers, bulkheads, and timeouts only.`;
+    const objective =
+      mode === "challenge"
+        ? `Over ${CASCADE_DURATION_S} seconds, keep checkout success at or above 60 percent, edge health above 42 percent, and peak cascade risk under 82 percent. There is no control that skips Auth.`
+        : `Over ${CASCADE_DURATION_S} seconds, keep checkout success at or above 60 percent, edge health above 42 percent, and peak cascade risk under 82 percent. You can change breakers, worker budgets, and timeouts. You cannot skip the Auth call.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -221,47 +226,84 @@ export function CascadeGame() {
         explore: technologies,
         gettingStarted:
           mode === "challenge"
-            ? "Compare the three pass lines to the final meters, adjust the levers, and run again."
+            ? "Compare checkout success, edge health, and peak cascade risk with the pass lines. Change a control only after you can say which mark lost health first."
             : phase === "won"
-              ? "Try a looser trip threshold next and watch how shared pools change cascade risk."
-              : "Watch which pass line failed first, then change trip threshold, timeouts, or pool isolation and retry.",
+              ? "Run it again with a looser trip threshold and watch whether the shared workers still pull edge health down."
+              : "Read which pass line failed. Then change how soon a breaker opens, how long a call may wait, or which dependency has its own workers.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
 
+    const situation =
+      mode === "challenge" ? (
+        <>
+          <p>
+            A checkout arrives at the edge, calls Auth, then calls Pay. Pay is
+            the service that talks to the database. Those calls share a pool of
+            workers. There is no path that skips Auth.
+          </p>
+          <p>
+            Partway through the run, one dependency slows down and keeps workers
+            busy. The other calls are still required, but they wait on capacity
+            the slow call is sitting on. Customers see checkout fail even when
+            the rest of the path would have answered. One held pool becomes an
+            outage because every checkout needs those same workers.
+          </p>
+          <p>
+            Each service has its own mark. The number under the name is its
+            health. A dashed line means that call stopped waiting. Cascade risk
+            rises when the wait shows up past the slow service, in the edge.
+            Judge the run by checkout success, edge health, and the highest
+            cascade risk you see.
+          </p>
+        </>
+      ) : (
+        <>
+          <p>
+            A checkout arrives at the edge, calls Auth, then calls Pay. Pay is
+            the service that talks to the database. Those three start on one
+            shared pool of workers. There is no path that skips Auth.
+          </p>
+          <p>
+            About eight seconds in, Auth slows down and holds a worker longer on
+            each call. A little later the database slows too. Workers stuck on
+            Auth or the database are workers the edge and Pay cannot use, so
+            checkout fails for the customer even while Pay itself is still
+            healthy. That is why a single slow dependency becomes the outage:
+            it occupies the capacity every other call needs.
+          </p>
+          <p>
+            Watch the mark on each service. The number under the name is its
+            health. A dashed line means that call is failing quickly instead of
+            waiting. Cascade risk is how far the wait has spread past the slow
+            service. The pass lines are checkout success, edge health, and the
+            highest cascade risk during the run.
+          </p>
+        </>
+      );
+
     return {
       title: "Cascade",
       challenge: challengeQ,
-      situation: (
-        <>
-          <p>
-            Checkout depends on Auth, Pay, and the database. Around 8 seconds,
-            one of those paths starts to fail and hold shared workers.
-          </p>
-          <p>
-            You choose when to stop calling a sick dependency, how long callers
-            wait, and whether each dependency gets its own capacity budget.
-          </p>
-        </>
-      ),
+      situation,
       objective,
       terms:
         mode === "practice" ? (
           <>
             A <span className="text-[color:var(--drill-fg)]">circuit breaker</span>{" "}
-            stops calling a failing dependency after enough errors, so callers fail
-            fast instead of waiting. A{" "}
-            <span className="text-[color:var(--drill-fg)]">bulkhead</span> gives
-            that dependency its own pool so its waiters cannot starve everyone else.
-            Isolation here means breakers, bulkheads, and timeouts — not a shortcut
-            around Auth.
+            stops new calls to a dependency that is already failing, so checkout
+            spends the failure quickly instead of sitting on it. A{" "}
+            <span className="text-[color:var(--drill-fg)]">bulkhead</span> is a
+            separate worker budget for one dependency, so its waiters cannot take
+            the slots the other calls still need. A shorter timeout limits how
+            long one call may hold a worker. None of these removes the Auth call.
           </>
         ) : undefined,
       explore: technologies,
       gettingStarted:
         mode === "challenge"
-          ? "Set the levers, start the run, and watch checkout ok, edge health, and cascade risk against the exact pass lines."
-          : "Set the trip threshold and timeouts, decide which dependency pools to isolate, then start. Watch dependency health and cascade risk as Auth wobbles.",
+          ? "Set the controls, then start. Read the health under each mark as it changes. A dashed line means that call stopped waiting. Compare checkout success, edge health, and cascade risk with the pass lines."
+          : "You can change the error rate that opens a breaker, how long a call may wait, and whether Auth or Pay has its own workers. Start the run either way. Watch Auth's health fall first, then the database, and see whether edge health and cascade risk move with them.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);
@@ -482,7 +524,7 @@ export function CascadeGame() {
                     <td>
                       {okRate == null ? "—" : `${(okRate * 100).toFixed(0)}%`}
                     </td>
-                    <td>Successful checkouts over attempts during the wobble.</td>
+                    <td>Successful checkouts over attempts while a dependency is slow.</td>
                   </tr>
                   <tr>
                     <td>Edge health</td>
