@@ -11,11 +11,11 @@ export type DrillNarratorFrame = {
 };
 
 function frame(
-  segments: string[],
+  sentence: string,
   tone: DrillNarratorTone,
   goodLooksLike: string,
 ): DrillNarratorFrame {
-  return { chain: segments.join(" → "), segments, tone, goodLooksLike };
+  return { chain: sentence, segments: [sentence], tone, goodLooksLike };
 }
 
 export function narrateSloWatch(input: {
@@ -45,32 +45,28 @@ export function narrateSloWatch(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Shift armed", "three waves ahead", "watch the budget burn"],
+      "The shift has not started. Three arrival waves will hit checkout. Watch the error budget and the pool together.",
       "calm",
       `Pass: success ≥ ${(sloTarget * 100).toFixed(1)}% with budget left, no cascade, peak util under 120%.`,
     );
   }
 
-  const segments: string[] = [
-    phase === "won" ? "Shift held" : phase === "lost" ? "Budget empty" : `Wave ${wave}`,
-    `pool ${Math.round(poolUtil * 100)}% util`,
-  ];
-  if (pending > 0) segments.push(`${pending.toFixed(0)} pending for a connection`);
-  segments.push(`~${arrivals.toFixed(0)} arrivals/s (${retries} retries)`);
-  segments.push(
-    `success ${(successRate * 100).toFixed(2)}% · budget ${errorBudget.toFixed(0)}%`,
-  );
-  if (shedding) segments.push("shedding on");
-
+  const where =
+    phase === "won" ? "The shift held." : phase === "lost" ? "The error budget is gone." : `Wave ${wave} is in progress.`;
+  const queue =
+    pending > 0
+      ? `${pending.toFixed(0)} requests are waiting for a connection.`
+      : "Nobody is waiting for a connection.";
+  const shed = shedding ? " Load shedding is on." : "";
   let tone: DrillNarratorTone = "calm";
   if (phase === "won") tone = "recover";
   else if (phase === "lost" || errorBudget < 25 || poolUtil > 0.95) tone = "warn";
   else if (poolUtil > 0.85 || pending > 8) tone = "warn";
 
   return frame(
-    segments,
+    `${where} The pool is ${Math.round(poolUtil * 100)}% busy. ${queue} About ${arrivals.toFixed(0)} arrivals per second are coming in, with retries set to ${retries}. Success is ${(successRate * 100).toFixed(1)}%, and ${errorBudget.toFixed(0)}% of the error budget is left.${shed}`,
     tone,
-    `Good: pool under ~85%, pending near 0, success ≥ ${(sloTarget * 100).toFixed(1)}%, budget not draining.`,
+    `Good: pool under about 85%, pending near 0, success at least ${(sloTarget * 100).toFixed(1)}%, and the budget not draining.`,
   );
 }
 
@@ -101,21 +97,14 @@ export function narrateTrafficSurge(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Calm morning", "spike lands ~12s", "decide who waits"],
+      "It is a quiet morning on a service with fixed capacity. A spike lands around 12 seconds. Queue depth and p95 are what you watch.",
       "calm",
       `Good: p95 under ${p95Limit} ms while still serving most of the floor.`,
     );
   }
 
-  const segments = [
-    `t=${t.toFixed(0)}s`,
-    `admit ${Math.round(admit * 100)}%`,
-    `queue ${queue.toFixed(0)}${vipFirst ? ` · VIP ${vipQueue.toFixed(0)}` : ""}`,
-    `p95 ${p95.toFixed(0)} ms (budget ${p95Limit})`,
-    `success ${(successRate * 100).toFixed(0)}%`,
-  ];
-  if (shed > 0) segments.push(`${shed.toFixed(0)} shed`);
-
+  const vip = vipFirst ? ` ${vipQueue.toFixed(0)} of them are in the VIP lane.` : "";
+  const shedLine = shed > 0 ? ` ${shed.toFixed(0)} arrivals have been turned away.` : "";
   const tone: DrillNarratorTone =
     phase === "won"
       ? "recover"
@@ -126,9 +115,9 @@ export function narrateTrafficSurge(input: {
           : "calm";
 
   return frame(
-    segments,
+    `At ${t.toFixed(0)} seconds, ${Math.round(admit * 100)}% of arrivals are admitted. ${queue.toFixed(0)} requests are waiting.${vip} p95 is ${p95.toFixed(0)} ms against a ${p95Limit} ms budget. Success is ${(successRate * 100).toFixed(0)}%.${shedLine}`,
     tone,
-    `Pass: p95 ≤ ${p95Limit} ms most of the run, served share stays useful, VIP lane protected if priority is on.`,
+    `Pass: p95 at or under ${p95Limit} ms for most of the run, a useful share served, and the VIP lane protected if priority is on.`,
   );
 }
 
@@ -157,26 +146,21 @@ export function narrateCascade(input: {
 
   if (phase === "intro") {
     return frame(
-      [
-        "Checkout is healthy. A dependency will slow down and hold shared workers. Watch which mark loses health, and whether the edge falls with it.",
-      ],
+      "Checkout is healthy. A dependency will slow down and hold shared workers. Watch which service loses health, and whether the edge falls with it.",
       "calm",
       "Pass when checkout stays at or above 60 percent, edge health stays above 42 percent, and cascade risk stays under 82 percent.",
     );
   }
 
-  const segments = [
-    `edge ${Math.round(edgeHealth * 100)}%`,
-    `auth ${Math.round(authHealth * 100)}%`,
-    `pay ${Math.round(payHealth * 100)}%`,
-    `db ${Math.round(dbHealth * 100)}%`,
-    circuitsOpen > 0 ? `${circuitsOpen} circuit${circuitsOpen === 1 ? "" : "s"} open` : "circuits closed",
-    `bulkheads ${[bulkheadAuth && "auth", bulkheadPay && "pay/db"].filter(Boolean).join("+") || "off"}`,
-  ];
-  if (cascadeRisk > 0.35) {
-    segments.push(`cascade risk ${Math.round(cascadeRisk * 100)}%`);
-  }
-
+  const circuits =
+    circuitsOpen > 0
+      ? `${circuitsOpen} breaker${circuitsOpen === 1 ? " is" : "s are"} open, so those calls fail fast.`
+      : "Every breaker is still closed.";
+  const walls = [
+    bulkheadAuth ? "Auth has its own workers" : null,
+    bulkheadPay ? "Pay and the database have their own workers" : null,
+  ].filter(Boolean);
+  const budget = walls.length > 0 ? walls.join(", and ") + "." : "Auth, Pay, and the database still share one worker pool.";
   const tone: DrillNarratorTone =
     phase === "won"
       ? "recover"
@@ -187,7 +171,7 @@ export function narrateCascade(input: {
           : "calm";
 
   return frame(
-    segments,
+    `Edge health is ${Math.round(edgeHealth * 100)}%. Auth is ${Math.round(authHealth * 100)}%, Pay is ${Math.round(payHealth * 100)}%, and the database is ${Math.round(dbHealth * 100)}%. ${circuits} ${budget} Cascade risk is ${Math.round(cascadeRisk * 100)}%.`,
     tone,
     "Pass when checkout stays at or above 60 percent, edge health stays above 42 percent, and cascade risk stays under 82 percent. There is no path that skips Auth.",
   );
@@ -218,21 +202,18 @@ export function narrateCacheRoulette(input: {
 
   if (phase === "intro") {
     return frame(
-      [`TTL ${ttlSec}s`, "hot keys share an expiry edge", "watch origin during the fill window"],
+      `Keys stay fresh for ${ttlSec} seconds. When a popular key expires, watch how many fills reach origin at once.`,
       "calm",
-      `Pass: hit rate ≥ 70%, stampede under 2.2s, peak origin under 1.45×.`,
+      "Pass: hit rate at least 70%, stampede under 2.2 seconds, peak origin under 1.45 times capacity.",
     );
   }
 
-  const segments = [
-    `hit ${(hitRate * 100).toFixed(0)}%`,
-    `origin ${(originLoad * 100).toFixed(0)}% of ${originWorkers} workers`,
-    singleflight ? "singleflight on" : "singleflight off",
-  ];
-  if (softTtl) segments.push("SWR on");
-  if (inFlightMisses > 0) segments.push(`${inFlightMisses} in-flight misses`);
-  if (stampeded) segments.push("stampede window");
-
+  const coalesce = singleflight
+    ? "Misses for the same key share one fill."
+    : "Each miss fills from origin on its own.";
+  const swr = softTtl ? " A slightly stale value is still being served during refresh." : "";
+  const misses = inFlightMisses > 0 ? ` ${inFlightMisses} fills are in flight.` : "";
+  const herd = stampeded ? " This is the stampede window." : "";
   const tone: DrillNarratorTone =
     phase === "won"
       ? "recover"
@@ -241,9 +222,9 @@ export function narrateCacheRoulette(input: {
         : "calm";
 
   return frame(
-    segments,
+    `Hit rate is ${(hitRate * 100).toFixed(0)}%. Origin is using ${(originLoad * 100).toFixed(0)}% of ${originWorkers} workers. ${coalesce}${swr}${misses}${herd}`,
     tone,
-    "Pass: hit rate recovers after each TTL edge while origin stays under capacity during the fill window.",
+    "Pass: hit rate recovers after each expiry, and origin stays under capacity during the fill.",
   );
 }
 
@@ -272,22 +253,17 @@ export function narrateTailLatency(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Collecting a latency window", "stragglers arrive after ~10s", "compare p50 with p99"],
+      "The latency window is still filling. Stragglers show up after about 10 seconds. Compare the median with the slowest 1 percent.",
       "calm",
-      `Pass: p99 ≤ ${budget} ms, goodput ≥ 90%, work cost under 1.8×, ≥40 samples.`,
+      `Pass: p99 at or under ${budget} ms, goodput at least 90%, work cost under 1.8 times, and at least 40 samples.`,
     );
   }
 
   const spread = Math.max(0, p99 - p50);
-  const segments = [
-    `p50 ${p50.toFixed(0)} ms`,
-    `p99 ${p99.toFixed(0)} ms (budget ${budget})`,
-    `spread ${spread.toFixed(0)} ms`,
-    hedge ? `hedge after ${hedgeAfterMs} ms` : "hedge off",
-    `${workers} workers · queue ${queueDepth.toFixed(0)}`,
-  ];
-  if (cost > 1.15) segments.push(`work cost ${cost.toFixed(2)}×`);
-
+  const hedgeLine = hedge
+    ? `A second copy goes out if a request is still running after ${hedgeAfterMs} ms.`
+    : "Late requests do not get a second copy.";
+  const costLine = cost > 1.15 ? ` Work cost is ${cost.toFixed(2)} times a single try.` : "";
   const tone: DrillNarratorTone =
     phase === "won"
       ? "recover"
@@ -298,8 +274,8 @@ export function narrateTailLatency(input: {
           : "calm";
 
   return frame(
-    segments,
+    `The median is ${p50.toFixed(0)} ms and the slowest 1 percent is ${p99.toFixed(0)} ms, against a ${budget} ms budget. The spread is ${spread.toFixed(0)} ms. ${hedgeLine} ${workers} workers are on shift and ${queueDepth.toFixed(0)} requests are queued.${costLine}`,
     tone,
-    `Pass: p99 inside ${budget} ms, goodput holds, and hedge copies keep work cost under 1.8×.`,
+    `Pass: p99 inside ${budget} ms, goodput holds, and extra copies keep work cost under 1.8 times.`,
   );
 }

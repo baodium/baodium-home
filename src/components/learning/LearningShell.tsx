@@ -83,6 +83,12 @@ export function LearningShell({
             <Link href={bookHref} className="chrome-link">
               Book
             </Link>
+            <Link href="/projects" className="chrome-link hidden md:inline-flex">
+              Projects
+            </Link>
+            <Link href="/about" className="chrome-link hidden lg:inline-flex">
+              About
+            </Link>
             {surface === "lab" ? (
               <LabPathChrome prose />
             ) : chapterProseHref ? (

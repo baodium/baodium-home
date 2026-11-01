@@ -13,7 +13,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "Can you size the workers before the queue takes off?",
     situation: [
-      "A service finishes each request in a fixed service time. Arrivals come in at a steady rate. Little's Law says the average number of requests in flight is the arrival rate multiplied by that service time.",
+      "09:15, checkout API. The queue is empty. Each request holds a worker for a fixed time, and arrivals are steady. Little's Law says the average number of requests in flight is the arrival rate multiplied by that service time.",
       "When that number is larger than the workers you have, the rest wait. The wait grows for as long as the overload continues. A retry is another arrival. A client that sends the work twice offers twice the load, including while the service is already full.",
     ],
     objective:
@@ -38,7 +38,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "A worker count sized for the average, with retries left out of the arrival rate, is a queue that has not started yet. Count the retries first.",
     challengeSituation:
-      "Arrival rate, service time, and the retry multiplier are fixed for this wave. The queue starts empty. You choose the worker count.",
+      "09:15, checkout API. A campaign raised arrivals, and clients retry when they time out. Service time and the retry multiplier are already set. The queue starts empty. You choose how many workers are on the shift.",
     challengeObjective:
       "Hold queue wait under 25 ms and utilization under 85 percent for six seconds, with 20 workers or fewer.",
     challengeSuccess:
@@ -94,7 +94,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "Can you charge the card once when the provider answers late?",
     situation: [
-      "The client stops waiting before the provider finishes. From the client's side the outcome is unknown. The charge may have landed, or it may not.",
+      "A customer gave up on checkout before the card provider answered. From the client's side the outcome is unknown. The charge may have landed, or it may not.",
       "A retry that uses a new identity is a second charge. The same operation id lets the provider return the original result. A notification sent only from the path the client saw will never leave if the client timed out. An outbox writes that notification in the same transaction as the charge.",
     ],
     objective:
@@ -110,7 +110,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "A timeout is not proof that the charge failed. If you try again without the original identity, you can take the money twice and still not know which try succeeded.",
     challengeSituation:
-      "The provider is slower than the client timeout. Eight checkouts will run once you start. Charges that already landed are not reversed if you change the setup later. Reset if you want a clean wave.",
+      "A customer was charged twice after the app gave up and tried again. Eight more checkouts will run once you start. The provider is slower than the client is willing to wait. Charges that already landed stay landed if you change the setup later. Reset if you want a clean wave.",
     challengeObjective:
       "After eight checkouts, duplicate charges are zero, unresolved timeouts are zero, and lost notifications are zero.",
     challengeSuccess:
@@ -171,7 +171,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "Can you stop downstream work after the caller has given up?",
     situation: [
-      "Checkout has one deadline for the whole call. Inventory runs, then payments. Time spent on inventory is time payments do not get.",
+      "16:40, checkout. The caller has one deadline for the whole call. Inventory runs, then payments. Time spent on inventory is time payments do not get.",
       "A child with its own long timeout can still be working after the caller has returned. That leftover work holds capacity nobody is waiting on. The child stops with the caller only if it receives the time remaining and is cancelled when that budget is spent.",
     ],
     objective:
@@ -187,7 +187,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "A timeout on the caller does not, by itself, stop the child. The child needs the remaining budget, and it needs to hear the cancel.",
     challengeSituation:
-      "Inventory and payments take longer than the time left on the call. Each child is configured with a long attempt timeout. Watch what keeps running after the caller returns.",
+      "16:40, checkout. The caller has 400 ms. Inventory and payments each keep a long timeout of their own, and together they take longer than the time left. Watch what is still running after the caller has already returned.",
     challengeObjective:
       "The caller returns by 400 ms, and downstream work still running after that stays at 0 ms for six seconds.",
     challengeSuccess: "Caller time is at most 400 ms and leftover downstream work is 0 ms.",
@@ -245,7 +245,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "Can you keep origin under 24 requests per second when the keys expire?",
     situation: [
-      "Cache-aside serves a fresh entry from the cache and fills from origin on a miss. Twelve product keys are in play. One of them takes almost half the reads.",
+      "Friday afternoon, the product cache. Twelve keys are in play, and one of them takes almost half the reads. A fresh entry is served from cache. A miss fills from origin.",
       "If those keys expire together, every read misses at once and origin sees the full arrival rate. One fill in flight can serve the reads that arrive behind it. Spreading the expiry times keeps those fills from landing in the same instant.",
     ],
     objective:
@@ -261,7 +261,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "A high hit rate between expiries does not tell you what origin will see in the second the keys all become due.",
     challengeSituation:
-      "Twelve product keys expire on the same schedule. One key receives almost half of the traffic. Origin cannot absorb the full arrival rate. Arrival rate, TTL, and aligned expiry are fixed.",
+      "Friday afternoon, twelve product keys come due together. One key is almost half of the reads. Origin cannot take the full arrival rate in that second. Read rate and time-to-live stay where they are for this wave.",
     challengeObjective:
       "After the keys expire, hold origin at or below 24 requests per second and the hit rate at or above 75 percent for six seconds.",
     challengeSuccess: "Origin stays at or below 24 req/s and the average hit rate stays at or above 75 percent.",
@@ -313,7 +313,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "Can you read your own write without sending every read to the primary?",
     situation: [
-      "The primary commits the write. Replicas apply the log later, so a read that follows the write can still see the old row.",
+      "A shopper saves a new address and the next read still shows the old one. The primary committed the write. The replicas apply the log later, so a read that follows the write can still see the old row.",
       "Sending every read to the primary makes that read correct, and it also puts the whole read rate on one node. About a third of reads come from a session that just wrote and must see that write. The rest can use a replica when the lag is inside the bound you set.",
     ],
     objective:
@@ -329,7 +329,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "A replica can be healthy and still be the wrong place to read a row you just wrote. The bound is what decides which reads can tolerate that.",
     challengeSituation:
-      "Replica lag is holding at 480 ms. About a third of reads are from a session that just wrote and must see that write. The rest can use a replica. Lag is fixed.",
+      "A shopper saves a new address and immediately reads it back. Replica lag is holding at 480 ms. About a third of reads are from a session that just wrote and must see that write. The rest can use a replica. Lag does not move during this wave.",
     challengeObjective:
       "Keep read-your-writes success at or above 99 percent, and keep the primary's share of reads at or below 45 percent, for six seconds.",
     challengeSuccess: "Read-your-writes stays at or above 99 percent and the primary handles at most 45 percent of reads.",
@@ -393,7 +393,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "Can you hold backlog age under 8 seconds with no duplicate sends?",
     situation: [
-      "The producer appends to a log split into partitions. A consumer group gives each partition to one consumer, so consumers beyond the partition count sit idle and do not raise the consume rate.",
+      "Order notifications are falling behind. The producer appends to a log split into partitions. A consumer group gives each partition to one consumer, so consumers beyond the partition count sit idle and do not raise the consume rate.",
       "Backlog age is how long the oldest unprocessed message has been waiting. Age climbs when consume stays below produce. A crash redelivers the last batch. If the notification already went out, a second delivery sends it again unless the consumer recognizes the message. Acknowledging before the send loses the message if the process dies in between.",
     ],
     objective:
@@ -409,7 +409,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "An extra consumer with no partition does not make the backlog younger. And a redelivery is a second chance at the same message, not a new notification to send.",
     challengeSituation:
-      "The producer holds at 80 messages per second. Handling one message takes 50 ms. The log has 4 partitions. Consumers crash and redeliver. Lost sends and double sends both count against you. Produce rate, partition count, and handler time are fixed.",
+      "Order notifications are late. The producer holds at 80 messages per second, one message takes 50 ms, and the log has 4 partitions. Consumers crash and the last batch is delivered again. A lost send and a second send both count against you. Produce rate, partition count, and handler time stay where they are.",
     challengeObjective:
       "Hold backlog age under 8 seconds, duplicate sends at zero, and lost sends at zero, for six seconds.",
     challengeSuccess: "Age stays under 8 seconds, duplicate sends stay at zero, and lost sends stay at zero.",
@@ -465,7 +465,7 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 9,
     h1: "Can you keep checkout inside 500 ms when the provider slows down?",
     situation: [
-      "The regional path is the edge, checkout, inventory, payments, and the provider. The times add. Checkout has a 500 ms budget.",
+      "Checkout in one region is missing its 500 ms budget. The path is the edge, checkout, inventory, payments, and the provider. The times add.",
       "A slow provider uses most of that budget. Inventory confirmation does not have to sit on the same deadline. Retries multiply attempts against the provider. Shedding checkouts lowers the success rate even when the path itself is fast.",
     ],
     objective:
@@ -481,7 +481,7 @@ export const SHORT_LABS: ShortLab[] = [
     keepInMind:
       "A budget is a sum. Putting a hop on the deadline spends that budget whether or not the customer is waiting on that hop.",
     challengeSituation:
-      "The provider has slowed down. Checkout still has a 500 ms budget. The slowdown stays on. Retry traffic and the shed rate start where the panel shows them.",
+      "Checkout in one region is missing its 500 ms budget. The provider has slowed down, and that slowdown stays on. The panel shows the path as it is when you arrive.",
     challengeObjective:
       "Keep accepted checkout success at or above 99 percent, p99 at or below 500 ms, and retry amplification at or below 1.15 for six seconds.",
     challengeSuccess:

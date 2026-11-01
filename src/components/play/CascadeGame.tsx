@@ -238,46 +238,39 @@ export function CascadeGame() {
       mode === "challenge" ? (
         <>
           <p>
-            A checkout arrives at the edge, calls Auth, then calls Pay. Pay is
-            the service that talks to the database. Those calls share a pool of
-            workers. There is no path that skips Auth.
+            14:12 UTC, storefront checkout. Success was near 99 percent at the
+            start of the shift. Customers now say the pay button spins, then
+            fails. The edge is still up. One of the calls checkout makes is
+            holding workers the rest of the path also needs. There is no route
+            around Auth.
           </p>
           <p>
-            Partway through the run, one dependency slows down and keeps workers
-            busy. The other calls are still required, but they wait on capacity
-            the slow call is sitting on. Customers see checkout fail even when
-            the rest of the path would have answered. One held pool becomes an
-            outage because every checkout needs those same workers.
-          </p>
-          <p>
-            Each service has its own mark. The number under the name is its
-            health. A dashed line means that call stopped waiting. Cascade risk
-            rises when the wait shows up past the slow service, in the edge.
-            Judge the run by checkout success, edge health, and the highest
-            cascade risk you see.
+            You can change when a breaker opens, how long a call may hold a
+            worker, and whether a dependency has its own workers. The diagram
+            does not say which dependency will slow down, or which way to move
+            a control. Judge the run by checkout success, edge health, and the
+            highest cascade risk you see.
           </p>
         </>
       ) : (
         <>
           <p>
-            A checkout arrives at the edge, calls Auth, then calls Pay. Pay is
-            the service that talks to the database. Those three start on one
-            shared pool of workers. There is no path that skips Auth.
+            14:12 UTC, storefront checkout. Success starts near 99 percent. The
+            edge calls Auth, then Pay, and Pay is the service that queries the
+            database. Those calls share one worker pool. There is no route
+            around Auth.
           </p>
           <p>
-            About eight seconds in, Auth slows down and holds a worker longer on
-            each call. A little later the database slows too. Workers stuck on
-            Auth or the database are workers the edge and Pay cannot use, so
-            checkout fails for the customer even while Pay itself is still
-            healthy. That is why a single slow dependency becomes the outage:
-            it occupies the capacity every other call needs.
+            About eight seconds in, Auth slows and holds a worker longer on
+            each call. A little later the database slows too. Workers stuck
+            there are workers the edge and Pay cannot use, so checkout fails
+            for the customer even while Pay itself is still healthy.
           </p>
           <p>
-            Watch the mark on each service. The number under the name is its
-            health. A dashed line means that call is failing quickly instead of
-            waiting. Cascade risk is how far the wait has spread past the slow
-            service. The pass lines are checkout success, edge health, and the
-            highest cascade risk during the run.
+            On the diagram, a request moves along each call that is still being
+            made. The bar under a name is that service&apos;s health. When a
+            breaker opens, the call is labeled open and the request stops.
+            Cascade risk is how far the wait has reached the edge.
           </p>
         </>
       );
@@ -302,7 +295,7 @@ export function CascadeGame() {
       explore: technologies,
       gettingStarted:
         mode === "challenge"
-          ? "Set the controls, then start. Read the health under each mark as it changes. A dashed line means that call stopped waiting. Compare checkout success, edge health, and cascade risk with the pass lines."
+          ? "Set the controls, then start. Read the health bar under each service as it moves. Open means that call stopped waiting. Compare checkout success, edge health, and cascade risk with the pass lines."
           : "You can change the error rate that opens a breaker, how long a call may wait, and whether Auth or Pay has its own workers. Start the run either way. Watch Auth's health fall first, then the database, and see whether edge health and cascade risk move with them.",
       takeaway,
     };

@@ -2,18 +2,19 @@
 
 import {
   Controls,
-  MarkerType,
   ReactFlow,
-  type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
+  ARCH_NODE_HEIGHT,
+  ARCH_NODE_WIDTH,
   FitGraph,
   flowNodeTypes,
   useMeasuredFlow,
   type FlowServiceData,
   type FlowServiceNode,
 } from "@/components/learning/FlowServiceNode";
+import { flowEdgeTypes, requestEdge, type RequestFlow } from "@/components/learning/RequestEdge";
 import {
   SERVICE_EDGES,
   type ServiceNodeId,
@@ -21,12 +22,12 @@ import {
 import type { EngineSnapshot } from "@/lib/experience/types";
 
 const POS: Record<ServiceNodeId, { x: number; y: number }> = {
-  client: { x: 0, y: 96 },
-  product: { x: 240, y: 96 },
-  catalog: { x: 500, y: 0 },
-  recommendation: { x: 500, y: 210 },
-  pool: { x: 760, y: 210 },
-  db: { x: 1020, y: 210 },
+  client: { x: 0, y: 78 },
+  product: { x: 292, y: 78 },
+  catalog: { x: 584, y: 0 },
+  recommendation: { x: 292, y: 248 },
+  pool: { x: 584, y: 248 },
+  db: { x: 876, y: 248 },
 };
 
 const HANDLES: Record<ServiceNodeId, Pick<FlowServiceData, "target" | "sourceRight" | "sourceBottom">> = {
@@ -72,7 +73,7 @@ function activeNode(snap: EngineSnapshot): ServiceNodeId {
 
 function build(snap: EngineSnapshot, reducedMotion: boolean): {
   nodes: FlowServiceNode[];
-  edges: Edge[];
+  edges: ReturnType<typeof requestEdge>[];
 } {
   const c = snap.controls;
   const flagLive = c.featureEnabled && !c.featureDisabledForNew;
@@ -107,40 +108,71 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
           : dim
             ? "dim"
             : "idle";
+    const meter =
+      id === "client"
+        ? Math.min(1, c.arrivalRate / 160)
+        : id === "product"
+          ? flagLive
+            ? c.exposurePct / 100
+            : 0.12
+          : id === "recommendation"
+            ? flagLive
+              ? Math.max(0.08, c.exposurePct / 100)
+              : 0.05
+            : id === "pool"
+              ? snap.poolSize > 0
+                ? snap.activeCount / snap.poolSize
+                : 0
+              : id === "db"
+                ? pressure
+                  ? 0.92
+                  : active === "db"
+                    ? 0.7
+                    : 0.22
+                : active === "catalog"
+                  ? 0.55
+                  : 0.2;
     return {
       id,
       type: "service",
       position: POS[id],
-      initialWidth: 176,
-      initialHeight: 72,
-      data: { label: LABELS[id], detail: detail[id], tone, ...HANDLES[id] },
+      initialWidth: ARCH_NODE_WIDTH,
+      initialHeight: ARCH_NODE_HEIGHT,
+      data: { label: LABELS[id], detail: detail[id], tone, meter, ...HANDLES[id] },
       draggable: false,
       selectable: false,
       connectable: false,
     };
   });
 
-  const edges: Edge[] = SERVICE_EDGES.map((edge) => {
+  const callLabel: Record<(typeof SERVICE_EDGES)[number]["id"], string> = {
+    "client-product": "request",
+    "product-catalog": "catalog",
+    "product-recommendation": "recs",
+    "recommendation-pool": "acquire",
+    "pool-db": "query",
+  };
+
+  const edges = SERVICE_EDGES.map((edge) => {
     const hot =
-      !reducedMotion &&
-      ((edge.id === "client-product" && (active === "client" || active === "product")) ||
-        (edge.id === "product-catalog" && active === "catalog") ||
-        (edge.id === "product-recommendation" && active === "recommendation") ||
-        (edge.id === "recommendation-pool" && (active === "pool" || pressure)) ||
-        (edge.id === "pool-db" && (active === "db" || pressure)));
-    const dim = edge.kind === "recs" && recsDim && !hot;
-    const stroke = hot ? "#2f7a7e" : pressure && edge.kind === "recs" ? "#ad4f36" : dim ? "#c5ced8" : "#8a97a8";
-    return {
+      (edge.id === "client-product" && (active === "client" || active === "product")) ||
+      (edge.id === "product-catalog" && active === "catalog") ||
+      (edge.id === "product-recommendation" && active === "recommendation") ||
+      (edge.id === "recommendation-pool" && (active === "pool" || pressure)) ||
+      (edge.id === "pool-db" && (active === "db" || pressure));
+    const strained = pressure && edge.kind === "recs" && hot;
+    const quiet = edge.kind === "recs" && recsDim && !hot;
+    const flow: RequestFlow = strained ? "strain" : hot ? "live" : quiet ? "stopped" : "idle";
+    return requestEdge({
       id: edge.id,
       source: edge.source,
       target: edge.target,
       sourceHandle: edge.sourceHandle,
       targetHandle: edge.targetHandle,
-      type: "smoothstep",
-      animated: false,
-      style: { stroke, strokeWidth: hot ? 2.25 : 1.4 },
-      markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16, color: stroke },
-    };
+      label: quiet ? "flag off" : callLabel[edge.id],
+      flow,
+      reduced: reducedMotion,
+    });
   });
 
   return { nodes, edges };
@@ -162,6 +194,7 @@ export function ServiceFlowGraph({
         edges={flow.edges}
         onNodesChange={flow.onNodesChange}
         nodeTypes={flowNodeTypes}
+        edgeTypes={flowEdgeTypes}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
@@ -172,6 +205,8 @@ export function ServiceFlowGraph({
         deleteKeyCode={null}
         proOptions={{ hideAttribution: false }}
         colorMode="system"
+        fitView
+        fitViewOptions={{ padding: 0.22, duration: 0 }}
         minZoom={0.35}
         maxZoom={1.35}
       >

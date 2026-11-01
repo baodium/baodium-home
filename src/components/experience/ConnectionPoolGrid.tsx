@@ -116,11 +116,11 @@ export function ConnectionPoolGrid({
                 fill={fill}
                 stroke={selected ? "var(--exp-fg)" : "color-mix(in srgb, var(--exp-fg) 10%, transparent)"}
                 strokeWidth={selected ? 2 : 1}
-                className={busy ? "cursor-pointer" : ""}
+                className={busy ? "cursor-pointer" : undefined}
                 style={
-                  busy && !reducedMotion
-                    ? { transition: "fill 180ms ease" }
-                    : undefined
+                  reducedMotion
+                    ? undefined
+                    : { transition: "fill 320ms linear" }
                 }
                 onClick={() => onSelect(busy ? slot.requestId : null)}
               >
@@ -140,14 +140,12 @@ export function ConnectionPoolGrid({
             <p className="mt-2 text-sm text-[color:var(--exp-muted)]">Queue empty.</p>
           ) : (
             <ul className="mt-2 flex max-h-36 flex-wrap gap-1.5 overflow-y-auto">
-              {waiters.map((req, i) => (
+              {waiters.map((req) => (
                 <WaiterChip
                   key={req.id}
                   req={req}
                   selected={req.id === selectedId}
                   onSelect={onSelect}
-                  delayIndex={i}
-                  reducedMotion={reducedMotion}
                 />
               ))}
               {overflowWaiters > 0 ? (
@@ -187,20 +185,13 @@ function WaiterChip({
   req,
   selected,
   onSelect,
-  delayIndex,
-  reducedMotion,
 }: {
   req: SimRequest;
   selected: boolean;
   onSelect: (id: string) => void;
-  delayIndex: number;
-  reducedMotion: boolean;
 }) {
   return (
-    <li
-      className={!reducedMotion ? "exp-waiter-chip" : undefined}
-      style={!reducedMotion ? { animationDelay: `${Math.min(delayIndex, 12) * 20}ms` } : undefined}
-    >
+    <li>
       <button
         type="button"
         onClick={() => onSelect(req.id)}

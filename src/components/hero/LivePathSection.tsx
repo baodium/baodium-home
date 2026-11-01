@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -206,18 +206,9 @@ export function LivePathSection() {
                   />
                 </div>
 
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={phase.note}
-                    initial={reduce ? false : { opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reduce ? undefined : { opacity: 0, y: -4 }}
-                    transition={{ duration: reduce ? 0 : 0.35, ease }}
-                    className="mt-4 min-h-[2.6rem] text-[0.95rem] leading-snug text-cream/88"
-                  >
-                    {phase.note}
-                  </motion.p>
-                </AnimatePresence>
+                <p className="mt-4 min-h-[2.6rem] text-[0.95rem] leading-snug text-cream/88">
+                  {phase.note}
+                </p>
               </div>
             </div>
           </div>

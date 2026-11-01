@@ -1,22 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import type { NodeId } from "@/lib/play/cascade";
-
-const CascadeFlowGraph = dynamic(
-  () => import("./CascadeFlowGraph").then((mod) => mod.CascadeFlowGraph),
-  {
-    ssr: false,
-    loading: () => <div className="service-flow service-flow-short" aria-hidden />,
-  },
-);
+import { CascadeFlowGraph } from "@/components/play/viz/CascadeFlowGraph";
 
 type CircuitMap = Record<"auth" | "pay" | "db", boolean>;
 type HealthMap = Record<NodeId, number>;
 type UtilMap = Record<"auth" | "pay" | "db", number>;
 
 /**
- * Checkout topology with circuit breakers. Isolation only — no auth bypass.
+ * Checkout topology with circuit breakers. Isolation only. No auth bypass.
  */
 export function CascadeTopologyViz({
   health,
@@ -42,8 +34,8 @@ export function CascadeTopologyViz({
           </p>
           <p className="mt-1 max-w-xl text-sm leading-relaxed text-[color:var(--drill-muted)]">
             The edge sends the caller to checkout. Checkout calls Auth and Pay, and Pay calls the
-            database. Each service has its own mark. A dashed line means that call is failing fast.
-            There is no path that skips Auth.
+            database. A request moves along each call that is still being made. Open means that
+            breaker stopped waiting. There is no path that skips Auth.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">

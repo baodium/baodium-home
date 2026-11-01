@@ -229,25 +229,40 @@ export function CacheRouletteGame() {
     return {
       title: "Cache Roulette",
       challenge: challengeQ,
-      situation: (
-        <>
-          <p>
-            A popular key lives in cache for a fixed{" "}
-            <DrillTip
-              label="TTL"
-              tip="Time-to-live: how long a cached key stays valid before it must be refreshed from origin."
-            >
-              <span className="text-[color:var(--drill-fg)]">TTL</span>
-            </DrillTip>
-            . When it expires, every waiting client may try to refresh from
-            origin at once.
-          </p>
-          <p>
-            That herd can overwhelm a small origin pool even though each client
-            is doing the “correct” thing.
-          </p>
-        </>
-      ),
+      situation:
+        mode === "challenge" ? (
+          <>
+            <p>
+              Friday afternoon, the product cache. One key is most of the
+              reads. It expires on a timer, and every client that misses tries
+              to fill from origin in the same moment. Origin is a small pool.
+            </p>
+            <p>
+              You can change how long an entry stays fresh, how many origin
+              workers you have, and how misses are filled. The page does not
+              say which of those keeps origin inside its limit.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              Friday afternoon, the product cache. A popular key stays fresh
+              for a fixed{" "}
+              <DrillTip
+                label="TTL"
+                tip="Time-to-live: how long a cached key stays valid before it must be refreshed from origin."
+              >
+                <span className="text-[color:var(--drill-fg)]">TTL</span>
+              </DrillTip>
+              . When it expires, every waiting client may try to refresh from
+              origin at once.
+            </p>
+            <p>
+              That herd can fill a small origin pool even though each client is
+              doing the reasonable thing: the value was missing, so it asked.
+            </p>
+          </>
+        ),
       objective,
       terms:
         mode === "practice" ? (

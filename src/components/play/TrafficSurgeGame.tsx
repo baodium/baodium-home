@@ -308,10 +308,18 @@ export function TrafficSurgeGame() {
         title: "Traffic Surge",
         challenge: challengeQ,
         situation: (
-          <p>
-            Capacity is fixed. A spike arrives mid-run. Exact pass/fail rules sit
-            beside the controls — adjust levers and judge from the evidence.
-          </p>
+          <>
+            <p>
+              11:02, a fixed-capacity API. The morning is quiet. Around 12
+              seconds a spike arrives that the service cannot finish in time.
+              The machines will not grow during this run.
+            </p>
+            <p>
+              You choose who is admitted and how long a request may wait. The
+              pass line is on the page. It does not say when to turn arrivals
+              away.
+            </p>
+          </>
         ),
         objective,
         explore: technologies,
@@ -341,12 +349,13 @@ export function TrafficSurgeGame() {
       situation: (
         <>
           <p>
-            Capacity is fixed for this shift. Around 12 seconds, arrivals jump
-            far past what the service can finish in time.
+            11:02, a fixed-capacity API. The morning is quiet. Around 12
+            seconds, arrivals jump far past what the service can finish in
+            time. Nobody is adding machines in the next minute.
           </p>
           <p>
-            You decide who gets in, how long people wait in queue, and whether
-            higher-priority traffic is protected when load must be cut.
+            You decide who gets in, how long people wait, and whether
+            higher-priority traffic is protected when load has to be cut.
           </p>
         </>
       ),

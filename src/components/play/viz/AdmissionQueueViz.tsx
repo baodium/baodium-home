@@ -105,11 +105,14 @@ export function AdmissionQueueViz({
               <rect
                 x={PAD.l}
                 y={y}
-                width={Math.max(0, chart.x(row.value) - PAD.l)}
                 height={h}
                 rx={3}
                 fill={row.fill}
-                fillOpacity={0.82}
+                fillOpacity={0.9}
+                style={{
+                  width: Math.max(0, chart.x(row.value) - PAD.l),
+                  transition: "width 360ms linear",
+                }}
               />
               <text
                 x={Math.max(PAD.l + 8, chart.x(row.value) + 6)}

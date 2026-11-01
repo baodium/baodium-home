@@ -479,8 +479,11 @@ export function SloWatchGame({
       situation: (
         <>
           <p>
-            Checkout faces three traffic waves while you choose pool size,
-            concurrency, retries, and whether to shed load.
+            Saturday sale, checkout. Three waves are on the schedule, and the
+            machines will not grow during the shift. You choose pool size, how
+            much work you admit, how retries behave, and whether to refuse some
+            of the load. The page does not tell you the combination that holds
+            the line.
           </p>
           <p>
             An{" "}

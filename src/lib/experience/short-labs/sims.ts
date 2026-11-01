@@ -5,8 +5,9 @@ function edge(hot: boolean, dashed = false): EdgeView {
   return { hot, dashed };
 }
 
-function node(detail: string, tone: Tone): NodeView {
-  return { detail, tone };
+function node(detail: string, tone: Tone, meter?: number): NodeView {
+  if (meter == null || !Number.isFinite(meter)) return { detail, tone };
+  return { detail, tone, meter: Math.max(0, Math.min(1, meter)) };
 }
 
 /**
@@ -69,10 +70,14 @@ export const chapter2Sim: LabSim = {
       },
       point: { predicted: round(predicted, 2), busy: round(busy, 2) },
       nodes: {
-        clients: node(`${arrival.toFixed(0)} new req/s`, "active"),
-        api: node(`Offered ${offered.toFixed(0)} /s with retries`, predicted > workers ? "pressure" : "active"),
-        workers: node(`${busy.toFixed(1)} of ${workers} busy`, util > 0.85 ? "pressure" : "active"),
-        downstream: node(`${serviceMs.toFixed(0)} ms service`, "idle"),
+        clients: node(`${arrival.toFixed(0)} new req/s`, "active", arrival / 900),
+        api: node(
+          `Offered ${offered.toFixed(0)} /s with retries`,
+          predicted > workers ? "pressure" : "active",
+          predicted / Math.max(workers, 1),
+        ),
+        workers: node(`${busy.toFixed(1)} of ${workers} busy`, util > 0.85 ? "pressure" : "active", util),
+        downstream: node(`${serviceMs.toFixed(0)} ms service`, "idle", serviceMs / 80),
       },
       edges: {
         "clients-api": edge(true),
@@ -200,12 +205,12 @@ export const chapter3Sim: LabSim = {
         unresolved,
       },
       nodes: {
-        client: node(submits ? `${submits.toFixed(0)} checkouts sent` : "Waiting to send", "active"),
-        checkout: node(idem ? "Retries reuse the operation id" : "Each try is a new charge", pressure ? "pressure" : "active"),
-        provider: node(`${providerMs.toFixed(0)} ms to answer`, providerMs > timeoutMs ? "pressure" : "idle"),
-        operation: node(idem ? "One record per operation" : "No shared identity", idem ? "active" : "dim"),
-        outbox: node(outbox ? "Notification commits with the charge" : "Notify only if the client saw success", outbox ? "active" : "dim"),
-        notify: node(lost > 0 ? `${lost.toFixed(0)} notifications lost` : "Notifications match charges", lost > 0 ? "pressure" : "idle"),
+        client: node(submits ? `${submits.toFixed(0)} checkouts sent` : "Waiting to send", "active", submits / 8),
+        checkout: node(idem ? "Retries reuse the operation id" : "Each try is a new charge", pressure ? "pressure" : "active", pressure ? 0.35 : 0.8),
+        provider: node(`${providerMs.toFixed(0)} ms to answer`, providerMs > timeoutMs ? "pressure" : "idle", providerMs / 3000),
+        operation: node(idem ? "One record per operation" : "No shared identity", idem ? "active" : "dim", idem ? 1 : 0.12),
+        outbox: node(outbox ? "Notification commits with the charge" : "Notify only if the client saw success", outbox ? "active" : "dim", outbox ? 1 : 0.12),
+        notify: node(lost > 0 ? `${lost.toFixed(0)} notifications lost` : "Notifications match charges", lost > 0 ? "pressure" : "idle", lost > 0 ? lost / 8 : 0.85),
       },
       edges: {
         "client-checkout": edge(true),
@@ -309,12 +314,21 @@ export const chapter4Sim: LabSim = {
       },
       point: { callerMs: round(call.caller, 1), orphanMs: round(call.orphan, 1) },
       nodes: {
-        edge: node("20 ms at the edge", "idle"),
-        checkout: node(`${call.caller.toFixed(0)} ms of ${call.parent.toFixed(0)} used`, call.orphan > 0 ? "pressure" : "active"),
-        inventory: node(`${num(controls, "inventoryMs").toFixed(0)} ms of work`, call.spent.inventory ? "active" : "dim"),
+        edge: node("20 ms at the edge", "idle", 20 / Math.max(call.parent, 1)),
+        checkout: node(
+          `${call.caller.toFixed(0)} ms of ${call.parent.toFixed(0)} used`,
+          call.orphan > 0 ? "pressure" : "active",
+          call.caller / Math.max(call.parent, 1),
+        ),
+        inventory: node(
+          `${num(controls, "inventoryMs").toFixed(0)} ms of work`,
+          call.spent.inventory ? "active" : "dim",
+          num(controls, "inventoryMs") / Math.max(call.parent, 1),
+        ),
         payments: node(
           call.orphan > 0 ? `Still running ${call.orphan.toFixed(0)} ms` : `${num(controls, "paymentsMs").toFixed(0)} ms of work`,
           call.orphan > 0 ? "pressure" : call.spent.payments ? "active" : "dim",
+          call.orphan > 0 ? 1 : num(controls, "paymentsMs") / Math.max(call.parent, 1),
         ),
       },
       edges: {
@@ -457,10 +471,10 @@ export const chapter5Sim: LabSim = {
       },
       point: { originQps: round(originQps, 2), hitPct: round(hitRate * 100, 1) },
       nodes: {
-        client: node(`${rps.toFixed(0)} reads/s`, "active"),
-        app: node(single ? "One fill serves the waiters" : "Each miss fills alone", originQps > 40 ? "pressure" : "active"),
-        cache: node(align && !jitter ? "Keys share one expiry" : jitter ? "Expiries are spread out" : "Expiries are already spread", coldKeys > 0 ? "pressure" : "active"),
-        origin: node(`${originQps.toFixed(0)} req/s`, originQps > 24 ? "pressure" : "idle"),
+        client: node(`${rps.toFixed(0)} reads/s`, "active", rps / 500),
+        app: node(single ? "One fill serves the waiters" : "Each miss fills alone", originQps > 40 ? "pressure" : "active", Math.min(1, originQps / 80)),
+        cache: node(align && !jitter ? "Keys share one expiry" : jitter ? "Expiries are spread out" : "Expiries are already spread", coldKeys > 0 ? "pressure" : "active", coldKeys / 12),
+        origin: node(`${originQps.toFixed(0)} req/s`, originQps > 24 ? "pressure" : "idle", originQps / 80),
       },
       edges: {
         "client-app": edge(true),
@@ -526,10 +540,10 @@ export const chapter7Sim: LabSim = {
       },
       point: { rywPct: round(ryw * 100, 1), primaryPct: round(primaryShare * 100, 1) },
       nodes: {
-        app: node(route === "primary" ? "All reads to the primary" : route === "bound" ? `Bound ${bound.toFixed(0)} ms` : "Reads pick a replica", "active"),
-        primary: node(`${Math.round(primaryShare * 100)}% of reads`, primaryShare > 0.7 ? "pressure" : "active"),
-        replicaA: node(`${lag.toFixed(0)} ms behind`, replicaTone),
-        replicaB: node(`${lag.toFixed(0)} ms behind`, replicaTone),
+        app: node(route === "primary" ? "All reads to the primary" : route === "bound" ? `Bound ${bound.toFixed(0)} ms` : "Reads pick a replica", "active", route === "primary" ? 1 : 0.45),
+        primary: node(`${Math.round(primaryShare * 100)}% of reads`, primaryShare > 0.7 ? "pressure" : "active", primaryShare),
+        replicaA: node(`${lag.toFixed(0)} ms behind`, replicaTone, lag / 2000),
+        replicaB: node(`${lag.toFixed(0)} ms behind`, replicaTone, lag / 2000),
       },
       edges: {
         "app-primary": edge(primaryShare > 0.2),
@@ -607,10 +621,14 @@ export const chapter12Sim: LabSim = {
       },
       point: { ageSec: round(Math.min(age, 40), 2) },
       nodes: {
-        api: node(`${produce.toFixed(0)} msgs/s`, "active"),
-        outbox: node("Relay appends the log", "idle"),
-        log: node(`${partitions} partitions`, age > 8 ? "pressure" : "active"),
-        group: node(`${effective} assigned${idle ? `, ${idle} idle` : ""}`, duplicatePerSec > 0 || lostPerSec > 0 ? "pressure" : "active"),
+        api: node(`${produce.toFixed(0)} msgs/s`, "active", produce / 200),
+        outbox: node("Relay appends the log", "idle", 0.45),
+        log: node(`${partitions} partitions`, age > 8 ? "pressure" : "active", Math.min(1, age / 16)),
+        group: node(
+          `${effective} assigned${idle ? `, ${idle} idle` : ""}`,
+          duplicatePerSec > 0 || lostPerSec > 0 ? "pressure" : "active",
+          effective / Math.max(partitions, 1),
+        ),
       },
       edges: {
         "api-outbox": edge(true),
@@ -680,12 +698,12 @@ export const chapter14Sim: LabSim = {
       },
       point: { p99Ms: round(p99, 1) },
       nodes: {
-        region: node("One region owns the write", "idle"),
-        edge: node("30 ms", "idle"),
-        checkout: node(`Budget 500 ms`, p99 > 500 ? "pressure" : "active"),
-        inventory: node(inventoryOn ? "100 ms on the deadline" : "Off this deadline", inventoryOn ? "active" : "dim"),
-        payments: node("80 ms", "active"),
-        provider: node(slow ? `${providerWork} ms, slowed` : `${providerWork} ms`, timedOut || (slow && amp > 1.15) ? "pressure" : "active"),
+        region: node("One region owns the write", "idle", 0.4),
+        edge: node("30 ms", "idle", 30 / 500),
+        checkout: node(`Budget 500 ms`, p99 > 500 ? "pressure" : "active", p99 / 500),
+        inventory: node(inventoryOn ? "100 ms on the deadline" : "Off this deadline", inventoryOn ? "active" : "dim", inventoryOn ? 100 / 500 : 0),
+        payments: node("80 ms", "active", 80 / 500),
+        provider: node(slow ? `${providerWork} ms, slowed` : `${providerWork} ms`, timedOut || (slow && amp > 1.15) ? "pressure" : "active", providerWork / 500),
       },
       edges: {
         "region-edge": edge(true),

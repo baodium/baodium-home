@@ -277,11 +277,20 @@ export function TailLatencyGame() {
         title: "Tail Latency",
         challenge: challengeQ,
         situation: (
-          <p>
-            Hold the latency tail for {TAIL_DURATION_S} seconds. Exact pass/fail
-            rules are listed beside the controls — use the evidence, not a
-            recommended recipe.
-          </p>
+          <>
+            <p>
+              A checkout service on a weekday afternoon. Most requests finish
+              quickly. After about 10 seconds, a small share arrive late, and
+              the slowest 1 percent is what customers hit when the page feels
+              stuck.
+            </p>
+            <p>
+              You can change how many workers are on the shift, how long a
+              request may run, and whether a late request gets a second copy.
+              The budget is {P99_BUDGET_MS} ms. The page does not say how many
+              copies to send.
+            </p>
+          </>
         ),
         objective,
         explore: technologies,
@@ -326,13 +335,13 @@ export function TailLatencyGame() {
       situation: (
         <>
           <p>
-            You are looking at request latency for a busy service. Most requests
-            finish quickly, but a small share arrive late. Those late ones are
-            the tail.
+            A checkout service on a weekday afternoon. Most requests finish
+            quickly. A small share arrive late, and that slow share is the tail
+            customers actually wait on.
           </p>
           <p>
-            After about 10 seconds in this drill, stragglers show up. The median
-            can stay calm while the slowest requests stretch past your budget.
+            After about 10 seconds, stragglers show up. The median can stay
+            calm while the slowest requests stretch past the budget.
           </p>
         </>
       ),

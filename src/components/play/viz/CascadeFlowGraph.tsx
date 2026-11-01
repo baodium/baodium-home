@@ -2,31 +2,32 @@
 
 import {
   Controls,
-  MarkerType,
   ReactFlow,
-  type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
+  ARCH_NODE_HEIGHT,
+  ARCH_NODE_WIDTH,
   FitGraph,
   flowNodeTypes,
   useMeasuredFlow,
   type FlowServiceData,
   type FlowServiceNode,
 } from "@/components/learning/FlowServiceNode";
-import type { NodeId } from "@/lib/play/cascade";
+import { flowEdgeTypes, requestEdge } from "@/components/learning/RequestEdge";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import type { NodeId } from "@/lib/play/cascade";
 
 type CircuitMap = Record<"auth" | "pay" | "db", boolean>;
 type HealthMap = Record<NodeId, number>;
 type UtilMap = Record<"auth" | "pay" | "db", number>;
 
 const POS = {
-  edge: { x: 220, y: 0 },
-  checkout: { x: 220, y: 160 },
-  auth: { x: 0, y: 340 },
-  pay: { x: 250, y: 340 },
-  db: { x: 520, y: 340 },
+  edge: { x: 140, y: 0 },
+  checkout: { x: 140, y: 190 },
+  auth: { x: 0, y: 400 },
+  pay: { x: 270, y: 400 },
+  db: { x: 540, y: 400 },
 } as const;
 
 type Id = keyof typeof POS;
@@ -36,8 +37,8 @@ export function CascadeFlowGraph({
   circuitOpen,
   util,
   bulkheadAuth,
-  bulkheadPay,
   cascadeRisk,
+  bulkheadPay,
 }: {
   health: HealthMap;
   circuitOpen: CircuitMap;
@@ -47,21 +48,28 @@ export function CascadeFlowGraph({
   bulkheadPay: boolean;
 }) {
   const reduced = usePrefersReducedMotion();
-
   const detail: Record<Id, string> = {
     edge: `Health ${(health.edge * 100).toFixed(0)}%`,
     checkout: `Cascade risk ${(cascadeRisk * 100).toFixed(0)}%`,
     auth: circuitOpen.auth
       ? "Breaker open"
       : bulkheadAuth
-        ? `Own pool ${(util.auth * 100).toFixed(0)}%`
-        : `Shared pool ${(util.auth * 100).toFixed(0)}%`,
+        ? `Own pool · util ${(util.auth * 100).toFixed(0)}%`
+        : `Shared pool · util ${(util.auth * 100).toFixed(0)}%`,
     pay: circuitOpen.pay
       ? "Breaker open"
       : bulkheadPay
-        ? `Own pool ${(util.pay * 100).toFixed(0)}%`
-        : `Shared pool ${(util.pay * 100).toFixed(0)}%`,
+        ? `Own pool · util ${(util.pay * 100).toFixed(0)}%`
+        : `Shared pool · util ${(util.pay * 100).toFixed(0)}%`,
     db: circuitOpen.db ? "Breaker open" : `Util ${(util.db * 100).toFixed(0)}%`,
+  };
+
+  const meter: Record<Id, number> = {
+    edge: health.edge,
+    checkout: Math.max(0, 1 - cascadeRisk),
+    auth: health.auth,
+    pay: health.pay,
+    db: health.db,
   };
 
   const toneFor = (id: Id): FlowServiceData["tone"] => {
@@ -94,12 +102,13 @@ export function CascadeFlowGraph({
     id,
     type: "service",
     position: POS[id],
-    initialWidth: 176,
-    initialHeight: 72,
+    initialWidth: ARCH_NODE_WIDTH,
+    initialHeight: ARCH_NODE_HEIGHT,
     data: {
       label: labels[id],
       detail: detail[id],
       tone: toneFor(id),
+      meter: meter[id],
       ...handles[id],
     },
     draggable: false,
@@ -107,45 +116,62 @@ export function CascadeFlowGraph({
     connectable: false,
   }));
 
-  const raw = [
-    { id: "edge-checkout", source: "edge", target: "checkout", sourceHandle: "down", targetHandle: "in", open: false },
-    { id: "checkout-auth", source: "checkout", target: "auth", sourceHandle: "down", targetHandle: "in", open: circuitOpen.auth },
-    { id: "checkout-pay", source: "checkout", target: "pay", sourceHandle: "down", targetHandle: "in", open: circuitOpen.pay },
-    { id: "pay-db", source: "pay", target: "db", sourceHandle: "out", targetHandle: "in", open: circuitOpen.db },
-  ] as const;
-
-  const edges: Edge[] = raw.map((edge) => {
-    const stroke = edge.open ? "#ad4f36" : "#2f7a7e";
-    const hot = !reduced && !edge.open && (edge.id === "edge-checkout" ? cascadeRisk > 0.25 : true);
-    return {
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      sourceHandle: edge.sourceHandle,
-      targetHandle: edge.targetHandle,
-      type: "smoothstep",
-      animated: hot && !edge.open,
-      style: {
-        stroke,
-        strokeWidth: edge.open ? 1.6 : 2,
-        strokeDasharray: edge.open ? "5 4" : undefined,
-      },
-      markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16, color: stroke },
-    };
-  });
+  const edges = [
+    requestEdge({
+      id: "edge-checkout",
+      source: "edge",
+      target: "checkout",
+      sourceHandle: "down",
+      targetHandle: "in",
+      label: "request",
+      flow: "live",
+      reduced,
+    }),
+    requestEdge({
+      id: "checkout-auth",
+      source: "checkout",
+      target: "auth",
+      sourceHandle: "down",
+      targetHandle: "in",
+      label: circuitOpen.auth ? "open" : "auth",
+      flow: circuitOpen.auth ? "open" : health.auth < 0.55 ? "strain" : "live",
+      reduced,
+    }),
+    requestEdge({
+      id: "checkout-pay",
+      source: "checkout",
+      target: "pay",
+      sourceHandle: "down",
+      targetHandle: "in",
+      label: circuitOpen.pay ? "open" : "pay",
+      flow: circuitOpen.pay ? "open" : health.pay < 0.55 ? "strain" : "live",
+      reduced,
+    }),
+    requestEdge({
+      id: "pay-db",
+      source: "pay",
+      target: "db",
+      sourceHandle: "out",
+      targetHandle: "in",
+      label: circuitOpen.db ? "open" : "query",
+      flow: circuitOpen.db ? "open" : health.db < 0.55 ? "strain" : "live",
+      reduced,
+    }),
+  ];
 
   const flow = useMeasuredFlow({ nodes, edges });
 
   return (
     <div
       className="service-flow service-flow-short"
-      aria-label="Checkout dependency graph with circuit breakers. No path bypasses Auth."
+      aria-label="Checkout dependency graph. Requests move along each call. An open label means that breaker stopped waiting. No path skips Auth."
     >
       <ReactFlow
         nodes={flow.nodes}
         edges={flow.edges}
         onNodesChange={flow.onNodesChange}
         nodeTypes={flowNodeTypes}
+        edgeTypes={flowEdgeTypes}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
@@ -155,6 +181,8 @@ export function CascadeFlowGraph({
         deleteKeyCode={null}
         proOptions={{ hideAttribution: false }}
         colorMode="system"
+        fitView
+        fitViewOptions={{ padding: 0.22, duration: 0 }}
         minZoom={0.4}
         maxZoom={1.4}
       >
