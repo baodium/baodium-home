@@ -12,6 +12,9 @@ export type DrillLink = {
   href: string;
 };
 
+/** full = guided incident on the shared clock. short = a smaller lab. book = prose only. */
+export type LabKind = "full" | "short" | "book";
+
 export type ChapterRecord = {
   id: string;
   slug: string;
@@ -22,8 +25,11 @@ export type ChapterRecord = {
   shortTitle: string;
   bookHref: string;
   labHref: string | null;
+  labKind: LabKind;
   labStatus: "ready" | "soon" | "none";
-  /** One-line lab subtitle when a lab exists or is planned. */
+  /** Honest one-line status for the directory. */
+  statusLine: string;
+  /** One-line lab subtitle when a lab exists. */
   labSubtitle: string;
   /** Play drills that deepen this chapter (implemented only). */
   drills: DrillLink[];
@@ -39,11 +45,11 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Resource contention",
     bookHref: "/system-design/chapter-1",
     labHref: "/system-design/experience/chapter-1",
+    labKind: "full",
     labStatus: "ready",
+    statusLine: "Full incident. Recommendations, a feature flag, and a 40-slot pool.",
     labSubtitle: "Recommendations, a feature flag, and a 40-slot pool",
-    drills: [
-      { slug: "slo-watch", title: "SLO Watch", href: "/play/slo-watch" },
-    ],
+    drills: [{ slug: "slo-watch", title: "SLO Watch", href: "/play/slo-watch" }],
   },
   {
     id: "chapter-2",
@@ -53,7 +59,9 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Requests, latency, throughput",
     bookHref: "/system-design/chapter-2",
     labHref: "/system-design/experience/chapter-2",
+    labKind: "short",
     labStatus: "ready",
+    statusLine: "Short lab. Size workers with Little's Law. A full incident is still ahead.",
     labSubtitle: "Size workers with Little's Law before the queue grows",
     drills: [
       { slug: "traffic-surge", title: "Traffic Surge", href: "/play/traffic-surge" },
@@ -68,8 +76,10 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "State, identity, uncertainty",
     bookHref: "/system-design/chapter-3",
     labHref: "/system-design/experience/chapter-3",
+    labKind: "full",
     labStatus: "ready",
-    labSubtitle: "One charge when the provider answers after the timeout",
+    statusLine: "Full incident. One charge when the provider answers after the timeout.",
+    labSubtitle: "One charge when the provider answers after the client has given up",
     drills: [],
   },
   {
@@ -80,7 +90,9 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Cascading failure",
     bookHref: "/system-design/chapter-4",
     labHref: "/system-design/experience/chapter-4",
+    labKind: "short",
     labStatus: "ready",
+    statusLine: "Short lab. A deadline that stops the downstream call. A full incident is still ahead.",
     labSubtitle: "A deadline that stops the downstream call",
     drills: [{ slug: "cascade", title: "Cascade", href: "/play/cascade" }],
   },
@@ -92,11 +104,25 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Caching",
     bookHref: "/system-design/chapter-5",
     labHref: "/system-design/experience/chapter-5",
+    labKind: "short",
     labStatus: "ready",
+    statusLine: "Short lab. Cache-aside reads when the keys expire together.",
     labSubtitle: "Cache-aside reads when the keys expire together",
-    drills: [
-      { slug: "cache-roulette", title: "Cache Roulette", href: "/play/cache-roulette" },
-    ],
+    drills: [{ slug: "cache-roulette", title: "Cache Roulette", href: "/play/cache-roulette" }],
+  },
+  {
+    id: "chapter-6",
+    slug: "chapter-6",
+    number: 6,
+    title: "Containers and the Reproducible Deployment",
+    shortTitle: "Containers",
+    bookHref: "/system-design/chapter-6",
+    labHref: null,
+    labKind: "book",
+    labStatus: "none",
+    statusLine: "In the book. No lab yet.",
+    labSubtitle: "In the book. No lab yet.",
+    drills: [],
   },
   {
     id: "chapter-7",
@@ -106,8 +132,66 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Replicas and shards",
     bookHref: "/system-design/chapter-7",
     labHref: "/system-design/experience/chapter-7",
+    labKind: "short",
     labStatus: "ready",
+    statusLine: "Short lab. Read your write, and leave the rest on the replicas.",
     labSubtitle: "Read your write, and leave the rest on the replicas",
+    drills: [],
+  },
+  {
+    id: "chapter-8",
+    slug: "chapter-8",
+    number: 8,
+    title: "Observability and Path Health",
+    shortTitle: "Observability",
+    bookHref: "/system-design/chapter-8",
+    labHref: null,
+    labKind: "book",
+    labStatus: "none",
+    statusLine: "In the book. No lab yet.",
+    labSubtitle: "In the book. No lab yet.",
+    drills: [],
+  },
+  {
+    id: "chapter-9",
+    slug: "chapter-9",
+    number: 9,
+    title: "Guardrails and Failure Containment",
+    shortTitle: "Guardrails",
+    bookHref: "/system-design/chapter-9",
+    labHref: null,
+    labKind: "book",
+    labStatus: "none",
+    statusLine: "In the book. No lab yet.",
+    labSubtitle: "In the book. No lab yet.",
+    drills: [],
+  },
+  {
+    id: "chapter-10",
+    slug: "chapter-10",
+    number: 10,
+    title: "Deployments as Controlled Experiments",
+    shortTitle: "Controlled experiments",
+    bookHref: "/system-design/chapter-10",
+    labHref: null,
+    labKind: "book",
+    labStatus: "none",
+    statusLine: "In the book. No lab yet.",
+    labSubtitle: "In the book. No lab yet.",
+    drills: [],
+  },
+  {
+    id: "chapter-11",
+    slug: "chapter-11",
+    number: 11,
+    title: "Service Decomposition",
+    shortTitle: "Decomposition",
+    bookHref: "/system-design/chapter-11",
+    labHref: null,
+    labKind: "book",
+    labStatus: "none",
+    statusLine: "In the book. No lab yet.",
+    labSubtitle: "In the book. No lab yet.",
     drills: [],
   },
   {
@@ -118,8 +202,24 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Events and streams",
     bookHref: "/system-design/chapter-12",
     labHref: "/system-design/experience/chapter-12",
+    labKind: "short",
     labStatus: "ready",
+    statusLine: "Short lab. Consumer lag, partitions, and a second delivery.",
     labSubtitle: "Consumer lag, partitions, and a second delivery",
+    drills: [],
+  },
+  {
+    id: "chapter-13",
+    slug: "chapter-13",
+    number: 13,
+    title: "Machine Learning Systems in Production",
+    shortTitle: "ML in production",
+    bookHref: "/system-design/chapter-13",
+    labHref: null,
+    labKind: "book",
+    labStatus: "none",
+    statusLine: "In the book. No lab yet.",
+    labSubtitle: "In the book. No lab yet.",
     drills: [],
   },
   {
@@ -130,7 +230,9 @@ export const CHAPTERS: ChapterRecord[] = [
     shortTitle: "Production experience",
     bookHref: "/system-design/chapter-14",
     labHref: "/system-design/experience/chapter-14",
+    labKind: "short",
     labStatus: "ready",
+    statusLine: "Short lab. A 500 ms checkout budget when the provider slows.",
     labSubtitle: "A 500 ms checkout budget when the provider slows",
     drills: [],
   },
@@ -148,6 +250,19 @@ export function chapterLabel(slug: string): string {
 
 export function labChapters(): ChapterRecord[] {
   return CHAPTERS.filter((c) => c.labStatus !== "none");
+}
+
+export function directoryStatus(chapter: ChapterRecord): string {
+  if (chapter.labKind === "full") return "Full incident";
+  if (chapter.labKind === "short") return "Short lab";
+  return "In the book";
+}
+
+/** Reader-facing lab link. Book-only chapters stay on the prose. */
+export function labActionLabel(chapter: ChapterRecord): string | null {
+  if (!chapter.labHref) return null;
+  if (chapter.labKind === "short") return "Open the short lab";
+  return "Operate this incident";
 }
 
 /** Map a Play drill slug to its book chapter label + href from the registry. */

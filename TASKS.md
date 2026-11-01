@@ -1,6 +1,6 @@
 # Tasks
 
-Status for the learning platform. Phase 0 and the Phase 1–2 vertical slice are in this branch. Later phases are open.
+Status for the learning platform. Phase 0, the Chapter 1 slice, the 14-chapter directory, and the Chapter 3 incident are in the tree. Later phases are open.
 
 ## Done
 
@@ -14,11 +14,12 @@ Status for the learning platform. Phase 0 and the Phase 1–2 vertical slice are
 - [x] Lab motion no longer pulses the live card, the progress mark, the slot, or the graph edge
 - [x] SLO Watch uses the shared occupancy clamp (`/play/slo-watch`)
 - [x] `npm run verify:ch1`, `npm run verify:play`, and `npm run typecheck`
+- [x] Phase 3: directory of all 14 chapters, honest status (full incident, short lab, or in the book), reader links, local progress, no sign-in
+- [x] Phase 4 start: Chapter 3 idempotency on the discrete-event ledger (`npm run verify:ch3`)
 
 ## Open
 
-- [ ] Phase 3: directory of all 14 chapters, honest status, reader links, local progress, no sign-in
-- [ ] Phase 4: full sims for chapters 3, 8, 12, and 14
+- [ ] Phase 4 remainder: full sims for chapters 8, 12, and 14
 - [ ] Phase 5: remaining chapters, no empty templates
 - [ ] Phase 6: browser labs for pod readiness, tracing, and incident triage, labeled as simulations
 - [ ] Phase 7: Appendix B and polish
@@ -27,6 +28,6 @@ Status for the learning platform. Phase 0 and the Phase 1–2 vertical slice are
 ## Preserved
 
 - Book routes under `/system-design`
-- `/system-design/experience` and `/system-design/experience/chapter-1`
+- `/system-design/experience`, `/system-design/experience/chapter-1`, and `/system-design/experience/chapter-3`
 - `/play` and the five drill URLs
 - Nav labels Home, Book, Labs, Drills, Projects, About

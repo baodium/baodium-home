@@ -1,4 +1,5 @@
 import { chapter1Scenario } from "@/lib/experience/scenarios/chapter-1";
+import { chapter3Meta } from "@/lib/experience/scenarios/chapter-3";
 import { getShortLab } from "@/lib/experience/short-labs";
 import type {
   ChapterScenario,
@@ -9,6 +10,7 @@ import { labChapters } from "@/lib/learning/registry";
 /** Lab chapter cards — titles synced from the shared learning registry. */
 export const experienceChapters: ExperienceChapterMeta[] = labChapters().map((ch) => {
   if (ch.slug === "chapter-1") return chapter1Scenario.meta;
+  if (ch.slug === "chapter-3") return chapter3Meta;
   return {
     id: ch.id,
     slug: ch.slug,

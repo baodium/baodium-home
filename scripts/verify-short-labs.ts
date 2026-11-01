@@ -1,5 +1,5 @@
 /**
- * Short labs for chapters 2, 3, 4, 5, 7, 12, and 14.
+ * Short labs for chapters 2, 4, 5, 7, 12, and 14.
  * Each challenge fails on the starting controls and passes on a worked setting.
  * Guided gates open in order. Challenge copy does not name the fix.
  */
@@ -47,7 +47,6 @@ for (const lab of SHORT_LABS) {
 
 const expectPass: Record<string, ControlValues> = {
   "chapter-2": { workers: 16 },
-  "chapter-3": { idempotency: true, outbox: true },
   "chapter-4": { propagate: true, cancel: true },
   "chapter-5": { singleflight: true, jitter: true },
   "chapter-7": { route: "bound", lagBoundMs: 200 },
@@ -83,15 +82,6 @@ const guided: { slug: string; steps: { controls: ControlValues; gate: string; se
       { controls: { arrivalPerSec: 800 }, gate: "overCapacity", seconds: 2 },
       { controls: { arrivalPerSec: 800, retryFactor: 2 }, gate: "queued", seconds: 3 },
       { controls: { arrivalPerSec: 80, serviceMs: 15, workers: 30, retryFactor: 1 }, gate: "recovered", seconds: 8 },
-    ],
-  },
-  {
-    slug: "chapter-3",
-    steps: [
-      { controls: {}, gate: "timedOut", seconds: 3 },
-      { controls: {}, gate: "duplicated", seconds: 2 },
-      { controls: { idempotency: true }, gate: "identified", seconds: 4 },
-      { controls: { idempotency: true, outbox: true }, gate: "recorded", seconds: 4 },
     ],
   },
   {

@@ -15,6 +15,7 @@
     "verify:concepts": "npx --yes tsx scripts/verify-interactive-concepts.ts",
     "verify:play": "npx --yes tsx scripts/verify-play-engines.ts",
     "verify:ch1": "npx --yes tsx scripts/verify-ch1-engine.ts",
+    "verify:ch3": "npx --yes tsx scripts/verify-ch3-engine.ts",
     "verify:labs": "npx --yes tsx scripts/verify-short-labs.ts"
   },
   "dependencies": {

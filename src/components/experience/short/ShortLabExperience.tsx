@@ -7,6 +7,7 @@ import { ConceptGraph } from "@/components/experience/short/ConceptGraph";
 import { ShortSeriesChart } from "@/components/experience/short/ShortSeriesChart";
 import { controlsFor, getShortLab } from "@/lib/experience/short-labs/catalog";
 import type { ControlValues, LabControl, LabMode } from "@/lib/experience/short-labs/types";
+import { markChapterFinished, markChapterOpened } from "@/lib/learning/directory-progress";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { Segmented } from "@/components/ui/Segmented";
 
@@ -43,6 +44,14 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
   useEffect(() => {
     controlsRef.current = controls;
   }, [controls]);
+
+  useEffect(() => {
+    markChapterOpened(lab.slug);
+  }, [lab.slug]);
+
+  useEffect(() => {
+    if (snap.challengePassed) markChapterFinished(lab.slug);
+  }, [lab.slug, snap.challengePassed]);
 
   useEffect(() => {
     if (!running || reduced) return;

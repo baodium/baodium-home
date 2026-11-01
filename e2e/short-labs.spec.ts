@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 
 const labs = [
   { path: "/system-design/experience/chapter-2", heading: /size the workers/i },
-  { path: "/system-design/experience/chapter-3", heading: /charge the card once/i },
   { path: "/system-design/experience/chapter-4", heading: /downstream work/i },
   { path: "/system-design/experience/chapter-5", heading: /keys expire/i },
   { path: "/system-design/experience/chapter-7", heading: /read your own write/i },
@@ -28,5 +27,14 @@ test.describe("short chapter labs", () => {
     await expect(page.getByRole("link", { name: /Replicas, Partitions, and Shards/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Event-Driven Systems/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Designing From Production Experience/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Containers and the Reproducible Deployment/i })).toHaveAttribute(
+      "href",
+      "/system-design/chapter-6",
+    );
+    await expect(page.getByRole("link", { name: /Observability and Path Health/i })).toHaveAttribute(
+      "href",
+      "/system-design/chapter-8",
+    );
+    await expect(page.getByText(/14 chapters/i)).toBeVisible();
   });
 });

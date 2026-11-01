@@ -36,16 +36,19 @@ Done for the acceptance checks that can run without a hosted environment.
 
 ## Phase 3 — Directory of all 14
 
-Not in this change.
+Done in the curriculum slice.
 
-- One index of all 14 chapters with an honest status: book only, short lab, or full incident.
-- Reader links from each chapter into the lab that exists.
-- Progress stored locally, with no required sign-in.
-- Chapters 6, 8, 9, 10, 11, and 13 are book-only today. The directory should say that in the open, instead of hiding them.
+- `/system-design/experience` lists chapters 1 through 14.
+- Status is one of: full incident (1 and 3), short lab (2, 4, 5, 7, 12, 14), or in the book (6, 8, 9, 10, 11, 13).
+- Every title links to the chapter in the reader. A lab link appears only when that lab exists. Book-only chapters do not get a playable placeholder.
+- The reader says "Operate this incident" for a full incident and "Open the short lab" for a short lab.
+- Progress is `localStorage` (`baodium-learning-directory-v1` plus the existing book reader key). No sign-in.
 
 ## Phase 4 — Real sims for chapters 3, 8, 12, and 14
 
-Not in this change. Short labs exist for 3, 12, and 14. They are not the full incident shape (guided story, topology matched to state, challenge with exact criteria on the shared engine). Chapter 8 has no lab.
+Chapter 3 is the first full incident after Chapter 1. Chapters 8, 12, and 14 are still open. Chapter 8 has no lab. Chapters 12 and 14 remain short labs.
+
+Chapter 3 runs a discrete-event ledger in `src/lib/experience/idempotency/engine.ts`. One checkout, one client timeout, one retry. A repeated operation id returns the stored charge. A new id starts another provider call. The notification is chosen when the charge is created. Pause holds the queue order. Replay uses the same seed. `readIdempotency` is the projection for the headline, the narration, the graph, and the challenge streak. Guided, practice, and challenge are modes. The graph uses the labeled request edges from the architecture nodes.
 
 ## Phase 5 — Remaining chapters
 
@@ -62,7 +65,9 @@ Not in this change. Appendix B stays an appendix. No hosted multi-user shell, no
 ## Checks before calling a page done
 
 - `npm run verify:ch1`
+- `npm run verify:ch3`
 - `npm run verify:play`
+- `npm run verify:labs`
 - `npm run typecheck`
 - Chapter 1 guided path in the browser: pause, step, replay, and the service path reading Product → Recommendation → pool → database
 - Practice and Challenge reachable after the guided decision

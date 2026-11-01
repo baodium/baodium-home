@@ -53,4 +53,4 @@ Reduced motion removes the decorative transitions. The numbers, the queue, and t
 
 ## What is deliberately not shared yet
 
-Chapters 2, 3, 4, 5, 7, 12, and 14 have short labs with their own tick functions. Traffic Surge, Cascade, Cache Roulette, and Tail Latency keep theirs. Folding those into the Chapter 1 engine would blur different incidents. The shared piece this phase is the occupancy bound, used by Chapter 1 and by SLO Watch.
+Chapter 3 has its own discrete-event ledger (`src/lib/experience/idempotency/engine.ts`), the same shape as Chapter 1: one clock, one readout, guided / practice / challenge. Chapters 2, 4, 5, 7, 12, and 14 still have short labs with their own tick functions. Traffic Surge, Cascade, Cache Roulette, and Tail Latency keep theirs. Folding those into the Chapter 1 pool engine would blur different incidents. The shared occupancy bound is still Chapter 1 and SLO Watch.
