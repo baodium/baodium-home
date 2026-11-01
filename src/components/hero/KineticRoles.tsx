@@ -71,7 +71,7 @@ export function KineticRoles({
                 0{line + 1}
               </motion.span>
               {/* No overflow clip / filter blur: roles must stay optically sharp. */}
-              <span className="block pb-[0.08em] text-[clamp(2.45rem,5.1vw,4.85rem)] font-semibold leading-[1.02] tracking-[-0.05em] [filter:none]">
+              <span className="block pb-[0.08em] text-[clamp(1.7rem,min(5.1vw,6.6vh),4.85rem)] font-semibold leading-[1.02] tracking-[-0.05em] [filter:none]">
                 <span className="sr-only">{role.word}.</span>
                 <motion.span
                   aria-hidden="true"

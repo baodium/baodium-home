@@ -3,13 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  motion,
-  useMotionValue,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "motion/react";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { KineticRoles } from "@/components/hero/KineticRoles";
 import { SignatureTrace } from "@/components/hero/SignatureTrace";
@@ -59,14 +53,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   };
 
 
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-
-  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 110]);
-  const photoScale = useTransform(scrollYProgress, [0, 0.85], reduce ? [1, 1] : [1, 1.06]);
-  const typeExitY = useTransform(scrollYProgress, [0, 0.58], reduce ? [0, 0] : [0, -64]);
-  const typeExitOpacity = useTransform(scrollYProgress, [0, 0.38], reduce ? [1, 1] : [1, 0]);
-  const mistDrift = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 90]);
-
   // Depth: portrait (back) and type (front) drift against each other with the pointer.
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -75,8 +61,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
   const photoX = useTransform(spx, (v) => v * -14);
   const photoPY = useTransform(spy, (v) => v * -8);
   const typeX = useTransform(spx, (v) => v * 8);
-  const typePointerY = useTransform(spy, (v) => v * 5);
-  const typeY = useTransform(() => typePointerY.get() + typeExitY.get());
+  const typeY = useTransform(spy, (v) => v * 5);
 
   return (
     <section
@@ -93,24 +78,14 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         py.set(event.clientY / window.innerHeight - 0.5);
       }}
       onPointerLeave={() => setSteering(false)}
-      className="grain relative isolate overflow-hidden bg-night lg:h-svh lg:min-h-[700px]"
+      className="grain relative isolate flex h-full min-h-0 flex-col overflow-hidden bg-night"
     >
-      {/* Far plane: solid warm field that drifts with scroll — no decorative blobs */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <motion.div
-          style={{ y: mistDrift }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2.4, ease }}
-          className="absolute inset-0 bg-[#2a1712]"
-        />
+      {/* Far plane: a flat warm field. No decorative gradient. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[#2a1712]">
         <div className="absolute inset-0 bg-night/55" />
       </div>
       {/* Mid plane: the portrait, melted into the field */}
-      <motion.div
-        style={{ y: photoY, scale: photoScale }}
-        className="relative h-[46svh] max-h-[560px] min-h-[300px] w-full max-lg:mt-14 lg:absolute lg:inset-0 lg:h-full lg:max-h-none"
-      >
+      <motion.div className="relative min-h-0 w-full flex-1 max-lg:mt-16 lg:absolute lg:inset-0 lg:h-full">
         <motion.div style={{ x: photoX, y: photoPY }} className="absolute -inset-6">
           <motion.div
             ref={photoRef}
@@ -135,22 +110,18 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         </motion.div>
       </motion.div>
 
-      {/* Near plane: type and the signature trace — fade with type so path never desyncs mid-scroll */}
-      <motion.div
-        style={{ opacity: typeExitOpacity }}
-        className="pointer-events-none absolute inset-0 z-[4] hidden lg:block"
-      >
+      {/* Near plane: the signature trace, drawn into the roles. */}
+      <div className="pointer-events-none absolute inset-0 z-[4] hidden lg:block">
         <SignatureTrace sectionRef={ref} photoRef={photoRef} wordRefs={wordRefs} active={active} drawDelay={reduce ? 0 : TRACE_DELAY} instant={!!reduce} />
-      </motion.div>
+      </div>
 
-      <div className="relative z-[3] -mt-28 px-5 pb-12 sm:px-8 md:-mt-32 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center lg:px-0 lg:pb-0">
+      <div className="relative z-[3] shrink-0 px-5 pb-6 sm:px-8 lg:absolute lg:inset-0 lg:flex lg:items-center lg:px-0 lg:pb-0">
         <div className="flex w-full flex-col gap-8 lg:ml-[max(2.5rem,calc((100vw-84rem)/2))] lg:mr-[max(1.5rem,calc((100vw-84rem)/2))] lg:max-w-[84rem] lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <motion.div
             data-hero-line
             style={{
               x: typeX,
               y: typeY,
-              opacity: typeExitOpacity,
             }}
             className="lg:max-w-[38rem]"
           >
@@ -159,7 +130,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
                 initial={reduce ? false : { opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : 0.2, ease }}
-                className="block text-[clamp(2.65rem,6.4vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
+                className="block text-[clamp(2rem,min(6.4vw,8vh),5.5rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-cream"
               >
                 <span className="text-flame">BAODIUM</span>
               </motion.span>
@@ -170,7 +141,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               initial={reduce ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.15, ease }}
-              className="mt-6 max-w-[28rem] text-[clamp(1.02rem,1.45vw,1.18rem)] leading-relaxed text-cream/68"
+              className="mt-4 max-w-[28rem] text-[clamp(0.95rem,min(1.45vw,2.4vh),1.18rem)] leading-relaxed text-cream/68 lg:mt-6"
             >
               Products, a free system-design book, and labs that let you operate
               the failures the chapters explain.
@@ -180,7 +151,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 1.35, ease }}
-              className="mt-7 flex flex-wrap items-center gap-3 md:mt-8"
+              className="mt-5 flex flex-wrap items-center gap-3 lg:mt-8"
             >
               <Magnetic>
                 <Link
@@ -205,19 +176,6 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
           </motion.div>
         </div>
       </div>
-
-      {!reduce ? (
-        <a
-          href="#live-path"
-          aria-label="Scroll to the Chapter 1 live path"
-          className="absolute bottom-6 left-1/2 z-[5] hidden -translate-x-1/2 flex-col items-center gap-2 text-cream/75 transition-colors hover:text-cream lg:flex"
-        >
-          <span className="font-mono text-[0.72rem] uppercase tracking-[0.14em]">Scroll</span>
-          <span aria-hidden="true" className="relative h-8 w-px overflow-hidden bg-cream/20">
-            <span className="scroll-cue absolute inset-x-0 top-0 h-full bg-cream/70" />
-          </span>
-        </a>
-      ) : null}
     </section>
   );
 }

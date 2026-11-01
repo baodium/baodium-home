@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-25T16:04:35.277Z",
-  "zip": "Baodium_System_Design_Final_Language_Pass_Web.zip",
+  "generatedAt": "2026-11-01T16:30:32.221Z",
+  "zip": "Practical_System_Design_Source_Lite.zip",
   "chapters": [
     {
       "slug": "preface",
@@ -21,43 +21,38 @@
       "title": "Resource Contention in Production",
       "sections": [
         {
-          "id": "synchronous-dependencies",
-          "title": "Synchronous Dependencies",
+          "id": "synchronous-dependencies-on-the-request-path",
+          "title": "Synchronous Dependencies on the Request Path",
           "level": 2
         },
         {
-          "id": "design-options-for-the-recommendation-call",
-          "title": "Design Options for the Recommendation Call",
+          "id": "diagnosing-connection-pool-saturation",
+          "title": "Diagnosing Connection-Pool Saturation",
+          "level": 2
+        },
+        {
+          "id": "acquisition-execution-and-occupancy",
+          "title": "Acquisition, Execution, and Occupancy",
           "level": 3
         },
         {
-          "id": "connection-pool-measurements",
-          "title": "Connection-Pool Measurements",
+          "id": "shared-pools-and-fleet-wide-session-limits",
+          "title": "Shared Pools and Fleet-Wide Session Limits",
           "level": 2
         },
         {
-          "id": "connection-demand-and-utilization",
-          "title": "Connection Demand and Utilization",
+          "id": "optional-dependencies-with-bounded-admission",
+          "title": "Optional Dependencies With Bounded Admission",
           "level": 2
         },
         {
-          "id": "queueing-across-service-boundaries",
-          "title": "Queueing Across Service Boundaries",
-          "level": 2
+          "id": "choosing-the-limits",
+          "title": "Choosing the Limits",
+          "level": 3
         },
         {
-          "id": "timeouts-and-retry-traffic",
-          "title": "Timeouts and Retry Traffic",
-          "level": 2
-        },
-        {
-          "id": "sec:ch01-bounded",
-          "title": "Bounded Lookup and Degradation",
-          "level": 2
-        },
-        {
-          "id": "canary-load-and-release-validation",
-          "title": "Canary Load and Release Validation",
+          "id": "open-loop-load-testing-and-flag-rollback",
+          "title": "Open-Loop Load Testing and Flag Rollback",
           "level": 2
         },
         {
@@ -74,68 +69,33 @@
       "title": "Modeling Requests, Latency, and Throughput",
       "sections": [
         {
-          "id": "request-rates-and-downstream-work",
-          "title": "Request Rates and Downstream Work",
+          "id": "request-rates-across-dependencies",
+          "title": "Request Rates Across Dependencies",
           "level": 2
         },
         {
-          "id": "average-concurrency",
-          "title": "Average Concurrency",
+          "id": "concurrency-and-resource-occupancy",
+          "title": "Concurrency and Resource Occupancy",
           "level": 2
         },
         {
-          "id": "applying-it-to-a-sizing-decision",
-          "title": "Applying It to a Sizing Decision",
-          "level": 3
-        },
-        {
-          "id": "choosing-the-measurements",
-          "title": "Choosing the Measurements",
-          "level": 3
-        },
-        {
-          "id": "resources-used-by-one-request",
-          "title": "Resources Used by One Request",
-          "level": 2
-        },
-        {
-          "id": "reducing-connection-occupancy",
-          "title": "Reducing Connection Occupancy",
+          "id": "shortening-the-time-on-the-scarce-resource",
+          "title": "Shortening the Time on the Scarce Resource",
           "level": 3
         },
         {
           "id": "sec:ch02-variation",
-          "title": "Workload Variation",
+          "title": "Fleet Capacity and Failure Conditions",
           "level": 2
         },
         {
-          "id": "sec:ch02-failure-capacity",
-          "title": "Failure Capacity and Shared Limits",
+          "id": "load-test-saturation-and-admission",
+          "title": "Load-Test Saturation and Admission",
           "level": 2
         },
         {
-          "id": "local-pools-and-fleet-capacity",
-          "title": "Local Pools and Fleet Capacity",
-          "level": 3
-        },
-        {
-          "id": "reading-a-load-test",
-          "title": "Reading a Load Test",
-          "level": 2
-        },
-        {
-          "id": "queue-wait-and-recovery-time",
-          "title": "Queue Wait and Recovery Time",
-          "level": 2
-        },
-        {
-          "id": "retries-in-the-workload-estimate",
-          "title": "Retries in the Workload Estimate",
-          "level": 2
-        },
-        {
-          "id": "comparing-design-changes",
-          "title": "Comparing Design Changes",
+          "id": "capacity-planning-for-a-new-service",
+          "title": "Capacity Planning for a New Service",
           "level": 2
         },
         {
@@ -152,8 +112,18 @@
       "title": "State, Identity, and the Cost of Uncertainty",
       "sections": [
         {
-          "id": "payment-outcomes-after-timeout",
-          "title": "Payment Outcomes After Timeout",
+          "id": "idempotent-operations-and-retry-safety",
+          "title": "Idempotent Operations and Retry Safety",
+          "level": 2
+        },
+        {
+          "id": "timeouts-and-uncertain-remote-outcomes",
+          "title": "Timeouts and Uncertain Remote Outcomes",
+          "level": 2
+        },
+        {
+          "id": "api-contracts-and-durable-operation-records",
+          "title": "API Contracts and Durable Operation Records",
           "level": 2
         },
         {
@@ -162,8 +132,13 @@
           "level": 2
         },
         {
-          "id": "a-durable-payment-operation",
-          "title": "A Durable Payment Operation",
+          "id": "caller-identity-and-permission",
+          "title": "Caller Identity and Permission",
+          "level": 2
+        },
+        {
+          "id": "recording-intent-before-the-remote-call",
+          "title": "Recording Intent Before the Remote Call",
           "level": 2
         },
         {
@@ -172,18 +147,23 @@
           "level": 3
         },
         {
-          "id": "concurrent-submissions",
-          "title": "Concurrent Submissions",
+          "id": "concurrent-duplicate-submissions",
+          "title": "Concurrent Duplicate Submissions",
+          "level": 3
+        },
+        {
+          "id": "atomic-updates-and-transaction-isolation",
+          "title": "Atomic Updates and Transaction Isolation",
           "level": 3
         },
         {
           "id": "sec:ch03-provider-guarantees",
-          "title": "Provider Guarantees",
+          "title": "Provider Idempotency Guarantees",
           "level": 3
         },
         {
-          "id": "recording-the-outcome",
-          "title": "Recording the Outcome",
+          "id": "persisting-provider-outcomes",
+          "title": "Persisting Provider Outcomes",
           "level": 2
         },
         {
@@ -197,8 +177,8 @@
           "level": 2
         },
         {
-          "id": "interpreting-a-missing-result",
-          "title": "Interpreting a Missing Result",
+          "id": "unresolved-provider-outcomes",
+          "title": "Unresolved Provider Outcomes",
           "level": 3
         },
         {
@@ -207,8 +187,8 @@
           "level": 3
         },
         {
-          "id": "recovery-workers",
-          "title": "Recovery Workers",
+          "id": "lease-based-recovery-workers",
+          "title": "Lease-Based Recovery Workers",
           "level": 3
         },
         {
@@ -222,8 +202,13 @@
           "level": 2
         },
         {
-          "id": "recovery-in-production",
-          "title": "Recovery in Production",
+          "id": "recovery-metrics-and-failure-testing",
+          "title": "Recovery Metrics and Failure Testing",
+          "level": 2
+        },
+        {
+          "id": "versioned-change-authorization",
+          "title": "Versioned Change Authorization",
           "level": 2
         },
         {
@@ -240,13 +225,13 @@
       "title": "Service Communication and Cascading Failure",
       "sections": [
         {
-          "id": "how-a-failure-crosses-service-boundaries",
-          "title": "How a Failure Crosses Service Boundaries",
+          "id": "cross-service-failure-propagation",
+          "title": "Cross-Service Failure Propagation",
           "level": 2
         },
         {
-          "id": "diagnosis-before-configuration-changes",
-          "title": "Diagnosis Before Configuration Changes",
+          "id": "measuring-dependency-slowdown",
+          "title": "Measuring Dependency Slowdown",
           "level": 3
         },
         {
@@ -255,8 +240,8 @@
           "level": 2
         },
         {
-          "id": "admission-before-the-outbound-call",
-          "title": "Admission Before the Outbound Call",
+          "id": "outbound-concurrency-admission",
+          "title": "Outbound Concurrency Admission",
           "level": 2
         },
         {
@@ -265,13 +250,13 @@
           "level": 3
         },
         {
-          "id": "choosing-the-allocation",
-          "title": "Choosing the Allocation",
+          "id": "outbound-concurrency-allocation",
+          "title": "Outbound Concurrency Allocation",
           "level": 3
         },
         {
-          "id": "deadlines-for-the-whole-call",
-          "title": "Deadlines for the Whole Call",
+          "id": "end-to-end-request-deadlines",
+          "title": "End-to-End Request Deadlines",
           "level": 2
         },
         {
@@ -295,23 +280,33 @@
           "level": 2
         },
         {
-          "id": "checkout-integration",
-          "title": "Checkout Integration",
+          "id": "integrating-an-external-decision-service",
+          "title": "Integrating an External Decision Service",
           "level": 2
         },
         {
-          "id": "deferred-checkout-and-customer-expectations",
-          "title": "Deferred Checkout and Customer Expectations",
+          "id": "pending-operation-api-contracts",
+          "title": "Pending-Operation API Contracts",
           "level": 2
         },
         {
-          "id": "verifying-behavior-during-slowdown-and-recovery",
-          "title": "Verifying Behavior During Slowdown and Recovery",
+          "id": "dependency-slowdown-and-recovery-testing",
+          "title": "Dependency Slowdown and Recovery Testing",
           "level": 2
         },
         {
-          "id": "production-measurements",
-          "title": "Production Measurements",
+          "id": "authentication-and-authorization-boundaries",
+          "title": "Authentication and Authorization Boundaries",
+          "level": 2
+        },
+        {
+          "id": "authorization-for-deferred-refunds",
+          "title": "Authorization for Deferred Refunds",
+          "level": 3
+        },
+        {
+          "id": "required-commits-and-deferred-notifications",
+          "title": "Required Commits and Deferred Notifications",
           "level": 2
         },
         {
@@ -325,11 +320,11 @@
     },
     {
       "slug": "chapter-5",
-      "title": "Caching and the Cost of Remembering",
+      "title": "Caching and Data Freshness",
       "sections": [
         {
-          "id": "repeated-reads-and-reusable-results",
-          "title": "Repeated Reads and Reusable Results",
+          "id": "repeated-reads-and-reuse-potential",
+          "title": "Repeated Reads and Reuse Potential",
           "level": 2
         },
         {
@@ -354,7 +349,7 @@
         },
         {
           "id": "sec:ch05-ttl-age",
-          "title": "Expiration and Data Age",
+          "title": "Expiration and Freshness Limits",
           "level": 2
         },
         {
@@ -403,13 +398,18 @@
           "level": 3
         },
         {
-          "id": "memory-and-popular-keys",
-          "title": "Memory and Popular Keys",
+          "id": "cache-memory-and-hot-keys",
+          "title": "Cache Memory and Hot Keys",
           "level": 2
         },
         {
-          "id": "verification-and-production-measurements",
-          "title": "Verification and Production Measurements",
+          "id": "cache-validation-and-telemetry",
+          "title": "Cache Validation and Telemetry",
+          "level": 2
+        },
+        {
+          "id": "configuration-versions-and-cache-freshness",
+          "title": "Configuration Versions and Cache Freshness",
           "level": 2
         },
         {
@@ -426,23 +426,23 @@
       "title": "Containers and the Reproducible Deployment",
       "sections": [
         {
-          "id": "application-source-and-runtime-inputs",
-          "title": "Application Source and Runtime Inputs",
+          "id": "source-revision-and-runtime-dependencies",
+          "title": "Source Revision and Runtime Dependencies",
           "level": 2
         },
         {
-          "id": "building-the-deployable-artifact",
-          "title": "Building the Deployable Artifact",
+          "id": "container-image-builds",
+          "title": "Container Image Builds",
           "level": 2
         },
         {
-          "id": "build-inputs-and-updates",
-          "title": "Build Inputs and Updates",
+          "id": "reproducible-container-build-inputs",
+          "title": "Reproducible Container Build Inputs",
           "level": 3
         },
         {
-          "id": "artifact-promotion",
-          "title": "Artifact Promotion",
+          "id": "image-promotion-by-digest",
+          "title": "Image Promotion by Digest",
           "level": 2
         },
         {
@@ -451,13 +451,18 @@
           "level": 2
         },
         {
+          "id": "packaging-the-deployment-with-helm",
+          "title": "Packaging the Deployment with Helm",
+          "level": 3
+        },
+        {
           "id": "secrets-and-configuration-changes",
           "title": "Secrets and Configuration Changes",
           "level": 3
         },
         {
-          "id": "isolation-and-writable-state",
-          "title": "Isolation and Writable State",
+          "id": "container-isolation-and-writable-state",
+          "title": "Container Isolation and Writable State",
           "level": 2
         },
         {
@@ -476,28 +481,38 @@
           "level": 3
         },
         {
-          "id": "startup-readiness-and-liveness",
-          "title": "Startup, Readiness, and Liveness",
+          "id": "finding-containers-that-hit-their-limits",
+          "title": "Finding Containers That Hit Their Limits",
+          "level": 3
+        },
+        {
+          "id": "pod-placement-and-scheduling-constraints",
+          "title": "Pod Placement and Scheduling Constraints",
           "level": 2
         },
         {
-          "id": "warm-up-and-initial-traffic",
-          "title": "Warm-Up and Initial Traffic",
+          "id": "startup-readiness-and-liveness-probes",
+          "title": "Startup, Readiness, and Liveness Probes",
           "level": 2
         },
         {
-          "id": "shutdown-and-in-flight-requests",
-          "title": "Shutdown and In-Flight Requests",
+          "id": "warm-up-and-initial-traffic-admission",
+          "title": "Warm-Up and Initial Traffic Admission",
           "level": 2
         },
         {
-          "id": "rollback-and-external-state",
-          "title": "Rollback and External State",
+          "id": "graceful-shutdown-and-in-flight-requests",
+          "title": "Graceful Shutdown and In-Flight Requests",
           "level": 2
         },
         {
-          "id": "deployment-evidence-and-failure-investigation",
-          "title": "Deployment Evidence and Failure Investigation",
+          "id": "image-rollback-and-external-state",
+          "title": "Image Rollback and External State",
+          "level": 2
+        },
+        {
+          "id": "deployment-identity-and-failure-diagnosis",
+          "title": "Deployment Identity and Failure Diagnosis",
           "level": 2
         },
         {
@@ -514,8 +529,13 @@
       "title": "Replicas, Partitions, and Shards",
       "sections": [
         {
-          "id": "finding-the-binding-constraint",
-          "title": "Finding the Binding Constraint",
+          "id": "data-access-patterns-and-storage-selection",
+          "title": "Data Access Patterns and Storage Selection",
+          "level": 2
+        },
+        {
+          "id": "primary-database-constraints",
+          "title": "Primary Database Constraints",
           "level": 2
         },
         {
@@ -524,8 +544,8 @@
           "level": 2
         },
         {
-          "id": "what-each-read-requires",
-          "title": "What Each Read Requires",
+          "id": "read-consistency-requirements",
+          "title": "Read Consistency Requirements",
           "level": 2
         },
         {
@@ -554,9 +574,14 @@
           "level": 3
         },
         {
-          "id": "replication-failover-and-recovery",
-          "title": "Replication, Failover, and Recovery",
+          "id": "replica-failover-and-recovery",
+          "title": "Replica Failover and Recovery",
           "level": 2
+        },
+        {
+          "id": "point-in-time-recovery-and-restore-testing",
+          "title": "Point-in-Time Recovery and Restore Testing",
+          "level": 3
         },
         {
           "id": "table-partitioning",
@@ -599,8 +624,8 @@
           "level": 2
         },
         {
-          "id": "when-to-stop-fanning-out",
-          "title": "When to Stop Fanning Out",
+          "id": "bounded-cross-shard-queries",
+          "title": "Bounded Cross-Shard Queries",
           "level": 3
         },
         {
@@ -609,8 +634,13 @@
           "level": 2
         },
         {
-          "id": "validation-and-operating-evidence",
-          "title": "Validation and Operating Evidence",
+          "id": "read-routing-and-failover-tests",
+          "title": "Read Routing and Failover Tests",
+          "level": 2
+        },
+        {
+          "id": "regional-metadata-write-authority",
+          "title": "Regional Metadata Write Authority",
           "level": 2
         },
         {
@@ -627,8 +657,8 @@
       "title": "Observability and Path Health",
       "sections": [
         {
-          "id": "where-a-request-can-be-observed",
-          "title": "Where a Request Can Be Observed",
+          "id": "request-observation-boundaries",
+          "title": "Request Observation Boundaries",
           "level": 2
         },
         {
@@ -642,8 +672,8 @@
           "level": 2
         },
         {
-          "id": "service-health-and-monitoring-coverage",
-          "title": "Service Health and Monitoring Coverage",
+          "id": "monitoring-coverage-and-failure-signals",
+          "title": "Monitoring Coverage and Failure Signals",
           "level": 2
         },
         {
@@ -702,8 +732,8 @@
           "level": 3
         },
         {
-          "id": "telemetry-cost-and-sampling",
-          "title": "Telemetry Cost and Sampling",
+          "id": "telemetry-sampling-and-storage",
+          "title": "Telemetry Sampling and Storage",
           "level": 2
         },
         {
@@ -727,8 +757,8 @@
           "level": 3
         },
         {
-          "id": "computing-the-indicators",
-          "title": "Computing the Indicators",
+          "id": "sli-query-implementation",
+          "title": "SLI Query Implementation",
           "level": 3
         },
         {
@@ -747,6 +777,11 @@
           "level": 2
         },
         {
+          "id": "asynchronous-document-processing-slis",
+          "title": "Asynchronous Document Processing SLIs",
+          "level": 2
+        },
+        {
           "id": "summary",
           "title": "Summary",
           "level": 2
@@ -760,8 +795,8 @@
       "title": "Guardrails and Failure Containment",
       "sections": [
         {
-          "id": "workload-separation",
-          "title": "Workload Separation",
+          "id": "interactive-and-batch-workload-separation",
+          "title": "Interactive and Batch Workload Separation",
           "level": 2
         },
         {
@@ -770,8 +805,8 @@
           "level": 2
         },
         {
-          "id": "choosing-a-first-limit",
-          "title": "Choosing a First Limit",
+          "id": "initial-concurrency-limits-per-process",
+          "title": "Initial Concurrency Limits per Process",
           "level": 3
         },
         {
@@ -780,8 +815,8 @@
           "level": 3
         },
         {
-          "id": "queueing-and-deferred-work",
-          "title": "Queueing and Deferred Work",
+          "id": "deferred-jobs-and-queue-admission",
+          "title": "Deferred Jobs and Queue Admission",
           "level": 2
         },
         {
@@ -825,13 +860,13 @@
           "level": 2
         },
         {
-          "id": "implementing-admission-checks",
-          "title": "Implementing Admission Checks",
+          "id": "token-bucket-and-concurrency-enforcement",
+          "title": "Token-Bucket and Concurrency Enforcement",
           "level": 2
         },
         {
-          "id": "state-changing-operations",
-          "title": "State-Changing Operations",
+          "id": "admission-for-state-changing-operations",
+          "title": "Admission for State-Changing Operations",
           "level": 2
         },
         {
@@ -840,9 +875,14 @@
           "level": 2
         },
         {
-          "id": "a-practical-test-plan",
-          "title": "A Practical Test Plan",
+          "id": "failure-containment-test-plan",
+          "title": "Failure-Containment Test Plan",
           "level": 3
+        },
+        {
+          "id": "per-tenant-and-fleet-wide-provider-limits",
+          "title": "Per-Tenant and Fleet-Wide Provider Limits",
+          "level": 2
         },
         {
           "id": "summary",
@@ -858,13 +898,13 @@
       "title": "Deployments as Controlled Experiments",
       "sections": [
         {
-          "id": "the-release-hypothesis",
-          "title": "The Release Hypothesis",
+          "id": "release-hypothesis-and-failure-risk",
+          "title": "Release Hypothesis and Failure Risk",
           "level": 2
         },
         {
-          "id": "deployment-and-exposure",
-          "title": "Deployment and Exposure",
+          "id": "deployment-strategy-and-feature-exposure",
+          "title": "Deployment Strategy and Feature Exposure",
           "level": 2
         },
         {
@@ -878,8 +918,8 @@
           "level": 3
         },
         {
-          "id": "a-representative-canary",
-          "title": "A Representative Canary",
+          "id": "canary-cohort-sizing",
+          "title": "Canary Cohort Sizing",
           "level": 2
         },
         {
@@ -903,8 +943,8 @@
           "level": 2
         },
         {
-          "id": "a-sample-release-plan",
-          "title": "A Sample Release Plan",
+          "id": "release-stages-and-stop-conditions",
+          "title": "Release Stages and Stop Conditions",
           "level": 3
         },
         {
@@ -918,18 +958,23 @@
           "level": 3
         },
         {
-          "id": "telemetry-for-the-decision",
-          "title": "Telemetry for the Decision",
+          "id": "version-labeled-release-telemetry",
+          "title": "Version-Labeled Release Telemetry",
           "level": 3
         },
         {
-          "id": "promotion-beyond-the-first-stage",
-          "title": "Promotion Beyond the First Stage",
+          "id": "automated-gates-with-argo-rollouts",
+          "title": "Automated Gates With Argo Rollouts",
+          "level": 3
+        },
+        {
+          "id": "multi-stage-canary-promotion",
+          "title": "Multi-Stage Canary Promotion",
           "level": 2
         },
         {
-          "id": "feature-flags",
-          "title": "Feature Flags",
+          "id": "feature-flags-and-runtime-activation",
+          "title": "Feature Flags and Runtime Activation",
           "level": 2
         },
         {
@@ -958,8 +1003,18 @@
           "level": 2
         },
         {
-          "id": "restoration-as-an-operating-procedure",
-          "title": "Restoration as an Operating Procedure",
+          "id": "rollback-and-restoration-procedure",
+          "title": "Rollback and Restoration Procedure",
+          "level": 2
+        },
+        {
+          "id": "release-gates-for-replica-read-routing",
+          "title": "Release Gates for Replica Read Routing",
+          "level": 2
+        },
+        {
+          "id": "versioned-deployment-policy-enforcement",
+          "title": "Versioned Deployment Policy Enforcement",
           "level": 2
         },
         {
@@ -976,8 +1031,8 @@
       "title": "Service Decomposition",
       "sections": [
         {
-          "id": "fixing-the-migration-first",
-          "title": "Fixing the Migration First",
+          "id": "postgresql-migration-lock-and-recovery",
+          "title": "PostgreSQL Migration Lock and Recovery",
           "level": 2
         },
         {
@@ -991,8 +1046,8 @@
           "level": 3
         },
         {
-          "id": "domain-ownership",
-          "title": "Domain Ownership",
+          "id": "domain-ownership-and-bounded-contexts",
+          "title": "Domain Ownership and Bounded Contexts",
           "level": 2
         },
         {
@@ -1006,13 +1061,18 @@
           "level": 2
         },
         {
+          "id": "conditional-api-updates",
+          "title": "Conditional API Updates",
+          "level": 3
+        },
+        {
           "id": "required-synchronous-decisions",
           "title": "Required Synchronous Decisions",
           "level": 3
         },
         {
-          "id": "local-copies",
-          "title": "Local Copies",
+          "id": "local-read-projections",
+          "title": "Local Read Projections",
           "level": 3
         },
         {
@@ -1051,19 +1111,39 @@
           "level": 2
         },
         {
-          "id": "extraction-cost-and-order",
-          "title": "Extraction Cost and Order",
+          "id": "service-extraction-sequence",
+          "title": "Service Extraction Sequence",
           "level": 2
         },
         {
-          "id": "the-next-extraction",
-          "title": "The Next Extraction",
+          "id": "service-extraction-priorities",
+          "title": "Service Extraction Priorities",
           "level": 3
         },
         {
           "id": "boundary-verification",
           "title": "Boundary Verification",
           "level": 2
+        },
+        {
+          "id": "policy-ownership-and-service-contracts",
+          "title": "Policy Ownership and Service Contracts",
+          "level": 2
+        },
+        {
+          "id": "authorization-and-contract-ownership",
+          "title": "Authorization and Contract Ownership",
+          "level": 2
+        },
+        {
+          "id": "tenant-isolation-at-the-data-boundary",
+          "title": "Tenant Isolation at the Data Boundary",
+          "level": 3
+        },
+        {
+          "id": "authorization-across-asynchronous-boundaries",
+          "title": "Authorization Across Asynchronous Boundaries",
+          "level": 3
         },
         {
           "id": "summary",
@@ -1079,18 +1159,13 @@
       "title": "Event-Driven Systems and Stream Processing",
       "sections": [
         {
-          "id": "the-notification-pipeline",
-          "title": "The Notification Pipeline",
+          "id": "notification-delivery-architecture",
+          "title": "Notification Delivery Architecture",
           "level": 2
         },
         {
-          "id": "the-transactional-outbox",
-          "title": "The Transactional Outbox",
-          "level": 3
-        },
-        {
-          "id": "the-promotion-incident",
-          "title": "The Promotion Incident",
+          "id": "notification-backlog-during-promotion",
+          "title": "Notification Backlog During Promotion",
           "level": 3
         },
         {
@@ -1099,8 +1174,8 @@
           "level": 2
         },
         {
-          "id": "backlog-dynamics",
-          "title": "Backlog Dynamics",
+          "id": "backlog-growth-and-recovery",
+          "title": "Backlog Growth and Recovery",
           "level": 2
         },
         {
@@ -1144,8 +1219,8 @@
           "level": 2
         },
         {
-          "id": "the-relay-loop",
-          "title": "The Relay Loop",
+          "id": "transactional-outbox-relay",
+          "title": "Transactional Outbox Relay",
           "level": 3
         },
         {
@@ -1179,8 +1254,8 @@
           "level": 2
         },
         {
-          "id": "external-side-effects",
-          "title": "External Side Effects",
+          "id": "idempotent-external-deliveries",
+          "title": "Idempotent External Deliveries",
           "level": 2
         },
         {
@@ -1204,8 +1279,8 @@
           "level": 2
         },
         {
-          "id": "capacity-scaling",
-          "title": "Capacity Scaling",
+          "id": "consumer-and-sender-capacity-scaling",
+          "title": "Consumer and Sender Capacity Scaling",
           "level": 2
         },
         {
@@ -1214,8 +1289,8 @@
           "level": 2
         },
         {
-          "id": "failure-handling",
-          "title": "Failure Handling",
+          "id": "consumer-failure-handling",
+          "title": "Consumer Failure Handling",
           "level": 2
         },
         {
@@ -1239,8 +1314,8 @@
           "level": 3
         },
         {
-          "id": "stateful-stream-processing",
-          "title": "Stateful Stream Processing",
+          "id": "stateful-event-time-processing",
+          "title": "Stateful Event-Time Processing",
           "level": 2
         },
         {
@@ -1249,8 +1324,18 @@
           "level": 3
         },
         {
-          "id": "failure-testing",
-          "title": "Failure Testing",
+          "id": "consumer-failure-and-replay-testing",
+          "title": "Consumer Failure and Replay Testing",
+          "level": 2
+        },
+        {
+          "id": "policy-events-and-integration-reconciliation",
+          "title": "Policy Events and Integration Reconciliation",
+          "level": 2
+        },
+        {
+          "id": "scheduled-tasks-and-workflow-orchestration",
+          "title": "Scheduled Tasks and Workflow Orchestration",
           "level": 2
         },
         {
@@ -1267,18 +1352,18 @@
       "title": "Machine Learning Systems in Production",
       "sections": [
         {
-          "id": "the-recommendation-decline",
-          "title": "The Recommendation Decline",
+          "id": "recommendation-quality-regression",
+          "title": "Recommendation Quality Regression",
           "level": 2
         },
         {
-          "id": "the-product-contract",
-          "title": "The Product Contract",
+          "id": "recommendation-quality-and-latency-objectives",
+          "title": "Recommendation Quality and Latency Objectives",
           "level": 2
         },
         {
-          "id": "model-fundamentals",
-          "title": "Model Fundamentals",
+          "id": "model-inputs-features-and-labels",
+          "title": "Model Inputs, Features, and Labels",
           "level": 2
         },
         {
@@ -1312,11 +1397,6 @@
           "level": 2
         },
         {
-          "id": "training-resources",
-          "title": "Training Resources",
-          "level": 3
-        },
-        {
           "id": "checkpoints-and-reproducibility",
           "title": "Checkpoints and Reproducibility",
           "level": 3
@@ -1337,8 +1417,8 @@
           "level": 3
         },
         {
-          "id": "generative-inference",
-          "title": "Generative Inference",
+          "id": "language-model-inference-path",
+          "title": "Language-Model Inference Path",
           "level": 2
         },
         {
@@ -1357,8 +1437,8 @@
           "level": 3
         },
         {
-          "id": "memory-and-the-kv-cache",
-          "title": "Memory and the KV Cache",
+          "id": "kv-cache-memory-and-token-admission",
+          "title": "KV-Cache Memory and Token Admission",
           "level": 2
         },
         {
@@ -1377,8 +1457,8 @@
           "level": 3
         },
         {
-          "id": "the-shopping-assistant",
-          "title": "The Shopping Assistant",
+          "id": "retrieval-and-tool-use-workflow",
+          "title": "Retrieval and Tool-Use Workflow",
           "level": 2
         },
         {
@@ -1412,13 +1492,18 @@
           "level": 3
         },
         {
-          "id": "evaluation-and-operations",
-          "title": "Evaluation and Operations",
+          "id": "agent-evaluation-and-production-operations",
+          "title": "Agent Evaluation and Production Operations",
           "level": 2
         },
         {
-          "id": "hosted-model-providers",
-          "title": "Hosted Model Providers",
+          "id": "hosted-inference-and-provider-limits",
+          "title": "Hosted Inference and Provider Limits",
+          "level": 2
+        },
+        {
+          "id": "agent-initiated-change-authorization",
+          "title": "Agent-Initiated Change Authorization",
           "level": 2
         },
         {
@@ -1435,8 +1520,13 @@
       "title": "Designing From Production Experience",
       "sections": [
         {
-          "id": "launch-scope-and-checkout-outcomes",
-          "title": "Launch Scope and Checkout Outcomes",
+          "id": "initial-two-region-deployment",
+          "title": "Initial Two-Region Deployment",
+          "level": 2
+        },
+        {
+          "id": "european-launch-requirements",
+          "title": "European Launch Requirements",
           "level": 2
         },
         {
@@ -1445,13 +1535,13 @@
           "level": 3
         },
         {
-          "id": "the-regional-request-path",
-          "title": "The Regional Request Path",
+          "id": "regional-request-path",
+          "title": "Regional Request Path",
           "level": 2
         },
         {
-          "id": "checkout-workflow-state",
-          "title": "Checkout Workflow State",
+          "id": "multi-step-workflow-state",
+          "title": "Multi-Step Workflow State",
           "level": 2
         },
         {
@@ -1510,8 +1600,8 @@
           "level": 3
         },
         {
-          "id": "cross-region-payment-identity",
-          "title": "Cross-Region Payment Identity",
+          "id": "cross-region-operation-identity",
+          "title": "Cross-Region Operation Identity",
           "level": 3
         },
         {
@@ -1520,33 +1610,33 @@
           "level": 2
         },
         {
-          "id": "release-gates",
-          "title": "Release Gates",
+          "id": "european-launch-release-gates",
+          "title": "European Launch Release Gates",
           "level": 2
         },
         {
-          "id": "launch-rehearsal",
-          "title": "Launch Rehearsal",
+          "id": "failure-rehearsal-before-launch",
+          "title": "Failure Rehearsal Before Launch",
           "level": 2
         },
         {
-          "id": "post-launch-measurements",
-          "title": "Post-Launch Measurements",
+          "id": "post-launch-measurements-and-revisions",
+          "title": "Post-Launch Measurements and Revisions",
           "level": 2
         },
         {
-          "id": "design-review-framework",
-          "title": "Design Review Framework",
+          "id": "five-question-design-review",
+          "title": "Five-Question Design Review",
+          "level": 2
+        },
+        {
+          "id": "regional-authority-and-recovery-revision",
+          "title": "Regional Authority and Recovery Revision",
           "level": 2
         },
         {
           "id": "summary",
           "title": "Summary",
-          "level": 2
-        },
-        {
-          "id": "hidden-assumptions-in-this-design",
-          "title": "Hidden Assumptions in This Design",
           "level": 2
         }
       ],
@@ -1600,17 +1690,12 @@
     },
     {
       "slug": "appendix-b",
-      "title": "Appendix B: Three Classic Designs",
+      "title": "Appendix B: Four Practical System Designs",
       "sections": [
         {
-          "id": "a-method-for-any-design",
-          "title": "A Method for Any Design",
+          "id": "applying-the-design-review",
+          "title": "Applying the Design Review",
           "level": 2
-        },
-        {
-          "id": "doing-the-arithmetic-in-code",
-          "title": "Doing the Arithmetic in Code",
-          "level": 3
         },
         {
           "id": "a-url-shortener",
@@ -1718,6 +1803,41 @@
           "level": 3
         },
         {
+          "id": "a-centralized-change-validation-platform",
+          "title": "A Centralized Change-Validation Platform",
+          "level": 2
+        },
+        {
+          "id": "the-product-contract-and-its-authority",
+          "title": "The Product Contract and Its Authority",
+          "level": 3
+        },
+        {
+          "id": "deriving-the-records",
+          "title": "Deriving the Records",
+          "level": 3
+        },
+        {
+          "id": "an-api-that-distinguishes-evaluation-from-execution",
+          "title": "An API That Distinguishes Evaluation from Execution",
+          "level": 3
+        },
+        {
+          "id": "choosing-the-first-architecture",
+          "title": "Choosing the First Architecture",
+          "level": 3
+        },
+        {
+          "id": "the-revision-17-failure-drill",
+          "title": "The Revision-17 Failure Drill",
+          "level": 3
+        },
+        {
+          "id": "reconciliation-and-production-review",
+          "title": "Reconciliation and Production Review",
+          "level": 3
+        },
+        {
           "id": "what-the-designs-have-in-common",
           "title": "What the Designs Have in Common",
           "level": 2
@@ -1734,6 +1854,21 @@
           "id": "security",
           "title": "Security",
           "level": 2
+        },
+        {
+          "id": "identity-and-permission-review",
+          "title": "Identity and Permission Review",
+          "level": 3
+        },
+        {
+          "id": "choosing-permission-rules",
+          "title": "Choosing Permission Rules",
+          "level": 3
+        },
+        {
+          "id": "negative-tests-at-trust-boundaries",
+          "title": "Negative Tests at Trust Boundaries",
+          "level": 3
         },
         {
           "id": "privacy-and-the-life-of-personal-data",

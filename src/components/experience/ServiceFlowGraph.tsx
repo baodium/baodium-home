@@ -88,7 +88,7 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
   const detail: Record<ServiceNodeId, string> = {
     client: `${Math.round(c.arrivalRate)} req/s arriving`,
     product: flagLive ? `Routes ${c.exposurePct}% to recommendations` : "Catalog path only",
-    catalog: "Baseline read, about 12 ms",
+    catalog: "Catalog lookup, no pool slot",
     recommendation: c.featureDisabledForNew
       ? "Closed to new callers"
       : flagLive

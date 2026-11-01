@@ -42,7 +42,7 @@ export function selectPedagogyLesson(
           : `${snap.activeCount} busy slot${snap.activeCount === 1 ? "" : "s"} still hold in-flight recommendation work. New arrivals skip the extra lookup.`,
       why: "Disable stops new demand on the shared pool. Holds already acquired keep their connection until release. Waiters clear as those finish.",
       next: "Watch busy drop toward baseline as releases free slots.",
-      prod: "In prod: flip the flag OFF (or 0% exposure). Expect in-flight checkouts to finish; alert on pool.pending decaying, not instantly zeroing.",
+      prod: "In prod: turn the flag off. Requests already holding a connection still finish or time out. Watch pool.pending fall. It does not hit zero in the same instant.",
       tone: "recover",
     };
   }
@@ -52,7 +52,7 @@ export function selectPedagogyLesson(
       id: "disable-cleared",
       eyebrow: "What’s happening",
       title: "Pool quiet after disable",
-      seeing: "Busy and waiters are near zero. New traffic takes the ~12ms baseline path.",
+      seeing: "Busy and waiters are near zero. New product pages take the catalog path and do not acquire a connection.",
       why: "Removing the long hold from the request path collapses λ×W under the 40-slot cap.",
       prod: "Confirm pool.active and pool.pending stay low; p99 should fall toward baseline hold.",
       tone: "recover",

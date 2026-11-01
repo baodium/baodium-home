@@ -1,25 +1,14 @@
-import { BookSection } from "@/components/book/BookSection";
-import { Footer } from "@/components/Footer";
+import { HomeFrame } from "@/components/hero/HomeFrame";
 import { Hero } from "@/components/Hero";
-import { LivePathSection } from "@/components/hero/LivePathSection";
 import { Navigation } from "@/components/Navigation";
-import { PlaySection } from "@/components/PlaySection";
-import { Projects } from "@/components/Projects";
-import { Writing } from "@/components/Writing";
 
 export default function Home() {
   return (
-    <>
+    <HomeFrame>
       <Navigation />
-      <main id="main" className="relative">
+      <main id="main" className="h-full min-h-0">
         <Hero />
-        <LivePathSection />
-        <BookSection />
-        <PlaySection />
-        <Projects />
-        <Writing />
       </main>
-      <Footer />
-    </>
+    </HomeFrame>
   );
 }
