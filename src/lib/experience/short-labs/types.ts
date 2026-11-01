@@ -36,7 +36,7 @@ export type LabControl = RangeControl | ToggleControl | ChoiceControl;
 
 export type SeriesPoint = { t: number } & Record<string, number>;
 
-export type NodeView = { detail: string; tone: Tone };
+export type NodeView = { detail: string; tone: Tone; meter?: number };
 
 export type EdgeView = { hot: boolean; dashed?: boolean };
 

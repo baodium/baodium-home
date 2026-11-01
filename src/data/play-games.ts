@@ -43,9 +43,9 @@ export const playGames: PlayGame[] = [
     slug: "slo-watch",
     title: "SLO Watch",
     challenge: "Can you hold checkout at 99.5% through three waves?",
-    feel: "Three traffic waves hit checkout. You set pool size, concurrency, and retries before the error budget runs out.",
+    feel: "Saturday sale. Three waves hit checkout, and the error budget is what this window can still absorb.",
     notice:
-      "Watch error budget and pool util together. Aggressive retries under saturation burn the budget twice.",
+      "Watch the budget and the pool together. Retries under saturation spend the same budget twice.",
     success:
       "Budget > 0 for 48s, success ≥ 98.3%, no cascade, peak pool util < 120%.",
     learn: "Pool size and concurrency are different levers: one caps holds, the other caps admission.",
@@ -78,8 +78,8 @@ export const playGames: PlayGame[] = [
     slug: "traffic-surge",
     title: "Traffic Surge",
     challenge: "Can you keep p95 under budget through the spike?",
-    feel: "A spike lands around 12 seconds against fixed capacity. Admit, queue, and shed so latency survives.",
-    notice: "Past the cliff, shedding cuts errors faster than any capacity you do not have.",
+    feel: "11:02 on a fixed-capacity API. A spike lands around 12 seconds, and the machines will not grow in time.",
+    notice: "Past the cliff, turning arrivals away protects latency you cannot buy more of.",
     success:
       "Serve ≥ 55%, under-budget ≥ 55% of the run with peak p95 < 588ms, success > 48%, VIP ≥ 72% if priority on.",
     learn: "When capacity is fixed, early shedding is the only lever that protects latency.",
@@ -114,8 +114,8 @@ export const playGames: PlayGame[] = [
     slug: "cascade",
     title: "Cascade",
     challenge: "Can you keep checkout alive when a dependency fails?",
-    feel: "Checkout calls Auth, then Pay, and Pay calls the database. A slow dependency can hold the workers the edge still needs.",
-    notice: "Watch health on each service, dashed lines, and cascade risk on the same graph.",
+    feel: "14:12 UTC. The pay button spins, then fails. A slow dependency is holding the workers checkout still needs.",
+    notice: "Watch health on each service, the request moving along each call, and cascade risk on the same graph.",
     success: "Checkout ok ≥ 60%, edge health > 42%, peak cascade risk < 82%. No auth bypass.",
     learn: "A slow dependency on a shared pool can take the edge down with it.",
     changed:

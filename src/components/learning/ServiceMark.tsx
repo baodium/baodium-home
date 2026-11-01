@@ -74,6 +74,75 @@ export function markForLabel(label: string): ServiceMarkId {
   return BY_LABEL[key] ?? "service";
 }
 
+export type ServiceShape =
+  | "device"
+  | "gateway"
+  | "service"
+  | "cylinder"
+  | "rack"
+  | "stack"
+  | "lane"
+  | "tray";
+
+/** Silhouette for the node frame. A database is not a gateway, and a pool is not a service card. */
+export function shapeForMark(id: ServiceMarkId): ServiceShape {
+  switch (id) {
+    case "client":
+    case "app":
+      return "device";
+    case "edge":
+      return "gateway";
+    case "db":
+    case "primary":
+    case "replica":
+    case "origin":
+      return "cylinder";
+    case "pool":
+      return "rack";
+    case "cache":
+      return "stack";
+    case "workers":
+    case "consumers":
+      return "lane";
+    case "outbox":
+    case "log":
+      return "tray";
+    default:
+      return "service";
+  }
+}
+
+export function kindForMark(id: ServiceMarkId): string {
+  switch (id) {
+    case "client":
+    case "app":
+      return "Client";
+    case "edge":
+      return "Gateway";
+    case "origin":
+      return "Origin";
+    case "db":
+    case "primary":
+    case "replica":
+      return "Database";
+    case "pool":
+      return "Pool";
+    case "cache":
+      return "Cache";
+    case "workers":
+    case "consumers":
+      return "Workers";
+    case "outbox":
+      return "Outbox";
+    case "log":
+      return "Log";
+    case "region":
+      return "Region";
+    default:
+      return "Service";
+  }
+}
+
 function Glyph({ children }: { children: ReactNode }) {
   return (
     <svg

@@ -15,7 +15,7 @@ export const chapter1Scenario: ChapterScenario = {
     durationMin: 12,
   },
   brief:
-    "You are adding recommendations to the product page. The catalog path is fine. Personalized traffic calls Recommendation, which owns the 40-connection pool. The catalog lookup stays on Product Page. Code is ready; tests pass. Enable for a small group and operate the system like an on-call engineer.",
+    "Monday 11:40, product page. Catalog reads are fine, about 12 ms, and that lookup stays on Product Page. The recommendation code is ready and the tests pass. Personalized traffic will leave Product Page, call Recommendation, and only then take a connection from the 40-slot pool Recommendation owns. You are the one turning the flag on for a small cohort.",
   assumptions: [
     "Simulated metrics shaped like pool.active / pool.pending / acquire.wait / acquire.timeouts (not live telemetry).",
     "Pool size fixed at 40 connections, owned by Recommendation — never inside Product Page.",

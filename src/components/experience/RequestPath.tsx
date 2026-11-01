@@ -1,15 +1,7 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import type { EngineSnapshot } from "@/lib/experience/types";
-
-const ServiceFlowGraph = dynamic(
-  () => import("./ServiceFlowGraph").then((mod) => mod.ServiceFlowGraph),
-  {
-    ssr: false,
-    loading: () => <div className="service-flow" aria-hidden />,
-  },
-);
+import { ServiceFlowGraph } from "@/components/experience/ServiceFlowGraph";
 
 /**
  * Live service graph.

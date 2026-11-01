@@ -159,11 +159,12 @@ export function Chapter1Experience() {
   useEffect(() => {
     stopLoop();
     if (!running) return;
+    const frameMs = 200;
     rafRef.current = window.setInterval(() => {
-      const steps = Math.max(1, Math.round(5 * speed));
+      const steps = Math.max(1, Math.round((frameMs / 10) * speed));
       for (let i = 0; i < steps; i++) tick(engineRef.current, 0.01);
       sync();
-    }, 50);
+    }, frameMs);
     return stopLoop;
   }, [running, speed, stopLoop, sync]);
 
@@ -656,7 +657,7 @@ export function Chapter1Experience() {
             <LabIntro
               embedded
               challenge="Can you keep a 40-slot pool healthy when recommendations turn on?"
-              situation={`${scenario.brief} Product Page still talks to Catalog for the core page. Personalized traffic calls Recommendation, which alone owns the shared 40-connection pool. When too many users hit the long path, waiting appears even though every query is correct.`}
+              situation={`${scenario.brief} Product Page still talks to Catalog for the core page. When too many users hit the long path, waiting appears beside the pool even though every query is correct.`}
               objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
               terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the database hold even starts. Busy slots never exceed 40; overflow waits beside the grid."
               explore="Feature flags, connection pools, Little’s Law, acquire timeout, load shedding, and a request-path cache."
