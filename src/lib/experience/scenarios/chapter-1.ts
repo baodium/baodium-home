@@ -15,12 +15,12 @@ export const chapter1Scenario: ChapterScenario = {
     durationMin: 12,
   },
   brief:
-    "You are adding recommendations to the product page. The catalog path is fine. Personalized traffic calls a Recommendation service that shares a 40-connection pool with the rest of the stack. Code is ready; tests pass. Enable for a small group and operate the system like an on-call engineer.",
+    "You are adding recommendations to the product page. The catalog path is fine. Personalized traffic calls Recommendation, which owns the 40-connection pool. The catalog lookup stays on Product Page. Code is ready; tests pass. Enable for a small group and operate the system like an on-call engineer.",
   assumptions: [
     "Simulated metrics shaped like pool.active / pool.pending / acquire.wait / acquire.timeouts (not live telemetry).",
     "Pool size fixed at 40 connections, owned by Recommendation — never inside Product Page.",
     "Baseline path: Client → Product Page → Catalog (~12ms). Personalized: Product Page → Recommendation → pool → DB (~70ms hold).",
-    "Feature flag uses stable user hashing; deploy ≠ enable.",
+    "Feature flag uses stable user hashing. A change reaches new arrivals after a short propagation delay. In-flight holds continue.",
     "Disabling the flag stops new recommendation work; in-flight requests finish their holds.",
     "Acquire timeout maps to connectionTimeout; load shed skips recs when util is high; cache shortens W.",
     "Latency SLO target: p99 < 200ms (simulated error-budget burn).",
@@ -75,7 +75,7 @@ export const chapter1Scenario: ChapterScenario = {
       id: "exposure",
       letter: "D",
       title: "Increase exposure",
-      body: "Raise exposure to 5%, then 25%. Stable hashing keeps the same users in or out. Each exposed request lengthens mean hold time W on the shared pool. Demand is λ × W. Predict before 25%, then check the measured outcome.",
+      body: "Raise exposure to 5%, then 25%. Stable hashing keeps the same users in or out, and the new cohort reaches arrivals after a short delay. Pool demand is the exposed arrival rate times the recommendation hold. At 25% of about 80 req/s the pool sees about 20 acquires per second. Catalog lookups stay on Product Page. Predict before 25%, then check the measured outcome.",
       prediction:
         "At 25% with ~80 req/s and ~70ms holds for exposed users, will demand stay under 40 slots?",
       require: "exposure_25",

@@ -7,6 +7,7 @@ export function SimControls({
   running,
   speed,
   logicalTimeSec,
+  seed,
   onPlayPause,
   onStep,
   onReplay,
@@ -17,6 +18,8 @@ export function SimControls({
   speed: number;
   /** Shared sim clock (logical seconds). */
   logicalTimeSec?: number;
+  /** Seed for a repeatable replay of this incident. */
+  seed?: number;
   onPlayPause: () => void;
   onStep: () => void;
   onReplay: () => void;
@@ -57,7 +60,7 @@ export function SimControls({
           className="font-mono text-[0.7rem] tabular-nums text-[color:var(--exp-faint)]"
           title="Logical simulation time"
         >
-          t = {logicalTimeSec.toFixed(1)}s
+          t = {logicalTimeSec.toFixed(2)}s{seed !== undefined ? ` · seed ${seed}` : ""}
         </p>
       ) : null}
       <Segmented

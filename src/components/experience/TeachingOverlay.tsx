@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import type { PedagogyLesson } from "@/lib/experience/pedagogy";
 import type { NarratorFrame } from "@/lib/experience/narrator";
 
@@ -28,20 +27,14 @@ export function TeachingOverlay({
   compactTry?: boolean;
 }) {
   const showSeeing = !live;
-  const cardKey = live ? `${lesson.id}|${live.chain}` : lesson.id;
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.aside
-        key={cardKey}
-        role="status"
-        aria-live="polite"
-        className={`exp-teach relative overflow-hidden border ${toneBorder[lesson.tone]}`}
-        initial={reducedMotion ? false : { opacity: 0, y: 10, scale: 0.985 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={reducedMotion ? undefined : { opacity: 0, y: -6, scale: 0.99 }}
-        transition={{ duration: reducedMotion ? 0 : 0.38, ease: [0.22, 1, 0.36, 1] }}
-      >
+    <aside
+      role="status"
+      aria-live="polite"
+      data-reduced={reducedMotion ? "true" : "false"}
+      className={`exp-teach relative overflow-hidden border ${toneBorder[lesson.tone]}`}
+    >
         <div className="relative">
           {live ? (
             <div
@@ -52,11 +45,6 @@ export function TeachingOverlay({
                 <span
                   aria-hidden="true"
                   className="inline-block size-1.5 rounded-full bg-[color:var(--exp-amber)]"
-                  style={
-                    reducedMotion
-                      ? undefined
-                      : { animation: "exp-ops-pulse 2.2s ease-in-out infinite" }
-                  }
                 />
                 <span className="sr-only">Live state</span>
               </div>
@@ -107,7 +95,6 @@ export function TeachingOverlay({
             ) : null}
           </div>
         </div>
-      </motion.aside>
-    </AnimatePresence>
+    </aside>
   );
 }

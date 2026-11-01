@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { readChapter1 } from "@/lib/experience/readout";
 import type { EngineSnapshot } from "@/lib/experience/types";
 
 /**
@@ -14,9 +15,10 @@ export function OpsMetricsPanel({
   snap: EngineSnapshot;
   reducedMotion?: boolean;
 }) {
-  const utilPct = snap.utilization * 100;
-  const acqP50 = snap.acquireWaitP50 * 1000;
-  const acqP99 = snap.acquireWaitP99 * 1000;
+  const read = readChapter1(snap);
+  const utilPct = read.utilization * 100;
+  const acqP50 = read.acquireWaitP50Sec * 1000;
+  const acqP99 = read.acquireWaitP99Sec * 1000;
   const timeoutArmed = snap.controls.acquireTimeoutSec !== null;
   const timeoutMs = (snap.controls.acquireTimeoutSec ?? 0) * 1000;
   const nearTimeout =
@@ -34,26 +36,26 @@ export function OpsMetricsPanel({
       <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         <Gauge
           name="pool.active"
-          value={`${snap.activeCount}`}
-          hint={`/ ${snap.poolSize}`}
+          value={`${read.busy}`}
+          hint={`/ ${read.poolSize}`}
           tip="Connections currently held. Never exceeds pool size. Overflow waits instead of inventing a 41st slot."
           good="Headroom under the cap (often aim ~60–70% busy under load)."
-          hot={snap.activeCount >= snap.poolSize}
+          hot={read.busy >= read.poolSize}
         />
         <Gauge
           name="pool.idle"
-          value={`${snap.idleCount}`}
+          value={`${read.idle}`}
           hint="free"
           tip="Slots available to acquire right now."
           good="Some idle left so the next arrival does not queue."
         />
         <Gauge
           name="pool.pending"
-          value={`${snap.waitingCount}`}
+          value={`${read.waiting}`}
           hint="waiters"
           tip="Requests waiting for a free connection. Appears when demand (λ×W) exceeds the pool."
           good="Near zero. Sustained pending = saturation, not a slow SQL string alone."
-          hot={snap.waitingCount > 0}
+          hot={read.waiting > 0}
         />
         <Gauge
           name="pool.util"

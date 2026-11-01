@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { formatLittles } from "@/lib/experience/littles";
+import { readChapter1 } from "@/lib/experience/readout";
 import type { EngineSnapshot } from "@/lib/experience/types";
 
 export function LittlesLawCallout({
@@ -11,8 +12,9 @@ export function LittlesLawCallout({
   snap: EngineSnapshot;
   reducedMotion?: boolean;
 }) {
+  const read = readChapter1(snap);
   const { littles } = snap;
-  const demandPct = Math.min(160, (littles.demand / snap.poolSize) * 100);
+  const demandPct = Math.min(160, (read.demand / read.poolSize) * 100);
   const over = littles.overDemand;
   const capPct = 100 / 1.6;
 
@@ -28,7 +30,7 @@ export function LittlesLawCallout({
       <div className="mt-3 flex flex-wrap items-end gap-2 font-mono text-[color:var(--exp-amber-text)]">
         <Term
           label="λ"
-          value={littles.lambda.toFixed(0)}
+          value={read.admittedPoolRps.toFixed(0)}
           unit="/s"
           reducedMotion={reducedMotion}
         />
@@ -42,7 +44,7 @@ export function LittlesLawCallout({
         <span className="pb-1 text-[color:var(--exp-faint)]">≈</span>
         <Term
           label="L"
-          value={littles.L.toFixed(0)}
+          value={read.demand.toFixed(0)}
           unit="slots"
           emphasize={over}
           reducedMotion={reducedMotion}
@@ -50,8 +52,8 @@ export function LittlesLawCallout({
       </div>
 
       <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-        At ~{littles.lambda.toFixed(0)} req/s with mean hold {littles.W.toFixed(3)}s, expected
-        occupancy is ~{littles.L.toFixed(0)} connections ({formatLittles(littles)}).
+        At ~{read.admittedPoolRps.toFixed(0)} pool acquires/s with mean hold {littles.W.toFixed(3)}s, expected
+        occupancy is ~{read.demand.toFixed(0)} connections ({formatLittles(littles)}).
         {over
           ? " Demand exceeds the 40-slot pool. waiters appear; busy slots stay capped at 40."
           : " Demand fits in the pool. waiters should stay near zero."}
@@ -61,7 +63,7 @@ export function LittlesLawCallout({
         <div className="mb-1.5 flex justify-between font-mono text-[0.6rem] uppercase tracking-[0.12em] text-[color:var(--exp-faint)]">
           <span>Demand vs pool</span>
           <span>
-            ≈{snap.demandOccupancy.toFixed(0)} / {snap.poolSize}
+            ≈{read.demand.toFixed(0)} / {read.poolSize}
           </span>
         </div>
         <div className="relative h-3 overflow-hidden rounded-full bg-[color:var(--exp-slot-free)]">
@@ -86,7 +88,7 @@ export function LittlesLawCallout({
           </span>
         </div>
         <p className="mt-3 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-          Observed busy {snap.activeCount} · demand ≈ {snap.demandOccupancy.toFixed(0)} · simulated
+          Observed busy {read.busy} · demand ≈ {read.demand.toFixed(0)} · simulated
         </p>
         {over ? (
           <p className="mt-2 rounded-lg border border-[color-mix(in_srgb,var(--exp-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_10%,var(--exp-panel-raise))] px-3 py-2 text-sm leading-relaxed text-[color:var(--exp-fg)]">
@@ -113,7 +115,6 @@ function Term({
 }) {
   return (
     <motion.div
-      key={`${label}-${value}`}
       initial={reducedMotion ? false : { opacity: 0.45, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reducedMotion ? 0 : 0.28 }}

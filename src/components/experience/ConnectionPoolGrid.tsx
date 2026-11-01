@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
 import type { EngineSnapshot, SimRequest } from "@/lib/experience/types";
+import { readChapter1 } from "@/lib/experience/readout";
 
 const COLS = 8;
 const ROWS = 5;
@@ -25,37 +25,18 @@ export function ConnectionPoolGrid({
   const height = pad * 2 + ROWS * cell + (ROWS - 1) * gap;
   const waiters = snap.waiting.slice(0, 28);
   const overflowWaiters = Math.max(0, snap.waitingCount - waiters.length);
-  const prevBusy = useRef<Set<string>>(new Set());
-  const [freshIds, setFreshIds] = useState<Set<string>>(new Set());
+  const read = readChapter1(snap);
 
-  useEffect(() => {
-    const next = new Set(
-      snap.slots.filter((s) => s.requestId).map((s) => s.requestId as string),
-    );
-    const acquired = new Set<string>();
-    for (const id of next) {
-      if (!prevBusy.current.has(id)) acquired.add(id);
-    }
-    prevBusy.current = next;
-    if (acquired.size === 0 || reducedMotion) return;
-    const show = window.setTimeout(() => setFreshIds(acquired), 0);
-    const clear = window.setTimeout(() => setFreshIds(new Set()), 450);
-    return () => {
-      window.clearTimeout(show);
-      window.clearTimeout(clear);
-    };
-  }, [snap.slots, snap.t, reducedMotion]);
-
-  const fillRatio = snap.activeCount / snap.poolSize;
-  const wall = snap.waitingCount > 0 || snap.littles.overDemand;
+  const fillRatio = read.busy / read.poolSize;
+  const wall = read.waiting > 0 || read.demand > read.poolSize;
   /** Visual pressure only. rail TeachingOverlay owns the prose so-what. */
   const statusLine =
-    snap.controls.featureDisabledForNew && snap.activeCount > 0
+    snap.controls.featureDisabledForNew && read.busy > 0
       ? "Disable draining. In-flight holds finishing"
       : snap.timeoutCount > 0 && snap.controls.acquireTimeoutSec !== null
         ? `${snap.timeoutCount} acquire timeout${snap.timeoutCount === 1 ? "" : "s"}`
-        : snap.waitingCount > 0
-          ? `${snap.waitingCount} waiting · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)}ms`
+        : read.waiting > 0
+          ? `${read.waiting} waiting · acquire.wait.p99 ≈ ${(read.acquireWaitP99Sec * 1000).toFixed(0)}ms`
           : fillRatio > 0.85
             ? `Util ${(fillRatio * 100).toFixed(0)}%. thin headroom`
             : null;
@@ -66,21 +47,21 @@ export function ConnectionPoolGrid({
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Connection pool</h3>
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[color:var(--exp-muted)]">
           <span className="tabular-nums text-[color:var(--exp-fg)]">
-            {snap.activeCount}/{snap.poolSize}
+            {read.busy}/{read.poolSize}
           </span>{" "}
           busy ·{" "}
           <span
             className={`tabular-nums ${
-              snap.waitingCount > 0 ? "text-[color:var(--exp-accent-text)]" : ""
+              read.waiting > 0 ? "text-[color:var(--exp-accent-text)]" : ""
             }`}
           >
-            {snap.waitingCount}
+            {read.waiting}
           </span>{" "}
           waiting
         </p>
       </div>
       <p className="mt-1 text-sm text-[color:var(--exp-muted)]">
-        Shared resource. active slots never exceed {snap.poolSize}. Excess demand waits.
+        Shared resource inside Recommendation. Active slots stay within {read.poolSize}. Excess demand waits. Catalog traffic stays on Product Page.
       </p>
 
       <div
@@ -112,7 +93,7 @@ export function ConnectionPoolGrid({
           viewBox={`0 0 ${width} ${height}`}
           className="w-full max-w-[300px] shrink-0"
           role="img"
-          aria-label={`${snap.activeCount} of ${snap.poolSize} connections occupied`}
+          aria-label={`${read.busy} of ${read.poolSize} connections occupied`}
         >
           {snap.slots.map((slot) => {
             const col = slot.index % COLS;
@@ -121,12 +102,9 @@ export function ConnectionPoolGrid({
             const y = pad + row * (cell + gap);
             const busy = slot.requestId !== null;
             const selected = slot.requestId !== null && slot.requestId === selectedId;
-            const fresh = busy && slot.requestId !== null && freshIds.has(slot.requestId);
             const fill = !busy
               ? "var(--exp-slot-free)"
-              : slot.exposed
-                ? "var(--exp-slot-recs)"
-                : "var(--exp-slot-base)";
+              : "var(--exp-slot-recs)";
             return (
               <rect
                 key={slot.index}
@@ -138,9 +116,7 @@ export function ConnectionPoolGrid({
                 fill={fill}
                 stroke={selected ? "var(--exp-fg)" : "color-mix(in srgb, var(--exp-fg) 10%, transparent)"}
                 strokeWidth={selected ? 2 : 1}
-                className={`${busy ? "cursor-pointer" : ""} ${
-                  fresh && !reducedMotion ? "exp-slot-busy" : ""
-                }`}
+                className={busy ? "cursor-pointer" : ""}
                 style={
                   busy && !reducedMotion
                     ? { transition: "fill 180ms ease" }
@@ -150,7 +126,7 @@ export function ConnectionPoolGrid({
               >
                 <title>
                   {busy
-                    ? `Slot ${slot.index + 1}: ${slot.exposed ? "recs" : "baseline"}`
+                    ? `Slot ${slot.index + 1}: recommendation`
                     : `Slot ${slot.index + 1}: free`}
                 </title>
               </rect>

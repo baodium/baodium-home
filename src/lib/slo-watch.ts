@@ -1,3 +1,5 @@
+import { clampBusy, utilization } from "@/lib/sim/bounds";
+
 /** Pure engine for SLO Watch. dual knobs (pool vs concurrency), retries, shedding. */
 
 export type RetryPolicy = "off" | "cautious" | "aggressive";
@@ -163,7 +165,7 @@ export function tick(
   const pool = Math.max(1, controls.poolSize);
   const conc = Math.max(1, controls.concurrencyLimit);
 
-  const poolUtilBefore = Math.min(1.4, state.inFlight / pool);
+  const poolUtilBefore = utilization(state.inFlight, pool);
   const retryAmp = retryMultiplier(
     controls.retries,
     poolUtilBefore,
@@ -194,17 +196,17 @@ export function tick(
   const freeSlots = Math.max(0, pool - state.inFlight);
   const acquired = Math.min(pending, freeSlots);
   pending -= acquired;
-  let inFlight = state.inFlight + acquired;
+  let inFlight = clampBusy(state.inFlight + acquired, pool);
 
   // Pending beyond a soft wait budget fails (acquire timeout analogue).
   const pendingFail = Math.max(0, pending - pool * 1.5) * 0.35;
   pending = Math.min(pending, pool * 1.5);
 
-  const poolUtil = Math.min(1.4, inFlight / pool);
+  const poolUtil = utilization(inFlight, pool);
   const hold = holdTimeSec(Math.min(1, poolUtil), pending, pool);
   const busy = Math.min(inFlight, pool);
   const completions = busy * (1 - Math.exp(-dt / hold));
-  inFlight = Math.max(0, inFlight - completions);
+  inFlight = clampBusy(Math.max(0, inFlight - completions), pool);
 
   // Intrinsic fail chance rises with pool contention + pending.
   const failFrac =
@@ -306,7 +308,7 @@ export function tick(
     admitted: offered / dt,
     inFlight,
     pending,
-    poolUtil: Math.min(1.25, inFlight / pool),
+    poolUtil,
     concurrencyUtil,
     successRate,
     errorBudget: Math.max(0, errorBudget),

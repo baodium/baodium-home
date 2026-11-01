@@ -1,3 +1,4 @@
+import { readChapter1 } from "@/lib/experience/readout";
 import type { ChallengeCriteria, EngineSnapshot } from "@/lib/experience/types";
 
 export type ChallengeStatus = "idle" | "running" | "passed" | "failed";
@@ -7,12 +8,13 @@ export function evaluateChallenge(
   criteria: ChallengeCriteria,
   startedAtSimT: number,
 ): ChallengeStatus {
+  const read = readChapter1(snap);
   const elapsed = snap.t - startedAtSimT;
-  const waitingOk = !criteria.requireWaitingZero || snap.waitingCount === 0;
+  const waitingOk = !criteria.requireWaitingZero || read.waiting === 0;
   const p99Ok =
     !criteria.requireP99UnderSlo ||
-    (snap.completedCount >= 8 && snap.latencyP99 <= snap.slo.targetP99Sec);
-  const utilOk = snap.utilization <= criteria.maxUtilization;
+    (snap.completedCount >= 8 && read.p99Sec <= snap.slo.targetP99Sec);
+  const utilOk = read.utilization <= criteria.maxUtilization;
   // Need some completions so metrics are meaningful after mitigations.
   const samplesOk = snap.completedCount >= 12;
 

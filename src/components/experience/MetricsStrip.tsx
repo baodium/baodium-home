@@ -1,6 +1,7 @@
 "use client";
 
 import type { EngineSnapshot } from "@/lib/experience/types";
+import { readChapter1 } from "@/lib/experience/readout";
 import { MetricValue } from "@/components/ui/MetricValue";
 
 export function MetricsStrip({
@@ -9,8 +10,9 @@ export function MetricsStrip({
   snap: EngineSnapshot;
   reducedMotion?: boolean;
 }) {
-  const p50ms = snap.latencyP50 * 1000;
-  const p99ms = snap.latencyP99 * 1000;
+  const read = readChapter1(snap);
+  const p50ms = read.p50Sec * 1000;
+  const p99ms = read.p99Sec * 1000;
   const spread = Math.max(0, p99ms - p50ms);
   const tailHot = spread > 40 && snap.completedCount > 8;
 
