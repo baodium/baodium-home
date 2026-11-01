@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Build-time LaTeX → structured book content for the Baodium reader.
- * Canonical source: Baodium_System_Design_Final_Language_Pass_Web.zip (not committed).
+ * Canonical source: the newest author zip (not committed).
+ * Practical_System_Design_Source_Lite.zip is the Frontier Plus edition.
+ * Baodium_System_Design_Final_Language_Pass_Web.zip is the previous edition.
  */
 
 import fs from "node:fs";
@@ -16,15 +18,22 @@ import {
   loadFigureMacroExpansions,
 } from "./preprocess-latex.mjs";
 
-const ZIP_NAME = "Baodium_System_Design_Final_Language_Pass_Web.zip";
+const ZIP_NAMES = [
+  "Practical_System_Design_Source_Lite.zip",
+  "Baodium_System_Design_Final_Language_Pass_Web.zip",
+];
+const SEARCH_DIRS = [
+  path.join(process.cwd(), "manuscript"),
+  process.cwd(),
+  "/home/ubuntu/.cursor/projects/workspace",
+  "/home/ubuntu/.cursor/projects/workspace/assets",
+  "/home/workdir",
+  "/home/workdir/attachments",
+  "/tmp",
+  "/cursor/stores/self/source",
+];
 const SEARCH_PATHS = [
-  path.join(process.cwd(), "manuscript", ZIP_NAME),
-  path.join(process.cwd(), ZIP_NAME),
-  path.join("/home/ubuntu/.cursor/projects/workspace", ZIP_NAME),
-  path.join("/home/ubuntu/.cursor/projects/workspace/assets", ZIP_NAME),
-  path.join("/home/workdir", ZIP_NAME),
-  path.join("/home/workdir/attachments", ZIP_NAME),
-  path.join("/tmp", ZIP_NAME),
+  ...SEARCH_DIRS.flatMap((dir) => ZIP_NAMES.map((name) => path.join(dir, name))),
   process.env.MANUSCRIPT_ZIP,
 ].filter(Boolean);
 
@@ -171,7 +180,7 @@ function extractChapterTitle(tex, filePath) {
     acknowledgements: "Acknowledgements",
     epilogue: "Epilogue",
     appendix_a: "Appendix A: Recovery Instrumentation and Auditing",
-    appendix_b: "Appendix B: Three Classic Designs",
+    appendix_b: "Appendix B: Four Practical System Designs",
     appendix_c: "Appendix C: Security, Privacy, and Cost Review",
     worksheet: "Hidden Assumptions: A Blank Worksheet",
     glossary: "Glossary",
@@ -305,10 +314,10 @@ ${searched}
 
 ## Action required
 
-Place \`${ZIP_NAME}\` in \`manuscript/\` at the repo root (gitignored) or set \`MANUSCRIPT_ZIP\` to its absolute path, then run \`npm run build\` again.
+Place the author zip in \`manuscript/\` at the repo root (gitignored) or set \`MANUSCRIPT_ZIP\` to its absolute path, then run \`npm run build\` again.
 `;
     writeReport(report);
-    console.error(`[convert-manuscript] Missing ${ZIP_NAME}. See ${REPORT_PATH}`);
+    console.error(`[convert-manuscript] Missing author zip. See ${REPORT_PATH}`);
     process.exit(1);
   }
 
@@ -333,6 +342,7 @@ Place \`${ZIP_NAME}\` in \`manuscript/\` at the repo root (gitignored) or set \`
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.mkdirSync(PUBLIC_BOOK, { recursive: true });
   const mediaDir = path.join(PUBLIC_BOOK, "figures");
+  fs.rmSync(mediaDir, { recursive: true, force: true });
   copyFigureAssets(extractRoot, mediaDir);
 
   const counters = { chapter: 0, appendix: 0 };

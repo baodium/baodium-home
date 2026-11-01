@@ -1,5 +1,12 @@
 import { SHORT_LAB_SIMS } from "@/lib/experience/short-labs/sims";
 import type { ShortLab } from "@/lib/experience/short-labs/types";
+import { getChapter } from "@/lib/learning/registry";
+
+function manuscriptTitle(slug: string): string {
+  const title = getChapter(slug)?.title;
+  if (!title) throw new Error(`Missing manuscript title for ${slug}`);
+  return title;
+}
 
 const signal = "#2f7a7e";
 const accent = "#ad4f36";
@@ -9,7 +16,7 @@ export const SHORT_LABS: ShortLab[] = [
   {
     slug: "chapter-2",
     number: 2,
-    title: "Modeling Requests, Latency, and Throughput",
+    title: manuscriptTitle("chapter-2"),
     durationMin: 8,
     h1: "Can you size the workers before the queue takes off?",
     situation: [
@@ -90,7 +97,7 @@ export const SHORT_LABS: ShortLab[] = [
   {
     slug: "chapter-4",
     number: 4,
-    title: "Service Communication and Cascading Failure",
+    title: manuscriptTitle("chapter-4"),
     durationMin: 8,
     h1: "Can you stop downstream work after the caller has given up?",
     situation: [
@@ -164,7 +171,7 @@ export const SHORT_LABS: ShortLab[] = [
   {
     slug: "chapter-5",
     number: 5,
-    title: "Caching and the Cost of Remembering",
+    title: manuscriptTitle("chapter-5"),
     durationMin: 8,
     h1: "Can you keep origin under 24 requests per second when the keys expire?",
     situation: [
@@ -232,7 +239,7 @@ export const SHORT_LABS: ShortLab[] = [
   {
     slug: "chapter-7",
     number: 7,
-    title: "Replicas, Partitions, and Shards",
+    title: manuscriptTitle("chapter-7"),
     durationMin: 8,
     h1: "Can you read your own write without sending every read to the primary?",
     situation: [
@@ -312,7 +319,7 @@ export const SHORT_LABS: ShortLab[] = [
   {
     slug: "chapter-12",
     number: 12,
-    title: "Event-Driven Systems and Stream Processing",
+    title: manuscriptTitle("chapter-12"),
     durationMin: 8,
     h1: "Can you hold backlog age under 8 seconds with no duplicate sends?",
     situation: [
@@ -384,7 +391,7 @@ export const SHORT_LABS: ShortLab[] = [
   {
     slug: "chapter-14",
     number: 14,
-    title: "Designing From Production Experience",
+    title: manuscriptTitle("chapter-14"),
     durationMin: 9,
     h1: "Can you keep checkout inside 500 ms when the provider slows down?",
     situation: [

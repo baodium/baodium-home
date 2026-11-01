@@ -100,7 +100,7 @@ export const CHAPTERS: ChapterRecord[] = [
     id: "chapter-5",
     slug: "chapter-5",
     number: 5,
-    title: "Caching and the Cost of Remembering",
+    title: "Caching and Data Freshness",
     shortTitle: "Caching",
     bookHref: "/system-design/chapter-5",
     labHref: "/system-design/experience/chapter-5",

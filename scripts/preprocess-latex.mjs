@@ -245,10 +245,37 @@ function simplifyTables(source) {
   return out;
 }
 
+function expandConceptEntries(source) {
+  let out = source.replace(
+    /\\(?:newcommand|providecommand|renewcommand)\{\\conceptentry\}\[[^\]]*\]\{[\s\S]*?\n\}/g,
+    "",
+  );
+  let i = 0;
+  let rebuilt = "";
+  const token = "\\conceptentry";
+  while (i < out.length) {
+    if (out.startsWith(token, i) && out[i + token.length] === "{") {
+      const first = readBracedGroup(out, i + token.length);
+      const second = first ? readBracedGroup(out, first.end) : null;
+      if (first && second) {
+        rebuilt += `\n\n${first.content}, ${second.content}\n\n`;
+        i = second.end;
+        continue;
+      }
+    }
+    rebuilt += out[i];
+    i += 1;
+  }
+  return rebuilt
+    .replace(/\\begin\{multicols\}\{[^}]*\}/g, "")
+    .replace(/\\end\{multicols\}/g, "");
+}
+
 export function preprocessLatex(source, options = {}) {
   let out = source;
   const { figureExpansions } = options;
 
+  out = expandConceptEntries(out);
   out = expandLocalMacroDefinitions(out);
 
   if (figureExpansions) {

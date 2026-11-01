@@ -11,11 +11,11 @@ The workspace for a full lab is narrative, a topology that matches the sim, cont
 ## Service boundary for Chapter 1
 
 ```
-Client → Product Page → Catalog                         baseline, ~12 ms, no pool slot
+Client → Product Page → Catalog                         baseline, no pool slot
 Client → Product Page → Recommendation → pool → DB      exposed users only
 ```
 
-The pool has 40 slots and lives in Recommendation. Product Page may call Recommendation. It does not hold the connection. A cache hit on the recommendation path skips the acquire. A load shed sends that arrival back to Catalog.
+Each Recommendation instance allows 40 connections. The home page, checkout, and product-page personalization share that pool. Product Page calls Recommendation. It does not hold the connection. The manuscript’s incident readout puts mean occupancy near 70 ms and acquire p99 near 600 ms while all 40 connections are assigned. The lab’s catalog leg is a short simulated hold so the baseline path stays visible. The manuscript does not publish a catalog millisecond. A cache hit on the recommendation path skips the acquire. A load shed sends that arrival back to Catalog. The book’s later design caps each Product Page instance at 16 in-flight recommendation calls and about 150 ms. The lab still operates the 40-connection incident. It does not pretend to be that later admission limiter.
 
 ## One discrete-event engine
 

@@ -3,9 +3,12 @@
 import { useEffect, type ReactNode } from "react";
 import Lenis from "lenis";
 import { MotionConfig } from "motion/react";
+import { usePathname } from "next/navigation";
 
 export function Providers({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   useEffect(() => {
+    if (pathname === "/") return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     if (reduce || coarse) return;
@@ -30,7 +33,7 @@ export function Providers({ children }: { children: ReactNode }) {
       cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
 }

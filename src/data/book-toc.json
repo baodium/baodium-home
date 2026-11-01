@@ -25,7 +25,7 @@
   },
   {
     "slug": "chapter-5",
-    "title": "Caching and the Cost of Remembering"
+    "title": "Caching and Data Freshness"
   },
   {
     "slug": "chapter-6",
@@ -73,7 +73,7 @@
   },
   {
     "slug": "appendix-b",
-    "title": "Appendix B: Three Classic Designs"
+    "title": "Appendix B: Four Practical System Designs"
   },
   {
     "slug": "appendix-c",

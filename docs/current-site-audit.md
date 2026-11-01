@@ -10,7 +10,7 @@ Baodium is a static Next.js site. There is no database, no sign-in, and no hoste
 
 | Surface | URL | What a reader gets |
 | --- | --- | --- |
-| Home | `/` | Portrait hero, book, drills, projects link |
+| Home | `/` | Hero only: portrait, roles, one line, two links, nav. No page scroll. |
 | Book | `/system-design` and `/system-design/[slug]` | Manuscript reader |
 | Labs | `/system-design/experience` | Lab index |
 | Chapter 1 lab | `/system-design/experience/chapter-1` | Full incident: guided, practice, challenge |
@@ -23,7 +23,7 @@ Navigation labels stay Home, Book, Labs, Drills, Projects, About. End-to-end tes
 
 ## Book
 
-The reader ships 14 chapters plus preface, epilogue, appendices A–C, worksheet, glossary, further reading, index, and about the author. Appendix B is “Three Classic Designs”. It is not chapter 15.
+The reader ships 14 chapters plus preface, epilogue, appendices A–C, worksheet, glossary, further reading, index, and about the author. Appendix B is “Four Practical System Designs”. It is not chapter 15.
 
 Chapter titles in `src/generated/book/manifest.json`:
 
@@ -31,7 +31,7 @@ Chapter titles in `src/generated/book/manifest.json`:
 2. Modeling Requests, Latency, and Throughput
 3. State, Identity, and the Cost of Uncertainty
 4. Service Communication and Cascading Failure
-5. Caching and the Cost of Remembering
+5. Caching and Data Freshness
 6. Containers and the Reproducible Deployment
 7. Replicas, Partitions, and Shards
 8. Observability and Path Health

@@ -816,9 +816,9 @@ export function Chapter1Experience() {
                     <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
                       <div className="space-y-3 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3.5 py-3">
                         <p className="text-[color:var(--exp-fg)]">
-                          Exposed traffic held Recommendation’s 40-slot pool longer (~12ms → ~80ms).
-                          Arrivals kept coming; waiters grew while busy stayed capped at 40. Product
-                          Page never owned that pool.
+                          Exposed traffic held Recommendation’s 40-connection pool for about 70 ms.
+                          Arrivals kept coming; waiters grew while busy stayed capped at 40. Home
+                          page and checkout share that pool. Product Page does not own it.
                         </p>
                         <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
                         <p className="text-[color:var(--exp-fg)]">
