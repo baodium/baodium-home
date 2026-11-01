@@ -71,7 +71,7 @@ export function ConnectionPoolGrid({
           busy ·{" "}
           <span
             className={`tabular-nums ${
-              snap.waitingCount > 0 ? "text-[color:var(--exp-accent)]" : ""
+              snap.waitingCount > 0 ? "text-[color:var(--exp-accent-text)]" : ""
             }`}
           >
             {snap.waitingCount}
@@ -102,7 +102,7 @@ export function ConnectionPoolGrid({
       </div>
 
       {statusLine ? (
-        <p className="mt-3 font-mono text-[0.68rem] leading-snug text-[color:var(--exp-accent)]">
+        <p className="mt-3 font-mono text-[0.68rem] leading-snug text-[color:var(--exp-accent-text)]">
           {statusLine}
         </p>
       ) : null}

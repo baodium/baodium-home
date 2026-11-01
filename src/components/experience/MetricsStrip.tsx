@@ -29,7 +29,7 @@ export function MetricsStrip({
         </div>
         <div className="instrument" data-hot={tailHot ? "true" : undefined}>
           <dt className="instrument-label">p99</dt>
-          <dd className={tailHot ? "mt-2 text-[color:var(--exp-accent)]" : "mt-2 text-[color:var(--exp-fg)]"}>
+          <dd className={tailHot ? "mt-2 text-[color:var(--exp-accent-text)]" : "mt-2 text-[color:var(--exp-fg)]"}>
             <MetricValue value={p99ms} unit="ms" />
           </dd>
         </div>

@@ -32,7 +32,7 @@ export function BookPageOutline({ sections }: { sections: BookSection[] }) {
 
   return (
     <details className="book-page-outline group/outline mt-0.5" aria-label="On this page">
-      <summary className="cursor-pointer list-none rounded-md px-2.5 py-1 font-mono text-[0.55rem] uppercase tracking-[0.16em] text-[color-mix(in_srgb,var(--reader-muted)_85%,transparent)] transition-colors hover:text-[var(--reader-muted)] [&::-webkit-details-marker]:hidden">
+      <summary className="cursor-pointer list-none rounded-md px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)] [&::-webkit-details-marker]:hidden">
         On this page
         <span aria-hidden="true" className="ml-1 opacity-60 group-open/outline:hidden">
           · {headings.length}
@@ -48,7 +48,7 @@ export function BookPageOutline({ sections }: { sections: BookSection[] }) {
                 className={`block rounded-md border-l-2 py-1 pl-2.5 transition-colors hover:text-[var(--reader-fg)] ${
                   active
                     ? "border-cinnabar/70 font-medium text-[var(--reader-fg)]"
-                    : "border-transparent text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]"
+                    : "border-transparent text-[var(--reader-muted)]"
                 }`}
               >
                 {section.title}

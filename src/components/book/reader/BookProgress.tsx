@@ -65,7 +65,7 @@ export function BookProgress({
         }`}
       >
         <span
-          className="rounded-full bg-[color-mix(in_srgb,var(--reader-page)_88%,transparent)] px-2 py-0.5 font-mono text-[0.58rem] tracking-[0.12em] text-[var(--reader-muted)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)] backdrop-blur-sm"
+          className="rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_14%,transparent)] bg-[var(--reader-page)] px-2 py-0.5 font-mono text-[0.68rem] tracking-[0.08em] text-[var(--reader-fg)] shadow-[0_4px_12px_-8px_rgba(18,17,16,0.35)]"
           title={hasBookPos ? `Book ${bookPct}% complete` : undefined}
         >
           {label}

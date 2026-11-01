@@ -210,9 +210,9 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
         <a
           href="#live-path"
           aria-label="Scroll to the Chapter 1 live path"
-          className="absolute bottom-6 left-1/2 z-[5] hidden -translate-x-1/2 flex-col items-center gap-2 text-cream/45 transition-colors hover:text-cream/75 lg:flex"
+          className="absolute bottom-6 left-1/2 z-[5] hidden -translate-x-1/2 flex-col items-center gap-2 text-cream/75 transition-colors hover:text-cream lg:flex"
         >
-          <span className="font-mono text-[0.58rem] uppercase tracking-[0.2em]">Scroll</span>
+          <span className="font-mono text-[0.72rem] uppercase tracking-[0.14em]">Scroll</span>
           <span aria-hidden="true" className="relative h-8 w-px overflow-hidden bg-cream/20">
             <span className="scroll-cue absolute inset-x-0 top-0 h-full bg-cream/70" />
           </span>

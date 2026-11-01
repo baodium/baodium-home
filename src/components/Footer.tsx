@@ -75,7 +75,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-3.5 text-sm text-cream/60 md:py-4">
+          <div className="flex items-center justify-between gap-4 border-t border-white/10 py-3.5 text-sm text-cream/82 md:py-4">
             <p>© {year} Baodium</p>
             <a
               href="#main"

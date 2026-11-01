@@ -25,7 +25,7 @@ export function LittlesLawCallout({
         </p>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-end gap-2 font-mono text-[color:var(--exp-amber)]">
+      <div className="mt-3 flex flex-wrap items-end gap-2 font-mono text-[color:var(--exp-amber-text)]">
         <Term
           label="λ"
           value={littles.lambda.toFixed(0)}
@@ -79,7 +79,7 @@ export function LittlesLawCallout({
             title="Pool capacity (40)"
           />
           <span
-            className="pointer-events-none absolute -top-5 font-mono text-[0.55rem] uppercase tracking-[0.12em] text-[color:var(--exp-faint)]"
+            className="pointer-events-none absolute -top-5 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-[color:var(--exp-faint)]"
             style={{ left: `${capPct}%`, transform: "translateX(-50%)" }}
           >
             cap 40
@@ -89,9 +89,8 @@ export function LittlesLawCallout({
           Observed busy {snap.activeCount} · demand ≈ {snap.demandOccupancy.toFixed(0)} · simulated
         </p>
         {over ? (
-          <p className="mt-2 rounded-lg border border-[color-mix(in_srgb,var(--exp-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_7%,transparent)] px-3 py-2 text-xs leading-relaxed text-[color:var(--exp-fg)]">
-            Teaching point: λ×W can exceed 40. Active connections cannot. The surplus is waiting . 
-            not a fake 41st busy slot.
+          <p className="mt-2 rounded-lg border border-[color-mix(in_srgb,var(--exp-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_10%,var(--exp-panel-raise))] px-3 py-2 text-sm leading-relaxed text-[color:var(--exp-fg)]">
+            Teaching point: λ×W can exceed 40. Active connections cannot. The surplus is waiting, not a fake 41st busy slot.
           </p>
         ) : null}
       </div>
@@ -118,14 +117,14 @@ function Term({
       initial={reducedMotion ? false : { opacity: 0.45, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reducedMotion ? 0 : 0.28 }}
-      className="rounded-lg border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-2.5 py-1.5"
+      className="rounded-lg border border-[color:var(--exp-line)] bg-[color:var(--exp-chip)] px-2.5 py-1.5"
     >
-      <p className="text-[0.55rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+      <p className="text-[0.68rem] uppercase tracking-[0.1em] text-[color:var(--exp-faint)]">
         {label}
       </p>
       <p
         className={`text-base tabular-nums ${
-          emphasize ? "text-[color:var(--exp-accent)]" : "text-[color:var(--exp-fg)]"
+          emphasize ? "text-[color:var(--exp-accent-text)]" : "text-[color:var(--exp-fg)]"
         }`}
       >
         {value}

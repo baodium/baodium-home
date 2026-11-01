@@ -29,10 +29,10 @@ export function ProductPreview({
       </div>
       <div className="exp-storefront mt-4">
         <div className="border-b border-[color:var(--exp-line)] px-4 py-3">
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
+          <p className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[color:var(--exp-faint)]">
             storefront · simulated
           </p>
-          <p className="mt-1 font-serif text-xl text-[color:var(--exp-fg)]">
+          <p className="mt-1.5 font-serif text-xl text-[color:var(--exp-fg)]">
             Ceramic pour-over kettle
           </p>
           <p className="mt-1 text-sm text-[color:var(--exp-muted)]">$68 · in stock</p>
@@ -51,7 +51,7 @@ export function ProductPreview({
               transition={{ duration: reduced ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               <p className="exp-kicker">Recommended with this</p>
-              <ul className="mt-2 space-y-1.5 text-sm text-[color:var(--exp-fg)]">
+              <ul className="mt-2.5 space-y-2 text-[0.95rem] leading-snug text-[color:var(--exp-fg)]">
                 <li>Paper filters · 100 pack</li>
                 <li>Gooseneck scale mat</li>
                 <li>Single-origin sampler</li>
@@ -60,7 +60,7 @@ export function ProductPreview({
           ) : (
             <motion.div
               key="none"
-              className="border-t border-[color:var(--exp-line)] px-4 py-3 text-sm text-[color:var(--exp-faint)]"
+              className="border-t border-[color:color-mix(in_srgb,#1a2330_12%,#fff)] px-4 py-3 text-sm text-[color:var(--exp-muted)]"
               initial={reduced ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={reduced ? undefined : { opacity: 0 }}

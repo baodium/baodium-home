@@ -121,10 +121,10 @@ export function DrillProseHeader({
                   <p className="min-w-0 flex-1 text-[0.92rem] leading-relaxed text-[color:var(--drill-fg)]">
                     {prose.objective}
                   </p>
-                  <span className="shrink-0 font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)] group-open:hidden">
+                  <span className="shrink-0 font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)] group-open:hidden">
                     More
                   </span>
-                  <span className="hidden shrink-0 font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)] group-open:inline">
+                  <span className="hidden shrink-0 font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)] group-open:inline">
                     Less
                   </span>
                 </div>

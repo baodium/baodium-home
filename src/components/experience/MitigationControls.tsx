@@ -158,13 +158,13 @@ function MitigationRow({
       className={`rounded-xl border px-3 py-3 ${
         active
           ? "border-[color-mix(in_srgb,var(--exp-amber)_45%,transparent)] bg-[color-mix(in_srgb,var(--exp-amber)_6%,transparent)]"
-          : "border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_40%,transparent)]"
+          : "border-[color:var(--exp-line)] bg-[color:var(--exp-chip)]"
       }`}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="font-medium text-[color:var(--exp-fg)]">{title}</p>
         {active ? (
-          <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-amber)]">
+          <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[color:var(--exp-amber-text)]">
             armed
           </span>
         ) : null}

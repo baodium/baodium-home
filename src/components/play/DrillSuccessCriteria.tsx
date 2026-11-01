@@ -39,7 +39,7 @@ export function DrillSuccessCriteria({
             item.met === true
               ? "text-[color:var(--drill-signal)]"
               : item.met === false
-                ? "text-[color:var(--drill-accent)]"
+                ? "text-[color:var(--drill-accent-text)]"
                 : "text-[color:var(--drill-faint)]";
           return (
             <li
@@ -55,7 +55,7 @@ export function DrillSuccessCriteria({
                     {item.value}
                   </span>
                   <span
-                    className={`font-mono text-[0.58rem] uppercase tracking-[0.14em] ${markColor}`}
+                    className={`font-mono text-[0.72rem] uppercase tracking-[0.08em] ${markColor}`}
                   >
                     {mark}
                   </span>

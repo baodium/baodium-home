@@ -22,7 +22,9 @@
   /* Play/lab light tokens (portaled tips inherit from :root) */
   --drill-fg: #1a2330;
   --drill-muted: #5b6778;
-  --drill-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --drill-faint: #5f6d7e;
+  --drill-kicker: #1f5f64;
+  --drill-accent-text: #8d3e2b;
   --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
   --drill-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
   --drill-panel: #ffffff;
@@ -124,8 +126,9 @@ html {
 /* Type helpers */
 .kicker {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -448,7 +451,7 @@ html[data-reader-theme="light"] {
   --reader-chrome: #c2c1bc;
   --reader-page: #ffffff;
   --reader-fg: #121110;
-  --reader-muted: rgba(18, 17, 16, 0.48);
+  --reader-muted: rgba(18, 17, 16, 0.72);
   --reader-desk: #c8c7c1;
 }
 
@@ -457,7 +460,7 @@ html[data-reader-theme="dark"] {
   --reader-chrome: #151311;
   --reader-page: #080707;
   --reader-fg: #f3eee6;
-  --reader-muted: rgba(243, 238, 230, 0.58);
+  --reader-muted: rgba(243, 238, 230, 0.78);
   --reader-desk: #100e0c;
 }
 
@@ -466,7 +469,7 @@ html[data-reader-theme="paper"] {
   --reader-chrome: #dbd0bb;
   --reader-page: #f6edd9;
   --reader-fg: #2b221d;
-  --reader-muted: rgba(43, 34, 29, 0.56);
+  --reader-muted: rgba(43, 34, 29, 0.74);
   --reader-desk: #ddd2bc;
 }
 
@@ -496,7 +499,7 @@ html[data-reader-measure="wide"] {
   --reader-chrome: #c2c1bc;
   --reader-page: #ffffff;
   --reader-fg: #121110;
-  --reader-muted: rgba(18, 17, 16, 0.48);
+  --reader-muted: rgba(18, 17, 16, 0.72);
   --reader-font-size: 1.12rem;
   --reader-measure: 40rem;
   --reader-desk: #c8c7c1;
@@ -1166,7 +1169,9 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .drill-stage {
   --drill-fg: #1a2330;
   --drill-muted: #5b6778;
-  --drill-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --drill-faint: #5f6d7e;
+  --drill-kicker: #1f5f64;
+  --drill-accent-text: #8d3e2b;
   --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
   --drill-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
   --drill-panel: #ffffff;
@@ -1188,7 +1193,9 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   .drill-stage {
     --drill-fg: #e8edf4;
     --drill-muted: #9aa6b8;
-    --drill-faint: color-mix(in srgb, #e8edf4 42%, transparent);
+    --drill-faint: #8e9aab;
+    --drill-kicker: #7dbebf;
+    --drill-accent-text: #f0b2a2;
     --drill-line: color-mix(in srgb, #e8edf4 12%, transparent);
     --drill-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
     --drill-panel: #12151a;
@@ -1209,10 +1216,11 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .drill-kicker {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--drill-signal);
+  color: var(--drill-kicker, var(--drill-signal));
 }
 
 .drill-section-title {
@@ -1242,11 +1250,11 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .drill-metrics-table th {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--drill-faint);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .drill-metrics-table td {
@@ -1392,7 +1400,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .learn-root {
   --learn-fg: #1a2330;
   --learn-muted: #5b6778;
-  --learn-faint: color-mix(in srgb, #1a2330 40%, transparent);
+  --learn-faint: #5f6d7e;
   --learn-line: color-mix(in srgb, #1a2330 10%, transparent);
   --learn-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
   --learn-panel: color-mix(in srgb, #ffffff 92%, #eef3f7 8%);
@@ -1465,7 +1473,13 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .service-node[data-tone="dim"] {
-  opacity: 0.45;
+  border-color: var(--learn-line, rgba(26, 35, 48, 0.12));
+  background: color-mix(in srgb, var(--learn-panel-raise, #fff) 55%, transparent);
+}
+
+.service-node[data-tone="dim"] .service-node-label,
+.service-node[data-tone="dim"] .service-node-detail {
+  color: var(--learn-muted, #5b6778);
 }
 
 .service-node-label {
@@ -1479,7 +1493,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   margin-top: 4px;
   color: var(--learn-muted, #5b6778);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -1497,14 +1511,14 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .ch1-editor .cm-ch1-active {
-  background: rgba(47, 122, 126, 0.32);
+  background: rgba(47, 122, 126, 0.16);
 }
 
 @media (prefers-color-scheme: dark) {
   .learn-root {
     --learn-fg: #e8edf4;
     --learn-muted: #9aa6b8;
-    --learn-faint: color-mix(in srgb, #e8edf4 42%, transparent);
+    --learn-faint: #8e9aab;
     --learn-line: color-mix(in srgb, #e8edf4 12%, transparent);
     --learn-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
     --learn-panel: #12151a;
@@ -1516,7 +1530,11 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .exp-root {
   --exp-fg: var(--learn-fg, #1a2330);
   --exp-muted: var(--learn-muted, #5b6778);
-  --exp-faint: var(--learn-faint, color-mix(in srgb, #1a2330 40%, transparent));
+  --exp-faint: var(--learn-faint, #5f6d7e);
+  --exp-kicker: #1f5f64;
+  --exp-amber-text: #1f5f64;
+  --exp-on-fg: #f4f7fa;
+  --exp-chip: color-mix(in srgb, var(--exp-fg) 6%, var(--exp-panel-raise));
   --exp-line: var(--learn-line, color-mix(in srgb, #1a2330 10%, transparent));
   --exp-line-strong: var(
     --learn-line-strong,
@@ -1528,6 +1546,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   --exp-slot-base: #5ea8a8;
   --exp-slot-recs: #ad4f36;
   --exp-accent: var(--learn-accent, #ad4f36);
+  --exp-accent-text: #8d3e2b;
   --exp-amber: var(--learn-signal, #2f7a7e);
   --exp-signal: var(--learn-signal, #2f7a7e);
   color-scheme: light;
@@ -1538,8 +1557,12 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 @media (prefers-color-scheme: dark) {
   .exp-root {
     --exp-fg: #e8edf4;
-    --exp-muted: #9aa6b8;
-    --exp-faint: color-mix(in srgb, #e8edf4 42%, transparent);
+    --exp-muted: #b4c0d0;
+    --exp-faint: #8e9aab;
+    --exp-kicker: #7dbebf;
+    --exp-amber-text: #8fd0d0;
+    --exp-on-fg: #12151a;
+    --exp-accent-text: #f0b2a2;
     --exp-line: color-mix(in srgb, #e8edf4 12%, transparent);
     --exp-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
     --exp-panel: #12151a;
@@ -1601,10 +1624,11 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .exp-kicker {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
-  color: var(--exp-amber);
+  color: var(--exp-kicker, #1f5f64);
 }
 
 .exp-muted {
@@ -1659,12 +1683,12 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .exp-btn-ghost:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--exp-fg) 40%, transparent);
-  background: color-mix(in srgb, #fff 55%, transparent);
+  background: color-mix(in srgb, var(--exp-fg) 8%, transparent);
 }
 
 .exp-btn-solid {
   background: var(--exp-fg);
-  color: #ffffff;
+  color: var(--exp-on-fg, #f4f7fa);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 8px 18px -14px rgba(26, 35, 48, 0.5);
@@ -1786,15 +1810,27 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .exp-storefront {
-  border: 1px solid var(--exp-line);
+  /* Paper mock of the product page. Ink stays dark in both color schemes. */
+  --exp-fg: #1a2330;
+  --exp-muted: #3d4b5c;
+  --exp-faint: #5f6d7e;
+  --exp-kicker: #8a3f2c;
+  border: 1px solid color-mix(in srgb, #1a2330 16%, #ffffff);
   border-radius: 0.9rem;
   background: #ffffff;
+  color: #1a2330;
   overflow: hidden;
 }
 
 .exp-recs-rail {
-  border-top: 1px solid color-mix(in srgb, var(--exp-accent) 35%, transparent);
-  background: color-mix(in srgb, var(--exp-accent) 7%, #ffffff);
+  border-top: 1px solid color-mix(in srgb, #ad4f36 46%, #f3ebe6);
+  background: #f3ebe6;
+  color: #1a2330;
+}
+
+.exp-storefront .exp-kicker {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
 }
 
 .exp-teach {
@@ -1809,7 +1845,8 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .exp-pool-callout {
   border-radius: 0.85rem;
   border: 1px solid color-mix(in srgb, var(--exp-accent) 28%, transparent);
-  background: color-mix(in srgb, var(--exp-accent) 6%, #ffffff);
+  background: color-mix(in srgb, var(--exp-accent) 8%, var(--exp-panel-raise));
+  color: var(--exp-fg);
   padding: 0.7rem 0.85rem;
 }
 
@@ -2116,8 +2153,9 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .instrument-label {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--exp-faint, var(--drill-faint));
 }

@@ -35,7 +35,7 @@ export function DrillPreview({
   const run = active && !reduce;
   const { preview } = game;
   const pad = size === "lg" ? "p-4 md:p-5" : size === "sm" ? "p-2.5" : "p-3.5";
-  const titleSize = size === "sm" ? "text-[0.58rem]" : "text-[0.62rem]";
+  const titleSize = size === "sm" ? "text-[0.68rem]" : "text-[0.72rem]";
   const valueSize =
     size === "lg"
       ? "text-[1.35rem] md:text-[1.55rem]"

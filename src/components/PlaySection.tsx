@@ -239,7 +239,7 @@ function DrillBand({
             accent ? "bg-[color-mix(in_srgb,var(--cinnabar)_6%,#f3f7fa)]" : "bg-[#f3f7fa]"
           }`}
         >
-          <span className="mb-2 font-mono text-[0.58rem] tracking-[0.16em] text-muted">
+          <span className="mb-2 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
             0{index + 1}
           </span>
           <div className="h-[6.75rem] w-full sm:h-[7.75rem]">

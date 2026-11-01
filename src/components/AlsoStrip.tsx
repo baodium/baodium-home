@@ -13,7 +13,7 @@ export function AlsoStrip() {
     <Reveal y={10} className="mt-12 border-t border-ink/10 pt-9 md:mt-14">
       <div className="grid gap-8 md:grid-cols-2 md:gap-12">
         <div>
-          <p className="kicker text-cinnabar/80">Listen · Baodium</p>
+          <p className="kicker text-cinnabar">Listen · Baodium</p>
           <ul className="mt-4 space-y-2">
             {listen.map((link) => (
               <li key={link.label}>
@@ -53,7 +53,7 @@ export function AlsoStrip() {
                 >
                   <span>{link.label}</span>
                   {"note" in link && link.note ? (
-                    <span className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-muted/70">
+                    <span className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-muted">
                       {link.note}
                     </span>
                   ) : null}

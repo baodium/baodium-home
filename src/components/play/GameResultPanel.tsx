@@ -80,13 +80,13 @@ export function GameResultPanel({
               key={m.label}
               className="flex items-baseline justify-between gap-3 rounded-lg border border-[color:var(--drill-line)] bg-[color:var(--drill-panel)] px-3 py-2"
             >
-              <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)]">
+              <span className="font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)]">
                 {m.label}
               </span>
               <span
                 className={`tabular-nums text-[0.95rem] ${
                   m.tone === "bad"
-                    ? "text-[color:var(--drill-accent)]"
+                    ? "text-[color:var(--drill-accent-text)]"
                     : m.tone === "warn"
                       ? "text-[color:var(--drill-warn)]"
                       : m.tone === "ok"

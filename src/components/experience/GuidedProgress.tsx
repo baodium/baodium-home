@@ -54,7 +54,7 @@ export function GuidedProgress({
             initial={{ opacity: 0, x: 6 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="hidden text-[0.75rem] text-[color:var(--exp-amber)] sm:block"
+            className="hidden text-[0.75rem] text-[color:var(--exp-amber-text)] sm:block"
           >
             Complete this step, then continue
           </motion.p>

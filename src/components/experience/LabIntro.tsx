@@ -56,7 +56,7 @@ export function LabIntro({
           </p>
         </div>
         <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">{terms}</p>
-        <p className="font-mono text-[0.72rem] leading-relaxed tracking-[0.02em] text-[color:var(--exp-amber)]">
+        <p className="font-mono text-[0.72rem] leading-relaxed tracking-[0.02em] text-[color:var(--exp-amber-text)]">
           {explore}
         </p>
         <div className="border-t border-[color:var(--exp-line)] pt-4">
