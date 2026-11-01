@@ -60,12 +60,12 @@ function activeNode(snap: EngineSnapshot): ServiceNodeId {
   if (tr.phase === "arriving") return tr.path === "recs" ? "recommendation" : "catalog";
   if (tr.phase === "waiting") return "pool";
   if (tr.phase === "holding") {
-    if (tr.path === "recs") {
-      if (tr.codeLine >= 15) return "db";
-      if (tr.codeLine >= 13) return "pool";
-      return "recommendation";
-    }
-    return "catalog";
+    if (tr.path !== "recs") return "catalog";
+    if (tr.acquireTime == null || tr.poolHoldSec <= 0) return "pool";
+    const held = Math.max(0, snap.t - tr.acquireTime);
+    const frac = held / tr.poolHoldSec;
+    if (frac >= 0.2 && frac < 0.8) return "db";
+    return "pool";
   }
   if (tr.phase === "done") return "product";
   return flagLive ? "recommendation" : "client";

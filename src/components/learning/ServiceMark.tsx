@@ -32,6 +32,7 @@ export type ServiceMarkId =
   | "log"
   | "consumers"
   | "region"
+  | "fraud"
   | "service";
 
 const BY_LABEL: Record<string, ServiceMarkId> = {
@@ -66,6 +67,7 @@ const BY_LABEL: Record<string, ServiceMarkId> = {
   log: "log",
   consumers: "consumers",
   region: "region",
+  fraud: "fraud",
 };
 
 export function markForLabel(label: string): ServiceMarkId {
@@ -138,6 +140,8 @@ export function kindForMark(id: ServiceMarkId): string {
       return "Log";
     case "region":
       return "Region";
+    case "fraud":
+      return "Fraud";
     default:
       return "Service";
   }
@@ -286,6 +290,13 @@ function paths(id: ServiceMarkId) {
         <>
           <path d="M6 18.5V9.2L12 5.2l6 4v9.3" />
           <path d="M10 18.5v-4.2h4v4.2" />
+        </>
+      );
+    case "fraud":
+      return (
+        <>
+          <path d="M12 3.6 19 6.2v5.4c0 4.2-2.8 7.2-7 8.8-4.2-1.6-7-4.6-7-8.8V6.2L12 3.6z" />
+          <path d="M9.2 12.1 11.1 14l3.8-4.2" />
         </>
       );
     case "operation":

@@ -49,8 +49,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
           <p className="mt-10 text-lg leading-relaxed text-[var(--reader-muted)]">
             Fourteen production incidents, and the design decisions behind reliable systems.
             Baodium, the company in these stories, is fictional. The failures and tradeoffs are
-            teaching material, not claims about a real employer. Read online for free, with no
-            account required.
+            teaching material, not claims about a real employer.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -139,7 +138,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
           </div>
 
           <p className="mt-10 border-t border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pt-6 text-sm text-[var(--reader-muted)]">
-            Enjoying the free book?{" "}
+            Enjoying this?{" "}
             <a
               href={book.amazonReviewHref}
               target="_blank"

@@ -1,27 +1,18 @@
 /**
- * Exact pass/fail criteria for Play drills (Adewale redesign v2 Phase 3).
- * Values mirror the engine win booleans — UI and verify scripts share this source.
+ * Pass lines for the Play drills. They follow the chapter's own bars.
  */
 
-import { SLO_TARGET, DURATION_S as SLO_DURATION_S } from "@/lib/slo-watch";
-import {
-  MIN_SERVED_RATE,
-  P95_LIMIT_MS,
-  SURGE_DURATION_S,
-} from "@/lib/play/traffic-surge";
+import { DURATION_S as SLO_DURATION_S, ACQUIRE_BAR_MS, POOL, QUERY_MS } from "@/lib/slo-watch";
+import { MIN_SERVED_RATE, P95_LIMIT_MS, SURGE_DURATION_S, CAPACITY } from "@/lib/play/traffic-surge";
 import { CASCADE_DURATION_S } from "@/lib/play/cascade";
 import { CACHE_DURATION_S } from "@/lib/play/cache-roulette";
-import {
-  P99_BUDGET_MS,
-  TAIL_DURATION_S,
-} from "@/lib/play/tail-latency";
+import { P99_BUDGET_MS, QUERY_MS as TAIL_QUERY_MS, TAIL_DURATION_S } from "@/lib/play/tail-latency";
 
 export type CriterionTone = "idle" | "ok" | "warn" | "bad";
 
 export type CriterionDef = {
   id: string;
   label: string;
-  /** Exact threshold copy shown to the learner. */
   rule: string;
 };
 
@@ -33,106 +24,91 @@ export type CriterionLive = CriterionDef & {
 
 export const SLO_CRITERIA: CriterionDef[] = [
   {
-    id: "budget",
-    label: "Error budget",
-    rule: "Stay above 0% for the full 48s shift (empty budget = immediate fail).",
+    id: "acquire",
+    label: "Acquire wait",
+    rule: `Finish with acquire wait under ${ACQUIRE_BAR_MS} ms. The query stays at ${QUERY_MS} ms.`,
   },
   {
-    id: "success",
-    label: "Success rate",
-    rule: `Finish at ≥ ${((SLO_TARGET - 0.012) * 100).toFixed(1)}% (SLO ${(SLO_TARGET * 100).toFixed(1)}% with a 1.2pt end-of-run band).`,
+    id: "pending",
+    label: "Pending acquisitions",
+    rule: "Finish with no pending acquisitions.",
   },
   {
-    id: "cascade",
-    label: "No cascade",
-    rule: "Finish without a retry cascade.",
-  },
-  {
-    id: "peakUtil",
-    label: "Peak pool util",
-    rule: "Peak pool util must stay under 120%.",
+    id: "pool",
+    label: "Pool size",
+    rule: `The pool stays at ${POOL} connections. A larger pool is not the response.`,
   },
 ];
 
 export const SURGE_CRITERIA: CriterionDef[] = [
   {
-    id: "served",
-    label: "Served share",
-    rule: `Serve ≥ ${(MIN_SERVED_RATE * 100).toFixed(0)}% of decided traffic.`,
+    id: "p95",
+    label: "Acquire p95",
+    rule: `Acquire p95 stays under ${P95_LIMIT_MS} ms.`,
   },
   {
-    id: "underBudget",
-    label: "Time under p95 budget",
-    rule: `Spend ≥ 55% of ${SURGE_DURATION_S}s with p95 ≤ ${P95_LIMIT_MS}ms, and peak p95 < ${(P95_LIMIT_MS * 2.1).toFixed(0)}ms.`,
+    id: "rejected",
+    label: "Rejections",
+    rule: `Rejections stay under ${((1 - MIN_SERVED_RATE) * 100).toFixed(0)} percent.`,
   },
   {
-    id: "success",
-    label: "Overall success",
-    rule: "Overall success rate must stay above 48%.",
-  },
-  {
-    id: "vip",
-    label: "VIP success (if priority on)",
-    rule: "When VIP priority is on, VIP success must be ≥ 72%.",
+    id: "stage",
+    label: "Passing stage",
+    rule: `The admission limit sits on the ${CAPACITY}/s stage, the last one that passes both bars.`,
   },
 ];
 
 export const CASCADE_CRITERIA: CriterionDef[] = [
   {
-    id: "okRate",
-    label: "Checkout ok",
-    rule: "Checkout success ≥ 60% over the run.",
+    id: "orphan",
+    label: "Provider still running",
+    rule: "Leftover provider work finishes at 0 ms.",
   },
   {
-    id: "edge",
-    label: "Edge health",
-    rule: "Edge health must finish above 42%.",
+    id: "caller",
+    label: "Caller",
+    rule: "Checkout returns inside the time it had left.",
   },
   {
-    id: "peakRisk",
-    label: "Peak cascade risk",
-    rule: "Peak cascade risk must stay under 82%.",
+    id: "deadline",
+    label: "Child deadline",
+    rule: `The child deadline is min(1000, time left minus the reserve) for the ${CASCADE_DURATION_S}s run.`,
   },
 ];
 
 export const CACHE_CRITERIA: CriterionDef[] = [
   {
-    id: "hitRate",
-    label: "Hit rate",
-    rule: "Hit rate ≥ 70% for the full run.",
+    id: "origin",
+    label: "Catalog reads",
+    rule: "One missed key produces one catalog read.",
   },
   {
-    id: "stampede",
-    label: "Stampede window",
-    rule: "Stampede seconds must stay under 2.2s.",
+    id: "permit",
+    label: "Source permit",
+    rule: "The loader holds a source permit, so readers are not turned away with source_read_limit.",
   },
   {
-    id: "peakOrigin",
-    label: "Peak origin load",
-    rule: "Peak origin load must stay under 1.45× workers.",
+    id: "ttl",
+    label: "Freshness",
+    rule: `The entry's TTL is 300 seconds. This run is the miss, for ${CACHE_DURATION_S}s.`,
   },
 ];
 
 export const TAIL_CRITERIA: CriterionDef[] = [
   {
-    id: "p99",
-    label: "p99 latency",
-    rule: `p99 ≤ ${P99_BUDGET_MS} ms at the end of the run.`,
+    id: "p95",
+    label: "Acquire p95",
+    rule: `Acquire p95 stays under ${P99_BUDGET_MS} ms.`,
   },
   {
-    id: "goodput",
-    label: "Goodput",
-    rule: "Goodput ≥ 90% (completed / completed+timed-out).",
-  },
-  {
-    id: "cost",
-    label: "Work cost",
-    rule: "Work cost must stay under 1.8× (hedge amplification cap).",
+    id: "query",
+    label: "Query",
+    rule: `The query stays at ${TAIL_QUERY_MS} ms for the ${TAIL_DURATION_S}s run.`,
   },
   {
     id: "samples",
-    label: "Sample window",
-    rule: "Collect at least 40 latency samples before judgment.",
+    label: "Samples",
+    rule: "Collect at least 40 acquire samples.",
   },
 ];
 

@@ -14,15 +14,15 @@ export function CascadeTopologyViz({
   health,
   circuitOpen,
   util,
-  bulkheadAuth,
-  bulkheadPay,
+  cancel,
+  permit,
   cascadeRisk,
 }: {
   health: HealthMap;
   circuitOpen: CircuitMap;
   util: UtilMap;
-  bulkheadAuth: boolean;
-  bulkheadPay: boolean;
+  cancel: boolean;
+  permit: boolean;
   cascadeRisk: number;
 }) {
   return (
@@ -30,24 +30,23 @@ export function CascadeTopologyViz({
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[color:var(--drill-line)] px-4 py-3 sm:px-5">
         <div>
           <p className="font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)]">
-            Topology · breakers
+            Checkout, fraud, provider
           </p>
           <p className="mt-1 max-w-xl text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            The edge sends the caller to checkout. Checkout calls Auth and Pay, and Pay calls the
-            database. A request moves along each call that is still being made. Open means that
-            breaker stopped waiting. There is no path that skips Auth.
+            Checkout calls fraud with a child deadline. Fraud calls the provider only when a permit
+            was acquired. Cancellation is what stops the provider when checkout is out of time.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">
-          Cascade risk {(cascadeRisk * 100).toFixed(0)}%
+          {cascadeRisk > 0.5 ? "Provider still running" : "Provider stopped"}
         </p>
       </div>
       <CascadeFlowGraph
         health={health}
         circuitOpen={circuitOpen}
         util={util}
-        bulkheadAuth={bulkheadAuth}
-        bulkheadPay={bulkheadPay}
+        cancel={cancel}
+        permit={permit}
         cascadeRisk={cascadeRisk}
       />
     </div>

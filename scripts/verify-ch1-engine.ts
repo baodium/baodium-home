@@ -345,12 +345,7 @@ console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));
 }
 
 {
-  const controls = {
-    poolSize: 8,
-    concurrencyLimit: 80,
-    retries: "aggressive" as const,
-    shedding: false,
-  };
+  const controls = { exposurePct: 100, flagOff: false };
   let state = createSlo();
   let other = createSlo();
   for (let i = 0; i < 80; i++) {
@@ -358,7 +353,7 @@ console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));
     const b = tickSlo(other, controls);
     state = a.state;
     other = b.state;
-    assert(a.snap.inFlight <= controls.poolSize + 1e-9, "SLO in-flight exceeded pool");
+    assert(a.snap.inFlight <= 40 + 1e-9, "SLO in-flight exceeded the 40-connection pool");
     assert(a.snap.poolUtil <= 1 + 1e-9, "SLO util exceeded 1");
     assert(a.snap.inFlight === b.snap.inFlight, "SLO tick was not deterministic");
     assert(a.snap.pending === b.snap.pending, "SLO pending diverged");

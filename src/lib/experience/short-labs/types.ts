@@ -107,5 +107,7 @@ export type ShortLab = {
     series: { key: string; label: string; swatch: string }[];
     guide?: { value: number; label: string };
   };
+  /** The listing this lab runs, copied from the chapter. */
+  code: { title: string; source: string };
   sim: LabSim;
 };

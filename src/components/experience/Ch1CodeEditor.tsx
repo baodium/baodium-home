@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
 import { Decoration, type DecorationSet } from "@codemirror/view";
 import { ViewPlugin, type ViewUpdate } from "@codemirror/view";
 
@@ -43,7 +43,7 @@ export function Ch1CodeEditor({
   const value = useMemo(() => lines.join("\n"), [lines]);
   const extensions = useMemo(
     () => [
-      javascript(),
+      python(),
       lineHighlight(highlightLine),
       EditorView.editable.of(false),
     ],

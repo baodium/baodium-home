@@ -38,6 +38,14 @@ const CALL_LABEL: Record<string, string> = {
   "region-edge": "request",
   "inventory-payments": "then",
   "payments-provider": "charge",
+  "page-rec": "recommend",
+  "rec-pool": "acquire",
+  "pool-db": "query",
+  "checkout-fraud": "assess",
+  "fraud-provider": "score",
+  "cache-catalog": "fetch",
+  "region-catalog": "reads",
+  "catalog-pool": "acquire",
 };
 
 function flowFor(hot: boolean, dashed?: boolean): RequestFlow {

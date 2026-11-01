@@ -30,12 +30,12 @@ export const FLAG_PROPAGATION_SEC = 0.25;
 const CODE = {
   entry: 1,
   catalog: 2,
-  flagCheck: 4,
-  callRec: 6,
-  acquire: 13,
-  query: 15,
-  release: 20,
-  respond: 8,
+  flagCheck: 3,
+  callRec: 3,
+  acquire: 3,
+  query: 3,
+  release: 3,
+  respond: 4,
 } as const;
 
 type FlagView = {

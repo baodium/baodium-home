@@ -43,8 +43,16 @@ The concept guide in the source is a list of terms with chapter locators. The co
 
 Chapter scenarios, drill copy, and short-lab situations are teaching written for the interactive pages. They are not quotes from the manuscript.
 
-The Chapter 1 lab still operates the 40-connection incident (guided, practice, challenge). It names the shared callers and the incident readout. It does not replace that incident with a stub of the later 16-call admission limiter. Chapter 3 still teaches one charge when the provider answers after the client has given up. Chapter 5’s lab title follows “Caching and Data Freshness”. The cache-aside expiry lab is unchanged, because the chapter still teaches cache-aside, aligned expiry, and a shared fill.
+The Chapter 1 lab still operates the 40-connection incident (guided, practice, challenge). It names the shared callers and the incident readout. It does not replace that incident with a stub of the later 16-call admission limiter. The visible response is the feature flag and exposure. Shed and a request-path cache are not offered as the incident response.
 
-Simulated metrics are labeled. SLO Watch is a browser model of pool size versus concurrency. It does not read a live SLO service.
+Chapter 2’s short lab compares building the payload before acquire with holding the connection while the payload is built. Traffic Surge places the admission limit on the last passing load-test stage, 400 lookups a second, where acquire p95 stays under 50 ms and rejections stay under 1 percent. Tail Latency keeps the query at 70 ms and moves acquire p95 with the lookup rate. Neither drill hedges requests or protects a VIP lane.
 
-Drill copy for Traffic Surge, Cascade, Cache Roulette, and Tail Latency is untouched. The five drill URLs are untouched.
+Chapter 3 still teaches one charge when the provider answers after the client has given up. The lab shows the manuscript POST and the unique index on one active authorization.
+
+Chapter 4’s short lab and the Cascade drill run reserve_fraud_call: a child deadline, an outbound permit, and cancellation. They do not open circuit breakers on an auth service.
+
+Chapter 5’s lab title follows “Caching and Data Freshness”. The short lab and Cache Roulette are one missed product-metadata:v1 key, one shared loader, and a source permit. They are not a multi-key stampede and not a soft TTL.
+
+Chapter 7 routes the address that was just saved through choose_read_target. Chapter 12 claims the message, then commits the offset. Chapter 14 sizes the European Catalog pools from the chapter’s read rate and occupancy, including one instance down.
+
+Simulated metrics are labeled. SLO Watch is a browser model of the 40-connection pool, the flag, and exposure. It does not read a live SLO service, and it does not reward a larger pool. The five drill URLs are unchanged.

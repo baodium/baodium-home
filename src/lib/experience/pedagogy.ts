@@ -35,7 +35,7 @@ export function selectPedagogyLesson(
     return {
       id: "disable-inflight",
       eyebrow: "What’s happening",
-      title: "Disable drains; it does not kill",
+      title: "Holds already taken still finish",
       seeing:
         snap.flagPropagationRemainingSec > 0.02
           ? `${snap.activeCount} busy slots still hold in-flight recommendation work. The disable reaches new arrivals in ${snap.flagPropagationRemainingSec.toFixed(1)}s.`
@@ -83,7 +83,7 @@ export function selectPedagogyLesson(
       next:
         mode === "guided" && stepId === "saturation"
           ? "Predict: disable vs pause. Then investigate and mitigate."
-          : "Try disable, shed-at-util, or acquire timeout. Compare new vs in-flight.",
+          : "Try disabling the flag, or lowering exposure. Compare new calls with holds already taken.",
       prod: "pool.active ≈ max · pool.pending > 0 sustained = saturation. Size from λ×W with headroom, or cut W.",
       tone: "warn",
     };
@@ -99,8 +99,8 @@ export function selectPedagogyLesson(
       eyebrow: "What’s happening",
       title: "Acquire timeouts are hard failures",
       seeing: `${snap.timeoutCount} request${snap.timeoutCount === 1 ? "" : "s"} exceeded the ${(controls.acquireTimeoutSec * 1000).toFixed(0)}ms connectionTimeout while waiting for a free slot.`,
-      why: "Timeouts bound queueing delay but convert saturation into errors. Prefer shedding or disabling the expensive path before the timeout wall.",
-      next: "Compare shed-at-util vs timeout: one drops work early; the other fails late.",
+      why: "A timeout ends a wait. It does not stop new recommendation calls. Turning the flag off does.",
+      next: "Compare a timeout with the flag. One ends a wait already in progress. The other stops new calls.",
       prod: "Alert on pool.acquire.timeouts > 0. Pair with pool.pending and acquire.wait.p99 vs connectionTimeout.",
       tone: "warn",
     };
@@ -114,10 +114,10 @@ export function selectPedagogyLesson(
     return {
       id: "load-shed",
       eyebrow: "What’s happening",
-      title: "Shedding protects the pool",
-      seeing: `${snap.shedCount} arrivals skipped recommendations because utilization hit ≥${Math.round(controls.shedAtUtil * 100)}%.`,
-      why: "Graceful degradation: keep the page fast by dropping the optional lookup when the shared resource is saturated.",
-      prod: "Implement as a util/pending gate before acquire. Same idea as adaptive concurrency or priority load shedding.",
+      title: "Some arrivals skipped the recommendation call",
+      seeing: `${snap.shedCount} arrivals skipped Recommendation because utilization hit ${Math.round(controls.shedAtUtil * 100)} percent.`,
+      why: "That is not the incident response. The flag stops new recommendation calls. Holds already taken still finish.",
+      prod: "In this incident, turn the flag off. Do not add a second gate in front of acquire.",
       tone: "insight",
     };
   }
@@ -138,9 +138,9 @@ export function selectPedagogyLesson(
     return {
       id: "slo-burn",
       eyebrow: "What’s happening",
-      title: "p99 is burning the latency SLO",
-      seeing: `Observed p99 ≈ ${p99ms.toFixed(0)} ms vs ${(snap.slo.targetP99Sec * 1000).toFixed(0)} ms target (burn ${snap.slo.burnRatio.toFixed(1)}×).`,
-      why: "Saturation shows up in the tail first. Median can look fine while acquire wait stretches p99 past the budget.",
+      title: "The tail is the wait for a connection",
+      seeing: `End-to-end p99 is about ${p99ms.toFixed(0)} ms. Acquire p99 is about ${acqP99ms.toFixed(0)} ms. The query is not what moved.`,
+      why: "In this incident the query stays near baseline. Acquire wait is the line that stretches.",
       next: "Open Ops metrics. Check acquire.wait.p99 and pool.pending before blaming the SQL text.",
       prod: "Page on latency burn + pool.pending, not only CPU. ConnectionTimeout approaching = imminent errors.",
       tone: "warn",
@@ -295,9 +295,9 @@ export function selectPedagogyLesson(
         eyebrow: "Learn this",
         title: "Choose a response",
         seeing:
-          "Pause freezes exposure %. Disable stops new recommendation holds. Leaving pressure on lets you try timeout, shed, or cache.",
-        why: "Your choice changes this same system. Next you will see what actually happened to new vs in-flight work.",
-        prod: "Incident order: stop the bleed (flag/shed) → confirm pending decays → then dig into W (slow query, missing index, cache).",
+          "Pause freezes exposure. Disable stops new recommendation calls. Holds already taken finish or time out.",
+        why: "Your choice changes this same system. Next you will see what actually happened to new calls versus work already holding a connection.",
+        prod: "Stop new recommendation calls, then watch pending fall. The query was already near baseline.",
         tone: "insight",
       };
     case "review":
@@ -320,8 +320,8 @@ export function selectPedagogyLesson(
             ? "Clear saturation under the clock"
             : "Pressure the shared pool",
         seeing:
-          "Vary λ, exposure, lookup duration, acquire timeout, shed, and cache. Busy stays ≤ 40; waiters / timeouts absorb the rest.",
-        why: "If you can explain waiters, Little’s Law, disable-vs-inflight, and which mitigation cuts W vs demand, the chapter stuck.",
+          "Change exposure, the flag, and the acquire timeout. Busy stays at or under 40. Overflow waits.",
+        why: "If you can explain pending acquisitions, the 40-connection pool, and what the flag does to new calls versus holds already taken, the chapter landed.",
         prod: "Treat this panel like a runbook rehearsal: change one lever, read pool.* and path latency, then decide.",
         tone: "calm",
       };

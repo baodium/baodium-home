@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 const labs = [
-  { path: "/system-design/experience/chapter-2", heading: /size the workers/i },
-  { path: "/system-design/experience/chapter-4", heading: /downstream work/i },
-  { path: "/system-design/experience/chapter-5", heading: /keys expire/i },
-  { path: "/system-design/experience/chapter-7", heading: /read your own write/i },
-  { path: "/system-design/experience/chapter-12", heading: /backlog age/i },
-  { path: "/system-design/experience/chapter-14", heading: /500 ms/i },
+  { path: "/system-design/experience/chapter-2", heading: /release the connection/i },
+  { path: "/system-design/experience/chapter-4", heading: /fraud provider/i },
+  { path: "/system-design/experience/chapter-5", heading: /product-metadata/i },
+  { path: "/system-design/experience/chapter-7", heading: /address that was just saved/i },
+  { path: "/system-design/experience/chapter-12", heading: /notification task/i },
+  { path: "/system-design/experience/chapter-14", heading: /17 connections/i },
 ];
 
 test.describe("short chapter labs", () => {

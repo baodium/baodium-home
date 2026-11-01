@@ -1,8 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/Footer";
-import { book } from "@/data/writing";
-
 export function PlayChrome({
   children,
   crumb,
@@ -61,11 +59,8 @@ export function PlayChrome({
             <Link href="/play" className="text-muted transition-colors hover:text-ink">
               All drills
             </Link>
-            <Link
-              href={book.readPath}
-              className="btn btn-ink !min-h-9 !px-3.5 text-[0.8rem]"
-            >
-              Read the book for free
+            <Link href="/system-design" className="text-muted transition-colors hover:text-ink">
+              Book
             </Link>
           </div>
         </div>

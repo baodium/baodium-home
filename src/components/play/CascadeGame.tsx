@@ -38,42 +38,38 @@ import {
 
 const catalog = getPlayGame("cascade");
 
-const idleSnap: CascadeSnap = emptyCascadeSnap(
-  "Checkout is healthy. The dependencies are answering.",
-);
+const idleSnap: CascadeSnap = emptyCascadeSnap();
 
 function liveCascadeCriteria(
-  okRate: number | null,
-  edge: number,
-  peakRisk: number,
+  snap: CascadeSnap,
   phase: "intro" | "running" | "won" | "lost",
 ): CriterionLive[] {
   const active = phase !== "intro";
+  const orphan = snap.cascadeRisk > 0.5;
+  const callerOk = snap.health.edge > 0.5;
+  const child = Math.round(snap.util.auth * 1000);
   return CASCADE_CRITERIA.map((c) => {
-    if (c.id === "okRate") {
-      const met = okRate == null ? null : okRate >= 0.6;
+    if (c.id === "orphan") {
       return {
         ...c,
-        value: okRate == null ? "—" : `${(okRate * 100).toFixed(0)}%`,
-        tone: !active || met == null ? "idle" : met ? "ok" : "bad",
-        met: active ? met : null,
+        value: orphan ? "Still running" : "0 ms",
+        tone: !active ? "idle" : orphan ? "bad" : "ok",
+        met: active ? !orphan : null,
       };
     }
-    if (c.id === "edge") {
-      const met = edge > 0.42;
+    if (c.id === "caller") {
       return {
         ...c,
-        value: `${(edge * 100).toFixed(0)}%`,
-        tone: !active ? "idle" : met ? "ok" : "bad",
-        met: active ? met : null,
+        value: callerOk ? "Inside the time left" : "Past the time left",
+        tone: !active ? "idle" : callerOk ? "ok" : "bad",
+        met: active ? callerOk : null,
       };
     }
-    const met = peakRisk < 0.82;
     return {
       ...c,
-      value: `${(peakRisk * 100).toFixed(0)}%`,
-      tone: !active ? "idle" : met ? "ok" : "bad",
-      met: active ? met : null,
+      value: `${child} ms`,
+      tone: !active ? "idle" : "ok",
+      met: active ? true : null,
     };
   });
 }
@@ -84,16 +80,16 @@ export function CascadeGame() {
   const [phase, setPhase] = useState<"intro" | "running" | "won" | "lost">("intro");
   const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<CascadeControls>({
-    tripAt: 0.35,
-    bulkheadAuth: false,
-    bulkheadPay: false,
-    timeoutMs: 150,
+    providerMs: 900,
+    remainingMs: 500,
+    reserveMs: 80,
+    permit: true,
+    cancel: false,
   });
   const [snap, setSnap] = useState<CascadeSnap>(idleSnap);
   const [result, setResult] = useState<CascadeResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
-  const [peakRisk, setPeakRisk] = useState(0);
   const stepMode = stepOverride ?? reduced;
 
   const engineRef = useRef(createCascade());
@@ -118,7 +114,6 @@ export function CascadeGame() {
     );
     engineRef.current = state;
     setSnap(next);
-    setPeakRisk((prev) => Math.max(prev, next.cascadeRisk));
     if (done) {
       stop();
       setResult(done);
@@ -131,8 +126,7 @@ export function CascadeGame() {
     engineRef.current = createCascade();
     setResult(null);
     setCopied(false);
-    setPeakRisk(0);
-    setSnap(emptyCascadeSnap("Faults inject at about 8 seconds."));
+    setSnap(emptyCascadeSnap("The provider is slower than the time checkout has left."));
     setPaused(false);
     setPhase("running");
     if (stepMode) {
@@ -167,7 +161,6 @@ export function CascadeGame() {
     engineRef.current = createCascade();
     setPaused(false);
     setPhase("intro");
-    setPeakRisk(0);
     setSnap(idleSnap);
     setResult(null);
   }, [stop]);
@@ -192,30 +185,16 @@ export function CascadeGame() {
 
   const technologies =
     catalog?.technologies ??
-    ["Circuit breakers", "Bulkheads", "Fail-fast timeouts", "Shared worker pools", "Dependency health"];
-  const practiceTakeaway =
-    "Failing a call quickly returns the worker. It does not, by itself, stop that dependency from using the same pool as the rest of checkout.";
-  const challengeTakeaway =
-    "The service that slows down is not always the only one whose health falls. Watch whether the edge moves with it.";
-  const takeaway = mode === "challenge" ? challengeTakeaway : practiceTakeaway;
+    ["Deadlines", "Cancellation", "Outbound permits", "Fraud provider"];
+  const takeaway =
+    catalog?.takeaway ??
+    "evaluate_risk receives the child deadline and request.cancellation. The provider stops when checkout is out of time.";
 
-  const okRate =
-    snap.checkoutOk + snap.checkoutFail <= 0
-      ? null
-      : snap.checkoutOk / (snap.checkoutOk + snap.checkoutFail);
-
-  const livePeak = Math.max(peakRisk, snap.cascadeRisk);
-  const criteria = useMemo(
-    () => liveCascadeCriteria(okRate, snap.health.edge, livePeak, phase),
-    [okRate, snap.health.edge, livePeak, phase],
-  );
+  const criteria = useMemo(() => liveCascadeCriteria(snap, phase), [phase, snap]);
 
   const prose = useMemo((): DrillProse => {
-    const challengeQ = "Can you keep checkout alive when a dependency fails?";
-    const objective =
-      mode === "challenge"
-        ? `Over ${CASCADE_DURATION_S} seconds, keep checkout success at or above 60 percent, edge health above 42 percent, and peak cascade risk under 82 percent. There is no control that skips Auth.`
-        : `Over ${CASCADE_DURATION_S} seconds, keep checkout success at or above 60 percent, edge health above 42 percent, and peak cascade risk under 82 percent. You can change breakers, worker budgets, and timeouts. You cannot skip the Auth call.`;
+    const challengeQ = "Can you stop the fraud provider when checkout is out of time?";
+    const objective = `Over ${CASCADE_DURATION_S} seconds, leftover provider work stays at 0 ms and checkout returns inside the time it had left.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -225,78 +204,37 @@ export function CascadeGame() {
         objective,
         explore: technologies,
         gettingStarted:
-          mode === "challenge"
-            ? "Compare checkout success, edge health, and peak cascade risk with the pass lines. Change a control only after you can say which mark lost health first."
-            : phase === "won"
-              ? "Run it again with a looser trip threshold and watch whether the shared workers still pull edge health down."
-              : "Read which pass line failed. Then change how soon a breaker opens, how long a call may wait, or which dependency has its own workers.",
+          phase === "won"
+            ? "Run it again without cancellation and watch the provider keep working after checkout returns."
+            : "Read which line failed. Cancellation stops a call that already started. A missing permit never starts it.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
 
-    const situation =
-      mode === "challenge" ? (
-        <>
-          <p>
-            14:12 UTC, storefront checkout. Success was near 99 percent at the
-            start of the shift. Customers now say the pay button spins, then
-            fails. The edge is still up. One of the calls checkout makes is
-            holding workers the rest of the path also needs. There is no route
-            around Auth.
-          </p>
-          <p>
-            You can change when a breaker opens, how long a call may hold a
-            worker, and whether a dependency has its own workers. The diagram
-            does not say which dependency will slow down, or which way to move
-            a control. Judge the run by checkout success, edge health, and the
-            highest cascade risk you see.
-          </p>
-        </>
-      ) : (
-        <>
-          <p>
-            14:12 UTC, storefront checkout. Success starts near 99 percent. The
-            edge calls Auth, then Pay, and Pay is the service that queries the
-            database. Those calls share one worker pool. There is no route
-            around Auth.
-          </p>
-          <p>
-            About eight seconds in, Auth slows and holds a worker longer on
-            each call. A little later the database slows too. Workers stuck
-            there are workers the edge and Pay cannot use, so checkout fails
-            for the customer even while Pay itself is still healthy.
-          </p>
-          <p>
-            On the diagram, a request moves along each call that is still being
-            made. The bar under a name is that service&apos;s health. When a
-            breaker opens, the call is labeled open and the request stops.
-            Cascade risk is how far the wait has reached the edge.
-          </p>
-        </>
-      );
+    const situation = (
+      <>
+        <p>
+          Checkout calls the fraud provider through reserve_fraud_call. The child deadline is the time checkout has left, minus the reserve, and it is capped at 1000 ms. The provider in front of you is slower than that time.
+        </p>
+        <p>
+          If cancellation is passed with the deadline, the provider stops when checkout returns. If it is not, the provider keeps running after the caller is done. A missing permit is a different branch: the call never starts.
+        </p>
+      </>
+    );
 
     return {
       title: "Cascade",
       challenge: challengeQ,
       situation,
       objective,
-      terms:
-        mode === "practice" ? (
-          <>
-            A <span className="text-[color:var(--drill-fg)]">circuit breaker</span>{" "}
-            stops new calls to a dependency that is already failing, so checkout
-            spends the failure quickly instead of sitting on it. A{" "}
-            <span className="text-[color:var(--drill-fg)]">bulkhead</span> is a
-            separate worker budget for one dependency, so its waiters cannot take
-            the slots the other calls still need. A shorter timeout limits how
-            long one call may hold a worker. None of these removes the Auth call.
-          </>
-        ) : undefined,
+      terms: (
+        <>
+          The child deadline is the minimum of 1000 ms and the time checkout has left, minus the reserve. Cancellation is request.cancellation, passed into evaluate_risk with that deadline. The outbound permit comes from outbound_fraud_slots.try_acquire. Without a permit the assessment is deferred.
+        </>
+      ),
       explore: technologies,
       gettingStarted:
-        mode === "challenge"
-          ? "Set the controls, then start. Read the health bar under each service as it moves. Open means that call stopped waiting. Compare checkout success, edge health, and cascade risk with the pass lines."
-          : "You can change the error rate that opens a breaker, how long a call may wait, and whether Auth or Pay has its own workers. Start the run either way. Watch Auth's health fall first, then the database, and see whether edge health and cascade risk move with them.",
+        "Start from a provider that outlasts checkout. Pass cancellation and keep the permit. You can also refuse the permit and watch the deferred branch.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);
@@ -309,10 +247,16 @@ export function CascadeGame() {
           ? `Paused · ${snap.t.toFixed(1)}s`
           : `${snap.t.toFixed(1)}s`
         : phase === "won"
-          ? "Contained"
-          : "Spread";
+          ? "Provider stopped"
+          : "Provider still running";
 
   const running = phase === "running";
+  const childMs = Math.min(1000, Math.max(0, controls.remainingMs - controls.reserveMs));
+  const admitted = childMs >= 20 && controls.permit;
+  const callerMs = admitted
+    ? Math.min(controls.providerMs, childMs, controls.remainingMs)
+    : 15;
+  const orphanMs = admitted && !controls.cancel ? Math.max(0, controls.providerMs - callerMs) : 0;
 
   return (
     <div className="slo-game">
@@ -336,44 +280,55 @@ export function CascadeGame() {
 
               <label className="block">
                 <DrillControlLabel
-                  label="Trip circuit at"
-                  tip="Error-rate threshold that opens the circuit."
-                  help="Error-rate threshold that opens the circuit. Lower means you stop calling the sick dependency sooner."
-                  value={`${Math.round(controls.tripAt * 100)}% errors`}
+                  label="Provider work"
+                  tip="How long the fraud provider takes if it is allowed to finish."
+                  help="How long the fraud provider takes if it is allowed to finish."
+                  value={`${controls.providerMs} ms`}
                 />
                 <input
                   className="slo-slider mt-3"
                   type="range"
-                  min={0.15}
-                  max={0.7}
-                  step={0.05}
-                  value={controls.tripAt}
-                  onChange={(e) =>
-                    setControls((c) => ({ ...c, tripAt: Number(e.target.value) }))
-                  }
+                  min={20}
+                  max={1200}
+                  step={20}
+                  value={controls.providerMs}
+                  onChange={(e) => setControls((c) => ({ ...c, providerMs: Number(e.target.value) }))}
                 />
               </label>
 
               <label className="block">
                 <DrillControlLabel
-                  label="Timeout"
-                  tip="How long a caller waits on a dependency before failing."
-                  help="How long a caller waits on a dependency before failing. Shorter timeouts free capacity faster when the dependency is stuck."
-                  value={`${controls.timeoutMs}ms`}
+                  label="Time checkout has left"
+                  tip="The budget the child deadline is cut from."
+                  help="The budget the child deadline is cut from."
+                  value={`${controls.remainingMs} ms`}
                 />
                 <input
                   className="slo-slider mt-3"
                   type="range"
-                  min={60}
-                  max={280}
+                  min={100}
+                  max={1500}
+                  step={20}
+                  value={controls.remainingMs}
+                  onChange={(e) => setControls((c) => ({ ...c, remainingMs: Number(e.target.value) }))}
+                />
+              </label>
+
+              <label className="block">
+                <DrillControlLabel
+                  label="Reserve after risk"
+                  tip="Time kept back before the child deadline is computed."
+                  help="checkout_policy.after_risk_budget_ms. This time is kept back before the child deadline is computed."
+                  value={`${controls.reserveMs} ms`}
+                />
+                <input
+                  className="slo-slider mt-3"
+                  type="range"
+                  min={0}
+                  max={400}
                   step={10}
-                  value={controls.timeoutMs}
-                  onChange={(e) =>
-                    setControls((c) => ({
-                      ...c,
-                      timeoutMs: Number(e.target.value),
-                    }))
-                  }
+                  value={controls.reserveMs}
+                  onChange={(e) => setControls((c) => ({ ...c, reserveMs: Number(e.target.value) }))}
                 />
               </label>
 
@@ -381,18 +336,13 @@ export function CascadeGame() {
                 <input
                   type="checkbox"
                   className="mt-1 size-4 accent-[var(--cinnabar)]"
-                  checked={controls.bulkheadAuth}
-                  onChange={(e) =>
-                    setControls((c) => ({ ...c, bulkheadAuth: e.target.checked }))
-                  }
+                  checked={controls.permit}
+                  onChange={(e) => setControls((c) => ({ ...c, permit: e.target.checked }))}
                 />
                 <span>
-                  <span className="font-medium text-[color:var(--drill-fg)]">
-                    Bulkhead Auth
-                  </span>
+                  <span className="font-medium text-[color:var(--drill-fg)]">Outbound permit</span>
                   <span className="mt-1.5 block leading-relaxed">
-                    Give Auth its own connection or thread pool so Auth waiters
-                    cannot starve Pay, DB, or Edge work.
+                    On, try_acquire returns a permit and the provider may be called. Off, the assessment is deferred.
                   </span>
                 </span>
               </label>
@@ -401,18 +351,13 @@ export function CascadeGame() {
                 <input
                   type="checkbox"
                   className="mt-1 size-4 accent-[var(--cinnabar)]"
-                  checked={controls.bulkheadPay}
-                  onChange={(e) =>
-                    setControls((c) => ({ ...c, bulkheadPay: e.target.checked }))
-                  }
+                  checked={controls.cancel}
+                  onChange={(e) => setControls((c) => ({ ...c, cancel: e.target.checked }))}
                 />
                 <span>
-                  <span className="font-medium text-[color:var(--drill-fg)]">
-                    Bulkhead Pay
-                  </span>
+                  <span className="font-medium text-[color:var(--drill-fg)]">Pass cancellation</span>
                   <span className="mt-1.5 block leading-relaxed">
-                    Isolate Pay the same way. Useful when payment latency would
-                    otherwise consume the shared pool.
+                    On, evaluate_risk passes request.cancellation and the provider stops when the child deadline is spent.
                   </span>
                 </span>
               </label>
@@ -457,25 +402,19 @@ export function CascadeGame() {
               health={snap.health}
               circuitOpen={snap.circuitOpen}
               util={snap.util}
-              bulkheadAuth={controls.bulkheadAuth}
-              bulkheadPay={controls.bulkheadPay}
+              cancel={controls.cancel}
+              permit={controls.permit}
               cascadeRisk={snap.cascadeRisk}
             />
 
             <DrillNarrator
               frame={narrateCascade({
                 phase,
-                edgeHealth: snap.health.edge,
-                authHealth: snap.health.auth,
-                dbHealth: snap.health.db,
-                payHealth: snap.health.pay,
-                circuitsOpen:
-                  Number(snap.circuitOpen.auth) +
-                  Number(snap.circuitOpen.pay) +
-                  Number(snap.circuitOpen.db),
-                bulkheadAuth: controls.bulkheadAuth,
-                bulkheadPay: controls.bulkheadPay,
-                cascadeRisk: snap.cascadeRisk,
+                callerMs,
+                orphanMs,
+                childMs,
+                cancel: controls.cancel,
+                permit: controls.permit,
               })}
             />
 
@@ -503,64 +442,46 @@ export function CascadeGame() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Cascade risk</td>
-                    <td>{Math.round(snap.cascadeRisk * 100)}%</td>
-                    <td>Chance the failure fans out through shared capacity.</td>
+                    <td>Child deadline</td>
+                    <td>{childMs.toFixed(0)} ms</td>
+                    <td>min(1000, time left minus the reserve).</td>
                   </tr>
                   <tr>
-                    <td>Peak cascade risk</td>
-                    <td>{Math.round(livePeak * 100)}%</td>
-                    <td>Highest cascade risk seen this run (pass under 82%).</td>
+                    <td>Caller</td>
+                    <td>{callerMs.toFixed(0)} ms</td>
+                    <td>How long checkout waits. It should finish inside the time it had left.</td>
                   </tr>
                   <tr>
-                    <td>Checkout ok</td>
-                    <td>
-                      {okRate == null ? "—" : `${(okRate * 100).toFixed(0)}%`}
-                    </td>
-                    <td>Successful checkouts over attempts while a dependency is slow.</td>
+                    <td>Still running</td>
+                    <td>{orphanMs.toFixed(0)} ms</td>
+                    <td>Provider work after checkout returns. Pass when this is 0.</td>
                   </tr>
                   <tr>
-                    <td>Edge health</td>
-                    <td>{Math.round(snap.health.edge * 100)}%</td>
-                    <td>Caller-side health at the edge. Must finish above 42%.</td>
-                  </tr>
-                  <tr>
-                    <td>Auth util</td>
-                    <td>{Math.round(snap.util.auth * 100)}%</td>
-                    <td>
-                      Auth concurrency fill. Without isolation this shares the pool.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Pay util</td>
-                    <td>{Math.round(snap.util.pay * 100)}%</td>
-                    <td>
-                      Pay concurrency fill. Isolation stops Auth sickness from
-                      consuming these slots.
-                    </td>
+                    <td>Permit</td>
+                    <td>{controls.permit ? "acquired" : "missing"}</td>
+                    <td>A missing permit defers the call. That is not the same as stopping it.</td>
                   </tr>
                 </tbody>
               </table>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <PlayMeter
-                  label="Cascade risk"
-                  tip="Estimated chance the failure fans out through shared capacity."
-                  value={snap.cascadeRisk}
-                  format={(n) => `${Math.round(n * 100)}%`}
-                  warnAt={0.45}
-                  dangerAt={0.7}
+                  label="Still running"
+                  tip="Provider work that continues after checkout returns."
+                  value={orphanMs}
+                  max={Math.max(controls.providerMs, 100)}
+                  format={(n) => `${n.toFixed(0)} ms`}
+                  warnAt={0.05}
+                  dangerAt={0.15}
                 />
                 <PlayMeter
-                  label="Checkout ok rate"
-                  tip="Successful checkouts over attempts."
-                  value={okRate == null ? 0 : 1 - okRate}
-                  max={0.5}
-                  format={() =>
-                    okRate == null ? "—" : `${(okRate * 100).toFixed(0)}%`
-                  }
-                  warnAt={0.35}
-                  dangerAt={0.6}
+                  label="Caller"
+                  tip="How long checkout waits, against the time it had left."
+                  value={callerMs}
+                  max={Math.max(controls.remainingMs, 100)}
+                  format={(n) => `${n.toFixed(0)} ms`}
+                  warnAt={0.85}
+                  dangerAt={1}
                 />
               </div>
 

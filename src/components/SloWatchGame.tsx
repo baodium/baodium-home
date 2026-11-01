@@ -43,70 +43,54 @@ import {
   tick,
   TICK_MS,
   DURATION_S,
-  SLO_TARGET,
+  ACQUIRE_BAR_MS,
+  POOL,
+  QUERY_MS,
   type Controls,
   type GamePhase,
   type GameResult,
-  type RetryPolicy,
   type TickSnapshot,
 } from "@/lib/slo-watch";
 
-export { SLO_TARGET, DURATION_S };
+export { DURATION_S };
 
 const catalog = getPlayGame("slo-watch");
 
-const initialSnap: TickSnapshot = emptySloSnap(
-  "Warm traffic. Three waves ahead. Watch the budget burn.",
-);
+const initialSnap: TickSnapshot = emptySloSnap();
 
 const SERIES_CAP = 120;
 
 function liveSloCriteria(
-  budget: number,
-  successRate: number,
-  cascaded: boolean,
-  peakUtil: number,
+  acquireHeadroom: number,
+  pending: number,
   phase: GamePhase,
 ): CriterionLive[] {
   const active = phase !== "intro";
-  const successFloor = SLO_TARGET - 0.012;
+  const acquireMs = Math.max(0, 600 * (1 - acquireHeadroom / 100));
   return SLO_CRITERIA.map((c) => {
-    if (c.id === "budget") {
-      const met = budget > 0;
+    if (c.id === "acquire") {
+      const met = acquireMs < ACQUIRE_BAR_MS;
       return {
         ...c,
-        value: `${budget.toFixed(0)}%`,
+        value: `${acquireMs.toFixed(0)} ms`,
         tone: !active ? "idle" : met ? "ok" : "bad",
         met: active ? met : null,
       };
     }
-    if (c.id === "success") {
-      const met = successRate >= successFloor;
+    if (c.id === "pending") {
+      const met = pending < 1;
       return {
         ...c,
-        value:
-          phase === "intro" && successRate <= 0
-            ? "—"
-            : `${(successRate * 100).toFixed(2)}%`,
+        value: pending.toFixed(0),
         tone: !active ? "idle" : met ? "ok" : "bad",
         met: active ? met : null,
       };
     }
-    if (c.id === "cascade") {
-      const met = !cascaded;
-      return {
-        ...c,
-        value: cascaded ? "Cascade" : "Clear",
-        tone: !active ? "idle" : met ? "ok" : "bad",
-        met: active ? met : null,
-      };
-    }
-    const met = peakUtil < 1.2;
     return {
       ...c,
-      value: `${(peakUtil * 100).toFixed(0)}%`,
-      tone: !active ? "idle" : met ? "ok" : "bad",
-      met: active ? met : null,
+      value: `${POOL}`,
+      tone: !active ? "idle" : "ok",
+      met: active ? true : null,
     };
   });
 }
@@ -114,7 +98,6 @@ function liveSloCriteria(
 function ControlsPanel({
   controls,
   setControls,
-  setRetry,
   stepMode,
   setStepOverride,
   phase,
@@ -130,7 +113,6 @@ function ControlsPanel({
 }: {
   controls: Controls;
   setControls: Dispatch<SetStateAction<Controls>>;
-  setRetry: (retries: RetryPolicy) => void;
   stepMode: boolean;
   setStepOverride: (v: boolean) => void;
   phase: GamePhase;
@@ -151,94 +133,35 @@ function ControlsPanel({
 
       <label className="block">
         <DrillControlLabel
-          label="Pool size"
-          tip="How many workers or connections checkout can hold at once."
-          help="How many connections checkout can hold at once. Pool caps holds; concurrency caps admission. They are different levers."
-          value={controls.poolSize}
+          label="Exposure"
+          tip="Percent of product-page traffic that calls Recommendation."
+          help="Percent of product-page traffic that calls Recommendation. 100 percent is the whole arrival rate. The pool stays at 40 connections."
+          value={`${controls.exposurePct}%`}
         />
         <input
           className="slo-slider mt-3"
           type="range"
-          min={25}
-          max={220}
+          min={0}
+          max={100}
           step={5}
-          value={controls.poolSize}
+          value={controls.exposurePct}
           onChange={(e) =>
-            setControls((c) => ({ ...c, poolSize: Number(e.target.value) }))
+            setControls((c) => ({ ...c, exposurePct: Number(e.target.value) }))
           }
         />
       </label>
-
-      <label className="block">
-        <DrillControlLabel
-          label="Concurrency limit"
-          tip="Hard cap on in-flight work."
-          help="Hard cap on in-flight work. Prevents the pool from accepting more than it can finish."
-          value={controls.concurrencyLimit}
-        />
-        <input
-          className="slo-slider mt-3"
-          type="range"
-          min={20}
-          max={220}
-          step={5}
-          value={controls.concurrencyLimit}
-          onChange={(e) =>
-            setControls((c) => ({
-              ...c,
-              concurrencyLimit: Number(e.target.value),
-            }))
-          }
-        />
-      </label>
-
-      <fieldset>
-        <legend className="font-medium text-[0.82rem] text-[color:var(--drill-fg)]">
-          Retries
-        </legend>
-        <p className="mt-1.5 text-[0.84rem] leading-relaxed text-[color:var(--drill-muted)]">
-          How aggressively failed requests are retried. Aggressive retries under
-          saturation multiply load and can cascade.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {(
-            [
-              ["off", "Off"],
-              ["cautious", "Cautious"],
-              ["aggressive", "Aggressive"],
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              className={`rounded-full border px-3 py-2 text-sm transition-colors ${
-                controls.retries === value
-                  ? "border-[color:var(--drill-signal)] bg-[color-mix(in_srgb,var(--drill-signal)_10%,transparent)] text-[color:var(--drill-signal)]"
-                  : "border-[color:var(--drill-line)] text-[color:var(--drill-muted)] hover:border-[color:var(--drill-line-strong)] hover:text-[color:var(--drill-fg)]"
-              }`}
-              aria-pressed={controls.retries === value}
-              onClick={() => setRetry(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </fieldset>
 
       <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
         <input
           type="checkbox"
           className="mt-1 size-4 accent-[var(--cinnabar)]"
-          checked={controls.shedding}
-          onChange={(e) =>
-            setControls((c) => ({ ...c, shedding: e.target.checked }))
-          }
+          checked={controls.flagOff}
+          onChange={(e) => setControls((c) => ({ ...c, flagOff: e.target.checked }))}
         />
         <span>
-          <span className="font-medium text-[color:var(--drill-fg)]">Shed load</span>
+          <span className="font-medium text-[color:var(--drill-fg)]">Flag off for new calls</span>
           <span className="mt-1.5 block leading-relaxed">
-            Refuse some work with 503s so the pool can finish what it already
-            accepted. Spends success rate to protect survivors.
+            Stops new recommendation calls. A hold that already has a connection finishes. The query stays at {QUERY_MS} ms.
           </span>
         </span>
       </label>
@@ -296,10 +219,8 @@ export function SloWatchGame({
   const [phase, setPhase] = useState<GamePhase>("intro");
   const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<Controls>({
-    poolSize: 100,
-    concurrencyLimit: 90,
-    retries: "cautious",
-    shedding: false,
+    exposurePct: 100,
+    flagOff: false,
   });
   const [snap, setSnap] = useState<TickSnapshot>(initialSnap);
   const [result, setResult] = useState<GameResult | null>(null);
@@ -429,32 +350,21 @@ export function SloWatchGame({
     }
   };
 
-  const setRetry = (retries: RetryPolicy) =>
-    setControls((c) => ({ ...c, retries }));
-
-  const technologies =
-    catalog?.technologies ??
-    ["Error budgets", "Connection pools", "Concurrency limits", "Retry policy", "Load shedding"];
+  const technologies = catalog?.technologies ?? ["Feature flags", "Connection pools", "Acquire wait"];
   const takeaway =
     catalog?.takeaway ??
-    "Capacity and retries are coupled: aggressive retries under saturation spend the budget twice.";
+    "Disabling the flag stops new recommendation calls. The query stays near 70 ms.";
 
   const livePeak = Math.max(peakUtil, snap.poolUtil);
   const criteria = useMemo(
     () =>
-      liveSloCriteria(
-        snap.errorBudget,
-        snap.successRate,
-        cascaded,
-        livePeak,
-        phase,
-      ),
-    [snap.errorBudget, snap.successRate, cascaded, livePeak, phase],
+      liveSloCriteria(snap.errorBudget, snap.pending, phase),
+    [snap.errorBudget, snap.pending, phase],
   );
 
   const prose = useMemo((): DrillProse => {
-    const challengeQ = `Can you hold checkout at ${(SLO_TARGET * 100).toFixed(1)}% through three waves?`;
-    const objective = `Keep error budget above 0%, finish success ≥ ${((SLO_TARGET - 0.012) * 100).toFixed(1)}%, avoid a cascade, and hold peak pool util under 120% for ${DURATION_S}s.`;
+    const challengeQ = "Can you clear the 40-connection pool when the burst lands?";
+    const objective = `Finish with pending acquisitions at zero and acquire wait under ${ACQUIRE_BAR_MS} ms. The pool stays at ${POOL}. The query stays at ${QUERY_MS} ms.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -463,12 +373,7 @@ export function SloWatchGame({
         situation: <p>{result?.reason ?? snap.message}</p>,
         objective,
         explore: technologies,
-        gettingStarted:
-          mode === "challenge"
-            ? "Compare budget, success, cascade, and peak util to the pass lines, then adjust the levers and run again."
-            : phase === "won"
-              ? "Try aggressive retries once to see the budget burn faster."
-              : "Watch which pass line failed under which wave, then change pool, concurrency, retries, or shedding and retry.",
+        gettingStarted: "Change exposure or turn the flag off for new calls, then run the burst again.",
         takeaway: result?.takeaway || takeaway,
       };
     }
@@ -479,22 +384,14 @@ export function SloWatchGame({
       situation: (
         <>
           <p>
-            Saturday sale, checkout. Three waves are on the schedule, and the
-            machines will not grow during the shift. You choose pool size, how
-            much work you admit, how retries behave, and whether to refuse some
-            of the load. The page does not tell you the combination that holds
-            the line.
+            Recommendation allows 40 connections, shared with the home page and checkout.
+            About 400 lookups a second at 70 ms use 28 of them. Then the arrival rate
+            rises by about 1.7 times, and the spare connections fill.
           </p>
           <p>
-            An{" "}
-            <DrillTip
-              label="error budget"
-              tip="The amount of unreliability an SLO still allows. When it hits zero, you have broken the promise for the window."
-            >
-              <span className="text-[color:var(--drill-fg)]">error budget</span>
-            </DrillTip>{" "}
-            is the unreliability an SLO still allows. Empty it, or cascade under
-            Wave 3, and the shift is lost.
+            Acquire wait is the time spent waiting for a connection. The query itself
+            stays near 70 ms. Turning the flag off stops new recommendation calls.
+            Making the pool bigger is not the response.
           </p>
         </>
       ),
@@ -502,16 +399,13 @@ export function SloWatchGame({
       terms:
         mode === "practice" ? (
           <>
-            Pool size caps how many connections checkout can hold at once.
-            Concurrency caps how much work you admit. They are different levers:
-            sizing the pool without capping admission still queues.
+            Exposure is the share of product-page traffic that calls Recommendation.
+            The flag, when off, stops new calls. A connection already held is left to finish.
           </>
         ) : undefined,
       explore: technologies,
       gettingStarted:
-        mode === "challenge"
-          ? "Set the dials, start the shift, and watch arrivals, success rate, error budget, and pool util against the exact pass lines."
-          : "Set the dials, then start the shift. Watch pool util, arrivals, success rate, and remaining error budget as each wave lands.",
+        "Start with full exposure and watch pending acquisitions during the burst. Then cut exposure or turn the flag off and let the queue finish.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);
@@ -524,21 +418,18 @@ export function SloWatchGame({
         poolUtil: snap.poolUtil,
         pending: snap.pending,
         arrivals: snap.arrivals,
-        successRate: snap.successRate,
         errorBudget: snap.errorBudget,
-        retries: controls.retries,
-        shedding: controls.shedding,
-        sloTarget: SLO_TARGET,
+        flagOff: controls.flagOff,
+        exposurePct: controls.exposurePct,
       }),
     [
-      controls.retries,
-      controls.shedding,
+      controls.exposurePct,
+      controls.flagOff,
       phase,
       snap.arrivals,
       snap.errorBudget,
       snap.pending,
       snap.poolUtil,
-      snap.successRate,
       snap.wave,
     ],
   );
@@ -557,7 +448,6 @@ export function SloWatchGame({
   const controlsProps = {
     controls,
     setControls,
-    setRetry,
     stepMode,
     setStepOverride,
     phase,
@@ -595,39 +485,29 @@ export function SloWatchGame({
         </thead>
         <tbody>
           <tr>
-            <td>Pool util</td>
-            <td>{Math.round(snap.poolUtil * 100)}%</td>
-            <td>How full the connection pool is. Near 100% means new work waits.</td>
+            <td>Pool</td>
+            <td>{Math.round(snap.poolUtil * 100)}% of {POOL}</td>
+            <td>How full the 40 connections are. The pool does not grow.</td>
           </tr>
           <tr>
-            <td>Peak pool util</td>
-            <td>{Math.round(livePeak * 100)}%</td>
-            <td>Highest util this shift (pass under 120%).</td>
+            <td>Query</td>
+            <td>{QUERY_MS} ms</td>
+            <td>The database hold. It stays here while acquire time moves.</td>
           </tr>
           <tr>
             <td>Pending</td>
             <td>{snap.pending.toFixed(0)}</td>
-            <td>Admitted work waiting for a free pool slot.</td>
+            <td>Lookups waiting for a connection.</td>
           </tr>
           <tr>
-            <td>Arrivals</td>
-            <td>
-              {snap.arrivals.toFixed(0)} req/s · {snap.retryAmp.toFixed(2)}×
-            </td>
-            <td>Incoming rate including retry amplification.</td>
+            <td>Lookups</td>
+            <td>{snap.arrivals.toFixed(0)}/s</td>
+            <td>Recommendation calls still being attempted.</td>
           </tr>
           <tr>
-            <td>Success rate</td>
-            <td>{(snap.successRate * 100).toFixed(2)}%</td>
-            <td>
-              Must finish at or above {((SLO_TARGET - 0.012) * 100).toFixed(1)}%
-              for the shift.
-            </td>
-          </tr>
-          <tr>
-            <td>Error budget</td>
+            <td>Acquire headroom</td>
             <td>{snap.errorBudget.toFixed(0)}%</td>
-            <td>Remaining allowed unreliability for this {DURATION_S}s window.</td>
+            <td>100 percent is no queue. 0 percent is the 600 ms acquire tail.</td>
           </tr>
         </tbody>
       </table>
@@ -643,28 +523,22 @@ export function SloWatchGame({
           label="Pending (awaiting conn)"
           tip="Admitted work waiting for a free pool slot."
           value={snap.pending}
-          max={Math.max(20, controls.poolSize)}
+          max={80}
           format={(n) => `${n.toFixed(0)}`}
           warnAt={0.35}
           dangerAt={0.7}
         />
         <PlayMeter
-          label="Success rate"
-          tip="Share of requests that complete successfully."
-          value={Math.max(0, 1 - snap.successRate)}
-          max={0.05}
-          format={() => `${(snap.successRate * 100).toFixed(2)}%`}
-          warnAt={0.3}
-          dangerAt={0.6}
+          label="Share of the run under 50 ms"
+          tip="How much of the run so far kept acquire wait under 50 ms."
+          value={snap.successRate}
+          format={(n) => `${(n * 100).toFixed(0)}%`}
         />
         <PlayMeter
-          label="Error budget left"
-          tip="Remaining allowed unreliability for this window."
-          value={100 - snap.errorBudget}
-          max={100}
+          label="Clear of the 600 ms tail"
+          tip="Headroom between the current acquire wait and the 600 ms incident."
+          value={snap.errorBudget / 100}
           format={() => `${snap.errorBudget.toFixed(0)}%`}
-          warnAt={0.45}
-          dangerAt={0.75}
         />
       </div>
 
@@ -694,10 +568,10 @@ export function SloWatchGame({
       <div className="slo-game">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <p className="max-w-xl text-[0.95rem] leading-relaxed text-[color:var(--drill-muted)]">
-            Three traffic waves. Watch arrivals and the error budget burn.
+            The 40-connection pool, then the burst. Watch pending acquisitions and acquire wait.
           </p>
           <p className="text-[0.78rem] tabular-nums text-[color:var(--drill-muted)]">
-            SLO {(SLO_TARGET * 100).toFixed(1)}% · {DURATION_S}s
+            Query {QUERY_MS} ms · {DURATION_S}s
           </p>
         </div>
 

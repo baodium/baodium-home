@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -665,11 +664,11 @@ export function Chapter1Experience() {
           <>
             <LabIntro
               embedded
-              challenge="Can you keep a 40-slot pool healthy when recommendations turn on?"
+              challenge="Can you clear pending acquisitions when all 40 connections are assigned?"
               situation={`${scenario.brief} Product Page still talks to Catalog for the core page. When too many users hit the long path, waiting appears beside the pool even though every query is correct.`}
               objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
-              terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the database hold even starts. Busy slots never exceed 40; overflow waits beside the grid."
-              explore="Feature flags, connection pools, Little’s Law, acquire timeout, load shedding, and a request-path cache."
+              terms="Acquire wait is the time spent waiting for a free connection before the database hold starts. The query stays near its baseline. Busy connections never exceed 40. Overflow waits."
+              explore="The recommendation call, the feature flag, and the 40-connection pool."
               gettingStarted="Use Guided for the eight stages. Pause, step, or reset the shared clock anytime. Practice unlocks the levers after your first decision. Challenge starts mid-incident with exact pass and fail numbers, and the intro does not name the fix."
             />
             <TeachingOverlay
@@ -822,9 +821,9 @@ export function Chapter1Experience() {
                         </p>
                         <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
                         <p className="text-[color:var(--exp-fg)]">
-                          Correct code still waits on a shared finite pool. Disable cuts new demand;
-                          in-flight holds drain on their own. Cache cuts hold time; shedding and
-                          timeouts trade errors for headroom.
+                          Correct code still waits on a shared finite pool. Disabling the flag stops
+                          new recommendation calls. Holds already taken finish or time out. The
+                          query stays near its baseline.
                         </p>
                       </div>
                       <ul className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -920,8 +919,8 @@ export function Chapter1Experience() {
                             ["Time left", `${challengeRemaining.toFixed(1)} s`],
                             ["Pending", `${snap.waitingCount}`],
                             ["Util", `${(snap.utilization * 100).toFixed(0)}%`],
-                            ["p99", `${(snap.latencyP99 * 1000).toFixed(0)} ms`],
-                            ["SLO", `${(snap.slo.targetP99Sec * 1000).toFixed(0)} ms`],
+                            ["End-to-end p99", `${(snap.latencyP99 * 1000).toFixed(0)} ms`],
+                            ["Acquire p99", `${(snap.acquireWaitP99 * 1000).toFixed(0)} ms`],
                           ] as const
                         ).map(([label, value]) => (
                           <li key={label} className="text-sm">
@@ -961,8 +960,8 @@ export function Chapter1Experience() {
                 >
                   <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Practice</h2>
                   <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
-                    Pressure Recommendation’s pool, then respond: disable, shed, timeout, or cache.
-                    Read Ops like an on-call dashboard. Same rules as the guided path.
+                    Pressure Recommendation’s 40-connection pool, then stop new recommendation
+                    calls. In-flight holds finish or time out. The query does not have to change.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -979,27 +978,14 @@ export function Chapter1Experience() {
                     </button>
                     <button
                       type="button"
-                      data-testid="demo-shed"
                       onClick={() => {
                         startPressure();
-                        applyMitigation({ shedAtUtil: 0.85 });
-                        logAction("Practice shed@85% under pressure");
+                        setControls(engineRef.current, { exposurePct: 25 });
+                        logAction("Practice exposure 25% under pressure");
                       }}
                       className="exp-btn exp-btn-ghost"
                     >
-                      Pressure + shed
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="demo-timeout"
-                      onClick={() => {
-                        startPressure();
-                        applyMitigation({ acquireTimeoutSec: 0.1 });
-                        logAction("Practice timeout 100ms under pressure");
-                      }}
-                      className="exp-btn exp-btn-ghost"
-                    >
-                      Pressure + timeout
+                      Pressure, then 25% exposure
                     </button>
                     <button
                       type="button"
@@ -1104,12 +1090,6 @@ export function Chapter1Experience() {
                     />
                   </label>
 
-                  <Link
-                    href={scenario.meta.bookHref}
-                    className="mt-4 inline-flex text-sm text-[color:var(--exp-amber-text)] underline-offset-4 hover:underline"
-                  >
-                    Read Chapter 1 in the book →
-                  </Link>
                 </motion.div>
               )}
             </AnimatePresence>

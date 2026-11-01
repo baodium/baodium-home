@@ -41,7 +41,7 @@ import {
 const catalog = getPlayGame("tail-latency");
 
 const idleSnap: TailSnap = emptyTailSnap(
-  "Quiet lane. Stragglers appear after about 10 seconds.",
+  "The query stays at 70 ms. Acquire p95 is the line that moves.",
 );
 
 function toneFor(met: boolean | null): CriterionTone {
@@ -58,10 +58,7 @@ export function TailLatencyGame() {
   );
   const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<TailControls>({
-    concurrency: 24,
-    hedge: false,
-    hedgeAfterMs: 120,
-    timeoutMs: 500,
+    lookupsPerSec: 560,
   });
   const [snap, setSnap] = useState<TailSnap>(idleSnap);
   const [result, setResult] = useState<TailResult | null>(null);
@@ -162,74 +159,25 @@ export function TailLatencyGame() {
 
   const technologies =
     catalog?.technologies ??
-    [
-      "p50 / p99 latency",
-      "Worker pools",
-      "Request hedging",
-      "Timeouts",
-      "Work amplification",
-    ];
+    ["Acquire p95", "Query time", "Little's Law", "The 40-connection pool"];
   const takeaway =
     catalog?.takeaway ??
-    "The slowest requests shape the customer experience. Hedging helps only when the duplicate work still fits.";
+    "The query stays near its baseline. Acquire p95 is the tail the pass bar measures.";
 
   const live = phase === "running" || phase === "won" || phase === "lost";
 
   const criteria = useMemo((): CriterionLive[] => {
-    const p99 = snap.p99;
-    const goodput = snap.goodput;
-    const cost = snap.cost;
+    const p95 = snap.p95;
+    const query = snap.p50;
     const samples = snap.sampleCount;
-
-    const p99Met = live ? p99 <= P99_BUDGET_MS : null;
-    const goodputMet = live ? goodput >= 0.9 : null;
-    const costMet = live ? cost < 1.8 : null;
-    const samplesMet = live ? samples >= 40 : null;
-
-    const byId: Record<
-      string,
-      { value: string; met: boolean | null }
-    > = {
-      p99: {
-        value: live ? `${p99.toFixed(0)} ms` : "—",
-        met: p99Met,
-      },
-      goodput: {
-        value: live ? `${(goodput * 100).toFixed(0)}%` : "—",
-        met: goodputMet,
-      },
-      cost: {
-        value: live ? `${cost.toFixed(2)}×` : "—",
-        met: costMet,
-      },
-      samples: {
-        value: live ? `${samples}` : "—",
-        met: samplesMet,
-      },
+    const byId: Record<string, { value: string; met: boolean | null }> = {
+      p95: { value: live ? `${p95.toFixed(0)} ms` : "pending", met: live ? p95 < P99_BUDGET_MS : null },
+      query: { value: `${query.toFixed(0)} ms`, met: live ? query === 70 : null },
+      samples: { value: live ? `${samples}` : "pending", met: live ? samples >= 40 : null },
     };
 
-    // On done, gate each criterion from the same outcome rules the engine uses.
-    if (result && (phase === "won" || phase === "lost")) {
-      byId.p99 = {
-        value: `${p99.toFixed(0)} ms`,
-        met: p99 <= P99_BUDGET_MS,
-      };
-      byId.goodput = {
-        value: `${(goodput * 100).toFixed(0)}%`,
-        met: goodput >= 0.9,
-      };
-      byId.cost = {
-        value: `${cost.toFixed(2)}×`,
-        met: cost < 1.8,
-      };
-      byId.samples = {
-        value: `${samples}`,
-        met: samples >= 40,
-      };
-    }
-
     return TAIL_CRITERIA.map((def) => {
-      const liveRow = byId[def.id] ?? { value: "—", met: null };
+      const liveRow = byId[def.id] ?? { value: "pending", met: null };
       return {
         ...def,
         value: liveRow.value,
@@ -237,95 +185,54 @@ export function TailLatencyGame() {
         tone: toneFor(liveRow.met),
       };
     });
-  }, [live, phase, result, snap.cost, snap.goodput, snap.p99, snap.sampleCount]);
+  }, [live, snap.p50, snap.p95, snap.sampleCount]);
 
   const prose = useMemo((): DrillProse => {
-    const challengeQ = "Can you keep p99 below 420 ms?";
-    const objective = `Keep p99 at or below ${P99_BUDGET_MS} ms for the full ${TAIL_DURATION_S}-second run, without letting hedge copies push work cost past about 1.8×.`;
+    const challengeQ = "Can you keep acquire p95 under 50 ms while the query stays at 70?";
+    const objective = `Keep acquire p95 under ${P99_BUDGET_MS} ms for the full ${TAIL_DURATION_S}-second run. The query stays at 70 ms.`;
 
     if (mode === "challenge") {
-      if (phase === "won") {
+      if (phase === "won" || phase === "lost") {
         return {
           title: "Tail Latency",
           challenge: challengeQ,
-          situation: <p>You held the tail inside the budget for this run.</p>,
+          situation: <p>{result?.reason ?? snap.message}</p>,
           objective,
           explore: technologies,
           gettingStarted:
-            "Adjust the levers, start the run, and judge the pass/fail list from the evidence.",
+            phase === "won"
+              ? "Run it again at a higher lookup rate and watch acquire p95 cross 50 ms while the query stays at 70."
+              : "Read which line failed. The query does not move. The lookup rate does.",
           takeaway: result?.takeaway ?? takeaway,
         };
       }
-      if (phase === "lost") {
-        return {
-          title: "Tail Latency",
-          challenge: challengeQ,
-          situation: (
-            <p>
-              {result?.reason ??
-                "One or more pass/fail criteria missed. Read the list and change a lever."}
-            </p>
-          ),
-          objective,
-          explore: technologies,
-          gettingStarted:
-            "Read which criteria failed, change one lever, and run again.",
-          takeaway: result?.takeaway ?? takeaway,
-        };
-      }
-      return {
-        title: "Tail Latency",
-        challenge: challengeQ,
-        situation: (
-          <>
-            <p>
-              A checkout service on a weekday afternoon. Most requests finish
-              quickly. After about 10 seconds, a small share arrive late, and
-              the slowest 1 percent is what customers hit when the page feels
-              stuck.
-            </p>
-            <p>
-              You can change how many workers are on the shift, how long a
-              request may run, and whether a late request gets a second copy.
-              The budget is {P99_BUDGET_MS} ms. The page does not say how many
-              copies to send.
-            </p>
-          </>
-        ),
-        objective,
-        explore: technologies,
-        gettingStarted:
-          "Adjust the levers, start the run, and judge the pass/fail list from the evidence.",
-        takeaway,
-      };
-    }
-
-    if (phase === "won") {
-      return {
-        title: "Tail Latency",
-        challenge: challengeQ,
-        situation: <p>You held the tail inside the budget for this run.</p>,
-        objective: `Keep p99 at or below ${P99_BUDGET_MS} ms for ${TAIL_DURATION_S} seconds without work cost running away.`,
-        explore: technologies,
-        gettingStarted:
-          "Notice the work-cost multiplier beside p99. A win that doubles load is a fragile win under the next traffic bump.",
-        takeaway: result?.takeaway ?? takeaway,
-      };
-    }
-    if (phase === "lost") {
       return {
         title: "Tail Latency",
         challenge: challengeQ,
         situation: (
           <p>
-            {result?.reason ??
-              "p99 blew the budget, or hedge copies pushed work cost too high."}
+            The recommendation query holds a connection for about 70 ms. That number stays put. You choose how many lookups a second ask the 40-connection pool for a connection. The pass bar is acquire p95 under {P99_BUDGET_MS} ms.
           </p>
         ),
-        objective: `Keep p99 at or below ${P99_BUDGET_MS} ms for ${TAIL_DURATION_S} seconds without work cost running away.`,
+        objective,
         explore: technologies,
         gettingStarted:
-          "Try again with modest concurrency and a later hedge delay so only true stragglers get a duplicate.",
+          "Set the lookup rate, start the run, and read acquire p95 against the query.",
+        takeaway,
+      };
+    }
+
+    if (phase === "won" || phase === "lost") {
+      return {
+        title: "Tail Latency",
+        challenge: challengeQ,
+        situation: <p>{result?.reason ?? snap.message}</p>,
+        objective,
+        explore: technologies,
+        gettingStarted:
+          phase === "won"
+            ? "The offered rate stayed on a passing stage. A higher rate is the row the table marks as failed."
+            : "Lower the lookup rate and run again. The query stays at 70 ms either way.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
@@ -335,42 +242,32 @@ export function TailLatencyGame() {
       situation: (
         <>
           <p>
-            A checkout service on a weekday afternoon. Most requests finish
-            quickly. A small share arrive late, and that slow share is the tail
-            customers actually wait on.
+            The recommendation query holds a connection for about 70 ms and does not slow down in this drill. What changes is how long a lookup waits to acquire a connection from the 40-connection pool.
           </p>
           <p>
-            After about 10 seconds, stragglers show up. The median can stay
-            calm while the slowest requests stretch past the budget.
+            The chapter&apos;s load test records acquire p95 of about 8 ms at 400 lookups a second, and about 80 ms at 560. The pass bar is acquire p95 under {P99_BUDGET_MS} ms. The query stays at 70 ms, so a slower database call is not what fails the bar.
           </p>
         </>
       ),
       objective,
       terms: (
         <>
+          The query is the time a connection is held for the recommendation lookup.{" "}
           <DrillTip
-            label="p50"
-            tip="Median latency: half of requests finish faster than this number."
+            label="Acquire p95"
+            tip="The 95th percentile of the wait to get a connection. In this chapter that wait is the tail the pass bar measures."
           >
-            <span className="text-[color:var(--drill-fg)]">p50</span>
+            <span className="text-[color:var(--drill-fg)]">Acquire p95</span>
           </DrillTip>{" "}
-          is the median: half of requests are faster.{" "}
-          <DrillTip
-            label="p99"
-            tip="99th-percentile latency: only 1% of requests are slower. This is usually what an SLO cares about."
-          >
-            <span className="text-[color:var(--drill-fg)]">p99</span>
-          </DrillTip>{" "}
-          is the slowest 1%. An SLO on the median can look fine while customers
-          in the tail already time out.
+          is that wait at the 95th percentile. It moves with the lookup rate. The query does not.
         </>
       ),
       explore: technologies,
       gettingStarted:
-        "Choose how many workers run at once, whether to hedge slow requests, and how long to wait before giving up. Then start the drill and watch p50 stay calm while p99 climbs when stragglers arrive.",
+        "Set lookups per second, then start the run. 400 a second is a passing stage. 480 and 560 are not. Watch the query stay at 70 ms while acquire p95 moves.",
       takeaway,
     };
-  }, [mode, phase, result, takeaway, technologies]);
+  }, [mode, phase, result, snap.message, takeaway, technologies]);
 
   const statusLabel =
     phase === "intro"
@@ -380,8 +277,8 @@ export function TailLatencyGame() {
           ? `Paused · ${snap.t.toFixed(1)}s`
           : `${snap.t.toFixed(1)}s`
         : phase === "won"
-          ? "Tail held"
-          : "Tail blew";
+          ? "Inside the bar"
+          : "Past the bar";
 
   const controlsPanel = (
     <div className="drill-panel flex flex-col gap-5 p-5 md:p-6">
@@ -389,95 +286,21 @@ export function TailLatencyGame() {
 
       <label className="block">
         <DrillControlLabel
-          label="Concurrency"
-          tip="How many requests run at once. Higher pressure stretches the tail; leave headroom if you plan to hedge."
-          help="How many requests run at once. Higher pressure stretches the tail. Leave some headroom if you plan to send hedge copies."
-          value={controls.concurrency}
+          label="Lookups per second"
+          tip="How many recommendation lookups ask the 40-connection pool for a connection."
+          help="How many recommendation lookups ask the 40-connection pool for a connection. 400 a second passes. 560 a second does not."
+          value={`${controls.lookupsPerSec}/s`}
         />
         <input
           className="slo-slider mt-3"
           type="range"
-          min={8}
-          max={48}
-          step={2}
-          value={controls.concurrency}
-          onChange={(e) =>
-            setControls((c) => ({
-              ...c,
-              concurrency: Number(e.target.value),
-            }))
-          }
+          min={300}
+          max={560}
+          step={20}
+          value={controls.lookupsPerSec}
+          onChange={(e) => setControls({ lookupsPerSec: Number(e.target.value) })}
         />
       </label>
-
-      <label className="block">
-        <DrillControlLabel
-          label="Timeout"
-          tip="Cancel stuck work after this delay. Too tight creates false failures; too loose lets stragglers occupy capacity."
-          help="Cancel stuck work after this delay. Too tight creates false failures. Too loose lets stragglers occupy capacity."
-          value={`${controls.timeoutMs}ms`}
-        />
-        <input
-          className="slo-slider mt-3"
-          type="range"
-          min={250}
-          max={800}
-          step={25}
-          value={controls.timeoutMs}
-          onChange={(e) =>
-            setControls((c) => ({
-              ...c,
-              timeoutMs: Number(e.target.value),
-            }))
-          }
-        />
-      </label>
-
-      <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
-        <input
-          type="checkbox"
-          className="mt-1 size-4 accent-[var(--cinnabar)]"
-          checked={controls.hedge}
-          onChange={(e) =>
-            setControls((c) => ({ ...c, hedge: e.target.checked }))
-          }
-        />
-        <span>
-          <span className="font-medium text-[color:var(--drill-fg)]">
-            Hedge slow requests
-          </span>
-          <span className="mt-1.5 block leading-relaxed">
-            Send a duplicate after a delay and keep whichever finishes first.
-            This helps the tail only when the original request was truly stuck
-            and the extra work still fits.
-          </span>
-        </span>
-      </label>
-
-      {controls.hedge ? (
-        <label className="block">
-          <DrillControlLabel
-            label="Hedge after"
-            tip="Delay before the duplicate is sent. Later hedges hit true stragglers; early hedges inflate work cost."
-            help="How long to wait before sending the duplicate. Later hedges hit true stragglers. Early hedges inflate work cost for everyone."
-            value={`${controls.hedgeAfterMs}ms`}
-          />
-          <input
-            className="slo-slider mt-3"
-            type="range"
-            min={60}
-            max={220}
-            step={10}
-            value={controls.hedgeAfterMs}
-            onChange={(e) =>
-              setControls((c) => ({
-                ...c,
-                hedgeAfterMs: Number(e.target.value),
-              }))
-            }
-          />
-        </label>
-      ) : null}
 
       <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
         <input
@@ -540,11 +363,8 @@ export function TailLatencyGame() {
           <>
             <TailDistributionViz
               samples={snap.samples}
-              p50={snap.p50}
-              p99={snap.p99}
-              cost={snap.cost}
-              hedge={controls.hedge}
-              hedgeAfterMs={controls.hedgeAfterMs}
+              queryMs={snap.p50}
+              p95={snap.p95}
             />
 
             <div className="drill-panel p-5 md:p-6">
@@ -565,14 +385,10 @@ export function TailLatencyGame() {
                 <DrillNarrator
                   frame={narrateTailLatency({
                     phase,
-                    p50: snap.p50,
-                    p99: snap.p99,
+                    queryMs: snap.p50,
+                    p95: snap.p95,
                     budget: P99_BUDGET_MS,
-                    hedge: controls.hedge,
-                    hedgeAfterMs: controls.hedgeAfterMs,
-                    workers: controls.concurrency,
-                    queueDepth: snap.queueDepth,
-                    cost: snap.cost,
+                    lookups: controls.lookupsPerSec,
                   })}
                 />
               </div>
@@ -587,90 +403,64 @@ export function TailLatencyGame() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>p50</td>
+                    <td>Query</td>
                     <td>{snap.p50.toFixed(0)} ms</td>
-                    <td>Median latency. Half of requests are faster than this.</td>
+                    <td>Time a connection is held. This stays at 70 ms.</td>
                   </tr>
                   <tr>
-                    <td>p95</td>
+                    <td>Acquire p95</td>
                     <td>{snap.p95.toFixed(0)} ms</td>
-                    <td>Sits between the median and the extreme tail.</td>
+                    <td>Wait for a connection. Hold this under {P99_BUDGET_MS} ms.</td>
                   </tr>
                   <tr>
-                    <td>p99</td>
-                    <td>{snap.p99.toFixed(0)} ms</td>
-                    <td>
-                      The slowest 1%. Hold this at or below {P99_BUDGET_MS} ms.
-                    </td>
+                    <td>Lookups</td>
+                    <td>{controls.lookupsPerSec.toFixed(0)}/s</td>
+                    <td>Offered to the 40-connection pool. 400/s passes. 560/s does not.</td>
                   </tr>
                   <tr>
-                    <td>Goodput</td>
-                    <td>{(snap.goodput * 100).toFixed(0)}%</td>
-                    <td>Completed requests versus completed plus timed out.</td>
-                  </tr>
-                  <tr>
-                    <td>Work cost</td>
-                    <td>{snap.cost.toFixed(2)}×</td>
-                    <td>
-                      Extra work from hedges. 1.0× means no duplicates. Above
-                      ~1.8× is a fragile win.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Worker util</td>
-                    <td>{Math.round(snap.util * 100)}%</td>
-                    <td>
-                      Offered load versus the worker pool. Above ~100% means
-                      queue wait dominates the tail.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Queue depth</td>
-                    <td>{snap.queueDepth.toFixed(0)}</td>
-                    <td>
-                      Requests waiting for a free worker. An undersized pool
-                      lifts everyone&apos;s p99.
-                    </td>
+                    <td>Demand</td>
+                    <td>{(controls.lookupsPerSec * 0.07).toFixed(0)}</td>
+                    <td>Lookups per second times 70 ms, in connections. The pool holds 40.</td>
                   </tr>
                 </tbody>
               </table>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <PlayMeter
-                  label="p50"
-                  tip="Median latency. Half of requests are faster. Can stay green while the slowest 1% already miss the SLO."
+                  label="Query"
+                  tip="Time a connection is held for the recommendation lookup. It stays at 70 ms."
                   value={snap.p50}
-                  max={P99_BUDGET_MS}
+                  max={120}
                   format={(n) => `${n.toFixed(0)} ms`}
-                  warnAt={0.35}
-                  dangerAt={0.55}
-                />
-                <PlayMeter
-                  label="p99"
-                  tip="99th-percentile latency: the slowest 1%. This is the budget you must hold."
-                  value={snap.p99}
-                  max={P99_BUDGET_MS}
-                  format={(n) => `${n.toFixed(0)} ms`}
-                  warnAt={0.85}
+                  warnAt={0.9}
                   dangerAt={1}
                 />
                 <PlayMeter
-                  label="Work cost"
-                  tip="How much extra work hedges create (1.0× = no duplicates). A win that doubles cost is fragile under the next load bump."
-                  value={snap.cost}
-                  max={2}
-                  format={(n) => `${n.toFixed(2)}×`}
-                  warnAt={0.7}
-                  dangerAt={0.9}
+                  label="Acquire p95"
+                  tip="95th percentile of the wait for a connection. The pass bar is 50 ms."
+                  value={snap.p95}
+                  max={100}
+                  format={(n) => `${n.toFixed(0)} ms`}
+                  warnAt={0.4}
+                  dangerAt={0.5}
                 />
                 <PlayMeter
-                  label="Queue depth"
-                  tip="Requests waiting for a free worker. Undersized concurrency lifts everyone's p99."
-                  value={snap.queueDepth}
+                  label="Lookups"
+                  tip="Lookups per second offered to the pool. 400 passes. 560 does not."
+                  value={controls.lookupsPerSec}
+                  max={560}
+                  format={(n) => `${n.toFixed(0)}/s`}
+                  warnAt={0.72}
+                  dangerAt={0.86}
+                />
+                <PlayMeter
+                  label="Demand"
+                  tip="Connections implied by lookups per second times a 70 ms hold. The pool has 40."
+                  value={controls.lookupsPerSec * 0.07}
                   max={40}
-                  format={(n) => `${n.toFixed(0)}`}
-                  warnAt={0.4}
-                  dangerAt={0.7}
+                  format={(n) => n.toFixed(0)}
+                  warnAt={0.75}
+                  dangerAt={1}
                 />
               </div>
 

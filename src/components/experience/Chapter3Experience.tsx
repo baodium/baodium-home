@@ -303,6 +303,24 @@ export function Chapter3Experience() {
         canvas={
           <>
             <IdempotencyGraph read={read} reducedMotion={reduced} />
+            <section className="exp-panel">
+              <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">
+                POST /v1/orders/4471/payment-authorizations
+              </h2>
+              <pre className="mt-3 overflow-x-auto font-mono text-[0.78rem] leading-relaxed text-[color:var(--exp-fg)]">
+                <code>{`POST /v1/orders/4471/payment-authorizations
+Idempotency-Key: checkout-4471-attempt-1
+{"payment_method_id":"pm_21"}
+
+HTTP/1.1 202 Accepted
+{"operation_id":"payop_783","status":"PENDING"}
+
+CREATE UNIQUE INDEX one_active_authorization_per_order
+ON payment_operations (order_id)
+WHERE operation_type = 'authorize'
+  AND status IN ('pending', 'reconciliation_pending', 'authorized');`}</code>
+              </pre>
+            </section>
             <section className="exp-panel" aria-label="Live metrics">
               <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">Live metrics</h2>
               <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{read.narration}</p>

@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
-import { book, writing } from "@/data/writing";
+import { writing } from "@/data/writing";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 /** Clear product nav: Home / Book / Labs / Drills / Projects / About */
@@ -169,17 +168,6 @@ export function Navigation() {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          <a
-            href={book.readPath}
-            className="btn btn-cream group !min-h-10 max-w-[11.5rem] !px-3.5 text-[0.72rem] leading-tight sm:max-w-none sm:!px-4 sm:text-[0.82rem] sm:leading-none"
-          >
-            Read the book for free
-            <ArrowUpRight
-              aria-hidden="true"
-              className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              strokeWidth={2}
-            />
-          </a>
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}

@@ -84,21 +84,21 @@ export function SloWavesViz({
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[color:var(--drill-line)] px-4 py-3 sm:px-5">
         <div>
           <p className="font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)]">
-            Waves · budget burn
+            Lookups and acquire headroom
           </p>
           <p className="mt-1 text-sm text-[color:var(--drill-muted)]">
-            Wave {liveWave} of 3. The upper line is arrivals. The lower band is error budget still left.
+            Wave {liveWave} of 3. The upper line is lookups. The lower band is how far acquire wait is from the 600 ms incident.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">
-          Budget {last.errorBudget.toFixed(0)}% · util {(last.poolUtil * 100).toFixed(0)}%
+          Headroom {last.errorBudget.toFixed(0)}% · pool {(last.poolUtil * 100).toFixed(0)}%
         </p>
       </div>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
         role="img"
-        aria-label="Traffic waves and error budget burn over time"
+        aria-label="Lookups and acquire headroom over time"
       >
         {WAVE_ENDS.slice(0, 2).map((end) => (
           <line
@@ -171,7 +171,7 @@ export function SloWavesViz({
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-2.5 w-4 rounded-[2px] bg-[color:var(--drill-accent)] opacity-80" aria-hidden />
-          Error budget left
+          Clear of the 600 ms tail
         </span>
       </div>
     </div>

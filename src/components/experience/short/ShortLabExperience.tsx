@@ -157,6 +157,12 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
               </div>
               <ConceptGraph lab={lab} snap={snap} reducedMotion={reduced} />
             </div>
+            <section className="exp-panel">
+              <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">{lab.code.title}</h2>
+              <pre className="mt-3 overflow-x-auto font-mono text-[0.78rem] leading-relaxed text-[color:var(--exp-fg)]">
+                <code>{lab.code.source}</code>
+              </pre>
+            </section>
             <ShortSeriesChart
               title={lab.chart.title}
               caption={lab.chart.caption}

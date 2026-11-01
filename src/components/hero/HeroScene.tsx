@@ -143,7 +143,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.15, ease }}
               className="mt-4 max-w-[28rem] text-[clamp(0.95rem,min(1.45vw,2.4vh),1.18rem)] leading-relaxed text-cream/68 lg:mt-6"
             >
-              Products, a free system-design book, and labs that let you operate
+              Products, a system-design book, and labs that let you operate
               the failures the chapters explain.
             </motion.p>
 

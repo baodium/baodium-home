@@ -85,7 +85,7 @@ export function OpsMetricsPanel({
           value={`${snap.timeoutCount}`}
           hint={timeoutArmed ? `to ${timeoutMs.toFixed(0)}ms` : "disarmed"}
           tip="Requests that exceeded connectionTimeout while waiting for a slot. Hard failures."
-          good="Zero. Prefer shed/disable before relying on timeouts."
+          good="Zero while the flag is the response. A timeout only ends a wait that already started."
           hot={snap.timeoutCount > 0}
         />
         <Gauge
@@ -126,7 +126,7 @@ export function OpsMetricsPanel({
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[color:var(--exp-faint)]">
-              Latency SLO · p99 &lt; {(snap.slo.targetP99Sec * 1000).toFixed(0)} ms
+              End-to-end p99
             </p>
             <p
               className={`font-mono text-sm tabular-nums ${
@@ -136,11 +136,6 @@ export function OpsMetricsPanel({
               }`}
             >
               {(snap.slo.observedP99Sec * 1000).toFixed(0)} ms
-              {snap.completedCount > 8 ? (
-                <span className="ml-2 text-[0.65rem] text-[color:var(--exp-faint)]">
-                  burn {snap.slo.burnRatio.toFixed(1)}×
-                </span>
-              ) : null}
             </p>
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[color:var(--exp-slot-free)]">
@@ -159,17 +154,12 @@ export function OpsMetricsPanel({
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[color:var(--exp-muted)]">
             {snap.slo.breached
-              ? "Tail is past budget. Check acquire.wait.p99 and pool.pending before blaming the query text. Queueing often dominates."
-              : "When util climbs, watch acquire.wait.p99 approach connectionTimeout. That is the error cliff."}
+              ? "The tail is the wait for a connection. The query stays near its baseline. Check acquire.wait.p99 and pool.pending."
+              : "When the pool fills, watch acquire.wait.p99. That wait is the line that moved in the incident."}
           </p>
         </motion.div>
       </AnimatePresence>
 
-      {(snap.shedCount > 0 || snap.cacheHitCount > 0) && (
-        <p className="mt-3 font-mono text-[0.65rem] text-[color:var(--exp-faint)]">
-          mitigations · shed {snap.shedCount} · cache hits {snap.cacheHitCount}
-        </p>
-      )}
     </div>
   );
 }

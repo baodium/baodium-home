@@ -30,11 +30,11 @@ export function evaluateChallenge(
 export function challengeStatusCopy(status: ChallengeStatus): string {
   switch (status) {
     case "passed":
-      return "You cleared waiting, brought util under the limit, and kept p99 inside the SLO.";
+      return "Pending cleared and acquire time came off the queue.";
     case "failed":
-      return "Time ran out before the pass criteria were met. Reset and try another approach.";
+      return "Time ran out with acquisitions still pending. Reset and change one control.";
     case "running":
-      return "Live. Adjust levers and watch waiting, util, and p99.";
+      return "Live. Adjust the flag and exposure. Watch pending acquisitions and acquire time.";
     default:
       return "Start when you are ready.";
   }
