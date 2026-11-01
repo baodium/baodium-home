@@ -157,9 +157,11 @@ export function narrateCascade(input: {
 
   if (phase === "intro") {
     return frame(
-      ["Checkout healthy", "Auth and DB will wobble", "watch blast radius on the topology"],
+      [
+        "Checkout is healthy. A dependency will slow down and hold shared workers. Watch which mark loses health, and whether the edge falls with it.",
+      ],
       "calm",
-      "Pass: checkout ok ≥ 60%, edge health above 42%, peak cascade risk under 82%.",
+      "Pass when checkout stays at or above 60 percent, edge health stays above 42 percent, and cascade risk stays under 82 percent.",
     );
   }
 
@@ -187,7 +189,7 @@ export function narrateCascade(input: {
   return frame(
     segments,
     tone,
-    "Pass: edge holds while Auth/Pay/DB recover. Breakers and isolation shrink blast radius; there is no auth bypass.",
+    "Pass when checkout stays at or above 60 percent, edge health stays above 42 percent, and cascade risk stays under 82 percent. There is no path that skips Auth.",
   );
 }
 

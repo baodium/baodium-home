@@ -212,13 +212,13 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
     chapterSlug: "chapter-4",
     afterSectionId: "how-a-failure-crosses-service-boundaries",
     concept: "Failure across services",
-    lead: "Keep checkout alive when a dependency wobbles. Circuits alone are not enough if every path still shares the pool.",
+    lead: "Checkout calls Auth, Pay, and the database on a shared pool of workers. Open the drill and watch what happens at the edge when one of them slows down.",
     targets: [
       {
         kind: "drill",
         href: "/play/cascade",
         label: "Cascade",
-        detail: "Breakers, bulkheads, no auth bypass",
+        detail: "Edge, checkout, Auth, Pay, and the database",
       },
     ],
   },

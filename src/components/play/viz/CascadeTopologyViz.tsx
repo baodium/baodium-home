@@ -41,8 +41,9 @@ export function CascadeTopologyViz({
             Topology · breakers
           </p>
           <p className="mt-1 max-w-xl text-sm leading-relaxed text-[color:var(--drill-muted)]">
-            Checkout calls Auth, Pay, and the database. A dashed edge means that breaker is open
-            and the call fails fast. There is no path that skips Auth.
+            The edge sends the caller to checkout. Checkout calls Auth and Pay, and Pay calls the
+            database. Each service has its own mark. A dashed line means that call is failing fast.
+            There is no path that skips Auth.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">

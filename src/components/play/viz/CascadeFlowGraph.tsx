@@ -54,13 +54,13 @@ export function CascadeFlowGraph({
     auth: circuitOpen.auth
       ? "Breaker open"
       : bulkheadAuth
-        ? `Own pool · util ${(util.auth * 100).toFixed(0)}%`
-        : `Shared pool · util ${(util.auth * 100).toFixed(0)}%`,
+        ? `Own pool ${(util.auth * 100).toFixed(0)}%`
+        : `Shared pool ${(util.auth * 100).toFixed(0)}%`,
     pay: circuitOpen.pay
       ? "Breaker open"
       : bulkheadPay
-        ? `Own pool · util ${(util.pay * 100).toFixed(0)}%`
-        : `Shared pool · util ${(util.pay * 100).toFixed(0)}%`,
+        ? `Own pool ${(util.pay * 100).toFixed(0)}%`
+        : `Shared pool ${(util.pay * 100).toFixed(0)}%`,
     db: circuitOpen.db ? "Breaker open" : `Util ${(util.db * 100).toFixed(0)}%`,
   };
 

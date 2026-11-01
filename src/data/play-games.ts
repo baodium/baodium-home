@@ -114,12 +114,12 @@ export const playGames: PlayGame[] = [
     slug: "cascade",
     title: "Cascade",
     challenge: "Can you keep checkout alive when a dependency fails?",
-    feel: "Auth and DB wobble on a shared pool. Keep checkout alive as dependency health drops.",
-    notice: "Watch topology health, open breakers, and cascade risk together — blast radius is visible on the graph.",
+    feel: "Checkout calls Auth, then Pay, and Pay calls the database. A slow dependency can hold the workers the edge still needs.",
+    notice: "Watch health on each service, dashed lines, and cascade risk on the same graph.",
     success: "Checkout ok ≥ 60%, edge health > 42%, peak cascade risk < 82%. No auth bypass.",
-    learn: "A circuit without a bulkhead still shares the pool. Isolation needs both.",
+    learn: "A slow dependency on a shared pool can take the edge down with it.",
     changed:
-      "Fail-fast frees slots; bulkheads stop auth/DB failure from starving checkout’s shared workers.",
+      "Stopping the call returns a worker. Checkout still needs that dependency off the shared pool.",
     matters:
       "Most total outages start as one slow dependency holding threads that every other path needs.",
     technologies: [
@@ -135,12 +135,12 @@ export const playGames: PlayGame[] = [
     chapterLabel:
       drillChapterMeta("cascade")?.chapterLabel ?? "Ch.4 · Cascading failure",
     takeaway:
-      "Isolate failure domains first. A circuit without a bulkhead still shares the blast radius.",
+      "Failing a call quickly returns the worker. It does not, by itself, stop that dependency from using the same pool as the rest of checkout.",
     preview: {
       primary: { label: "Checkout ok", value: "41%", tone: "bad" },
       secondary: { label: "Cascade risk", value: "0.86", tone: "bad" },
       spark: [0.2, 0.35, 0.55, 0.78, 0.92, 0.88, 0.7, 0.55],
-      caption: "Auth open · shared pool contagion",
+      caption: "Auth slows. The edge waits with it.",
     },
   },
   {
