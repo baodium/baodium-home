@@ -157,7 +157,7 @@ export function BookSection() {
                   </Magnetic>
                   <Link
                     href="/system-design/experience"
-                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/90 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/70"
                   >
                     Labs
                   </Link>
@@ -165,7 +165,7 @@ export function BookSection() {
                     href={book.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/90 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/70"
                   >
                     Amazon
                     <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />

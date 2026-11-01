@@ -239,7 +239,7 @@ function PathCard({
         <div>
           <p className="font-mono text-[0.68rem] uppercase tracking-[0.06em] text-[color:var(--exp-faint)]">p50</p>
           <p className="font-mono text-sm tabular-nums text-[color:var(--exp-fg)]">
-            {count ? `${p50.toFixed(0)} ms` : "—"}
+            {count ? `${p50.toFixed(0)} ms` : "none"}
           </p>
         </div>
         <div>
@@ -249,7 +249,7 @@ function PathCard({
               accent ? "text-[color:var(--exp-accent-text)]" : "text-[color:var(--exp-fg)]"
             }`}
           >
-            {count ? `${p99.toFixed(0)} ms` : "—"}
+            {count ? `${p99.toFixed(0)} ms` : "none"}
           </p>
         </div>
       </div>

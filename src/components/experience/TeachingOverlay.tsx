@@ -65,9 +65,9 @@ export function TeachingOverlay({
                 {live.goodLooksLike}
               </p>
             </div>
-          ) : (
+          ) : lesson.eyebrow ? (
             <p className="exp-kicker">{lesson.eyebrow}</p>
-          )}
+          ) : null}
 
           <h2 className="font-serif text-[1.15rem] leading-snug tracking-[-0.02em] text-[color:var(--exp-fg)] sm:text-xl">
             {lesson.title}

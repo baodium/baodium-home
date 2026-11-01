@@ -141,7 +141,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               initial={reduce ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 1.15, ease }}
-              className="mt-4 max-w-[28rem] text-[clamp(0.95rem,min(1.45vw,2.4vh),1.18rem)] leading-relaxed text-cream/68 lg:mt-6"
+              className="mt-4 max-w-[28rem] text-[clamp(0.95rem,min(1.45vw,2.4vh),1.18rem)] leading-relaxed text-cream/90 lg:mt-6"
             >
               Products, a system-design book, and labs that let you operate
               the failures the chapters explain.
@@ -168,7 +168,7 @@ export function HeroScene({ hasVideo }: { hasVideo: boolean }) {
               </Magnetic>
               <Link
                 href="/system-design/experience/chapter-1"
-                className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/75 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/90 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/70"
               >
                 Chapter 1 lab
               </Link>

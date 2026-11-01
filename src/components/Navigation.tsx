@@ -143,7 +143,7 @@ export function Navigation() {
         </Link>
 
         <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center text-[0.84rem] text-cream/65">
+          <ul className="flex items-center text-[0.84rem] text-cream/88">
             {links.map((link) => (
               <li key={link.id} className="relative">
                 {active === link.id ? (
@@ -217,7 +217,7 @@ export function Navigation() {
                     }`}
                   >
                     {link.label}
-                    <span className="font-mono text-xs text-cream/55">0{index + 1}</span>
+                    <span className="font-mono text-xs text-cream/80">0{index + 1}</span>
                   </Link>
                 </motion.li>
               ))}

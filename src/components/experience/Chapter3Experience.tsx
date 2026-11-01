@@ -442,7 +442,7 @@ function ControlsPanel({
             <span className="tabular-nums text-[color:var(--exp-faint)]">{read.controls.providerMs} ms</span>
           </span>
           {locked ? (
-            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this wave.</p>
+            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this run.</p>
           ) : (
             <input
               className="mt-2 w-full"
@@ -465,7 +465,7 @@ function ControlsPanel({
             <span className="tabular-nums text-[color:var(--exp-faint)]">{read.controls.timeoutMs} ms</span>
           </span>
           {locked ? (
-            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this wave.</p>
+            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this run.</p>
           ) : (
             <input
               className="mt-2 w-full"

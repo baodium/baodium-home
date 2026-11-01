@@ -87,7 +87,7 @@ export function SloWavesViz({
             Lookups and acquire headroom
           </p>
           <p className="mt-1 text-sm text-[color:var(--drill-muted)]">
-            Wave {liveWave} of 3. The upper line is lookups. The lower band is how far acquire wait is from the 600 ms incident.
+            The first 16 seconds are 400 lookups a second. After that the burst is about 1.7 times that rate. The upper line is lookups. The lower band is how far acquire wait is from the 600 ms incident.
           </p>
         </div>
         <p className="font-mono text-[0.72rem] tabular-nums text-[color:var(--drill-fg)]">
@@ -111,18 +111,12 @@ export function SloWavesViz({
             strokeDasharray="3 4"
           />
         ))}
-        {WAVE_ENDS.map((end, i) => (
-          <text
-            key={`w${end}`}
-            x={paths.x(end - 8)}
-            y={14}
-            fill={liveWave === i + 1 ? "var(--drill-fg)" : "var(--drill-faint)"}
-            fontSize="10"
-            fontFamily="ui-monospace, monospace"
-          >
-            W{i + 1}
-          </text>
-        ))}
+        <text x={paths.x(8)} y={14} fill="var(--drill-fg)" fontSize="10" fontFamily="ui-monospace, monospace">
+          estimate
+        </text>
+        <text x={paths.x(32)} y={14} fill={liveWave > 1 ? "var(--drill-fg)" : "var(--drill-faint)"} fontSize="10" fontFamily="ui-monospace, monospace">
+          burst
+        </text>
         <path d={paths.budgetArea} fill="var(--drill-accent)" fillOpacity={0.16} />
         <path
           d={paths.budget}

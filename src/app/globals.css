@@ -21,8 +21,8 @@
   --signal: #6b9e9a;
   /* Play/lab light tokens (portaled tips inherit from :root) */
   --drill-fg: #1a2330;
-  --drill-muted: #5b6778;
-  --drill-faint: #5f6d7e;
+  --drill-muted: #3a4656;
+  --drill-faint: #3e4c5e;
   --drill-kicker: #1f5f64;
   --drill-accent-text: #8d3e2b;
   --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
@@ -267,7 +267,7 @@ html {
 
 /* Play section live cue */
 .play-cue-ring {
-  animation: play-cue 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  display: none;
 }
 
 @keyframes play-cue {
@@ -393,19 +393,12 @@ html {
 
 @keyframes signal-scan {
   0% {
-    transform: translateX(-30%) scaleX(0.4);
-    opacity: 0;
-  }
-  12% {
-    opacity: 0.7;
-  }
-  55% {
-    transform: translateX(80%) scaleX(1);
-    opacity: 0.35;
+    transform: translateX(-30%);
+    opacity: 0.55;
   }
   100% {
-    transform: translateX(130%) scaleX(0.5);
-    opacity: 0;
+    transform: translateX(130%);
+    opacity: 0.55;
   }
 }
 
@@ -1168,8 +1161,8 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 /* ——— Play drills — light airy stage (not ember brown) ——— */
 .drill-stage {
   --drill-fg: #1a2330;
-  --drill-muted: #5b6778;
-  --drill-faint: #5f6d7e;
+  --drill-muted: #3a4656;
+  --drill-faint: #3e4c5e;
   --drill-kicker: #1f5f64;
   --drill-accent-text: #8d3e2b;
   --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
@@ -1192,8 +1185,8 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 @media (prefers-color-scheme: dark) {
   .drill-stage {
     --drill-fg: #e8edf4;
-    --drill-muted: #9aa6b8;
-    --drill-faint: #8e9aab;
+    --drill-muted: #d2dae4;
+    --drill-faint: #c3cedc;
     --drill-kicker: #7dbebf;
     --drill-accent-text: #f0b2a2;
     --drill-line: color-mix(in srgb, #e8edf4 12%, transparent);
@@ -1397,8 +1390,8 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 /* ——— Shared learning tokens (editorial + engineering console) ——— */
 .learn-root {
   --learn-fg: #1a2330;
-  --learn-muted: #5b6778;
-  --learn-faint: #5f6d7e;
+  --learn-muted: #3a4656;
+  --learn-faint: #3e4c5e;
   --learn-line: color-mix(in srgb, #1a2330 10%, transparent);
   --learn-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
   --learn-panel: color-mix(in srgb, #ffffff 92%, #eef3f7 8%);
@@ -1636,7 +1629,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .arch-node-detail {
   margin-top: 2px;
-  color: var(--learn-muted, #5b6778);
+  color: var(--learn-muted, #3a4656);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   line-height: 1.3;
@@ -1694,7 +1687,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .arch-edge-pill text {
-  fill: var(--learn-muted, #5b6778);
+  fill: var(--learn-muted, #3a4656);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10px;
   letter-spacing: 0.02em;
@@ -1787,8 +1780,8 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 @media (prefers-color-scheme: dark) {
   .learn-root {
     --learn-fg: #e8edf4;
-    --learn-muted: #9aa6b8;
-    --learn-faint: #8e9aab;
+    --learn-muted: #d2dae4;
+    --learn-faint: #c3cedc;
     --learn-line: color-mix(in srgb, #e8edf4 12%, transparent);
     --learn-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
     --learn-panel: #12151a;
@@ -1799,8 +1792,8 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 /* ——— System Design experience lab (light airy — not brown desk) ——— */
 .exp-root {
   --exp-fg: var(--learn-fg, #1a2330);
-  --exp-muted: var(--learn-muted, #5b6778);
-  --exp-faint: var(--learn-faint, #5f6d7e);
+  --exp-muted: var(--learn-muted, #3a4656);
+  --exp-faint: var(--learn-faint, #3e4c5e);
   --exp-kicker: #1f5f64;
   --exp-amber-text: #1f5f64;
   --exp-on-fg: #f4f7fa;
@@ -1828,7 +1821,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   .exp-root {
     --exp-fg: #e8edf4;
     --exp-muted: #b4c0d0;
-    --exp-faint: #8e9aab;
+    --exp-faint: #c3cedc;
     --exp-kicker: #7dbebf;
     --exp-amber-text: #8fd0d0;
     --exp-on-fg: #12151a;
@@ -2060,7 +2053,6 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .exp-flow-path {
   stroke-dasharray: 6 6;
-  animation: exp-flow-dash 1.1s linear infinite;
 }
 
 .exp-demand-fill {
@@ -2077,7 +2069,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   /* Paper mock of the product page. Ink stays dark in both color schemes. */
   --exp-fg: #1a2330;
   --exp-muted: #3d4b5c;
-  --exp-faint: #5f6d7e;
+  --exp-faint: #3e4c5e;
   --exp-kicker: #8a3f2c;
   border: 1px solid color-mix(in srgb, #1a2330 16%, #ffffff);
   border-radius: 0.9rem;
@@ -2136,7 +2128,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .exp-ops-pulse {
-  animation: exp-ops-pulse 2.4s ease-in-out infinite;
+  opacity: 1;
 }
 
 @keyframes exp-ops-pulse {
@@ -2344,7 +2336,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .seg {
   --seg-fg: var(--exp-fg, var(--drill-fg, #1a2330));
-  --seg-muted: var(--exp-muted, var(--drill-muted, #5b6778));
+  --seg-muted: var(--exp-muted, var(--drill-muted, #3a4656));
   --seg-line: var(--exp-line, var(--drill-line, rgba(26, 35, 48, 0.1)));
   --seg-panel: var(--exp-panel-raise, var(--drill-panel, #fff));
   --seg-track: var(--exp-panel, var(--drill-panel, #fff));

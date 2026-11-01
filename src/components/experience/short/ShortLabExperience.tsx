@@ -178,7 +178,7 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
                 data-challenge={snap.challengePassed ? "pass" : "open"}
               >
                 <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">
-                  {snap.challengePassed ? "This wave meets the objective." : "The wave is still open."}
+                  {snap.challengePassed ? "This run meets the objective." : "This run has not met the objective yet."}
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">{lab.challengeSuccess}</p>
                 <p className="mt-2 font-mono text-[0.78rem] tabular-nums text-[color:var(--exp-fg)]">{snap.challengeDetail}</p>

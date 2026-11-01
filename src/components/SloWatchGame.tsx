@@ -434,16 +434,17 @@ export function SloWatchGame({
     ],
   );
 
+  const stageName = snap.t < 16 ? "Estimate" : "Burst";
   const statusLabel =
     phase === "intro"
       ? "Ready"
       : phase === "running"
         ? paused
-          ? `Paused · Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
-          : `Wave ${snap.wave} · ${snap.t.toFixed(1)}s`
+          ? `Paused · ${stageName} · ${snap.t.toFixed(1)}s`
+          : `${stageName} · ${snap.t.toFixed(1)}s`
         : phase === "won"
-          ? "Held"
-          : "Breached";
+          ? "Pending finished"
+          : "Still pending";
 
   const controlsProps = {
     controls,

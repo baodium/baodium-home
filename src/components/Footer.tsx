@@ -40,7 +40,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="group inline-flex min-h-10 items-center gap-1.5 text-cream/70 transition-colors hover:text-cream"
+                        className="group inline-flex min-h-10 items-center gap-1.5 text-cream/88 transition-colors hover:text-cream"
                         {...(external
                           ? { target: "_blank", rel: "noopener noreferrer" }
                           : {})}
@@ -79,7 +79,7 @@ export function Footer() {
             <p>© {year} Baodium</p>
             <a
               href="#main"
-              className="group inline-flex min-h-10 items-center gap-2 text-cream/70 transition-colors hover:text-cream"
+              className="group inline-flex min-h-10 items-center gap-2 text-cream/88 transition-colors hover:text-cream"
             >
               Back to top
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 transition-colors group-hover:border-transparent group-hover:bg-cream group-hover:text-ink">

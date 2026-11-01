@@ -77,7 +77,7 @@ export function DrillPreview({
       />
 
       <p
-        className={`font-mono ${titleSize} uppercase tracking-[0.14em] text-[color:var(--drill-muted,#5b6778)]`}
+        className={`font-mono ${titleSize} uppercase tracking-[0.14em] text-[color:var(--drill-muted,#3a4656)]`}
       >
         {preview.caption}
       </p>
@@ -107,7 +107,7 @@ function Metric({
   return (
     <div className={emphasize ? "min-w-0 flex-1" : "min-w-0 shrink-0 text-right"}>
       <p
-        className={`font-mono ${titleSize} uppercase tracking-[0.14em] text-[color:var(--drill-muted,#5b6778)]`}
+        className={`font-mono ${titleSize} uppercase tracking-[0.14em] text-[color:var(--drill-muted,#3a4656)]`}
       >
         {label}
       </p>
