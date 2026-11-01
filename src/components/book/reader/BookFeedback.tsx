@@ -111,7 +111,7 @@ export function BookFeedback({
             {copied ? "Link copied" : "Share"}
           </button>
         </div>
-        <p className="mt-4 text-[0.7rem] leading-relaxed text-[color-mix(in_srgb,var(--reader-muted)_88%,transparent)]">
+        <p className="mt-4 text-[0.8rem] leading-relaxed text-[var(--reader-muted)]">
           ⌘/Ctrl K to search
         </p>
       </div>

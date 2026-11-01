@@ -98,7 +98,7 @@ function Metric({ label, value, hot }: { label: string; value: string; hot?: boo
       </dt>
       <dd
         className={`mt-1 font-mono text-sm tabular-nums ${
-          hot ? "text-[color:var(--exp-accent)]" : "text-[color:var(--exp-fg)]"
+          hot ? "text-[color:var(--exp-accent-text)]" : "text-[color:var(--exp-fg)]"
         }`}
       >
         {value}

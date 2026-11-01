@@ -74,7 +74,7 @@ export function CacheHeatmapViz({
     <div className="overflow-hidden rounded-2xl border border-[color:var(--drill-line)] bg-[color:var(--drill-panel)]">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[color:var(--drill-line)] px-4 py-3 sm:px-5">
         <div>
-          <p className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-[color:var(--drill-faint)]">
+          <p className="font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)]">
             Heatmap · TTL · singleflight
           </p>
           <p className="mt-1 text-sm text-[color:var(--drill-muted)]">
@@ -140,7 +140,7 @@ export function CacheHeatmapViz({
           </div>
 
           <div className="rounded-xl border border-[color:var(--drill-line)] bg-[color:var(--drill-panel-soft)] p-3">
-            <p className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)]">
+            <p className="font-mono text-[0.72rem] uppercase tracking-[0.1em] text-[color:var(--drill-faint)]">
               Fill window
             </p>
             {filling ? (

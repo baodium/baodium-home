@@ -19,7 +19,7 @@ export function ReturnToReading() {
       : "Return to chapter";
 
   return (
-    <div className="border-b border-[color:var(--learn-line,var(--exp-line))] bg-[color-mix(in_srgb,#fff_70%,transparent)]">
+    <div className="border-b border-[color:var(--learn-line,var(--exp-line))] bg-[color:var(--exp-panel)]">
       <div className="mx-auto flex w-full max-w-[88rem] items-center px-4 py-2 sm:px-6">
         <Link
           href={returnPath}

@@ -126,7 +126,7 @@ export function DrillTip({
         {showMark ? (
           <span
             aria-hidden="true"
-            className="drill-tip-btn inline-flex size-[1.05rem] shrink-0 items-center justify-center rounded-full border border-[color:var(--drill-line-strong)] font-mono text-[0.58rem] leading-none text-[color:var(--drill-muted)]"
+            className="drill-tip-btn inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-[color:var(--drill-line-strong)] font-mono text-[0.72rem] leading-none text-[color:var(--drill-fg)]"
           >
             ?
           </span>

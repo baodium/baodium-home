@@ -45,7 +45,7 @@ export function TeachingOverlay({
         <div className="relative">
           {live ? (
             <div
-              className="mb-4 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_62%,transparent)] px-3 py-2.5"
+              className="mb-4 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-chip)] px-3 py-2.5"
               data-tone={live.tone === "warn" ? "warn" : undefined}
             >
               <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export function TeachingOverlay({
             ) : null}
             <p className="text-[color:var(--exp-muted)]">{lesson.why}</p>
             {lesson.next && !compactTry ? (
-              <p className="text-[color:var(--exp-amber)]">{lesson.next}</p>
+              <p className="text-[color:var(--exp-amber-text)]">{lesson.next}</p>
             ) : null}
             {lesson.prod ? (
               <details className="group/prod">

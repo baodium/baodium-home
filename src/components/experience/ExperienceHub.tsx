@@ -61,13 +61,13 @@ export function ExperienceHub() {
               <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[color:var(--exp-faint)]">
                 Start here · {featured.durationMin} min
               </p>
-              <h2 className="mt-2 font-serif text-[clamp(1.6rem,3vw,2.2rem)] leading-tight text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent)]">
+              <h2 className="mt-2 font-serif text-[clamp(1.6rem,3vw,2.2rem)] leading-tight text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent-text)]">
                 {featured.title}
               </h2>
               <p className="mt-3 max-w-xl text-[1.02rem] leading-relaxed text-[color:var(--exp-muted)]">
                 {featured.subtitle}
               </p>
-              <p className="mt-5 inline-flex items-center gap-2 text-[0.95rem] text-[color:var(--exp-accent)]">
+              <p className="mt-5 inline-flex items-center gap-2 text-[0.95rem] text-[color:var(--exp-accent-text)]">
                 Open Chapter 1
                 <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
                   →
@@ -101,7 +101,7 @@ export function ExperienceHub() {
                   {String(chapter.number).padStart(2, "0")}
                 </span>
                 <span className="min-w-0">
-                  <span className="block font-serif text-xl text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent)]">
+                  <span className="block font-serif text-xl text-[color:var(--exp-fg)] transition-colors group-hover:text-[color:var(--exp-accent-text)]">
                     {chapter.title}
                   </span>
                   <span className="mt-1 block text-sm leading-relaxed text-[color:var(--exp-muted)]">

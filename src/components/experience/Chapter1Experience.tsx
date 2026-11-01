@@ -543,7 +543,7 @@ export function Chapter1Experience() {
         </motion.h1>
         {scenario.meta.subtitle ? (
           <motion.p
-            className="mt-2 font-serif text-[1.05rem] italic leading-snug text-[color:var(--exp-amber)] sm:text-[1.12rem]"
+            className="mt-2 font-serif text-[1.05rem] italic leading-snug text-[color:var(--exp-amber-text)] sm:text-[1.12rem]"
             initial={reduced ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.08, ease }}
@@ -658,7 +658,7 @@ export function Chapter1Experience() {
                   </p>
 
                   {stepDef.prediction && !predictionAnswered ? (
-                    <div className="mt-4 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] p-3">
+                    <div className="mt-4 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-chip)] p-3">
                       <p className="text-sm text-[color:var(--exp-fg)]">{stepDef.prediction}</p>
                       <button
                         type="button"
@@ -679,7 +679,7 @@ export function Chapter1Experience() {
                   ) : null}
 
                   {stepDef.prediction && predictionAnswered && stepId === "saturation" ? (
-                    <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_55%,transparent)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                    <p className="mt-3 rounded-xl border border-[color:var(--exp-line)] bg-[color:var(--exp-chip)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--exp-muted)]">
                       <span className="text-[color:var(--exp-fg)]">Expected answer: </span>
                       Disable stops <em>new</em> calls into Recommendation; in-flight busy slots
                       keep their connections until release. pool.pending drains as those holds
@@ -797,7 +797,7 @@ export function Chapter1Experience() {
                             key={label}
                             className="flex items-baseline justify-between gap-2 rounded-lg border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] px-3 py-2"
                           >
-                            <span className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                            <span className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-[color:var(--exp-faint)]">
                               {label}
                             </span>
                             <span className="tabular-nums text-[color:var(--exp-fg)]">{value}</span>
@@ -892,8 +892,8 @@ export function Chapter1Experience() {
                       <p
                         className={`text-sm leading-relaxed ${
                           challengeStatus === "passed"
-                            ? "text-[color:var(--exp-amber)]"
-                            : "text-[color:var(--exp-accent)]"
+                            ? "text-[color:var(--exp-amber-text)]"
+                            : "text-[color:var(--exp-accent-text)]"
                         }`}
                       >
                         {challengeStatusCopy(challengeStatus)}
@@ -1060,7 +1060,7 @@ export function Chapter1Experience() {
 
                   <Link
                     href={scenario.meta.bookHref}
-                    className="mt-4 inline-flex text-sm text-[color:var(--exp-amber)] underline-offset-4 hover:underline"
+                    className="mt-4 inline-flex text-sm text-[color:var(--exp-amber-text)] underline-offset-4 hover:underline"
                   >
                     Read Chapter 1 in the book →
                   </Link>

@@ -142,7 +142,7 @@ export function LivePathSection() {
                 <p className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-amber/85">
                   Live path
                 </p>
-                <p className="font-mono text-[0.62rem] tracking-[0.08em] text-cream/45">
+                <p className="font-mono text-[0.72rem] tracking-[0.06em] text-cream/78">
                   40-conn pool
                 </p>
               </div>
@@ -169,7 +169,7 @@ export function LivePathSection() {
                               : "rgba(245,239,229,0.04)",
                           }}
                           transition={{ duration: reduce ? 0 : 0.45, ease }}
-                          className="flex h-10 w-full items-center justify-center rounded-lg border px-0.5 text-center font-mono text-[0.58rem] uppercase tracking-[0.06em] text-cream/80 sm:h-11 sm:text-[0.62rem]"
+                          className="flex h-11 w-full items-center justify-center rounded-lg border px-0.5 text-center font-mono text-[0.68rem] uppercase tracking-[0.04em] text-cream/90 sm:h-12 sm:text-[0.72rem]"
                         >
                           {node.label}
                         </motion.span>
@@ -213,7 +213,7 @@ export function LivePathSection() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={reduce ? undefined : { opacity: 0, y: -4 }}
                     transition={{ duration: reduce ? 0 : 0.35, ease }}
-                    className="mt-4 min-h-[2.6rem] text-[0.92rem] leading-snug text-cream/68"
+                    className="mt-4 min-h-[2.6rem] text-[0.95rem] leading-snug text-cream/88"
                   >
                     {phase.note}
                   </motion.p>
@@ -238,7 +238,7 @@ function Metric({
 }) {
   return (
     <div className="rounded-lg border border-cream/10 bg-cream/[0.04] px-2.5 py-2.5 sm:px-3">
-      <p className="font-mono text-[0.55rem] uppercase tracking-[0.14em] text-cream/45">
+      <p className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-cream/78">
         {label}
       </p>
       <p

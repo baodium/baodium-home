@@ -119,7 +119,7 @@ export function OpsMetricsPanel({
           className={`mt-4 rounded-xl border px-3 py-2.5 ${
             snap.slo.breached
               ? "border-[color-mix(in_srgb,var(--exp-accent)_35%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_8%,transparent)]"
-              : "border-[color:var(--exp-line)] bg-[color-mix(in_srgb,#fff_50%,transparent)]"
+              : "border-[color:var(--exp-line)] bg-[color:var(--exp-chip)]"
           }`}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -129,7 +129,7 @@ export function OpsMetricsPanel({
             <p
               className={`font-mono text-sm tabular-nums ${
                 snap.slo.breached
-                  ? "text-[color:var(--exp-accent)]"
+                  ? "text-[color:var(--exp-accent-text)]"
                   : "text-[color:var(--exp-fg)]"
               }`}
             >
@@ -199,14 +199,14 @@ function Gauge({
       </p>
       <p
         className={`instrument-value instrument-value-sm mt-2 ${
-          hot ? "text-[color:var(--exp-accent)]" : "text-[color:var(--exp-fg)]"
+          hot ? "text-[color:var(--exp-accent-text)]" : "text-[color:var(--exp-fg)]"
         }`}
       >
         {value}
         <span className="ml-1 text-[0.6rem] text-[color:var(--exp-faint)]">{hint}</span>
       </p>
       {hot && good ? (
-        <p className="mt-1.5 line-clamp-1 text-[0.62rem] leading-snug text-[color:var(--exp-accent)]">
+        <p className="mt-1.5 line-clamp-1 text-[0.62rem] leading-snug text-[color:var(--exp-accent-text)]">
           {good}
         </p>
       ) : null}
@@ -245,16 +245,16 @@ function PathCard({
       </p>
       <div className="mt-2 flex gap-4">
         <div>
-          <p className="font-mono text-[0.55rem] uppercase text-[color:var(--exp-faint)]">p50</p>
+          <p className="font-mono text-[0.68rem] uppercase tracking-[0.06em] text-[color:var(--exp-faint)]">p50</p>
           <p className="font-mono text-sm tabular-nums text-[color:var(--exp-fg)]">
             {count ? `${p50.toFixed(0)} ms` : "—"}
           </p>
         </div>
         <div>
-          <p className="font-mono text-[0.55rem] uppercase text-[color:var(--exp-faint)]">p99</p>
+          <p className="font-mono text-[0.68rem] uppercase tracking-[0.06em] text-[color:var(--exp-faint)]">p99</p>
           <p
             className={`font-mono text-sm tabular-nums ${
-              accent ? "text-[color:var(--exp-accent)]" : "text-[color:var(--exp-fg)]"
+              accent ? "text-[color:var(--exp-accent-text)]" : "text-[color:var(--exp-fg)]"
             }`}
           >
             {count ? `${p99.toFixed(0)} ms` : "—"}
