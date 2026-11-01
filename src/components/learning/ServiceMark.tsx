@@ -84,7 +84,8 @@ export type ServiceShape =
   | "rack"
   | "stack"
   | "lane"
-  | "tray";
+  | "tray"
+  | "tower";
 
 /** Silhouette for the node frame. A database is not a gateway, and a pool is not a service card. */
 export function shapeForMark(id: ServiceMarkId): ServiceShape {
@@ -97,8 +98,9 @@ export function shapeForMark(id: ServiceMarkId): ServiceShape {
     case "db":
     case "primary":
     case "replica":
-    case "origin":
       return "cylinder";
+    case "origin":
+      return "tower";
     case "pool":
       return "rack";
     case "cache":
@@ -153,7 +155,7 @@ function Glyph({ children }: { children: ReactNode }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

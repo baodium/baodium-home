@@ -42,7 +42,8 @@ export function FlowServiceNodeView({ data }: NodeProps<FlowServiceNode>) {
   const mark = markForLabel(data.label);
   const shape = shapeForMark(mark);
   const kind = kindForMark(mark);
-  const showKind = kind.toLowerCase() !== data.label.trim().toLowerCase();
+  const showKind =
+    kind !== "Service" && kind.toLowerCase() !== data.label.trim().toLowerCase();
   const meter =
     data.meter == null || !Number.isFinite(data.meter)
       ? null
@@ -58,7 +59,7 @@ export function FlowServiceNodeView({ data }: NodeProps<FlowServiceNode>) {
       {data.target === "top" ? (
         <Handle type="target" position={Position.Top} id="in" className="service-handle" isConnectable={false} />
       ) : null}
-      <div className="arch-node-badge" aria-hidden="true">
+      <div className="arch-glyph" aria-hidden="true">
         <ServiceMark label={data.label} />
       </div>
       <div className="arch-node-copy">
@@ -249,9 +250,9 @@ export function FitGraph({ reducedMotion }: { reducedMotion: boolean }) {
           return;
         }
         did.current = true;
-        const viewport = getViewportForBounds(bounds, width, height, minZoom, maxZoom, 0.18);
+        const viewport = getViewportForBounds(bounds, width, height, minZoom, maxZoom, 0.1);
         if (panZoom) {
-          void fitBounds(bounds, { padding: 0.18, duration: reducedMotion ? 0 : 0 });
+          void fitBounds(bounds, { padding: 0.1, duration: reducedMotion ? 0 : 0 });
         }
         store.setState({ transform: [viewport.x, viewport.y, viewport.zoom] });
         if (viewportEl instanceof HTMLElement) {

@@ -11,6 +11,7 @@ import {
   subscribeDirectory,
   type DirectoryMark,
 } from "@/lib/learning/directory-progress";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { CHAPTERS, directoryStatus, labActionLabel, type ChapterRecord } from "@/lib/learning/registry";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -63,10 +64,11 @@ export function ExperienceHub() {
         </motion.div>
       ) : null}
 
-      <ol className="mt-6 divide-y divide-[color:var(--exp-line)] border-y border-[color:var(--exp-line)]">
+      <ol className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {rest.map((chapter, index) => (
           <motion.li
             key={chapter.id}
+            className="h-full"
             initial={reduced ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduced ? 0 : 0.4, delay: reduced ? 0 : Math.min(index, 8) * 0.03, ease }}
@@ -99,15 +101,22 @@ function ChapterCard({
     </Link>
   );
 
+  const plate = (
+    <ChapterPlate
+      chapter={chapter.slug}
+      priority={featured}
+      sizes={featured ? "(min-width: 768px) 52vw, 100vw" : "(min-width: 1280px) 30vw, (min-width: 640px) 46vw, 100vw"}
+      className={featured ? "min-h-[15rem] h-full w-full" : "aspect-[16/10] w-full"}
+    />
+  );
+
   if (featured) {
     return (
-      <div className="lift-card grid gap-6 border border-[color:var(--exp-line)] bg-[color:var(--exp-panel)] p-6 sm:p-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-10">
-        <p className="font-serif text-[clamp(3rem,6vw,4.5rem)] leading-none tracking-[-0.04em] text-[color:var(--exp-faint)]">
-          {String(chapter.number).padStart(2, "0")}
-        </p>
-        <div>
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[color:var(--exp-faint)]">
-            Start here · {status}
+      <article className="lift-card grid overflow-hidden border border-[color:var(--exp-line)] bg-[color:var(--exp-panel-raise)] md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+        {plate}
+        <div className="flex flex-col justify-center p-6 sm:p-8">
+          <p className="font-mono text-[0.78rem] text-[color:var(--exp-faint)]">
+            Chapter {String(chapter.number).padStart(2, "0")} · {status}
             {progress ? ` · ${progress}` : ""}
           </p>
           <h2 className="mt-2 font-serif text-[clamp(1.6rem,3vw,2.2rem)] leading-tight text-[color:var(--exp-fg)]">
@@ -126,38 +135,32 @@ function ChapterCard({
             </Link>
           ) : null}
         </div>
-      </div>
+      </article>
     );
   }
 
   return (
-    <div className="grid grid-cols-[3.2rem_minmax(0,1fr)] items-baseline gap-3 px-2 py-4 sm:grid-cols-[4rem_minmax(0,1fr)_auto] sm:gap-6 sm:py-5">
-      <span className="font-mono text-sm tabular-nums text-[color:var(--exp-faint)]">
-        {String(chapter.number).padStart(2, "0")}
-      </span>
-      <span className="min-w-0">
-        <span className="block font-serif text-xl text-[color:var(--exp-fg)]">{title}</span>
-        <span className="mt-1 block text-sm leading-relaxed text-[color:var(--exp-muted)]">{chapter.statusLine}</span>
-      </span>
-      <span className="col-start-2 flex flex-wrap items-center gap-3 sm:col-start-auto sm:justify-end">
-        {progress ? (
-          <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-            {progress}
-          </span>
-        ) : null}
+    <article className="lift-card flex h-full flex-col overflow-hidden border border-[color:var(--exp-line)] bg-[color:var(--exp-panel-raise)]">
+      {plate}
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <p className="font-mono text-[0.75rem] text-[color:var(--exp-faint)]">
+          Chapter {String(chapter.number).padStart(2, "0")}
+          {progress ? ` · ${progress}` : ""}
+        </p>
+        <h2 className="mt-2 font-serif text-[1.2rem] leading-snug text-[color:var(--exp-fg)]">{title}</h2>
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{chapter.statusLine}</p>
         {chapter.labHref && action ? (
           <Link
             href={chapter.labHref}
-            className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-accent-text)]"
+            className="mt-4 inline-flex items-center gap-2 text-sm text-[color:var(--exp-accent-text)]"
           >
-            {status}
+            {action}
+            <span aria-hidden="true">→</span>
           </Link>
         ) : (
-          <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-            {status}
-          </span>
+          <p className="mt-4 text-sm text-[color:var(--exp-faint)]">{status}</p>
         )}
-      </span>
-    </div>
+      </div>
+    </article>
   );
 }

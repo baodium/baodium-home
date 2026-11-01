@@ -62,7 +62,6 @@ export function RunningCode({
       {part === "all" ? (
         <header className="run-code-head">
           <h2>{program.title}</h2>
-          <p>The highlighted line is the one this run is on. The trace uses the same numbers as the metrics.</p>
         </header>
       ) : null}
       {showLines ? (
@@ -147,6 +146,7 @@ function EditToken({ edit, onEdit }: { edit: RunEdit; onEdit: (id: string, value
         type="button"
         className="run-token"
         aria-label={LABELS[edit.id] ?? edit.id}
+        title={LABELS[edit.id] ?? edit.id}
         aria-pressed={edit.value}
         disabled={edit.locked}
         onClick={(event) => {
@@ -162,6 +162,7 @@ function EditToken({ edit, onEdit }: { edit: RunEdit; onEdit: (id: string, value
     <select
       className="run-token"
       aria-label={LABELS[edit.id] ?? edit.id}
+      title={LABELS[edit.id] ?? edit.id}
       disabled={edit.locked}
       value={edit.value}
       onChange={(event) => onEdit(edit.id, event.target.value)}
@@ -194,6 +195,7 @@ function NumberToken({
     <input
       className="run-token"
       aria-label={LABELS[edit.id] ?? edit.id}
+      title={LABELS[edit.id] ?? edit.id}
       inputMode="decimal"
       disabled={edit.locked}
       size={Math.max(shown.length, 2)}

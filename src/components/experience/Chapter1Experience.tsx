@@ -33,6 +33,7 @@ import {
   type ChallengeStatus,
 } from "@/lib/experience/challenge";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { CodePanel } from "@/components/experience/CodePanel";
 import { chapter1Call } from "@/lib/experience/running-code";
 import { ConnectionPoolGrid } from "@/components/experience/ConnectionPoolGrid";
@@ -558,7 +559,8 @@ export function Chapter1Experience() {
           className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[#eef3f7]/80"
         />
       ) : null}
-      <header className="relative max-w-3xl">
+      <header className="relative flex flex-wrap items-end justify-between gap-5">
+        <div className="min-w-0 max-w-3xl flex-1">
         <motion.p
           className="exp-kicker"
           initial={reduced ? false : { opacity: 0, y: 8 }}
@@ -585,6 +587,12 @@ export function Chapter1Experience() {
             {scenario.meta.subtitle}
           </motion.p>
         ) : null}
+        </div>
+        <ChapterPlate
+          chapter={scenario.meta.number}
+          sizes="200px"
+          className="relative z-[1] hidden h-28 w-44 sm:block"
+        />
       </header>
 
       <div className="mt-6 space-y-4">

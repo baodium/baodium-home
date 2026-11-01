@@ -107,24 +107,13 @@ function line(spans: RunSpan[], runs: boolean, walk = false, select?: RunLine["s
 }
 
 function light(title: string, lines: RunLine[], trace: RunTrace[], elapsed: number, reduced: boolean): RunningProgram {
+  void elapsed;
+  void reduced;
   const walking = lines
     .map((entry, index) => (entry.walk && entry.runs ? index : -1))
     .filter((index) => index >= 0);
-  let hotLine = -1;
-  let walkPos = 0;
-  if (walking.length) {
-    walkPos = reduced ? walking.length - 1 : Math.floor(Math.max(0, elapsed) / 0.9) % walking.length;
-    hotLine = walking[walkPos] ?? -1;
-  }
-  const span = Math.max(walking.length - 1, 1);
-  const hotTrace =
-    trace.length === 0
-      ? -1
-      : reduced || walking.length <= 1
-        ? reduced
-          ? trace.length - 1
-          : 0
-        : Math.round((walkPos / span) * (trace.length - 1));
+  const hotLine = walking.length ? (walking[walking.length - 1] ?? -1) : -1;
+  const hotTrace = trace.length ? trace.length - 1 : -1;
   return { title, lines, trace, hotLine, hotTrace };
 }
 

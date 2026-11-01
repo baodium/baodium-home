@@ -11,6 +11,7 @@ import { controlsFor, getShortLab } from "@/lib/experience/short-labs/catalog";
 import type { ControlValues, LabControl, LabMode } from "@/lib/experience/short-labs/types";
 import { markChapterFinished, markChapterOpened } from "@/lib/learning/directory-progress";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { Segmented } from "@/components/ui/Segmented";
 
 const DT = 0.25;
@@ -105,7 +106,7 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
   return (
     <div className="relative mx-auto w-full max-w-[88rem] px-4 py-4 sm:px-6 sm:py-5" data-lab={lab.slug}>
       <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0 max-w-3xl">
+        <div className="min-w-0 max-w-3xl flex-1">
           <p className="exp-kicker">Labs / Chapter {lab.number}</p>
           <h1 className="mt-2 font-serif text-[clamp(1.85rem,4vw,2.7rem)] leading-[1.08] tracking-[-0.03em] text-[color:var(--exp-fg)]">
             {lab.h1}
@@ -114,6 +115,7 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
             {lab.gettingStarted}
           </p>
         </div>
+        <ChapterPlate chapter={lab.slug} sizes="200px" className="hidden h-28 w-44 sm:block" />
         <div className="flex flex-wrap items-center gap-2">
           <Segmented<LabMode>
             label="Lab mode"
