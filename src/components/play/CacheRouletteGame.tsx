@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { metadataProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
@@ -388,6 +390,21 @@ export function CacheRouletteGame() {
         }
         canvas={
           <>
+            <RunningCode
+              program={metadataProgram(
+                {
+                  readers: controls.readers,
+                  fresh: controls.fresh,
+                  singleflight: controls.singleflight,
+                  permit: controls.permit,
+                  origin: snap.inFlightMisses,
+                  unavailable: snap.waitingOnFill,
+                },
+                snap.t,
+                reduced,
+              )}
+              onEdit={(id, value) => setControls((current) => ({ ...current, [id]: value }))}
+            />
             <CacheHeatmapViz
               ttlSec={snap.ttlSec}
               singleflight={controls.singleflight}

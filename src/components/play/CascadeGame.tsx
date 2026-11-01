@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { fraudProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel } from "@/components/play/DrillTip";
@@ -398,6 +400,24 @@ export function CascadeGame() {
         }
         canvas={
           <>
+            <RunningCode
+              program={fraudProgram(
+                {
+                  providerMs: controls.providerMs,
+                  remainingMs: controls.remainingMs,
+                  reserveMs: controls.reserveMs,
+                  permit: controls.permit,
+                  cancel: controls.cancel,
+                  callerMs,
+                  orphanMs,
+                  childMs,
+                  admitted,
+                },
+                snap.t,
+                reduced,
+              )}
+              onEdit={(id, value) => setControls((current) => ({ ...current, [id]: value }))}
+            />
             <CascadeTopologyViz
               health={snap.health}
               circuitOpen={snap.circuitOpen}

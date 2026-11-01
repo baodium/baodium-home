@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { surgeProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
@@ -360,6 +362,17 @@ export function TrafficSurgeGame() {
         }
         canvas={
           <>
+            <RunningCode
+              program={surgeProgram({
+                admitPerSec: controls.admitPerSec,
+                arrivals: snap.arrivals,
+                p95: snap.p95,
+                rejectedPct: (1 - snap.successRate) * 100,
+                elapsed: snap.t,
+                reduced,
+              })}
+              onEdit={(id, value) => setControls((current) => ({ ...current, [id]: value }))}
+            />
             <AdmissionQueueViz
               stage={snap.arrivals}
               limit={controls.admitPerSec}

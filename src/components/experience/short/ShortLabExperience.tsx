@@ -5,6 +5,8 @@ import Link from "next/link";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { ConceptGraph } from "@/components/experience/short/ConceptGraph";
 import { ShortSeriesChart } from "@/components/experience/short/ShortSeriesChart";
+import { RunningCode } from "@/components/experience/RunningCode";
+import { buildLabProgram } from "@/lib/experience/running-code";
 import { controlsFor, getShortLab } from "@/lib/experience/short-labs/catalog";
 import type { ControlValues, LabControl, LabMode } from "@/lib/experience/short-labs/types";
 import { markChapterFinished, markChapterOpened } from "@/lib/learning/directory-progress";
@@ -157,12 +159,17 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
               </div>
               <ConceptGraph lab={lab} snap={snap} reducedMotion={reduced} />
             </div>
-            <section className="exp-panel">
-              <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">{lab.code.title}</h2>
-              <pre className="mt-3 overflow-x-auto font-mono text-[0.78rem] leading-relaxed text-[color:var(--exp-fg)]">
-                <code>{lab.code.source}</code>
-              </pre>
-            </section>
+            <RunningCode
+              program={buildLabProgram(
+                lab.slug,
+                controls,
+                snap.metrics,
+                snap.elapsedSec,
+                reduced,
+                mode === "challenge" ? Object.keys(lab.sim.challengeLocks) : [],
+              )}
+              onEdit={updateControl}
+            />
             <ShortSeriesChart
               title={lab.chart.title}
               caption={lab.chart.caption}

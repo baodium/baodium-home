@@ -34,6 +34,7 @@ import {
 } from "@/lib/experience/challenge";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import { CodePanel } from "@/components/experience/CodePanel";
+import { chapter1Call } from "@/lib/experience/running-code";
 import { ConnectionPoolGrid } from "@/components/experience/ConnectionPoolGrid";
 import { FeatureFlagPanel } from "@/components/experience/FeatureFlagPanel";
 import { GuidedProgress } from "@/components/experience/GuidedProgress";
@@ -1118,7 +1119,40 @@ export function Chapter1Experience() {
             {showProduct ? (
               <ProductPreview showRecs={showRecs} onToggle={onTogglePreview} />
             ) : null}
-            <CodePanel lines={scenario.codeLines} highlightLine={highlight} />
+            <CodePanel
+              lines={scenario.codeLines}
+              highlightLine={highlight}
+              program={
+                showFlag
+                  ? chapter1Call({
+                      exposurePct: snap.controls.exposurePct,
+                      flagOff: snap.controls.featureDisabledForNew || !snap.controls.featureEnabled,
+                      busy: snap.activeCount,
+                      pending: snap.waitingCount,
+                      acquireMs: snap.acquireWaitP99 * 1000,
+                      highlight,
+                      exposureLocked: !snap.controls.featureEnabled || snap.controls.featureDisabledForNew,
+                    })
+                  : undefined
+              }
+              onEdit={
+                showFlag
+                  ? (id, value) => {
+                      if (id === "exposurePct" && typeof value === "number") onExposure(value);
+                      if (id === "flagOff") {
+                        const off = value === true;
+                        setControls(engineRef.current, {
+                          featureEnabled: true,
+                          featureDisabledForNew: off,
+                        });
+                        setSimFrozen(engineRef.current, false);
+                        setRunning(true);
+                        sync();
+                      }
+                    }
+                  : undefined
+              }
+            />
             {showFlag ? (
               <FeatureFlagPanel
                 snap={snap}

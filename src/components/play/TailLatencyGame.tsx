@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { tailProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
@@ -361,6 +363,16 @@ export function TailLatencyGame() {
         }
         canvas={
           <>
+            <RunningCode
+              program={tailProgram({
+                lookupsPerSec: controls.lookupsPerSec,
+                queryMs: snap.p50,
+                p95: snap.p95,
+                elapsed: snap.t,
+                reduced,
+              })}
+              onEdit={(id, value) => setControls((current) => ({ ...current, [id]: value }))}
+            />
             <TailDistributionViz
               samples={snap.samples}
               queryMs={snap.p50}

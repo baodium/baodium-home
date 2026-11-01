@@ -10,7 +10,9 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { sloProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
@@ -578,6 +580,21 @@ export function SloWatchGame({
 
         <div className="mt-6 grid gap-6 lg:grid-cols-12">
           <div className="space-y-4 lg:col-span-7">
+            <RunningCode
+              program={sloProgram({
+                exposurePct: controls.exposurePct,
+                flagOff: controls.flagOff,
+                arrivals: snap.arrivals,
+                pending: snap.pending,
+                poolPct: snap.poolUtil * 100,
+                headroom: snap.errorBudget,
+                elapsed: snap.t,
+                reduced,
+              })}
+              onEdit={(id, value) =>
+                setControls((current) => ({ ...current, [id]: value }))
+              }
+            />
             <SloWavesViz
               series={series}
               duration={DURATION_S}
@@ -622,6 +639,21 @@ export function SloWatchGame({
         }
         canvas={
           <>
+            <RunningCode
+              program={sloProgram({
+                exposurePct: controls.exposurePct,
+                flagOff: controls.flagOff,
+                arrivals: snap.arrivals,
+                pending: snap.pending,
+                poolPct: snap.poolUtil * 100,
+                headroom: snap.errorBudget,
+                elapsed: snap.t,
+                reduced,
+              })}
+              onEdit={(id, value) =>
+                setControls((current) => ({ ...current, [id]: value }))
+              }
+            />
             <SloWavesViz
               series={series}
               duration={DURATION_S}

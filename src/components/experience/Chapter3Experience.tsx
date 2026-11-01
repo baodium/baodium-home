@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { IdempotencyGraph } from "@/components/experience/IdempotencyGraph";
 import { LabIntro } from "@/components/experience/LabIntro";
+import { RunningCode } from "@/components/experience/RunningCode";
+import { chapter3Program } from "@/lib/experience/running-code";
 import { SimControls } from "@/components/experience/SimControls";
 import { Segmented } from "@/components/ui/Segmented";
 import {
@@ -303,24 +305,29 @@ export function Chapter3Experience() {
         canvas={
           <>
             <IdempotencyGraph read={read} reducedMotion={reduced} />
-            <section className="exp-panel">
-              <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">
-                POST /v1/orders/4471/payment-authorizations
-              </h2>
-              <pre className="mt-3 overflow-x-auto font-mono text-[0.78rem] leading-relaxed text-[color:var(--exp-fg)]">
-                <code>{`POST /v1/orders/4471/payment-authorizations
-Idempotency-Key: checkout-4471-attempt-1
-{"payment_method_id":"pm_21"}
-
-HTTP/1.1 202 Accepted
-{"operation_id":"payop_783","status":"PENDING"}
-
-CREATE UNIQUE INDEX one_active_authorization_per_order
-ON payment_operations (order_id)
-WHERE operation_type = 'authorize'
-  AND status IN ('pending', 'reconciliation_pending', 'authorized');`}</code>
-              </pre>
-            </section>
+            <RunningCode
+              program={chapter3Program({
+                reuse: read.controls.reuseOperationId,
+                outbox: read.controls.outbox,
+                timeoutMs: read.controls.timeoutMs,
+                providerMs: read.controls.providerMs,
+                unique: read.uniqueCharges,
+                duplicate: read.duplicateCharges,
+                unresolved: read.unresolved,
+                lost: read.lostNotifications,
+                elapsed: read.checkoutsSent,
+                reduced,
+                lockTimes: mode === "challenge",
+              })}
+              onEdit={(id, value) => {
+                if (id === "reuseOperationId") setDecided(true);
+                apply((engine) =>
+                  setIdempotencyControls(engine, {
+                    [id]: value,
+                  }),
+                );
+              }}
+            />
             <section className="exp-panel" aria-label="Live metrics">
               <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">Live metrics</h2>
               <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{read.narration}</p>
