@@ -36,7 +36,9 @@ export function RequestPath({
             {c.featureDisabledForNew
               ? "New callers stay on Catalog"
               : flagLive
-                ? `Exposure ${c.exposurePct}%`
+                ? snap.flagPropagationRemainingSec > 0.02
+                  ? `Exposure ${c.exposurePct}% propagating`
+                  : `Exposure ${snap.appliedExposurePct}%`
                 : "Flag off"}
           </p>
         </div>

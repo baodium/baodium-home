@@ -56,6 +56,7 @@ function activeNode(snap: EngineSnapshot): ServiceNodeId {
     if (flagLive) return "product";
     return "client";
   }
+  if (tr.phase === "arriving") return tr.path === "recs" ? "recommendation" : "catalog";
   if (tr.phase === "waiting") return "pool";
   if (tr.phase === "holding") {
     if (tr.path === "recs") {
@@ -136,7 +137,7 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
       sourceHandle: edge.sourceHandle,
       targetHandle: edge.targetHandle,
       type: "smoothstep",
-      animated: hot,
+      animated: false,
       style: { stroke, strokeWidth: hot ? 2.25 : 1.4 },
       markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16, color: stroke },
     };

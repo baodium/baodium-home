@@ -36,7 +36,10 @@ export function selectPedagogyLesson(
       id: "disable-inflight",
       eyebrow: "What’s happening",
       title: "Disable drains; it does not kill",
-      seeing: `${snap.activeCount} busy slot${snap.activeCount === 1 ? "" : "s"} still hold in-flight recommendation work. New arrivals skip the extra lookup.`,
+      seeing:
+        snap.flagPropagationRemainingSec > 0.02
+          ? `${snap.activeCount} busy slots still hold in-flight recommendation work. The disable reaches new arrivals in ${snap.flagPropagationRemainingSec.toFixed(1)}s.`
+          : `${snap.activeCount} busy slot${snap.activeCount === 1 ? "" : "s"} still hold in-flight recommendation work. New arrivals skip the extra lookup.`,
       why: "Disable stops new demand on the shared pool. Holds already acquired keep their connection until release. Waiters clear as those finish.",
       next: "Watch busy drop toward baseline as releases free slots.",
       prod: "In prod: flip the flag OFF (or 0% exposure). Expect in-flight checkouts to finish; alert on pool.pending decaying, not instantly zeroing.",
@@ -190,7 +193,7 @@ export function selectPedagogyLesson(
       seeing:
         r.phase === "waiting"
           ? `${r.id} arrived when all ${snap.poolSize} connections were busy. it waits beside the grid.`
-          : `${r.id} acquired a connection${r.exposed ? " for the recommendation lookup" : " on the baseline path"}${r.cacheHit ? " (cache hit. Short hold)" : ""}.`,
+          : `${r.id} holds a Recommendation pool slot for the database lookup.`,
       why: "Correct code still consumes a shared resource. The highlight in the code panel is the line that owns the hold.",
       prod: "Instrument checkout→checkin as hold time. Query duration alone understates W.",
       tone: "insight",
@@ -215,8 +218,8 @@ export function selectPedagogyLesson(
       id: "partial-rollout",
       eyebrow: "What’s happening",
       title: "Partial cohort, shared pool",
-      seeing: `${controls.exposurePct}% of users take the longer hold; everyone still shares the same 40 connections.`,
-      why: `Even a minority path can dominate occupancy when W is larger. Here λ≈${littles.lambda.toFixed(0)}/s · W≈${(littles.W * 1000).toFixed(0)}ms → L≈${littles.L.toFixed(0)}.`,
+      seeing: `${controls.exposurePct}% of arrivals call Recommendation and share one ${snap.poolSize}-slot pool. Catalog traffic does not take a slot.`,
+      why: `A small exposed share can still fill the pool when the hold is long. Pool demand here is λ≈${littles.lambda.toFixed(0)}/s · W≈${(littles.W * 1000).toFixed(0)}ms → L≈${littles.L.toFixed(0)}.`,
       prod: "pool_floor ≈ ceil(λ × W × 1.25). Raising exposure raises effective W for the mix. Recalculate before 100%.",
       tone: "calm",
     };

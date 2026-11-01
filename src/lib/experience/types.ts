@@ -20,7 +20,16 @@ export type SimRequest = {
   doneTime: number | null;
   slotIndex: number | null;
   phase: RequestPhase;
-  /** Connection hold duration (seconds). */
+  /**
+   * Product Page / Catalog time (seconds). This leg never holds a pool slot.
+   */
+  callerSec: number;
+  /**
+   * Database hold on a Recommendation pool slot (seconds).
+   * Zero for baseline, shed, and cache hits.
+   */
+  poolHoldSec: number;
+  /** Alias of poolHoldSec so older readers still mean the pool hold, not caller time. */
   holdSec: number;
   /** Highlighted code line while active. */
   codeLine: number;
@@ -91,7 +100,10 @@ export type LittlesSnapshot = {
 export type LatencySample = {
   t: number;
   totalSec: number;
+  /** Product Page / Catalog time. Not a pool hold. */
+  callerSec: number;
   waitSec: number;
+  /** Recommendation pool / database hold. */
   holdSec: number;
   exposed: boolean;
   path: "baseline" | "recs";
@@ -146,6 +158,18 @@ export type EngineSnapshot = {
   tracedRequest: SimRequest | null;
   /** Mean occupancy demand λ×W — may exceed poolSize; activeCount never does. */
   demandOccupancy: number;
+  /** Recommendation lookups per second offered to the pool, before shed. */
+  offeredPoolRps: number;
+  /** Lookups per second that actually attempt acquire after shed. */
+  admittedPoolRps: number;
+  seed: number;
+  frozen: boolean;
+  /** Flag generation currently visible to new arrivals. */
+  appliedExposurePct: number;
+  appliedFeatureEnabled: boolean;
+  appliedFeatureDisabledForNew: boolean;
+  /** Seconds until a commanded flag change reaches new arrivals. */
+  flagPropagationRemainingSec: number;
 };
 
 /**

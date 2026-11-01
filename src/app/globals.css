@@ -1754,17 +1754,11 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .exp-progress-dot[data-active="true"] {
-  background: color-mix(in srgb, var(--exp-fg) 14%, transparent);
+  background: var(--exp-accent);
 }
 
 .exp-progress-dot[data-active="true"]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 55%;
-  border-radius: inherit;
-  background: var(--exp-accent);
-  animation: exp-progress-pulse 1.6s ease-in-out infinite;
+  content: none;
 }
 
 @keyframes exp-progress-pulse {

@@ -34,7 +34,7 @@ export function PredictionOutcome({
         Measured vs your prediction
       </p>
       <p className="mt-1.5 text-[color:var(--exp-fg)]">
-        λ ≈ {littles.lambda.toFixed(0)}/s · W ≈ {(littles.W * 1000).toFixed(0)} ms → L ≈{" "}
+        λ ≈ {littles.lambda.toFixed(0)} pool acquires/s · W ≈ {(littles.W * 1000).toFixed(0)} ms → L ≈{" "}
         <span className="font-mono tabular-nums">{demand.toFixed(0)}</span> vs pool{" "}
         {littles.poolSize}.{" "}
         {under

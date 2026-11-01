@@ -8,6 +8,7 @@ import {
   createEngine,
   injectSingleRequest,
   setControls,
+  setSimFrozen,
   snapshot,
   stepOnce,
   tick,
@@ -178,7 +179,10 @@ export function Chapter1Experience() {
     // Defer so the effect stays a subscription to snap ticks, not a sync render cascade.
     const id = window.setTimeout(() => {
       setChallengeStatus(next);
-      if (next === "passed" || next === "failed") setRunning(false);
+      if (next === "passed" || next === "failed") {
+        setSimFrozen(engineRef.current, true);
+        setRunning(false);
+      }
     }, 0);
     return () => window.clearTimeout(id);
   }, [snap, mode, challengeStatus, challengeStartT, scenario.challenge.criteria]);
@@ -203,6 +207,8 @@ export function Chapter1Experience() {
       arrivalRate: 40,
     });
     setDeployedZero(true);
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
     logAction("Deployed with flag ON at 0% exposure");
@@ -217,6 +223,8 @@ export function Chapter1Experience() {
     const req = injectSingleRequest(engineRef.current, { forceExposed: true });
     setTraced(true);
     setSelectedId(req.id);
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
     logAction(`Traced request ${req.id}`);
@@ -232,6 +240,8 @@ export function Chapter1Experience() {
       setControls(engineRef.current, { arrivalRate: 80 }, false);
     }
     engineRef.current.arrivalMultiplier = 1;
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
     logAction(`Exposure → ${pct}%`);
@@ -248,6 +258,8 @@ export function Chapter1Experience() {
       paused: false,
     });
     engineRef.current.arrivalMultiplier = 1;
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
     logAction("Pressure: ~550 req/s, full exposure, ~90ms rec holds");
@@ -322,7 +334,9 @@ export function Chapter1Experience() {
         exposurePct: Math.max(25, engineRef.current.controls.exposurePct),
         featureEnabled: true,
       });
-      setRunning(true);
+      setSimFrozen(engineRef.current, false);
+      setSimFrozen(engineRef.current, false);
+    setRunning(true);
     }
     setStepId(next);
     sync();
@@ -339,6 +353,8 @@ export function Chapter1Experience() {
       recLookupSec: 0.07,
       paused: false,
     });
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
   };
@@ -346,8 +362,7 @@ export function Chapter1Experience() {
   const enterChallenge = () => {
     setMode("challenge");
     stopLoop();
-    const seed = replaySeed + 31;
-    setReplaySeed(seed);
+    const seed = replaySeed;
     engineRef.current = createEngine(seed, {
       arrivalRate: 520,
       exposurePct: 100,
@@ -367,6 +382,8 @@ export function Chapter1Experience() {
     setDecision(null);
     setSelectedId(null);
     setFocusedReq(null);
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
     logAction("Challenge started under live pressure");
@@ -374,35 +391,40 @@ export function Chapter1Experience() {
 
   const onReplay = () => {
     stopLoop();
-    setRunning(false);
     if (mode === "challenge") {
       enterChallenge();
       return;
     }
-    const nextSeed = replaySeed + 17;
-    setReplaySeed(nextSeed);
-    engineRef.current = createEngine(nextSeed, {
+    setSimFrozen(engineRef.current, true);
+    setSimFrozen(engineRef.current, true);
+    setRunning(false);
+    engineRef.current = createEngine(replaySeed, {
       arrivalRate: mode === "practice" ? 100 : 0,
       featureEnabled: mode === "practice",
       exposurePct: mode === "practice" ? 25 : 0,
     });
+    setSimFrozen(engineRef.current, true);
     setSelectedId(null);
     setFocusedReq(null);
     setTraced(false);
     setSawWaiters(false);
-    logAction("Reset. Engine cleared");
+    logAction(`Replay from seed ${replaySeed}. Queue and clock restored.`);
     sync();
   };
 
   const onFullReset = () => {
     clearProgress();
     stopLoop();
+    setSimFrozen(engineRef.current, true);
+    setSimFrozen(engineRef.current, true);
     setRunning(false);
     engineRef.current = createEngine(42, {
       arrivalRate: 0,
       featureEnabled: false,
       exposurePct: 0,
     });
+    setSimFrozen(engineRef.current, true);
+    setReplaySeed(42);
     setStepId("inspect");
     setMode("guided");
     setShowRecs(false);
@@ -486,6 +508,8 @@ export function Chapter1Experience() {
     cacheHitRate?: number;
   }) => {
     setControls(engineRef.current, patch);
+    setSimFrozen(engineRef.current, false);
+    setSimFrozen(engineRef.current, false);
     setRunning(true);
     sync();
     const bits: string[] = [];
@@ -605,7 +629,16 @@ export function Chapter1Experience() {
             running={running}
             speed={speed}
             logicalTimeSec={snap.t}
-            onPlayPause={() => setRunning((r) => !r)}
+            seed={snap.seed}
+            onPlayPause={() => {
+              if (running) {
+                setSimFrozen(engineRef.current, true);
+                setRunning(false);
+              } else {
+                setSimFrozen(engineRef.current, false);
+                setRunning(true);
+              }
+            }}
             onStep={() => {
               stepOnce(engineRef.current);
               sync();
@@ -962,7 +995,8 @@ export function Chapter1Experience() {
                       type="button"
                       onClick={() => {
                         applyDecision("disable_feature");
-                        setRunning(true);
+                        setSimFrozen(engineRef.current, false);
+    setRunning(true);
                       }}
                       className="exp-btn exp-btn-ghost"
                     >
@@ -982,7 +1016,8 @@ export function Chapter1Experience() {
                           shedAtUtil: null,
                           cacheHitRate: 0,
                         });
-                        setRunning(true);
+                        setSimFrozen(engineRef.current, false);
+    setRunning(true);
                         sync();
                         logAction("Practice calm preset");
                       }}
@@ -1010,7 +1045,8 @@ export function Chapter1Experience() {
                           { arrivalRate: Number(e.target.value) },
                           false,
                         );
-                        setRunning(true);
+                        setSimFrozen(engineRef.current, false);
+    setRunning(true);
                         sync();
                       }}
                       className="mt-2 w-full accent-[color:var(--exp-accent)]"
@@ -1103,7 +1139,8 @@ export function Chapter1Experience() {
                       ? false
                       : engineRef.current.controls.featureDisabledForNew,
                   });
-                  setRunning(true);
+                  setSimFrozen(engineRef.current, false);
+    setRunning(true);
                   sync();
                   logAction(`Flag ${on ? "ON" : "OFF"}`);
                 }}

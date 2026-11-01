@@ -15,10 +15,9 @@ const SERIES = [
 ];
 
 function rowOf(sample: LatencySample): Row {
-  const total = sample.totalSec * 1000;
   const wait = Math.max(0, sample.waitSec * 1000);
   const hold = Math.max(0, sample.holdSec * 1000);
-  const caller = Math.max(0, total - wait - hold);
+  const caller = Math.max(0, sample.callerSec * 1000);
   return { caller, wait, hold };
 }
 

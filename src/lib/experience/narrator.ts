@@ -1,3 +1,4 @@
+import { readChapter1 } from "@/lib/experience/readout";
 import type { EngineSnapshot } from "@/lib/experience/types";
 
 export type NarratorTone = "calm" | "warn" | "recover";
@@ -18,63 +19,64 @@ export type NarratorFrame = {
  */
 export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
   const { controls } = snap;
+  const read = readChapter1(snap);
   const segments: string[] = [];
   let tone: NarratorTone = "calm";
+  const appliedOn = snap.appliedFeatureEnabled && !snap.appliedFeatureDisabledForNew;
 
-  if (controls.featureDisabledForNew) {
+  if (snap.appliedFeatureDisabledForNew) {
     segments.push("Flag disabled for new traffic");
-    tone = snap.activeCount > 0 ? "recover" : "calm";
-  } else if (!controls.featureEnabled) {
+    tone = read.busy > 0 ? "recover" : "calm";
+  } else if (!snap.appliedFeatureEnabled) {
     segments.push("Flag off");
   } else if (controls.paused) {
-    segments.push(`Exposure frozen at ${controls.exposurePct}%`);
+    segments.push(`Exposure frozen at ${snap.appliedExposurePct}%`);
     tone = "warn";
-  } else if (controls.exposurePct === 0) {
+  } else if (snap.appliedExposurePct === 0) {
     segments.push("Flag on at 0% (deployed, not enabled)");
   } else {
-    segments.push(`Flag at ${controls.exposurePct}%`);
+    segments.push(`Flag at ${snap.appliedExposurePct}%`);
   }
 
-  const exposedFrac =
-    controls.featureEnabled && !controls.featureDisabledForNew
-      ? controls.exposurePct / 100
-      : 0;
-  const recLookups = Math.round(controls.arrivalRate * exposedFrac);
+  if (snap.flagPropagationRemainingSec > 0.02) {
+    segments.push(`flag change in ${snap.flagPropagationRemainingSec.toFixed(1)}s`);
+  }
+
   if (controls.arrivalRate <= 0) {
     segments.push("no arrivals yet");
-  } else if (exposedFrac > 0) {
-    segments.push(`~${recLookups} recommendation lookups/s`);
+  } else if (appliedOn && snap.appliedExposurePct > 0) {
+    segments.push(`~${Math.round(read.offeredPoolRps)} recommendation lookups/s`);
   } else {
     segments.push(`~${Math.round(controls.arrivalRate)} baseline req/s`);
   }
 
-  if (snap.activeCount >= snap.poolSize) {
-    segments.push(`pool full (${snap.activeCount}/${snap.poolSize})`);
+  if (read.busy >= read.poolSize) {
+    segments.push(`pool full (${read.busy}/${read.poolSize})`);
     tone = "warn";
-  } else if (snap.utilization >= 0.85) {
+  } else if (read.utilization >= 0.85) {
     segments.push(
-      `pool nearly full (${snap.activeCount}/${snap.poolSize}, ${Math.round(snap.utilization * 100)}%)`,
+      `pool nearly full (${read.busy}/${read.poolSize}, ${Math.round(read.utilization * 100)}%)`,
     );
     tone = "warn";
   } else {
-    segments.push(`pool ${snap.activeCount}/${snap.poolSize} busy`);
+    segments.push(`pool ${read.busy}/${read.poolSize} busy`);
   }
 
-  if (snap.waitingCount > 0) {
+  if (read.waiting > 0) {
     const growing =
-      snap.littles.overDemand || snap.utilization >= 0.95
+      read.demand > read.poolSize || read.utilization >= 0.95
         ? "waiters growing"
         : "waiters queued";
-    segments.push(`${growing} (${snap.waitingCount})`);
+    segments.push(`${growing} (${read.waiting})`);
     tone = "warn";
-  } else if (snap.littles.overDemand) {
-    segments.push(`demand ≈ ${snap.littles.L.toFixed(0)} over capacity. waiters next`);
+  } else if (read.demand > read.poolSize) {
+    segments.push(`demand ≈ ${read.demand.toFixed(0)} over capacity. waiters next`);
     tone = "warn";
   } else {
     segments.push("no waiters");
   }
 
-  if (controls.featureDisabledForNew && snap.activeCount === 0 && snap.waitingCount === 0) {
+  if (snap.appliedFeatureDisabledForNew && read.busy === 0 && read.waiting === 0) {
     tone = "recover";
   }
 
@@ -82,10 +84,10 @@ export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
   if (controls.featureDisabledForNew) {
     goodLooksLike =
       "Good: busy and waiters fall as in-flight holds finish; new traffic stays on the fast baseline path.";
-  } else if (snap.waitingCount > 0) {
+  } else if (read.waiting > 0) {
     goodLooksLike =
       "Good: busy stays ≤ 40 while you cut demand (disable / shed) or shorten holds (cache). Waiters then drain.";
-  } else if (snap.utilization >= 0.85) {
+  } else if (read.utilization >= 0.85) {
     goodLooksLike =
       "Good: keep headroom under ~70–80% util so a small traffic bump does not create waiters.";
   } else if (controls.exposurePct === 0 && controls.featureEnabled) {

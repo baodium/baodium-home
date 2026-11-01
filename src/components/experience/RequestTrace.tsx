@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { requestTiming } from "@/lib/experience/readout";
 import type { SimRequest } from "@/lib/experience/types";
 
 export function RequestTrace({
@@ -24,31 +25,22 @@ export function RequestTrace({
     );
   }
 
-  const waitSec =
-    req.acquireTime !== null && req.waitStart !== null
-      ? req.acquireTime - req.waitStart
-      : req.phase === "waiting" && req.waitStart !== null
-        ? now - req.waitStart
-        : 0;
-  const holdSec =
-    req.acquireTime !== null
-      ? (req.releaseTime ?? now) - req.acquireTime
-      : 0;
-  const restSec = Math.max(0, 0.004);
-  const total =
-    req.doneTime !== null ? req.doneTime - req.arrivalTime : now - req.arrivalTime;
-  const waitMs = waitSec * 1000;
+  const timing = requestTiming(req, now);
+  const waitMs = timing.waitSec * 1000;
+  const holdMs = timing.holdSec * 1000;
+  const callerMs = timing.callerSec * 1000;
+  const totalMs = timing.totalSec * 1000;
   const teaching = req.timedOut
-    ? "This request hit connectionTimeout while waiting to acquire. saturation became an error instead of an unbounded wait."
+    ? "This request hit connectionTimeout while waiting to acquire. Saturation became an error instead of an unbounded wait."
     : req.shed
-      ? "Load shed skipped the recs lookup because pool util was over the gate. The page stayed on the baseline hold."
+      ? "Load shed skipped the recommendation lookup because pool util was over the gate. The page stayed on Catalog and did not take a pool slot."
       : req.cacheHit
-        ? "Cache hit: still on the recs cohort path, but hold ≈ baseline. That is how caching cuts W in L = λ × W."
+        ? "Cache hit on the recommendation path. The lookup never acquired a pool slot, so it does not add to W."
         : waitMs > 5
-          ? "Most of this request’s extra latency is queueing. waiting for a free slot, not the SQL itself."
+          ? "Most of this request’s extra latency is acquire wait, time spent beside the pool, not inside the query."
           : req.exposed
-            ? "Hold time is the recommendation lookup on a shared connection. Multiply by concurrency and you get Little’s Law demand."
-            : "Baseline path: short hold, no recommendation query. Compare with an exposed request under the same traffic.";
+            ? "The database hold is the recommendation lookup on a shared connection. Catalog time is separate and does not occupy a slot."
+            : "Baseline path: Product Page calls Catalog and releases. No recommendation query, no pool slot.";
 
   return (
     <div className="exp-panel">
@@ -67,22 +59,22 @@ export function RequestTrace({
         {req.slotIndex !== null ? ` · slot ${req.slotIndex + 1}` : ""}
       </p>
       <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Metric label="Wait" value={`${waitMs.toFixed(0)} ms`} hot={waitMs > 20} />
-        <Metric label="Lookup hold" value={`${(holdSec * 1000).toFixed(0)} ms`} />
-        <Metric label="Rest" value={`${(restSec * 1000).toFixed(0)} ms`} />
-        <Metric label="Total" value={`${(total * 1000).toFixed(0)} ms`} />
+        <Metric label="Caller" value={`${callerMs.toFixed(0)} ms`} />
+        <Metric label="Acquire wait" value={`${waitMs.toFixed(0)} ms`} hot={waitMs > 20} />
+        <Metric label="DB hold" value={`${holdMs.toFixed(0)} ms`} />
+        <Metric label="Total" value={`${totalMs.toFixed(0)} ms`} />
       </dl>
-      <TimingBar wait={waitSec} hold={holdSec} rest={restSec} reducedMotion={reducedMotion} />
+      <TimingBar caller={timing.callerSec} wait={timing.waitSec} hold={timing.holdSec} reducedMotion={reducedMotion} />
       <div className="mt-3 flex flex-wrap gap-3 text-[0.7rem] text-[color:var(--exp-muted)]">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-sm bg-[color-mix(in_srgb,var(--exp-fg)_28%,transparent)]" />{" "}
+          Caller
+        </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-2 w-2 rounded-sm bg-[color:var(--exp-amber)]" /> Wait
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-2 w-2 rounded-sm bg-[color:var(--exp-accent)]" /> Hold
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-sm bg-[color-mix(in_srgb,var(--exp-fg)_28%,transparent)]" />{" "}
-          Rest
         </span>
       </div>
       <p className="mt-3 text-xs leading-relaxed text-[color:var(--exp-muted)]">{teaching}</p>
@@ -108,25 +100,25 @@ function Metric({ label, value, hot }: { label: string; value: string; hot?: boo
 }
 
 function TimingBar({
+  caller,
   wait,
   hold,
-  rest,
   reducedMotion,
 }: {
+  caller: number;
   wait: number;
   hold: number;
-  rest: number;
   reducedMotion?: boolean;
 }) {
-  const sum = wait + hold + rest || 1;
+  const sum = caller + wait + hold || 1;
   const parts = [
-    { key: "wait", pct: (wait / sum) * 100, className: "bg-[color:var(--exp-amber)]" },
-    { key: "hold", pct: (hold / sum) * 100, className: "bg-[color:var(--exp-accent)]" },
     {
-      key: "rest",
-      pct: (rest / sum) * 100,
+      key: "caller",
+      pct: (caller / sum) * 100,
       className: "bg-[color-mix(in_srgb,var(--exp-fg)_28%,transparent)]",
     },
+    { key: "wait", pct: (wait / sum) * 100, className: "bg-[color:var(--exp-amber)]" },
+    { key: "hold", pct: (hold / sum) * 100, className: "bg-[color:var(--exp-accent)]" },
   ];
   return (
     <div
