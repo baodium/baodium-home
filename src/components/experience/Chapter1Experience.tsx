@@ -21,6 +21,7 @@ import {
   type Chapter1Progress,
 } from "@/lib/experience/progress";
 import { chapter1Scenario } from "@/lib/experience/scenarios/chapter-1";
+import { markChapterFinished, markChapterOpened } from "@/lib/learning/directory-progress";
 import type {
   DecisionKind,
   EngineSnapshot,
@@ -136,6 +137,14 @@ export function Chapter1Experience() {
       if (live) setFocusedReq({ ...live });
     }
   }, []);
+
+  useEffect(() => {
+    markChapterOpened("chapter-1");
+  }, []);
+
+  useEffect(() => {
+    if (stepId === "review" || challengeStatus === "passed") markChapterFinished("chapter-1");
+  }, [stepId, challengeStatus]);
 
   useEffect(() => {
     const patch: Partial<Chapter1Progress> = {

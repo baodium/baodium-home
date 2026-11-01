@@ -5,7 +5,7 @@ import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
 import { BookResume } from "@/components/book/reader/BookResume";
-import { getChapter } from "@/lib/learning/registry";
+import { getChapter, labActionLabel } from "@/lib/learning/registry";
 import { withReturnToReading } from "@/lib/learning/interactive-concepts";
 
 export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
@@ -120,15 +120,17 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                     >
                       {chapter.title}
                     </Link>
-                    {lab?.labHref ? (
+                    {lab?.labHref && labActionLabel(lab) ? (
                       <Link
                         href={lab.labHref}
                         className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
                       >
-                        Lab
+                        {lab.labKind === "short" ? "Short lab" : "Lab"}
                       </Link>
                     ) : (
-                      <span aria-hidden="true" />
+                      <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[var(--reader-muted)]">
+                        {lab ? "Book" : ""}
+                      </span>
                     )}
                   </li>
                 );

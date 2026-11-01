@@ -20,7 +20,7 @@ import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
 import { flipNavigate } from "@/lib/book/flip-navigate";
-import { getChapter } from "@/lib/learning/registry";
+import { getChapter, labActionLabel } from "@/lib/learning/registry";
 import { withReturnToReading } from "@/lib/learning/interactive-concepts";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -265,13 +265,15 @@ export function BookChapterView({
   const goingNext = dragDir !== -1;
   const preview = goingNext ? next : prev;
   const chapterMeta = getChapter(chapter.slug);
-  const labHref = chapterMeta?.labHref
-    ? withReturnToReading(
-        chapterMeta.labHref,
-        chapter.slug,
-        chapter.sections[0]?.id ?? "summary",
-      )
-    : null;
+  const labAction = chapterMeta ? labActionLabel(chapterMeta) : null;
+  const labHref =
+    chapterMeta?.labHref && labAction
+      ? withReturnToReading(
+          chapterMeta.labHref,
+          chapter.slug,
+          chapter.sections[0]?.id ?? "summary",
+        )
+      : null;
 
   return (
     <div
@@ -350,7 +352,7 @@ export function BookChapterView({
                     className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--cinnabar)_45%,transparent)] bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] px-4 text-sm font-medium text-cinnabar transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_18%,transparent)]"
                     data-no-flip=""
                   >
-                    Operate this incident
+                    {labAction}
                     <span aria-hidden="true">→</span>
                   </Link>
                 ) : null}
