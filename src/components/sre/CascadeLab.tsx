@@ -574,7 +574,7 @@ function SlotRack({ view }: { view: CascadeView }) {
         <p>Provider slots</p>
         <strong>
           {view.providerBusy} running
-          {view.providerQueue > 0 ? ` · ${view.providerQueue} waiting` : " · queue empty"}
+          {view.providerQueue > 0 ? ` · ${view.providerQueue} waiting` : " · none waiting"}
         </strong>
       </div>
       <ol aria-label={`${view.providerBusy} of ${view.providerSlots} provider slots in use`}>
