@@ -37,8 +37,7 @@ export function CascadeTopology({
 
   return (
     <div
-      className="service-flow"
-      style={{ height: "min(440px, 68vh)" }}
+      className="service-flow cascade-flow"
       aria-label="Checkout path. Gateway, checkout, payment, and external provider."
     >
       <ReactFlow
@@ -61,7 +60,7 @@ export function CascadeTopology({
         proOptions={{ hideAttribution: false }}
         colorMode="system"
         fitView
-        fitViewOptions={{ padding: 0.18, duration: 0 }}
+        fitViewOptions={{ padding: 0.06, duration: 0 }}
         minZoom={0.3}
         maxZoom={1.4}
       >
@@ -90,7 +89,7 @@ function build(view: CascadeView, selected: CascadeService, reducedMotion: boole
     return {
       id: service,
       type: "service",
-      position: { x: index * 250, y: 36 },
+      position: { x: index * 248, y: 12 },
       data: {
         label: LABEL[service],
         detail: detail(view, service, stat?.p99Ms ?? 0),

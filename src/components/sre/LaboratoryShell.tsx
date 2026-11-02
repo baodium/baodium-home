@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 /**
- * One laboratory frame: toolbar, mission, topology, inspection, telemetry.
- * The panes are filled by a live model. This frame does not invent numbers.
+ * Laboratory frame. The live model fills every pane.
+ * Toolbar, mission, topology, inspection, telemetry.
  */
 export function LaboratoryShell({
   toolbar,
@@ -18,18 +18,20 @@ export function LaboratoryShell({
   telemetry: ReactNode;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="exp-panel flex flex-wrap items-center gap-3">{toolbar}</div>
+    <div className="cascade-lab">
+      <div className="cascade-toolbar">{toolbar}</div>
       <section aria-label="Mission">{mission}</section>
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(17rem,0.72fr)]">
-        <section aria-label="Topology" className="exp-panel min-w-0">
-          {topology}
-        </section>
-        <section aria-label="Inspection" className="min-w-0 space-y-4">
+      <section aria-label="Topology" className="cascade-stage">
+        {topology}
+      </section>
+      <div className="cascade-lower">
+        <section aria-label="Inspection" className="cascade-side">
           {inspection}
         </section>
+        <section aria-label="Telemetry" className="cascade-telemetry">
+          {telemetry}
+        </section>
       </div>
-      <section aria-label="Telemetry">{telemetry}</section>
     </div>
   );
 }

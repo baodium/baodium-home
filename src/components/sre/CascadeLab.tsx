@@ -241,9 +241,10 @@ export function CascadeLab() {
         </>
       }
       mission={
-        <div className="max-w-3xl">
+        <div className="cascade-mast">
+          <div>
           <p className="exp-kicker">SRE Lab</p>
-          <h1 className="mt-2 font-serif text-4xl leading-tight text-[color:var(--exp-fg)] sm:text-5xl">
+          <h1 className="cascade-title">
             {mode === "challenge" ? "Checkout success collapsed. Restore it." : "Diagnose a cascading checkout failure"}
           </h1>
           {mode === "guided" ? (
@@ -301,28 +302,28 @@ export function CascadeLab() {
             </div>
           ) : null}
           {grade ? (
-            <p
-              role="status"
-              className={`mt-4 rounded-xl border px-3 py-2 text-sm leading-relaxed ${
-                grade.ok ? "exp-callout" : "border-[color:var(--exp-line)] bg-[color:var(--exp-panel)]"
-              }`}
-            >
+            <p role="status" className={`cascade-result ${grade.ok ? "is-ok" : ""}`}>
               {grade.reason}
             </p>
           ) : null}
+          </div>
+          <Figures view={view} />
         </div>
       }
       topology={
         view ? (
-          <CascadeTopology view={view} selected={selected} onSelect={setSelected} reducedMotion={reduced} />
+          <>
+            <CascadeTopology view={view} selected={selected} onSelect={setSelected} reducedMotion={reduced} />
+            <SlotRack view={view} />
+          </>
         ) : (
           <p className="text-sm text-[color:var(--exp-muted)]">The clock has not started.</p>
         )
       }
       inspection={
         <>
-          <div className="exp-panel">
-            <h2 className="font-serif text-2xl text-[color:var(--exp-fg)]">
+          <div className="cascade-card">
+            <h2 className="cascade-card-title">
               {SERVICES.find((item) => item.id === selected)?.label}
             </h2>
             {service && view ? (
@@ -386,8 +387,8 @@ export function CascadeLab() {
               Slot use counts provider work that is still running, including work the caller already abandoned.
             </p>
           </div>
-          <div className="exp-panel space-y-4">
-            <h2 className="font-serif text-2xl text-[color:var(--exp-fg)]">Adjust the checkout</h2>
+          <div className="cascade-card">
+            <h2 className="cascade-card-title">Adjust the checkout</h2>
             {mode === "challenge" ? (
               <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">
                 Provider work in this window is{" "}
@@ -471,15 +472,14 @@ export function CascadeLab() {
         </>
       }
       telemetry={
-        <div className="exp-panel">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Telemetry">
+        <div>
+          <div className="cascade-tabs" role="tablist" aria-label="Telemetry">
             {TABS.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 role="tab"
                 aria-selected={tab === item.id}
-                className={`exp-btn ${tab === item.id ? "exp-btn-primary" : "exp-btn-ghost"}`}
                 onClick={() => setTab(item.id)}
               >
                 {item.label}
@@ -503,64 +503,117 @@ export function CascadeLab() {
   );
 }
 
+function Figures({ view }: { view: CascadeView | null }) {
+  const success = view?.successRate == null ? null : view.successRate;
+  const attempts = view?.attemptsPerCheckout ?? 0;
+  const util = view?.providerUtilization ?? 0;
+  return (
+    <dl className="cascade-figures">
+      <Figure
+        label="Success"
+        value={success == null ? "…" : `${Math.round(success * 100)}`}
+        unit={success == null ? "" : "%"}
+        note="finished in the last 5s"
+        tone={success == null ? "wait" : success >= 0.95 ? "good" : success < 0.8 ? "bad" : "mid"}
+      />
+      <Figure
+        label="Calls"
+        value={view && view.finished > 0 ? attempts.toFixed(attempts >= 10 ? 0 : 2) : "…"}
+        unit={view && view.finished > 0 ? "/checkout" : ""}
+        note="provider spans on those checkouts"
+        tone={!view || view.finished === 0 ? "wait" : attempts <= 1.25 ? "good" : attempts > 2 ? "bad" : "mid"}
+      />
+      <Figure
+        label="Slots"
+        value={`${Math.round(util * 100)}`}
+        unit="%"
+        note={`${view?.providerBusy ?? 0} of ${view?.providerSlots ?? 8} running`}
+        tone={util >= 0.9 ? "bad" : util > 0 ? "good" : "wait"}
+      />
+      <Figure
+        label="p99"
+        value={view && view.finished > 0 ? `${Math.round(view.gatewayP99Ms)}` : "…"}
+        unit={view && view.finished > 0 ? "ms" : ""}
+        note="shopper wait at the gateway"
+        tone="mid"
+      />
+    </dl>
+  );
+}
+
+function Figure({
+  label,
+  value,
+  unit,
+  note,
+  tone,
+}: {
+  label: string;
+  value: string;
+  unit: string;
+  note: string;
+  tone: "good" | "bad" | "mid" | "wait";
+}) {
+  return (
+    <div className="cascade-figure" data-tone={tone}>
+      <dt>{label}</dt>
+      <dd>
+        <b>{value}</b>
+        {unit ? <span>{unit}</span> : null}
+      </dd>
+      <p>{note}</p>
+    </div>
+  );
+}
+
+function SlotRack({ view }: { view: CascadeView }) {
+  const hot = view.providerUtilization >= 0.9 || view.providerQueue > 0;
+  return (
+    <div className="cascade-rack">
+      <div>
+        <p>Provider slots</p>
+        <strong>
+          {view.providerBusy} running
+          {view.providerQueue > 0 ? ` · ${view.providerQueue} waiting` : " · queue empty"}
+        </strong>
+      </div>
+      <ol aria-label={`${view.providerBusy} of ${view.providerSlots} provider slots in use`}>
+        {Array.from({ length: view.providerSlots }, (_, index) => (
+          <li key={index} data-on={index < view.providerBusy ? "true" : "false"} data-hot={hot ? "true" : "false"}>
+            <span>{index + 1}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function Metrics({ view, reduced }: { view: CascadeView; reduced: boolean }) {
   const success = view.successRate == null ? "no finishes" : `${(view.successRate * 100).toFixed(1)}%`;
   return (
-    <div className="space-y-4">
-      <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">
-        Counts from checkouts that finished in the last 5 seconds, and from the provider slots in use right now.
-      </p>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[36rem] text-left text-sm">
-          <thead>
-            <tr className="text-[color:var(--exp-faint)]">
-              <th className="py-2 pr-3 font-medium">Metric</th>
-              <th className="py-2 pr-3 font-medium">Value</th>
-              <th className="py-2 font-medium">What it counts</th>
-            </tr>
-          </thead>
-          <tbody className="text-[color:var(--exp-muted)]">
-            <Metric name="Checkout success" value={success} about="Finished checkouts that returned in time, divided by every checkout that finished, including timeouts and sheds." />
-            <Metric
-              name="Provider calls per checkout"
-              value={view.attemptsPerCheckout.toFixed(2)}
-              about="Provider spans on those finished checkouts, divided by the number of finished checkouts."
-            />
-            <Metric
-              name="Provider slot use"
-              value={`${Math.round(view.providerUtilization * 100)}%`}
-              about={`Slots running provider work, divided by ${view.providerSlots}. This stays at or under 100%. Extra attempts wait in the queue.`}
-            />
-            <Metric
-              name="Gateway p99"
-              value={`${Math.round(view.gatewayP99Ms)} ms`}
-              about="The slow end of checkout duration, from accept to the gateway result, over the same finished checkouts."
-            />
-            <Metric
-              name="Successful arrivals"
-              value={`${view.okPerSec.toFixed(1)} /s`}
-              about={`Checkouts that returned in time, per second. The arrival rate is ${view.controls.arrivalRate} per second.`}
-            />
-            <Metric
-              name="Measured provider work"
-              value={view.measuredProviderMs == null ? "no samples" : `${Math.round(view.measuredProviderMs)} ms`}
-              about="The middle of provider work durations started in this window."
-            />
-          </tbody>
-        </table>
-      </div>
+    <div className="cascade-metrics">
       <Trend samples={view.samples} reduced={reduced} />
+      <dl>
+        <Metric name="Checkout success" value={success} about="Finished checkouts that returned in time, divided by every checkout that finished, including timeouts and sheds." />
+        <Metric name="Provider calls per checkout" value={view.attemptsPerCheckout.toFixed(2)} about="Provider spans on those finished checkouts, divided by the number of finished checkouts." />
+        <Metric name="Provider slot use" value={`${Math.round(view.providerUtilization * 100)}%`} about={`Slots running provider work, divided by ${view.providerSlots}. This stays at or under 100%. Extra attempts wait in the queue.`} />
+        <Metric name="Gateway p99" value={`${Math.round(view.gatewayP99Ms)} ms`} about="The slow end of checkout duration, from accept to the gateway result, over the same finished checkouts." />
+        <Metric name="Successful arrivals" value={`${view.okPerSec.toFixed(1)} /s`} about={`Checkouts that returned in time, per second. The arrival rate is ${view.controls.arrivalRate} per second.`} />
+        <Metric name="Measured provider work" value={view.measuredProviderMs == null ? "no samples" : `${Math.round(view.measuredProviderMs)} ms`} about="The middle of provider work durations started in this window." />
+      </dl>
     </div>
   );
 }
 
 function Metric({ name, value, about }: { name: string; value: string; about: string }) {
   return (
-    <tr className="border-t border-[color:var(--exp-line)] align-top">
-      <th className="py-2 pr-3 font-medium text-[color:var(--exp-fg)]">{name}</th>
-      <td className="py-2 pr-3 font-mono text-[color:var(--exp-fg)]">{value}</td>
-      <td className="py-2 leading-relaxed">{about}</td>
-    </tr>
+    <div>
+      <dt>
+        {name}
+        <b>{value}</b>
+      </dt>
+      <dd>{about}</dd>
+    </div>
   );
 }
 
@@ -575,8 +628,8 @@ function Trend({
     return <p className="text-sm text-[color:var(--exp-muted)]">The chart fills after the clock moves.</p>;
   }
   const width = 640;
-  const height = 140;
-  const pad = 16;
+  const height = 168;
+  const pad = 22;
   const xs = samples.map((_, index) => pad + (index / (samples.length - 1)) * (width - pad * 2));
   const line = (pick: (sample: CascadeView["samples"][number]) => number) =>
     samples
@@ -586,19 +639,22 @@ function Trend({
         return `${index === 0 ? "M" : "L"}${xs[index]!.toFixed(1)},${y.toFixed(1)}`;
       })
       .join(" ");
+  const yOf = (value: number) => height - pad - Math.max(0, Math.min(1, value)) * (height - pad * 2);
   return (
-    <figure>
-      <figcaption className="mb-2 flex flex-wrap gap-4 text-sm text-[color:var(--exp-muted)]">
-        <span className="inline-flex items-center gap-2">
-          <span className="inline-block h-2 w-4 bg-[#2f7a7e]" /> Success
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <span className="inline-block h-2 w-4 bg-[#ad4f36]" /> Provider slots
-        </span>
+    <figure className="cascade-trend">
+      <figcaption>
+        <span><i data-ink="success" /> Success</span>
+        <span><i data-ink="slots" /> Provider slots</span>
       </figcaption>
-      <svg viewBox={`0 0 ${width} ${height}`} className="h-36 w-full" role="img" aria-label="Success and provider slot use over time">
-        <path d={line((sample) => sample.successRate ?? 0)} fill="none" stroke="#2f7a7e" strokeWidth="2" style={{ transition: reduced ? "none" : undefined }} />
-        <path d={line((sample) => sample.providerUtilization)} fill="none" stroke="#ad4f36" strokeWidth="2" />
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Success and provider slot use over time">
+        {[0, 0.5, 1].map((mark) => (
+          <g key={mark}>
+            <line x1={pad} x2={width - pad} y1={yOf(mark)} y2={yOf(mark)} />
+            <text x={0} y={yOf(mark) + 3}>{Math.round(mark * 100)}</text>
+          </g>
+        ))}
+        <path d={line((sample) => sample.successRate ?? 0)} fill="none" stroke="#1f5f64" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" style={{ transition: reduced ? "none" : undefined }} />
+        <path d={line((sample) => sample.providerUtilization)} fill="none" stroke="#ad4f36" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
       </svg>
     </figure>
   );
@@ -615,37 +671,53 @@ function Traces({
 }) {
   const trace = view.traces.find((item) => item.traceId === traceId) ?? view.traces[0];
   if (!trace) return <p className="text-sm text-[color:var(--exp-muted)]">No checkout has been accepted yet.</p>;
+  const start = Math.min(...trace.spans.map((span) => span.start));
+  const end = Math.max(...trace.spans.map((span) => span.end ?? view.t), start + 0.05);
+  const spanWindow = Math.max(0.05, end - start);
   return (
-    <div className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
-      <ul className="space-y-2">
+    <div className="cascade-traces">
+      <ul>
         {view.traces.map((item) => (
           <li key={item.traceId}>
             <button
               type="button"
-              className={`exp-btn w-full justify-start ${item.traceId === trace.traceId ? "exp-btn-primary" : "exp-btn-ghost"}`}
+              data-on={item.traceId === trace.traceId ? "true" : "false"}
+              data-outcome={item.outcome}
               onClick={() => onSelect(item.traceId)}
             >
-              <span className="font-mono text-[0.72rem]">{item.traceId}</span>
-              <span className="ml-2">{item.outcome}</span>
-              <span className="ml-2 font-mono text-[0.72rem]">{item.providerAttempts} calls</span>
+              <b>{item.traceId}</b>
+              <span>{item.outcome}</span>
+              <em>{item.providerAttempts}</em>
             </button>
           </li>
         ))}
       </ul>
-      <ol className="space-y-2">
-        {trace.spans.map((span) => (
-          <li key={span.id} className="rounded-xl border border-[color:var(--exp-line)] px-3 py-2 text-sm">
-            <p className="font-medium text-[color:var(--exp-fg)]">
-              {span.service} · attempt {span.attempt} · {span.status}
-            </p>
-            <p className="mt-1 font-mono text-[0.72rem] text-[color:var(--exp-muted)]">
-              {span.start.toFixed(2)}s
-              {span.end == null ? " open" : ` to ${span.end.toFixed(2)}s`}
-              {span.workMs == null ? "" : ` · work ${Math.round(span.workMs)} ms`}
-              {span.queueMs > 1 ? ` · queued ${Math.round(span.queueMs)} ms` : ""}
-            </p>
-          </li>
-        ))}
+      <ol className="cascade-waterfall" aria-label={`Spans for ${trace.traceId}`}>
+        {trace.spans.map((span) => {
+          const spanEnd = span.end ?? view.t;
+          const left = ((span.start - start) / spanWindow) * 100;
+          const width = Math.max(1.5, ((spanEnd - span.start) / spanWindow) * 100);
+          return (
+            <li key={span.id}>
+              <p>
+                {span.service}
+                <span>attempt {span.attempt}</span>
+              </p>
+              <div className="cascade-track">
+                <i
+                  data-service={span.service}
+                  data-status={span.status}
+                  style={{ left: `${left}%`, width: `${Math.min(100 - left, width)}%` }}
+                />
+              </div>
+              <small>
+                {span.status}
+                {span.workMs == null ? "" : ` · ${Math.round(span.workMs)} ms`}
+                {span.queueMs > 1 ? ` · queued ${Math.round(span.queueMs)}` : ""}
+              </small>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );
@@ -654,10 +726,14 @@ function Traces({
 function LogList({ rows, empty }: { rows: CascadeLog[]; empty: string }) {
   if (rows.length === 0) return <p className="text-sm text-[color:var(--exp-muted)]">{empty}</p>;
   return (
-    <ol className="max-h-[28rem] space-y-2 overflow-auto">
+    <ol className="cascade-log">
       {rows.map((row, index) => (
-        <li key={`${row.t}-${row.spanId}-${row.kind}-${index}`} className="font-mono text-[0.75rem] leading-relaxed text-[color:var(--exp-muted)]">
-          <span className="text-[color:var(--exp-fg)]">{row.t.toFixed(2)}s</span> {row.traceId} {row.service} {row.kind}: {row.message}
+        <li key={`${row.t}-${row.spanId}-${row.kind}-${index}`} data-service={row.service}>
+          <time>{row.t.toFixed(2)}s</time>
+          <div>
+            <b>{row.traceId} · {row.service}</b>
+            <p>{row.message}</p>
+          </div>
         </li>
       ))}
     </ol>
@@ -684,15 +760,14 @@ function Slider({
   onChange: (value: number) => void;
 }) {
   return (
-    <label className="block text-sm leading-relaxed text-[color:var(--exp-muted)]">
-      <span className="flex items-baseline justify-between gap-3">
-        <span className="font-medium text-[color:var(--exp-fg)]">{label}</span>
-        <span className="font-mono text-[color:var(--exp-fg)]">
+    <label className="cascade-slider">
+      <span>
+        <b>{label}</b>
+        <strong>
           {value} {unit}
-        </span>
+        </strong>
       </span>
       <input
-        className="mt-2 w-full accent-[#2f7a7e]"
         type="range"
         min={min}
         max={max}
@@ -700,16 +775,16 @@ function Slider({
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
       />
-      <span className="mt-1 block">{hint}</span>
+      <small>{hint}</small>
     </label>
   );
 }
 
 function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
   return (
-    <button type="button" className={`exp-btn w-full justify-start ${on ? "exp-btn-primary" : "exp-btn-ghost"}`} aria-pressed={on} onClick={onClick}>
-      {label}
-      <span className="ml-2 font-mono text-[0.72rem]">{on ? "on" : "off"}</span>
+    <button type="button" className="cascade-switch" aria-pressed={on} onClick={onClick}>
+      <span>{label}</span>
+      <i data-on={on ? "true" : "false"} />
     </button>
   );
 }
