@@ -1453,6 +1453,10 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   stroke-dasharray: none;
 }
 
+.arch-node[data-selected="true"] {
+  box-shadow: inset 0 0 0 1.5px var(--learn-signal, #2f7a7e);
+}
+
 .arch-node {
   --arch-ink: #2f7a7e;
   position: relative;

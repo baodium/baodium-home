@@ -56,6 +56,9 @@ export function PlayChrome({
             <Link href="/about" className="hidden text-muted transition-colors hover:text-ink sm:inline">
               About
             </Link>
+            <Link href="/sre-labs" className="text-muted transition-colors hover:text-ink">
+              SRE
+            </Link>
             <Link href="/play" className="text-muted transition-colors hover:text-ink">
               All drills
             </Link>

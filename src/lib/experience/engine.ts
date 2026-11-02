@@ -7,6 +7,7 @@ import { createRng, isUserExposed, type Rng } from "@/lib/experience/rng";
 import { littlesLaw } from "@/lib/experience/littles";
 import { requestTiming } from "@/lib/experience/readout";
 import { clampBusy, utilization } from "@/lib/sim/bounds";
+import { advanceCascade, type CascadeState } from "@/lib/experience/cascade";
 import type {
   EngineControls,
   EngineSnapshot,
@@ -82,6 +83,11 @@ export type Engine = {
   program: Chapter1Program;
   /** Last request that returned a page. Kept for the storefront. */
   lastPageId: string | null;
+  /**
+   * Checkout cascade. When set, tick advances this model instead of the
+   * product-page pool. Chapter 1 leaves it null.
+   */
+  cascade: CascadeState | null;
 };
 
 export function defaultControls(): EngineControls {
@@ -143,6 +149,7 @@ export function createEngine(seed = 42, controls?: Partial<EngineControls>): Eng
     completionTimes: [],
     program: parseChapter1Program(CHAPTER1_SOURCE),
     lastPageId: null,
+    cascade: null,
   };
 }
 
@@ -572,12 +579,23 @@ export function injectSingleRequest(engine: Engine, opts?: { forceExposed?: bool
   return req;
 }
 
+export function advanceEngine(engine: Engine, seconds: number, dt = DEFAULT_TICK_SEC): EngineSnapshot {
+  const steps = Math.max(1, Math.round(seconds / dt));
+  let snap = snapshot(engine);
+  for (let i = 0; i < steps; i++) snap = tick(engine, dt, { force: true });
+  return snap;
+}
+
 export function tick(
   engine: Engine,
   dt = DEFAULT_TICK_SEC,
   opts?: { force?: boolean },
 ): EngineSnapshot {
   if (engine.frozen && !opts?.force) return snapshot(engine);
+  if (engine.cascade) {
+    engine.t = advanceCascade(engine.cascade, engine.rng, engine.t, dt);
+    return snapshot(engine);
+  }
 
   applyDueFlag(engine);
   const now = engine.t + dt;

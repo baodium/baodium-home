@@ -13,6 +13,7 @@ const links = [
   { id: "book", label: "Book", href: "/system-design" },
   { id: "labs", label: "Labs", href: "/system-design/experience" },
   { id: "play", label: "Drills", href: "/play" },
+  { id: "sre", label: "SRE", href: "/sre-labs" },
   { id: "projects", label: "Projects", href: "/projects" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
   { id: "about", label: "About", href: "/about" },
@@ -26,6 +27,7 @@ export function Navigation() {
   const onProjects = pathname === "/projects";
   const onAbout = pathname === "/about";
   const onPlay = pathname === "/play" || pathname.startsWith("/play/");
+  const onSre = pathname === "/sre-labs" || pathname.startsWith("/sre-labs/");
   const onLabs =
     pathname === "/system-design/experience" ||
     pathname.startsWith("/system-design/experience/");
@@ -43,8 +45,10 @@ export function Navigation() {
       ? "projects"
       : onLabs
         ? "labs"
-        : onPlay
-          ? "play"
+        : onSre
+          ? "sre"
+          : onPlay
+            ? "play"
           : onBook
             ? "book"
             : onHome
@@ -105,7 +109,7 @@ export function Navigation() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const coolChrome = onProjects || onAbout || onPlay || onLabs || onBook;
+  const coolChrome = onProjects || onAbout || onPlay || onLabs || onBook || onSre;
 
   return (
     <motion.header

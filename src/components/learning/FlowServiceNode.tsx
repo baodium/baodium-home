@@ -28,6 +28,7 @@ export type FlowServiceData = {
   tone: "idle" | "active" | "pressure" | "dim";
   /** 0–1 fill for the meter. Omitted when the node has no ratio to show. */
   meter?: number;
+  selected?: boolean;
   target?: "left" | "top";
   sourceRight?: boolean;
   sourceBottom?: boolean;
@@ -52,7 +53,13 @@ export function FlowServiceNodeView({ data }: NodeProps<FlowServiceNode>) {
   const filled = meter == null ? 0 : Math.round(meter * pips);
 
   return (
-    <div className="arch-node" data-tone={data.tone} data-shape={shape} data-mark={mark}>
+    <div
+      className="arch-node"
+      data-tone={data.tone}
+      data-shape={shape}
+      data-mark={mark}
+      data-selected={data.selected ? "true" : "false"}
+    >
       {data.target === "left" ? (
         <Handle type="target" position={Position.Left} id="in" className="service-handle" isConnectable={false} />
       ) : null}
@@ -177,7 +184,7 @@ export function useMeasuredFlow(model: { nodes: FlowServiceNode[]; edges: Edge[]
   const signature = [
     ...model.nodes.map(
       (node) =>
-        `${node.id}|${node.position.x}|${node.position.y}|${node.data.tone}|${node.data.detail}|${node.data.meter ?? ""}|${node.data.target ?? ""}|${node.data.sourceRight ? 1 : 0}|${node.data.sourceBottom ? 1 : 0}`,
+        `${node.id}|${node.position.x}|${node.position.y}|${node.data.tone}|${node.data.detail}|${node.data.meter ?? ""}|${node.data.selected ? 1 : 0}|${node.data.target ?? ""}|${node.data.sourceRight ? 1 : 0}|${node.data.sourceBottom ? 1 : 0}`,
     ),
     ...model.edges.map(edgeSignature),
   ].join("~");

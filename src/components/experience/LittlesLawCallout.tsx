@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { formatLittles } from "@/lib/experience/littles";
 import { readChapter1 } from "@/lib/experience/readout";
+import { utilizationPercent } from "@/lib/sim/bounds";
 import type { EngineSnapshot } from "@/lib/experience/types";
 
 export function LittlesLawCallout({
@@ -14,9 +15,11 @@ export function LittlesLawCallout({
 }) {
   const read = readChapter1(snap);
   const { littles } = snap;
-  const demandPct = Math.min(160, (read.demand / read.poolSize) * 100);
   const over = littles.overDemand;
-  const capPct = 100 / 1.6;
+  const scale = Math.max(read.poolSize, read.demand, 1);
+  const demandWidth = (read.demand / scale) * 100;
+  const capPct = (read.poolSize / scale) * 100;
+  const utilPct = utilizationPercent(read.busy, read.poolSize);
 
   return (
     <div className="exp-panel h-full">
@@ -52,16 +55,17 @@ export function LittlesLawCallout({
       </div>
 
       <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-        At ~{read.admittedPoolRps.toFixed(0)} pool acquires/s with mean hold {littles.W.toFixed(3)}s, expected
-        occupancy is ~{read.demand.toFixed(0)} connections ({formatLittles(littles)}).
+        At ~{read.admittedPoolRps.toFixed(0)} pool acquires/s with mean hold {littles.W.toFixed(3)}s, offered
+        demand is ~{read.demand.toFixed(0)} connections ({formatLittles(littles)}). Utilization is {utilPct}%,
+        from {read.busy} busy connections out of {read.poolSize}. Utilization stops at 100%.
         {over
-          ? " Demand exceeds the 40-slot pool. waiters appear; busy slots stay capped at 40."
-          : " Demand fits in the pool. waiters should stay near zero."}
+          ? " Offered demand is past the pool. The extra requests wait. Busy connections stay at 40."
+          : " Offered demand fits in the pool. Waiters should stay near zero."}
       </p>
 
       <div className="mt-4">
         <div className="mb-1.5 flex justify-between font-mono text-[0.6rem] uppercase tracking-[0.12em] text-[color:var(--exp-faint)]">
-          <span>Demand vs pool</span>
+          <span>Offered demand</span>
           <span>
             ≈{read.demand.toFixed(0)} / {read.poolSize}
           </span>
@@ -72,7 +76,7 @@ export function LittlesLawCallout({
               over ? "bg-[color:var(--exp-accent)]" : "bg-[color:var(--exp-slot-base)]"
             }`}
             initial={false}
-            animate={{ width: `${Math.min(100, demandPct)}%` }}
+            animate={{ width: `${demandWidth}%` }}
             transition={{ duration: reducedMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
           />
           <div
@@ -92,7 +96,7 @@ export function LittlesLawCallout({
         </p>
         {over ? (
           <p className="mt-2 rounded-lg border border-[color-mix(in_srgb,var(--exp-accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--exp-accent)_10%,var(--exp-panel-raise))] px-3 py-2 text-sm leading-relaxed text-[color:var(--exp-fg)]">
-            Teaching point: λ×W can exceed 40. Active connections cannot. The surplus is waiting, not a fake 41st busy slot.
+            Offered demand can pass 40 connections. Utilization cannot. Busy connections stay at 40, and the surplus waits.
           </p>
         ) : null}
       </div>

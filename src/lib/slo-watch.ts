@@ -52,8 +52,6 @@ export const DURATION_S = 48;
 export const POOL = 40;
 export const QUERY_MS = 70;
 export const ACQUIRE_BAR_MS = 50;
-/** Unused by the drill. Kept so older imports still resolve. */
-export const SLO_TARGET = 0.995;
 export const START_BUDGET = 100;
 
 const BASE_RATE = 400;

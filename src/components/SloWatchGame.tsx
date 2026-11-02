@@ -490,7 +490,7 @@ export function SloWatchGame({
           <tr>
             <td>Pool</td>
             <td>{Math.round(snap.poolUtil * 100)}% of {POOL}</td>
-            <td>How full the 40 connections are. The pool does not grow.</td>
+            <td>Busy connections divided by 40. Utilization stays at or under 100 percent. Extra lookups wait.</td>
           </tr>
           <tr>
             <td>Query</td>
@@ -520,7 +520,7 @@ export function SloWatchGame({
           label="Pool utilization"
           tip="How full the connection pool is."
           value={snap.poolUtil}
-          format={(n) => `${Math.round(n * 100)}%`}
+          format={(n) => `${Math.min(100, Math.round(n * 100))}%`}
         />
         <PlayMeter
           label="Pending (awaiting conn)"

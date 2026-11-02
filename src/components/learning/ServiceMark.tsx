@@ -37,7 +37,9 @@ export type ServiceMarkId =
 
 const BY_LABEL: Record<string, ServiceMarkId> = {
   edge: "edge",
+  gateway: "edge",
   checkout: "checkout",
+  payment: "pay",
   auth: "auth",
   pay: "pay",
   payments: "pay",
