@@ -2,8 +2,9 @@
 
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CHAPTER1_SOURCE } from "@/lib/experience/chapter1-program";
 import {
-  CODE_LINES,
+  applyChapter1Source,
   createEngine,
   injectSingleRequest,
   setControls,
@@ -104,7 +105,8 @@ export function Chapter1Experience() {
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [stepId, setStepId] = useState<GuidedStepId>("inspect");
-  const [showRecs, setShowRecs] = useState(false);
+  const [source, setSource] = useState(CHAPTER1_SOURCE);
+  const sourceRef = useRef(CHAPTER1_SOURCE);
   const [previewToggled, setPreviewToggled] = useState(false);
   const [deployedZero, setDeployedZero] = useState(false);
   const [traced, setTraced] = useState(false);
@@ -204,10 +206,40 @@ export function Chapter1Experience() {
     );
   };
 
-  const onTogglePreview = () => {
-    setShowRecs((v) => !v);
+  const onSource = (next: string) => {
+    sourceRef.current = next;
+    setSource(next);
+    applyChapter1Source(engineRef.current, next);
+    sync();
+  };
+
+  const onRunPage = () => {
+    const engine = engineRef.current;
+    const wasFrozen = engine.frozen;
+    const req = injectSingleRequest(engine, { forceExposed: false });
+    let guard = 0;
+    while (guard < 500) {
+      const live = engine.requests.get(req.id);
+      if (!live || live.phase === "done" || live.phase === "timed_out" || live.phase === "waiting" || live.phase === "holding") {
+        break;
+      }
+      tick(engine, 0.01, { force: true });
+      guard += 1;
+    }
+    const caught = engine.requests.get(req.id);
+    engine.frozen = caught && (caught.phase === "holding" || caught.phase === "waiting") ? true : wasFrozen;
+    if (engine.frozen) setRunning(false);
+    engine.tracedId = req.id;
+    const live = engine.requests.get(req.id) ?? null;
+    setSelectedId(req.id);
+    setFocusedReq(live ? { ...live } : null);
     setPreviewToggled(true);
-    logAction("Toggled product page preview");
+    sync();
+    logAction(
+      live?.invokedRecommendation
+        ? `Ran get_product_page as ${req.id}. The call took a connection.`
+        : `Ran get_product_page as ${req.id}. Recommendation was not called.`,
+    );
   };
 
   const onDeployZero = () => {
@@ -299,7 +331,7 @@ export function Chapter1Experience() {
   const canContinue = useMemo(() => {
     switch (stepDef.require) {
       case "toggle_preview":
-        return previewToggled || showRecs;
+        return previewToggled;
       case "deploy_zero":
         return deployedZero || snap.controls.featureEnabled;
       case "trace_request":
@@ -319,7 +351,6 @@ export function Chapter1Experience() {
     stepDef.require,
     stepDef.prediction,
     previewToggled,
-    showRecs,
     deployedZero,
     snap.controls.featureEnabled,
     traced,
@@ -386,6 +417,7 @@ export function Chapter1Experience() {
       shedAtUtil: null,
       cacheHitRate: 0,
     });
+    applyChapter1Source(engineRef.current, sourceRef.current);
     // Warm the incident so the learner starts mid-saturation.
     for (let i = 0; i < 400; i++) tick(engineRef.current, 0.01);
     setChallengeStartT(engineRef.current.t);
@@ -414,6 +446,7 @@ export function Chapter1Experience() {
       featureEnabled: mode === "practice",
       exposurePct: mode === "practice" ? 25 : 0,
     });
+    applyChapter1Source(engineRef.current, sourceRef.current);
     setSimFrozen(engineRef.current, true);
     setSelectedId(null);
     setFocusedReq(null);
@@ -429,16 +462,18 @@ export function Chapter1Experience() {
     setSimFrozen(engineRef.current, true);
     setSimFrozen(engineRef.current, true);
     setRunning(false);
+    sourceRef.current = CHAPTER1_SOURCE;
+    setSource(CHAPTER1_SOURCE);
     engineRef.current = createEngine(42, {
       arrivalRate: 0,
       featureEnabled: false,
       exposurePct: 0,
     });
+    applyChapter1Source(engineRef.current, CHAPTER1_SOURCE);
     setSimFrozen(engineRef.current, true);
     setReplaySeed(42);
     setStepId("inspect");
     setMode("guided");
-    setShowRecs(false);
     setPreviewToggled(false);
     setDeployedZero(false);
     setTraced(false);
@@ -452,14 +487,13 @@ export function Chapter1Experience() {
   };
 
   const tracedReq = focusedReq;
-  const highlight =
-    tracedReq && (tracedReq.phase === "holding" || tracedReq.phase === "waiting")
-      ? tracedReq.codeLine
-      : tracedReq?.phase === "done"
-        ? CODE_LINES.respond
-        : showRecs
-          ? CODE_LINES.callRec
-          : CODE_LINES.catalog;
+  const pageReq =
+    snap.tracedRequest &&
+    snap.tracedRequest.phase !== "done" &&
+    snap.tracedRequest.phase !== "timed_out"
+      ? snap.tracedRequest
+      : snap.lastPage ?? snap.tracedRequest;
+  const highlight = pageReq?.codeLine && pageReq.codeLine > 0 ? pageReq.codeLine : 2;
 
   const debriefText = decision ? fillDebrief(decision, snap) : null;
   const liveFrame = useMemo(() => narrateChapter1(snap), [snap]);
@@ -739,12 +773,8 @@ export function Chapter1Experience() {
                   ) : null}
 
                   {stepId === "inspect" ? (
-                    <button
-                      type="button"
-                      onClick={onTogglePreview}
-                      className="exp-btn exp-btn-primary mt-4"
-                    >
-                      Toggle page preview
+                    <button type="button" onClick={onRunPage} className="exp-btn exp-btn-primary mt-4">
+                      Run get_product_page
                     </button>
                   ) : null}
 
@@ -1124,42 +1154,25 @@ export function Chapter1Experience() {
           <>
             <RequestPath snap={snap} reducedMotion={reduced} />
             <LatencyBreakdownChart snap={snap} />
-            {showProduct ? (
-              <ProductPreview showRecs={showRecs} onToggle={onTogglePreview} />
-            ) : null}
+            {showProduct ? <ProductPreview request={pageReq} snap={snap} onRun={onRunPage} /> : null}
             <CodePanel
-              lines={scenario.codeLines}
+              source={source}
               highlightLine={highlight}
-              program={
-                showFlag
-                  ? chapter1Call({
-                      exposurePct: snap.controls.exposurePct,
-                      flagOff: snap.controls.featureDisabledForNew || !snap.controls.featureEnabled,
-                      busy: snap.activeCount,
-                      pending: snap.waitingCount,
-                      acquireMs: snap.acquireWaitP99 * 1000,
-                      highlight,
-                      exposureLocked: !snap.controls.featureEnabled || snap.controls.featureDisabledForNew,
-                    })
-                  : undefined
-              }
-              onEdit={
-                showFlag
-                  ? (id, value) => {
-                      if (id === "exposurePct" && typeof value === "number") onExposure(value);
-                      if (id === "flagOff") {
-                        const off = value === true;
-                        setControls(engineRef.current, {
-                          featureEnabled: true,
-                          featureDisabledForNew: off,
-                        });
-                        setSimFrozen(engineRef.current, false);
-                        setRunning(true);
-                        sync();
-                      }
-                    }
-                  : undefined
-              }
+              onSource={onSource}
+              program={chapter1Call({
+                exposurePct: snap.appliedExposurePct,
+                flagOff: snap.appliedFeatureDisabledForNew || !snap.appliedFeatureEnabled,
+                busy: snap.activeCount,
+                pending: snap.waitingCount,
+                acquireMs: snap.acquireWaitP99 * 1000,
+                poolSize: snap.poolSize,
+                callsCatalog: snap.handler.callsCatalog,
+                callsRecommendation: snap.handler.callsRecommendation,
+                acquiresPool: snap.handler.acquiresPool,
+                invoked: pageReq?.invokedRecommendation ?? false,
+                skipReason: pageReq?.skipReason ?? (snap.handler.callsRecommendation ? "flag" : "listing"),
+              })}
+              onEdit={() => undefined}
             />
             {showFlag ? (
               <FeatureFlagPanel

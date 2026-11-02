@@ -1,6 +1,6 @@
 /**
  * Bridges from a manuscript section to the lab or drill that runs that section's code.
- * One card per shipped lab or drill, on a heading that exists in the Frontier Plus HTML.
+ * One card per shipped lab or drill, on a heading that exists in the current manuscript HTML.
  */
 
 export type ConceptTarget =

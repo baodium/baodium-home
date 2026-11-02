@@ -12,25 +12,29 @@ const Ch1CodeEditor = dynamic(
 const FALLBACK_HIGHLIGHT = 3;
 
 export function CodePanel({
-  lines,
+  source,
   highlightLine,
   program,
   onEdit,
+  onSource,
 }: {
-  lines: string[];
+  source: string;
   highlightLine: number | null;
   program?: RunningProgram;
   onEdit?: (id: string, value: number | boolean | string) => void;
+  onSource: (source: string) => void;
 }) {
   const hl = highlightLine ?? FALLBACK_HIGHLIGHT;
   return (
     <div className="exp-panel overflow-hidden !p-0">
-      <div className="flex items-center justify-between border-b border-[color:var(--exp-line)] px-4 py-2.5">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[color:var(--exp-line)] px-4 py-2.5">
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">get_product_page</h3>
-        <p className="text-sm text-[color:var(--exp-muted)]">The pool is inside Recommendation.</p>
+        <p className="max-w-md text-sm leading-snug text-[color:var(--exp-muted)]">
+          This is the handler the next request runs. Comment out a call, or change the 40, then run the page.
+        </p>
       </div>
       {program && onEdit ? <RunningCode program={program} onEdit={onEdit} part="inputs" /> : null}
-      <Ch1CodeEditor lines={lines} highlightLine={hl} />
+      <Ch1CodeEditor source={source} highlightLine={hl} onChange={onSource} />
       {program && onEdit ? <RunningCode program={program} onEdit={onEdit} part="trace" /> : null}
     </div>
   );

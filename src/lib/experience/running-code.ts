@@ -479,33 +479,40 @@ export function chapter1Call(input: {
   busy: number;
   pending: number;
   acquireMs: number;
-  highlight: number;
-  exposureLocked?: boolean;
+  poolSize: number;
+  callsCatalog: boolean;
+  callsRecommendation: boolean;
+  acquiresPool: boolean;
+  invoked: boolean;
+  skipReason: "flag" | "listing" | "shed" | null;
 }): RunningProgram {
-  const lines: RunLine[] = [
-    line([
-      text("exposure_pct = "),
-      numEdit("exposurePct", input.exposurePct, 0, 100, 5, input.exposureLocked ? ["exposurePct"] : []),
-    ], true),
-    line([
-      text("stop_new_calls = "),
-      boolEdit("flagOff", input.flagOff, "True", "False", []),
-    ], true),
-    line([text("pool = 40")], true),
-    line([text("query_ms = 70")], true),
-  ];
+  const catalogDetail = input.callsCatalog
+    ? "Ran on Product Page. It does not take a pool slot."
+    : "That line is not in the handler, so this response has no product.";
+  const recDetail = !input.callsRecommendation
+    ? "The handler does not call recommendation_service.get, so no connection is taken."
+    : input.skipReason === "flag" || input.flagOff
+      ? "The flag stopped this call. No connection is taken."
+      : input.skipReason === "shed"
+        ? "The shed gate skipped the call. No connection is taken."
+        : !input.acquiresPool
+          ? "The call is in the handler, and pool.acquire is not, so it returns without a slot."
+          : input.invoked
+            ? `This call took a connection. Busy ${input.busy} of ${input.poolSize}. Pending ${input.pending.toFixed(0)}. Acquire ${input.acquireMs.toFixed(0)} ms.`
+            : `The call is in the handler. Busy ${input.busy} of ${input.poolSize}. Pending ${input.pending.toFixed(0)}.`;
+  const pageDetail = input.invoked
+    ? "build_response returned the product and the recommendation row."
+    : input.callsCatalog
+      ? "build_response returned the product without a recommendation row."
+      : "build_response had no product to return.";
   const trace: RunTrace[] = [
-    { label: "catalog_service.fetch", detail: "Product Page. No pool slot." },
-    {
-      label: "recommendation_service.get",
-      detail: input.flagOff
-        ? "New recommendation calls are stopped."
-        : `Busy ${input.busy} of 40. Pending ${input.pending.toFixed(0)}. Acquire ${input.acquireMs.toFixed(0)} ms.`,
-    },
-    { label: "build_response", detail: "The page returns with whatever Recommendation handed back." },
+    { label: "catalog_service.fetch", detail: catalogDetail },
+    { label: "feature flag", detail: input.flagOff ? `New calls are stopped. Exposure is ${input.exposurePct}%.` : `Exposure is ${input.exposurePct}%. The check runs before the recommendation call.` },
+    { label: "recommendation_service.get", detail: recDetail },
+    { label: "build_response", detail: pageDetail },
   ];
-  const hotTrace = input.highlight >= 4 ? 2 : input.highlight <= 2 ? 0 : 1;
-  return { title: "get_product_page", lines, trace, hotLine: -1, hotTrace };
+  const hotTrace = input.invoked ? 2 : input.callsCatalog ? 0 : 3;
+  return { title: "get_product_page", lines: [], trace, hotLine: -1, hotTrace };
 }
 
 export function chapter3Program(input: {

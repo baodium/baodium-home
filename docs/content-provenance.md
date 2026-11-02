@@ -4,7 +4,7 @@ What a reader sees, and where that text comes from. Labs are not a second manusc
 
 ## Author manuscript
 
-The canonical source for this edition is `Practical_System_Design_Source_Lite.zip`, the Frontier Plus source Adewale uploaded on 2026-11-01. It is not committed. `scripts/convert-manuscript.mjs` looks for that name, then for the previous zip `Baodium_System_Design_Final_Language_Pass_Web.zip`, under `manuscript/`, the repo root, `/cursor/stores/self/source/`, and `MANUSCRIPT_ZIP`.
+The canonical source for this edition is `Practical_System_Design_Final_Edition_v5_Lite.zip`, uploaded on 2026-11-02. It replaces Frontier Plus (`Practical_System_Design_Source_Lite.zip`) as the reader and the labs. It is not committed. `scripts/convert-manuscript.mjs` looks for the v5 Lite zip first, then Frontier Plus, then `Baodium_System_Design_Final_Language_Pass_Web.zip`, under `manuscript/`, the repo root, `/cursor/stores/self/`, `/cursor/stores/self/source/`, and `MANUSCRIPT_ZIP`.
 
 `manuscript/README.md` says to place the zip before a conversion. When the zip is absent and `src/generated/book/manifest.json` already exists, the converter keeps the committed output and does not invent chapters.
 
@@ -17,6 +17,12 @@ The zip contains `book.tex`, 14 chapter files, front matter, back matter, `final
 The reader still has 14 chapters, the same slugs, plus preface, acknowledgements, epilogue, appendices A–C, worksheet, glossary, further reading, the concept guide, and about the author. Appendix B is not chapter 15.
 
 Chapter titles in `src/lib/learning/registry.ts` and the short-lab catalog are copied from this manifest. A lab must not rename a chapter.
+
+## Final Edition v5 Lite
+
+The reader was reconverted from `Practical_System_Design_Final_Edition_v5_Lite.zip` on 2026-11-02. Chapter titles and the fourteen `/system-design/chapter-*` routes are unchanged. Figure files match the previous set. The prose in the reader is the manuscript prose, not a rewrite. The concept guide is the edition’s term list with chapter locators.
+
+The Chapter 1 lab executes `get_product_page` and the body of `recommendation_service.get`: catalog does not take a slot, the flag is checked before the recommendation call, and that call acquires from the pool named in the listing (40 unless the reader edits it). Commenting out the call stops new pool acquires. The product page, graph, trace, and metrics read that same request.
 
 ## What changed against the previous edition
 

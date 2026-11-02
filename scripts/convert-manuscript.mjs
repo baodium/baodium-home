@@ -2,8 +2,9 @@
 /**
  * Build-time LaTeX → structured book content for the Baodium reader.
  * Canonical source: the newest author zip (not committed).
+ * Practical_System_Design_Final_Edition_v5_Lite.zip is the current edition.
  * Practical_System_Design_Source_Lite.zip is the Frontier Plus edition.
- * Baodium_System_Design_Final_Language_Pass_Web.zip is the previous edition.
+ * Baodium_System_Design_Final_Language_Pass_Web.zip is the edition before that.
  */
 
 import fs from "node:fs";
@@ -19,18 +20,20 @@ import {
 } from "./preprocess-latex.mjs";
 
 const ZIP_NAMES = [
+  "Practical_System_Design_Final_Edition_v5_Lite.zip",
   "Practical_System_Design_Source_Lite.zip",
   "Baodium_System_Design_Final_Language_Pass_Web.zip",
 ];
 const SEARCH_DIRS = [
   path.join(process.cwd(), "manuscript"),
   process.cwd(),
+  "/cursor/stores/self",
+  "/cursor/stores/self/source",
   "/home/ubuntu/.cursor/projects/workspace",
   "/home/ubuntu/.cursor/projects/workspace/assets",
   "/home/workdir",
   "/home/workdir/attachments",
   "/tmp",
-  "/cursor/stores/self/source",
 ];
 const SEARCH_PATHS = [
   ...SEARCH_DIRS.flatMap((dir) => ZIP_NAMES.map((name) => path.join(dir, name))),
@@ -286,9 +289,10 @@ function extractSectionsFromHtml(html) {
 function writeReport(report) {
   const dir = path.dirname(REPORT_PATH);
   fs.mkdirSync(dir, { recursive: true });
+  const subagentId = process.env.CONVERSION_SUBAGENT_ID || "bc-3bf7069c-f698-5543-85ed-8e856fdb1f2f";
   const frontmatter = `---
 cursor:
-  subagentId: "bc-3bf7069c-f698-5543-85ed-8e856fdb1f2f"
+  subagentId: "${subagentId}"
 ---
 
 `;

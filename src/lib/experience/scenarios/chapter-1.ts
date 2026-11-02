@@ -1,3 +1,4 @@
+import { CHAPTER1_SOURCE } from "@/lib/experience/chapter1-program";
 import type { ChapterScenario } from "@/lib/experience/scenarios/types";
 import { getChapter } from "@/lib/learning/registry";
 
@@ -21,22 +22,16 @@ export const chapter1Scenario: ChapterScenario = {
     "Each Recommendation instance allows 40 connections. Home page, checkout, and product-page personalization share that pool. Product Page does not hold the connection.",
     "Baseline path: Client → Product Page → Catalog, no pool slot. Personalized: Product Page → Recommendation → pool → database. The incident’s mean occupancy was about 70 ms, with acquire p99 near 600 ms while all 40 connections were assigned.",
     "Feature flag uses stable user hashing. A change reaches new arrivals after a short propagation delay. In-flight holds continue.",
-    "Disabling the flag stops new recommendation work; requests already waiting for a connection still finish or time out.",
-    "Disabling the flag stops new recommendation calls. Requests already waiting finish or time out. The query stays near its baseline while acquire time is the queue.",
+    "Disabling the flag stops new recommendation calls. Requests already waiting for a connection still finish or time out. The query stays near its baseline. Acquire time is the queue.",
     "A later design capped each Product Page instance at 16 in-flight recommendation calls. This lab stays on the incident above, not that limiter.",
   ],
-  codeLines: [
-    "def get_product_page(user_id, product_id):",
-    "    product = catalog_service.fetch(product_id)",
-    "    recs = recommendation_service.get(user_id, product_id)",
-    "    return build_response(product, recs)",
-  ],
+  codeLines: CHAPTER1_SOURCE.split("\n"),
   steps: [
     {
       id: "inspect",
       letter: "A",
       title: "Inspect the feature",
-      body: "Toggle the product page preview. Recommendations appear as a rail on the page. The catalog lookup stays on Product Page. The expensive path will live in Recommendation, behind a feature flag, still invisible to live traffic until exposure rises.",
+      body: "Run get_product_page. Catalog is fetched on Product Page and does not take a connection. With the flag off, the handler does not call Recommendation, so the page has no recommendation row and the pool stays idle. The row appears when the flag lets a request through and the call is still in the listing. Comment out that call and the pool is not asked for a slot.",
       require: "toggle_preview",
     },
     {

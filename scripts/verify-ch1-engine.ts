@@ -1,5 +1,8 @@
+import { CHAPTER1_SOURCE } from "../src/lib/experience/chapter1-program";
 import {
+  applyChapter1Source,
   createEngine,
+  injectSingleRequest,
   setControls,
   setSimFrozen,
   snapshot as takeSnapshot,
@@ -358,6 +361,57 @@ console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));
     assert(a.snap.inFlight === b.snap.inFlight, "SLO tick was not deterministic");
     assert(a.snap.pending === b.snap.pending, "SLO pending diverged");
   }
+}
+
+{
+  const engine = createEngine(3, {
+    arrivalRate: 0,
+    featureEnabled: true,
+    exposurePct: 100,
+    recLookupSec: 0.07,
+    baselineHoldSec: 0.012,
+  });
+  injectSingleRequest(engine, { forceExposed: true });
+  let sawSlot = false;
+  for (let i = 0; i < 40; i++) {
+    const snap = tick(engine, 0.01, { force: true });
+    if (snap.activeCount > 0) sawSlot = true;
+  }
+  assert(sawSlot, "manuscript recommendation call should take a pool slot");
+  const page = takeSnapshot(engine).lastPage;
+  assert(page?.invokedRecommendation === true, "finished page did not call recommendation");
+  assert(page?.fetchedCatalog === true, "finished page skipped catalog");
+
+  const removed = CHAPTER1_SOURCE.replace(
+    "    recs = recommendation_service.get(user_id, product_id)\n",
+    "    recs = []\n",
+  );
+  applyChapter1Source(engine, removed);
+  assert(takeSnapshot(engine).handler.callsRecommendation === false, "parser still saw the call");
+  injectSingleRequest(engine, { forceExposed: true });
+  for (let i = 0; i < 40; i++) {
+    const snap = tick(engine, 0.01, { force: true });
+    const traced = snap.tracedRequest;
+    assert(traced?.acquiresPool !== true, "removed call acquired a connection");
+    assert(snap.activeCount === 0, "removed call occupied the pool");
+    if (traced?.phase === "done") {
+      assert(traced.skipReason === "listing", "removed call was not marked as a listing skip");
+      assert(traced.invokedRecommendation === false, "removed call still invoked recommendation");
+    }
+  }
+
+  const smaller = CHAPTER1_SOURCE.replace("40 connections", "8 connections");
+  applyChapter1Source(engine, smaller);
+  const sized = takeSnapshot(engine);
+  assert(sized.poolSize === 8, `pool size stayed ${sized.poolSize} after the listing said 8`);
+  assert(sized.handler.callsRecommendation === true, "restored listing dropped the call");
+  injectSingleRequest(engine, { forceExposed: true });
+  let capped = true;
+  for (let i = 0; i < 40; i++) {
+    const snap = tick(engine, 0.01, { force: true });
+    if (snap.activeCount > 8) capped = false;
+  }
+  assert(capped, "busy exceeded the edited pool of 8");
 }
 
 console.log(JSON.stringify({ ok: true, boundaries: "pool-outside-product-page" }));
