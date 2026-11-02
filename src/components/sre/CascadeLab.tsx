@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Segmented } from "@/components/ui/Segmented";
-import { CascadeTopology } from "@/components/sre/CascadeTopology";
+import Link from "next/link";
+import { CascadePortrait } from "@/components/sre/CascadePortrait";
 import { LaboratoryShell } from "@/components/sre/LaboratoryShell";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
@@ -33,6 +33,13 @@ const MODES = [
   { id: "guided" as const, label: "Guided" },
   { id: "practice" as const, label: "Practice" },
   { id: "challenge" as const, label: "Challenge" },
+];
+
+const LABS = [
+  { href: "/sre-labs/cascade", label: "Cascade" },
+  { href: "/sre-labs/instrument", label: "Instrument" },
+  { href: "/sre-labs/slo", label: "SLO" },
+  { href: "/sre-labs/alert", label: "Alert" },
 ];
 
 const TABS: { id: Tab; label: string }[] = [
@@ -222,103 +229,130 @@ export function CascadeLab() {
   return (
     <LaboratoryShell
       toolbar={
-        <>
-          <Segmented value={mode} onChange={setMode} options={MODES} label="Mode" layoutId="cascade-mode" size="sm" />
-          <p className="font-mono text-[0.72rem] text-[color:var(--exp-faint)]">
-            t {view ? view.t.toFixed(1) : "0.0"}s · seed 42
-          </p>
-          <div className="ml-auto flex flex-wrap gap-2">
-            <button type="button" className="exp-btn exp-btn-primary" onClick={togglePlay} aria-pressed={playing}>
-              {playing ? "Pause" : "Play"}
-            </button>
-            <button type="button" className="exp-btn exp-btn-ghost" onClick={stepClock}>
-              Step 0.5s
-            </button>
-            <button type="button" className="exp-btn exp-btn-ghost" onClick={() => setNonce((value) => value + 1)}>
-              Reset
-            </button>
-          </div>
-        </>
+        <nav className="cascade-siblings" aria-label="SRE labs">
+          {LABS.map((lab) => (
+            <Link key={lab.href} href={lab.href} aria-current={lab.href === "/sre-labs/cascade" ? "page" : undefined}>
+              {lab.label}
+            </Link>
+          ))}
+        </nav>
       }
       mission={
         <div className="cascade-mast">
-          <div>
           <p className="exp-kicker">SRE Lab</p>
           <h1 className="cascade-title">
-            {mode === "challenge" ? "Checkout success collapsed. Restore it." : "Diagnose a cascading checkout failure"}
+            {mode === "challenge" ? (
+              <>
+                Checkout
+                <br />
+                success
+                <br />
+                collapsed.
+              </>
+            ) : (
+              <>
+                Diagnose a
+                <br />
+                cascading
+                <br />
+                checkout
+                <br />
+                failure
+              </>
+            )}
           </h1>
-          {mode === "guided" ? (
-            <div className="mt-4 space-y-3">
-              <p className="font-mono text-[0.72rem] text-[color:var(--exp-faint)]">
-                Step {Math.min(step + 1, STEPS.length)} of {STEPS.length}
-              </p>
-              <p className="text-base leading-relaxed text-[color:var(--exp-muted)]">{current.look}</p>
-              {current.action ? (
-                <button type="button" className="exp-btn exp-btn-primary" onClick={runStep}>
-                  {current.action}
+          <div className="cascade-modes" role="group" aria-label="Mode">
+            {MODES.map((item, index) => (
+              <span key={item.id} className="cascade-mode">
+                {index > 0 ? (
+                  <span className="cascade-slash" aria-hidden="true">
+                    /
+                  </span>
+                ) : null}
+                <button type="button" aria-pressed={mode === item.id} onClick={() => setMode(item.id)}>
+                  {item.label}
                 </button>
-              ) : (
-                <button type="button" className="exp-btn exp-btn-primary" onClick={check}>
-                  Check this run
-                </button>
-              )}
-            </div>
-          ) : null}
-          {mode === "practice" ? (
-            <div className="mt-4 space-y-3 text-base leading-relaxed text-[color:var(--exp-muted)]">
+              </span>
+            ))}
+            <span className="cascade-clock">t {view ? view.t.toFixed(1) : "0.0"}s · seed 42</span>
+          </div>
+          <div className="cascade-lede">
+            {mode === "guided" ? (
+              <>
+                <p className="cascade-step">
+                  Step {Math.min(step + 1, STEPS.length)} of {STEPS.length}
+                </p>
+                <p>{current.look}</p>
+              </>
+            ) : null}
+            {mode === "practice" ? (
               <p>
-                <strong className="font-medium text-[color:var(--exp-fg)]">Your objective.</strong> Make the provider
-                slow enough, and the attempt timeout short enough, that retries multiply and checkout success falls.
-                Then restore the last 5 seconds: success at or above 95%, at most 1.25 provider calls per checkout,
-                provider slots under 90% full, and at least half of the arrivals succeeding.
+                <strong>Your objective.</strong> Make the provider slow enough, and the attempt timeout short enough,
+                that retries multiply and checkout success falls. Then restore the last 5 seconds: success at or above
+                95%, at most 1.25 provider calls per checkout, provider slots under 90% full, and at least half of the
+                arrivals succeeding.
               </p>
+            ) : null}
+            {mode === "challenge" ? (
               <p>
-                A timeout shorter than the provider work makes payment retry. If the timeout does not release the slot,
-                the provider keeps working after the caller has gone, and the next retry waits behind it. Raising the
-                timeout above the measured provider work lets the first call finish. Capping retries stops the extra
-                calls even when the timeout stays short, and the shopper still fails until the wait covers the work.
+                <strong>Your objective.</strong> In the last 5 seconds, checkout success reaches 95%, each finished
+                checkout starts at most 1.25 provider calls, provider slots stay under 90% full, and at least half of
+                the arrivals succeed.
               </p>
-              <button type="button" className="exp-btn exp-btn-primary" onClick={check}>
+            ) : null}
+          </div>
+          <div className="cascade-actions">
+            {mode === "guided" && current.action ? (
+              <button type="button" className="exp-btn exp-btn-primary cascade-cta" onClick={runStep}>
+                {current.action}
+              </button>
+            ) : (
+              <button type="button" className="exp-btn exp-btn-primary cascade-cta" onClick={check}>
                 Check this run
               </button>
-            </div>
-          ) : null}
-          {mode === "challenge" ? (
-            <div className="mt-4 space-y-3 text-base leading-relaxed text-[color:var(--exp-muted)]">
-              <p>
-                <strong className="font-medium text-[color:var(--exp-fg)]">Your objective.</strong> In the last 5
-                seconds, checkout success reaches 95%, each finished checkout starts at most 1.25 provider calls,
-                provider slots stay under 90% full, and at least half of the arrivals succeed.
-              </p>
-              <p>
-                Play or step the clock. Select a service, then open a trace and the log for the same trace id. Provider
-                latency is measured from the spans. You can change the retry limit, the attempt timeout, the client
-                deadline, whether a timeout releases the provider slot, whether payment refuses work that cannot finish
-                before the deadline, and whether the gateway sheds load.
-              </p>
-              <button type="button" className="exp-btn exp-btn-primary" onClick={check}>
-                Check this run
+            )}
+            <div className="cascade-subactions">
+              <button type="button" onClick={togglePlay} aria-pressed={playing}>
+                {playing ? "Pause" : "Play"}
+              </button>
+              <button type="button" onClick={stepClock}>
+                Step 0.5s
+              </button>
+              <button type="button" onClick={() => setNonce((value) => value + 1)}>
+                Reset
               </button>
             </div>
-          ) : null}
+          </div>
           {grade ? (
             <p role="status" className={`cascade-result ${grade.ok ? "is-ok" : ""}`}>
               {grade.reason}
             </p>
           ) : null}
-          </div>
-          <Figures view={view} />
         </div>
       }
       topology={
         view ? (
-          <>
-            <CascadeTopology view={view} selected={selected} onSelect={setSelected} reducedMotion={reduced} />
-            <SlotRack view={view} />
-          </>
+          <CascadePortrait view={view} selected={selected} onSelect={setSelected} />
         ) : (
-          <p className="text-sm text-[color:var(--exp-muted)]">The clock has not started.</p>
+          <p className="cascade-waiting">The clock has not started.</p>
         )
+      }
+      preface={
+        mode === "practice" ? (
+          <p>
+            A timeout shorter than the provider work makes payment retry. If the timeout does not release the slot, the
+            provider keeps working after the caller has gone, and the next retry waits behind it. Raising the timeout
+            above the measured provider work lets the first call finish. Capping retries stops the extra calls even when
+            the timeout stays short, and the shopper still fails until the wait covers the work.
+          </p>
+        ) : mode === "challenge" ? (
+          <p>
+            Play or step the clock. Select a service, then open a trace and the log for the same trace id. Provider
+            latency is measured from the spans. You can change the retry limit, the attempt timeout, the client
+            deadline, whether a timeout releases the provider slot, whether payment refuses work that cannot finish
+            before the deadline, and whether the gateway sheds load.
+          </p>
+        ) : null
       }
       inspection={
         <>
@@ -500,91 +534,6 @@ export function CascadeLab() {
         </div>
       }
     />
-  );
-}
-
-function Figures({ view }: { view: CascadeView | null }) {
-  const success = view?.successRate == null ? null : view.successRate;
-  const attempts = view?.attemptsPerCheckout ?? 0;
-  const util = view?.providerUtilization ?? 0;
-  return (
-    <dl className="cascade-figures">
-      <Figure
-        label="Success"
-        value={success == null ? "…" : `${Math.round(success * 100)}`}
-        unit={success == null ? "" : "%"}
-        note="finished in the last 5s"
-        tone={success == null ? "wait" : success >= 0.95 ? "good" : success < 0.8 ? "bad" : "mid"}
-      />
-      <Figure
-        label="Calls"
-        value={view && view.finished > 0 ? attempts.toFixed(attempts >= 10 ? 0 : 2) : "…"}
-        unit={view && view.finished > 0 ? "/checkout" : ""}
-        note="provider spans on those checkouts"
-        tone={!view || view.finished === 0 ? "wait" : attempts <= 1.25 ? "good" : attempts > 2 ? "bad" : "mid"}
-      />
-      <Figure
-        label="Slots"
-        value={`${Math.round(util * 100)}`}
-        unit="%"
-        note={`${view?.providerBusy ?? 0} of ${view?.providerSlots ?? 8} running`}
-        tone={util >= 0.9 ? "bad" : util > 0 ? "good" : "wait"}
-      />
-      <Figure
-        label="p99"
-        value={view && view.finished > 0 ? `${Math.round(view.gatewayP99Ms)}` : "…"}
-        unit={view && view.finished > 0 ? "ms" : ""}
-        note="shopper wait at the gateway"
-        tone="mid"
-      />
-    </dl>
-  );
-}
-
-function Figure({
-  label,
-  value,
-  unit,
-  note,
-  tone,
-}: {
-  label: string;
-  value: string;
-  unit: string;
-  note: string;
-  tone: "good" | "bad" | "mid" | "wait";
-}) {
-  return (
-    <div className="cascade-figure" data-tone={tone}>
-      <dt>{label}</dt>
-      <dd>
-        <b>{value}</b>
-        {unit ? <span>{unit}</span> : null}
-      </dd>
-      <p>{note}</p>
-    </div>
-  );
-}
-
-function SlotRack({ view }: { view: CascadeView }) {
-  const hot = view.providerUtilization >= 0.9 || view.providerQueue > 0;
-  return (
-    <div className="cascade-rack">
-      <div>
-        <p>Provider slots</p>
-        <strong>
-          {view.providerBusy} running
-          {view.providerQueue > 0 ? ` · ${view.providerQueue} waiting` : " · none waiting"}
-        </strong>
-      </div>
-      <ol aria-label={`${view.providerBusy} of ${view.providerSlots} provider slots in use`}>
-        {Array.from({ length: view.providerSlots }, (_, index) => (
-          <li key={index} data-on={index < view.providerBusy ? "true" : "false"} data-hot={hot ? "true" : "false"}>
-            <span>{index + 1}</span>
-          </li>
-        ))}
-      </ol>
-    </div>
   );
 }
 

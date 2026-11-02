@@ -2708,30 +2708,171 @@ select.run-token {
   color: var(--exp-fg);
 }
 
-.cascade-toolbar {
+.sre-sections,
+.cascade-siblings {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.15rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--exp-line);
+  gap: 0.35rem 0.95rem;
+  margin-bottom: 1.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--exp-faint);
+}
+
+.sre-sections a:hover,
+.cascade-siblings a:hover {
+  color: var(--exp-fg);
+}
+
+.sre-sections a[aria-current="page"],
+.cascade-siblings a[aria-current="page"] {
+  color: #1f5f64;
+}
+
+.cascade-toolbar {
+  margin-bottom: 1.35rem;
+}
+
+.cascade-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cascade-copy {
+  min-width: 0;
 }
 
 .cascade-mast {
-  display: grid;
-  gap: 1.35rem;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .cascade-title {
-  max-width: 16ch;
-  margin-top: 0.3rem;
+  margin-top: 0.85rem;
   font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 4.8vw, 4.15rem);
+  font-size: clamp(2.85rem, 4.7vw, 4.45rem);
+  font-style: italic;
   font-weight: 450;
-  letter-spacing: -0.04em;
-  line-height: 0.94;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+
+.cascade-modes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.15rem;
+  margin-top: 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cascade-mode {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.cascade-slash {
+  color: color-mix(in srgb, var(--exp-fg) 28%, transparent);
+}
+
+.cascade-modes button {
+  border: 0;
+  background: none;
+  padding: 0.15rem 0.35rem;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--exp-faint);
+  cursor: pointer;
+}
+
+.cascade-modes button[aria-pressed="true"] {
+  color: #1f5f64;
+}
+
+.cascade-modes button:hover {
+  color: var(--exp-fg);
+}
+
+.cascade-clock {
+  margin-left: 0.85rem;
+  color: var(--exp-faint);
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+.cascade-lede {
+  max-width: 38rem;
+  margin-top: 1.15rem;
+  color: var(--exp-muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.cascade-lede strong {
+  color: var(--exp-fg);
+  font-weight: 550;
+}
+
+.cascade-step {
+  margin-bottom: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--exp-faint);
+}
+
+.cascade-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.15rem;
+  margin-top: 1.45rem;
+}
+
+.cascade-cta {
+  height: auto;
+  min-height: 2.85rem;
+  max-width: 28rem;
+  padding: 0.7rem 1.2rem;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.35;
+}
+
+.cascade-subactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+}
+
+.cascade-subactions button {
+  border: 0;
+  background: none;
+  padding: 0.2rem 0;
+  font-size: 0.95rem;
+  color: var(--exp-fg);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--exp-fg) 35%, transparent);
+  text-underline-offset: 0.28em;
+  cursor: pointer;
+}
+
+.cascade-subactions button:hover {
+  text-decoration-color: var(--exp-fg);
+}
+
+.cascade-subactions button[aria-pressed="true"] {
+  color: #1f5f64;
 }
 
 .cascade-result {
@@ -2770,7 +2911,7 @@ select.run-token {
 
 .cascade-figure b {
   font-family: var(--font-serif);
-  font-size: clamp(2.7rem, 4.2vw, 3.6rem);
+  font-size: clamp(2.35rem, 3.1vw, 3.15rem);
   font-weight: 450;
   letter-spacing: -0.05em;
   line-height: 0.84;
@@ -2791,6 +2932,10 @@ select.run-token {
   color: var(--exp-muted);
 }
 
+.cascade-figure[data-tone="wait"] b {
+  color: var(--exp-faint);
+}
+
 .cascade-figure[data-tone="good"] b {
   color: #1f5f64;
 }
@@ -2800,16 +2945,144 @@ select.run-token {
 }
 
 .cascade-stage {
-  margin-top: 1.35rem;
+  --cascade-paper: #fff;
+  display: flex;
+  min-height: 34rem;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--exp-line);
-  border-radius: 1.4rem;
-  background: var(--exp-panel-raise);
-  box-shadow: 0 28px 60px -40px rgba(26, 35, 48, 0.45);
+  border-radius: 1.6rem;
+  background: var(--cascade-paper);
+}
+
+.cascade-waiting {
+  margin: auto;
+  padding: 2rem;
+  color: var(--exp-muted);
+}
+
+.cascade-portrait {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.35rem 1.35rem 1.15rem;
+}
+
+.cascade-path {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0.35rem 0 0.85rem;
+  padding: 0;
+  list-style: none;
+}
+
+.cascade-path::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 1.15rem;
+  bottom: 1.15rem;
+  width: 1px;
+  background: color-mix(in srgb, var(--exp-fg) 18%, transparent);
+}
+
+.cascade-path[data-hot="true"]::before {
+  background: color-mix(in srgb, #ad4f36 70%, transparent);
+}
+
+.cascade-path li {
+  position: relative;
+  display: flex;
+  min-height: 3.25rem;
+  flex: 1;
+  align-items: center;
+}
+
+.cascade-hop {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: center;
+  border: 0;
+  border-radius: 0.85rem;
+  background: transparent;
+  padding: 0.35rem 0.45rem 0.35rem 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cascade-hop:hover {
+  background: color-mix(in srgb, var(--exp-fg) 4%, transparent);
+}
+
+.cascade-hop[data-selected="true"] .cascade-hop-name {
+  font-style: italic;
+}
+
+.cascade-hop .service-mark {
+  position: relative;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  background: var(--cascade-paper);
+  color: #1f5f64;
+}
+
+.cascade-hop .service-mark svg {
+  width: 26px;
+  height: 26px;
+}
+
+.cascade-hop[data-hot="true"] .service-mark {
+  color: #ad4f36;
+}
+
+.cascade-hop[data-selected="true"] .service-mark {
+  border-radius: 999px;
+  box-shadow: 0 0 0 1.5px currentColor;
+}
+
+.cascade-hop-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.cascade-hop-name {
+  font-family: var(--font-serif);
+  font-size: clamp(1.45rem, 2vw, 1.85rem);
+  font-weight: 450;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.cascade-hop-detail {
+  color: var(--exp-muted);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.cascade-preface {
+  max-width: 44rem;
+  color: var(--exp-muted);
+  font-size: 1.02rem;
+  line-height: 1.55;
 }
 
 .cascade-lab .cascade-flow {
-  height: 248px;
+  height: auto;
+  min-height: 22rem;
+  flex: 1;
 }
 
 .cascade-rack {
@@ -2830,12 +3103,20 @@ select.run-token {
 }
 
 .cascade-rack strong {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.7rem;
   margin-top: 0.2rem;
   font-family: var(--font-serif);
   font-size: 1.25rem;
   font-weight: 450;
   letter-spacing: -0.03em;
+}
+
+.cascade-rack strong span + span::before {
+  content: "·";
+  margin-right: 0.7rem;
+  color: var(--exp-faint);
 }
 
 .cascade-rack ol {
@@ -2883,7 +3164,8 @@ select.run-token {
   display: grid;
   gap: 1.25rem;
   align-items: start;
-  margin-top: 1.25rem;
+  margin-top: 0;
+  padding-top: 2.75rem;
 }
 
 .cascade-side {
@@ -3279,12 +3561,64 @@ select.run-token {
 }
 
 @media (min-width: 1100px) {
-  .cascade-mast {
-    grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.9fr);
+  .cascade-hero {
+    display: grid;
+    grid-template-columns: minmax(22rem, 0.9fr) minmax(28rem, 1.12fr);
+    align-items: stretch;
+    width: 100vw;
+    min-height: 100dvh;
+    margin-top: -7rem;
+    margin-left: calc(50% - 50vw);
+    gap: 0;
+  }
+
+  .cascade-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 6.75rem 2.75rem 3.5rem max(1.5rem, calc((100vw - 88rem) / 2 + 1.5rem));
+  }
+
+  .cascade-stage {
+    min-height: 100dvh;
+    justify-content: flex-end;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 5.75rem 2.75rem 3.5rem 0;
+  }
+
+  .cascade-portrait {
+    flex: none;
+    justify-content: flex-start;
+    gap: 1.75rem;
+    border: 0;
+    background: transparent;
+    padding: 0 0 0 1.5rem;
+  }
+
+  .cascade-path {
+    flex: none;
+    gap: 1.15rem;
+    margin: 0;
+  }
+
+  .cascade-path li {
+    flex: none;
+    min-height: 0;
+  }
+
+  .cascade-portrait .cascade-figures {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .cascade-lower {
     grid-template-columns: minmax(18rem, 0.7fr) minmax(0, 1.45fr);
+    padding-top: 3rem;
+  }
+
+  .cascade-preface {
+    grid-column: 1 / -1;
   }
 
   .cascade-traces {
@@ -3309,6 +3643,16 @@ select.run-token {
 }
 
 @media (prefers-color-scheme: dark) {
+  .cascade-stage {
+    --cascade-paper: var(--exp-panel-raise);
+  }
+
+  .cascade-modes button[aria-pressed="true"],
+  .cascade-siblings a[aria-current="page"],
+  .cascade-subactions button[aria-pressed="true"] {
+    color: #8fd0d0;
+  }
+
   .cascade-figure[data-tone="good"] b {
     color: #8fd0d0;
   }

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function CascadeLabPage() {
   return (
-    <SreChrome crumb="Cascading checkout">
+    <SreChrome crumb="Cascading checkout" showSections={false}>
       <CascadeLab />
     </SreChrome>
   );
