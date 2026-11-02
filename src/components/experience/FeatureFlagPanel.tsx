@@ -28,8 +28,8 @@ export function FeatureFlagPanel({
     <div className="exp-panel">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Feature flag</h3>
-        <p className="max-w-[16rem] text-right text-[0.72rem] leading-snug text-[color:var(--exp-muted)]">
-          Code can ship at 0% exposure
+        <p className="max-w-xs text-right text-sm leading-snug text-[color:var(--exp-muted)]">
+          Checked before recommendation_service.get. Off stops new calls. A connection already assigned still finishes.
         </p>
       </div>
 

@@ -61,7 +61,7 @@ export function Ch1CodeEditor({
     <CodeMirror
       className="ch1-editor"
       value={source}
-      height="360px"
+      height="148px"
       theme="dark"
       extensions={extensions}
       onChange={onChange}

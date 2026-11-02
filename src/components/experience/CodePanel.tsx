@@ -30,7 +30,7 @@ export function CodePanel({
       <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[color:var(--exp-line)] px-4 py-2.5">
         <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">get_product_page</h3>
         <p className="max-w-md text-sm leading-snug text-[color:var(--exp-muted)]">
-          This is the handler the next request runs. Comment out a call, or change the 40, then run the page.
+          The handler from the chapter. The flag is checked before the recommendation call. That call takes one of 40 connections.
         </p>
       </div>
       {program && onEdit ? <RunningCode program={program} onEdit={onEdit} part="inputs" /> : null}

@@ -22,7 +22,7 @@ Chapter titles in `src/lib/learning/registry.ts` and the short-lab catalog are c
 
 The reader was reconverted from `Practical_System_Design_Final_Edition_v5_Lite.zip` on 2026-11-02. Chapter titles and the fourteen `/system-design/chapter-*` routes are unchanged. Figure files match the previous set. The prose in the reader is the manuscript prose, not a rewrite. The concept guide is the edition’s term list with chapter locators.
 
-The Chapter 1 lab executes `get_product_page` and the body of `recommendation_service.get`: catalog does not take a slot, the flag is checked before the recommendation call, and that call acquires from the pool named in the listing (40 unless the reader edits it). Commenting out the call stops new pool acquires. The product page, graph, trace, and metrics read that same request.
+The Chapter 1 lab executes the manuscript `get_product_page`. Catalog does not take a slot. The flag is checked before `recommendation_service.get`. That call acquires from the 40-connection pool inside Recommendation. The pool readout uses the chapter’s field names and the engine’s counts. Commenting out the call stops new pool acquires. The product page does not return until that call finishes.
 
 ## What changed against the previous edition
 

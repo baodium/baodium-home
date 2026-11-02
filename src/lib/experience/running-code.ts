@@ -484,6 +484,7 @@ export function chapter1Call(input: {
   callsRecommendation: boolean;
   acquiresPool: boolean;
   invoked: boolean;
+  phase: string | null;
   skipReason: "flag" | "listing" | "shed" | null;
 }): RunningProgram {
   const catalogDetail = input.callsCatalog
@@ -491,27 +492,43 @@ export function chapter1Call(input: {
     : "That line is not in the handler, so this response has no product.";
   const recDetail = !input.callsRecommendation
     ? "The handler does not call recommendation_service.get, so no connection is taken."
-    : input.skipReason === "flag" || input.flagOff
+    : input.skipReason === "flag"
       ? "The flag stopped this call. No connection is taken."
       : input.skipReason === "shed"
         ? "The shed gate skipped the call. No connection is taken."
         : !input.acquiresPool
-          ? "The call is in the handler, and pool.acquire is not, so it returns without a slot."
-          : input.invoked
-            ? `This call took a connection. Busy ${input.busy} of ${input.poolSize}. Pending ${input.pending.toFixed(0)}. Acquire ${input.acquireMs.toFixed(0)} ms.`
-            : `The call is in the handler. Busy ${input.busy} of ${input.poolSize}. Pending ${input.pending.toFixed(0)}.`;
-  const pageDetail = input.invoked
-    ? "build_response returned the product and the recommendation row."
-    : input.callsCatalog
-      ? "build_response returned the product without a recommendation row."
-      : "build_response had no product to return.";
+          ? "The call is in the handler, and it is not taking a connection."
+          : input.phase === "waiting"
+          ? `Waiting for one of ${input.poolSize} connections. Pending ${input.pending.toFixed(0)}. Acquire ${input.acquireMs.toFixed(0)} ms.`
+          : input.phase === "holding"
+            ? `Holding one of ${input.poolSize} connections. The page is still open. Busy ${input.busy}. Pending ${input.pending.toFixed(0)}.`
+            : input.invoked
+              ? `The call took one connection and returned. Busy ${input.busy} of ${input.poolSize}. Pending ${input.pending.toFixed(0)}. Acquire ${input.acquireMs.toFixed(0)} ms.`
+              : `The call is in the handler. Busy ${input.busy} of ${input.poolSize}. Pending ${input.pending.toFixed(0)}.`;
+  const waitingOnCall = input.phase === "waiting" || input.phase === "holding" || input.phase === "arriving";
+  const pageDetail = waitingOnCall
+    ? "build_response has not run. The handler waits for the lines above it."
+    : input.invoked
+      ? "build_response returned the product and the recommendation row."
+      : input.callsCatalog
+        ? "build_response returned the product without a recommendation row."
+        : "build_response had no product to return.";
   const trace: RunTrace[] = [
     { label: "catalog_service.fetch", detail: catalogDetail },
     { label: "feature flag", detail: input.flagOff ? `New calls are stopped. Exposure is ${input.exposurePct}%.` : `Exposure is ${input.exposurePct}%. The check runs before the recommendation call.` },
     { label: "recommendation_service.get", detail: recDetail },
     { label: "build_response", detail: pageDetail },
   ];
-  const hotTrace = input.invoked ? 2 : input.callsCatalog ? 0 : 3;
+  const hotTrace =
+    input.phase === "arriving"
+      ? 0
+      : input.phase === "waiting" || input.phase === "holding"
+        ? 2
+        : input.invoked
+          ? 3
+          : input.callsCatalog
+            ? 0
+            : 3;
   return { title: "get_product_page", lines: [], trace, hotLine: -1, hotTrace };
 }
 

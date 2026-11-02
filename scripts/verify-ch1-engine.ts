@@ -10,8 +10,8 @@ import {
   POOL_SIZE,
   FLAG_PROPAGATION_SEC,
 } from "../src/lib/experience/engine";
-import { poolIsOutsideProductPage, SERVICE_EDGES } from "../src/lib/experience/service-topology";
 import { readChapter1 } from "../src/lib/experience/readout";
+import { poolIsOutsideProductPage, SERVICE_EDGES } from "../src/lib/experience/service-topology";
 import { isUserExposed } from "../src/lib/experience/rng";
 import { createEngine as createSlo, tick as tickSlo } from "../src/lib/slo-watch";
 
@@ -400,18 +400,15 @@ console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));
     }
   }
 
-  const smaller = CHAPTER1_SOURCE.replace("40 connections", "8 connections");
-  applyChapter1Source(engine, smaller);
-  const sized = takeSnapshot(engine);
-  assert(sized.poolSize === 8, `pool size stayed ${sized.poolSize} after the listing said 8`);
-  assert(sized.handler.callsRecommendation === true, "restored listing dropped the call");
-  injectSingleRequest(engine, { forceExposed: true });
-  let capped = true;
-  for (let i = 0; i < 40; i++) {
-    const snap = tick(engine, 0.01, { force: true });
-    if (snap.activeCount > 8) capped = false;
-  }
-  assert(capped, "busy exceeded the edited pool of 8");
+  applyChapter1Source(engine, CHAPTER1_SOURCE);
+  const restored = takeSnapshot(engine);
+  assert(restored.poolSize === 40, `pool left the chapter size of 40 (${restored.poolSize})`);
+  assert(restored.handler.callsRecommendation === true, "manuscript listing dropped the call");
+  assert(restored.handler.poolSize === 40, "handler pool is not the chapter's 40");
+  const read = readChapter1(restored);
+  assert(read.busy === restored.activeCount, "assigned_connections drifted from the pool");
+  assert(read.idle === restored.idleCount, "idle_connections drifted from the pool");
+  assert(read.waiting === restored.waitingCount, "pending_acquisitions drifted from the queue");
 }
 
 console.log(JSON.stringify({ ok: true, boundaries: "pool-outside-product-page" }));

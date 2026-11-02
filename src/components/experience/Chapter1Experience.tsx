@@ -521,9 +521,12 @@ export function Chapter1Experience() {
   const showProduct = stepId === "inspect" || stepId === "deploy" || open;
   const showPool =
     open ||
-    ["trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(stepId) ||
+    ["deploy", "trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(
+      stepId,
+    ) ||
     snap.activeCount > 0 ||
-    snap.waitingCount > 0;
+    snap.waitingCount > 0 ||
+    !snap.handler.callsRecommendation;
   const showFlag =
     open ||
     ["deploy", "trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(
@@ -1170,7 +1173,10 @@ export function Chapter1Experience() {
                 callsRecommendation: snap.handler.callsRecommendation,
                 acquiresPool: snap.handler.acquiresPool,
                 invoked: pageReq?.invokedRecommendation ?? false,
-                skipReason: pageReq?.skipReason ?? (snap.handler.callsRecommendation ? "flag" : "listing"),
+                phase: pageReq?.phase ?? null,
+                skipReason:
+                  pageReq?.skipReason ??
+                  (snap.appliedFeatureDisabledForNew || !snap.appliedFeatureEnabled ? "flag" : null),
               })}
               onEdit={() => undefined}
             />
