@@ -2984,9 +2984,9 @@ select.run-token {
 .cascade-path::before {
   content: "";
   position: absolute;
-  left: 16px;
-  top: 1.15rem;
-  bottom: 1.15rem;
+  left: 19px;
+  top: 1.4rem;
+  bottom: 1.4rem;
   width: 1px;
   background: color-mix(in srgb, var(--exp-fg) 18%, transparent);
 }
@@ -3008,13 +3008,14 @@ select.run-token {
   z-index: 1;
   display: grid;
   width: 100%;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 0.85rem;
+  height: 100%;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 0.85rem 1rem;
   align-items: center;
   border: 0;
-  border-radius: 0.85rem;
+  border-radius: 0;
   background: transparent;
-  padding: 0.35rem 0.45rem 0.35rem 0;
+  padding: 0.55rem 0.2rem 0.55rem 0;
   text-align: left;
   color: inherit;
   cursor: pointer;
@@ -3031,15 +3032,15 @@ select.run-token {
 .cascade-hop .service-mark {
   position: relative;
   z-index: 1;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   background: var(--cascade-paper);
   color: #1f5f64;
 }
 
 .cascade-hop .service-mark svg {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
 }
 
 .cascade-hop[data-hot="true"] .service-mark {
@@ -3060,7 +3061,7 @@ select.run-token {
 
 .cascade-hop-name {
   font-family: var(--font-serif);
-  font-size: clamp(1.45rem, 2vw, 1.85rem);
+  font-size: clamp(1.65rem, 2.15vw, 2.2rem);
   font-weight: 450;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -3070,6 +3071,63 @@ select.run-token {
   color: var(--exp-muted);
   font-size: 0.88rem;
   line-height: 1.35;
+}
+
+.cascade-hop-meter {
+  display: block;
+  height: 7px;
+  margin-top: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--exp-fg) 8%, transparent);
+}
+
+.cascade-hop-meter i {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: 999px;
+  background: #1f5f64;
+}
+
+.cascade-hop[data-tone="bad"] .cascade-hop-meter i,
+.cascade-hop[data-hot="true"] .cascade-hop-meter i {
+  background: #ad4f36;
+}
+
+.cascade-hop-stat {
+  display: flex;
+  min-width: 4.2rem;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.2rem;
+}
+
+.cascade-hop-stat b {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 2.6vw, 2.85rem);
+  font-weight: 450;
+  letter-spacing: -0.045em;
+  line-height: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.cascade-hop-stat span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--exp-faint);
+}
+
+.cascade-hop-stat[data-tone="good"] b {
+  color: #1f5f64;
+}
+
+.cascade-hop-stat[data-tone="bad"] b {
+  color: #8d3e2b;
+}
+
+.cascade-hop-stat[data-tone="wait"] b {
+  color: var(--exp-faint);
 }
 
 .cascade-preface {
@@ -3174,10 +3232,11 @@ select.run-token {
 }
 
 .cascade-card {
-  border: 1px solid var(--exp-line);
-  border-radius: 1.2rem;
-  background: var(--exp-panel-raise);
-  padding: 1rem 1.1rem 1.15rem;
+  border: 0;
+  border-top: 1px solid var(--exp-line);
+  border-radius: 0;
+  background: transparent;
+  padding: 1.15rem 0 0.35rem;
 }
 
 .cascade-card-title {
@@ -3581,31 +3640,43 @@ select.run-token {
 
   .cascade-stage {
     min-height: 100dvh;
-    justify-content: flex-end;
+    justify-content: stretch;
     border: 0;
     border-radius: 0;
     background: transparent;
-    padding: 5.75rem 2.75rem 3.5rem 0;
+    padding: 5.6rem 0 0;
   }
 
   .cascade-portrait {
-    flex: none;
-    justify-content: flex-start;
-    gap: 1.75rem;
-    border: 0;
-    background: transparent;
-    padding: 0 0 0 1.5rem;
+    flex: 1;
+    gap: 0.35rem;
+    border-left: 1px solid var(--exp-line);
+    background: var(--cascade-paper);
+    padding: 1.7rem 2.6rem 1.25rem 2rem;
   }
 
   .cascade-path {
-    flex: none;
-    gap: 1.15rem;
-    margin: 0;
+    flex: 1;
+    gap: 0;
+    margin: 0.85rem 0 0.35rem;
   }
 
   .cascade-path li {
-    flex: none;
-    min-height: 0;
+    flex: 1;
+    min-height: 4.75rem;
+  }
+
+  .cascade-portrait .cascade-figure b {
+    font-size: clamp(2.7rem, 3.3vw, 3.55rem);
+  }
+
+  .cascade-portrait .cascade-rack {
+    margin: 0.35rem -2.6rem 0 -2rem;
+    padding: 0.95rem 2.6rem 1.15rem 2rem;
+  }
+
+  .cascade-portrait .cascade-rack li {
+    height: 72px;
   }
 
   .cascade-portrait .cascade-figures {
@@ -3643,8 +3714,17 @@ select.run-token {
 }
 
 @media (prefers-color-scheme: dark) {
-  .cascade-stage {
+  .cascade-stage,
+  .cascade-portrait {
     --cascade-paper: var(--exp-panel-raise);
+  }
+
+  .cascade-hop-stat[data-tone="good"] b {
+    color: #8fd0d0;
+  }
+
+  .cascade-hop-stat[data-tone="bad"] b {
+    color: #f0b2a2;
   }
 
   .cascade-modes button[aria-pressed="true"],
