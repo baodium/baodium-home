@@ -241,25 +241,7 @@ export function CascadeLab() {
         <div className="cascade-mast">
           <p className="exp-kicker">SRE Lab</p>
           <h1 className="cascade-title">
-            {mode === "challenge" ? (
-              <>
-                Checkout
-                <br />
-                success
-                <br />
-                collapsed.
-              </>
-            ) : (
-              <>
-                Diagnose a
-                <br />
-                cascading
-                <br />
-                checkout
-                <br />
-                failure
-              </>
-            )}
+            {mode === "challenge" ? "Checkout success collapsed." : "Diagnose a cascading checkout failure"}
           </h1>
           <div className="cascade-modes" role="group" aria-label="Mode">
             {MODES.map((item, index) => (
@@ -276,6 +258,10 @@ export function CascadeLab() {
             ))}
             <span className="cascade-clock">t {view ? view.t.toFixed(1) : "0.0"}s · seed 42</span>
           </div>
+        </div>
+      }
+      brief={
+        <>
           <div className="cascade-lede">
             {mode === "guided" ? (
               <>
@@ -328,7 +314,7 @@ export function CascadeLab() {
               {grade.reason}
             </p>
           ) : null}
-        </div>
+        </>
       }
       topology={
         view ? (

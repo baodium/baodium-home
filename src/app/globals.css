@@ -2732,16 +2732,37 @@ select.run-token {
 }
 
 .cascade-toolbar {
-  margin-bottom: 1.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.cascade-toolbar .cascade-siblings {
+  flex-wrap: nowrap;
+  gap: 0.35rem 0.7rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
 }
 
 .cascade-hero {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "copy"
+    "stage"
+    "brief";
+  gap: 1.15rem;
+}
+
+.cascade-rail {
+  display: contents;
 }
 
 .cascade-copy {
+  grid-area: copy;
+  min-width: 0;
+}
+
+.cascade-brief {
+  grid-area: brief;
   min-width: 0;
 }
 
@@ -2752,13 +2773,14 @@ select.run-token {
 }
 
 .cascade-title {
-  margin-top: 0.85rem;
+  margin-top: 0.35rem;
+  max-width: 12em;
   font-family: var(--font-serif);
-  font-size: clamp(2.85rem, 4.7vw, 4.45rem);
+  font-size: clamp(1.85rem, 2.15vw, 2.35rem);
   font-style: italic;
   font-weight: 450;
-  letter-spacing: -0.045em;
-  line-height: 0.92;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
 }
 
 .cascade-modes {
@@ -2766,17 +2788,18 @@ select.run-token {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.35rem 0.15rem;
-  margin-top: 1.15rem;
+  margin-top: 0.85rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .cascade-mode {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.55rem;
+  gap: 0.4rem;
+  white-space: nowrap;
 }
 
 .cascade-slash {
@@ -2803,18 +2826,20 @@ select.run-token {
 }
 
 .cascade-clock {
-  margin-left: 0.85rem;
+  flex-basis: 100%;
+  margin-top: 0.45rem;
+  margin-left: 0;
   color: var(--exp-faint);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: none;
 }
 
 .cascade-lede {
-  max-width: 38rem;
-  margin-top: 1.15rem;
+  max-width: 34rem;
+  margin-top: 0;
   color: var(--exp-muted);
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-size: 0.98rem;
+  line-height: 1.5;
 }
 
 .cascade-lede strong {
@@ -2835,15 +2860,15 @@ select.run-token {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.85rem 1.15rem;
-  margin-top: 1.45rem;
+  gap: 0.75rem 1rem;
+  margin-top: 0.95rem;
 }
 
 .cascade-cta {
   height: auto;
-  min-height: 2.85rem;
-  max-width: 28rem;
-  padding: 0.7rem 1.2rem;
+  min-height: 2.75rem;
+  max-width: 100%;
+  padding: 0.65rem 1.05rem;
   white-space: normal;
   text-align: left;
   line-height: 1.35;
@@ -2911,10 +2936,10 @@ select.run-token {
 
 .cascade-figure b {
   font-family: var(--font-serif);
-  font-size: clamp(2.35rem, 3.1vw, 3.15rem);
+  font-size: clamp(2.15rem, 2.8vw, 2.85rem);
   font-weight: 450;
-  letter-spacing: -0.05em;
-  line-height: 0.84;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
   font-variant-numeric: tabular-nums;
 }
 
@@ -2947,7 +2972,8 @@ select.run-token {
 .cascade-stage {
   --cascade-paper: #fff;
   display: flex;
-  min-height: 34rem;
+  grid-area: stage;
+  min-height: min(72dvh, 40rem);
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--exp-line);
@@ -3061,10 +3087,10 @@ select.run-token {
 
 .cascade-hop-name {
   font-family: var(--font-serif);
-  font-size: clamp(1.65rem, 2.15vw, 2.2rem);
+  font-size: clamp(1.55rem, 2vw, 2.05rem);
   font-weight: 450;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: -0.028em;
+  line-height: 1.08;
 }
 
 .cascade-hop-detail {
@@ -3105,10 +3131,10 @@ select.run-token {
 
 .cascade-hop-stat b {
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 2.6vw, 2.85rem);
+  font-size: clamp(1.85rem, 2.4vw, 2.55rem);
   font-weight: 450;
-  letter-spacing: -0.045em;
-  line-height: 0.85;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
   font-variant-numeric: tabular-nums;
 }
 
@@ -3621,8 +3647,8 @@ select.run-token {
 
 @media (min-width: 1100px) {
   .cascade-hero {
-    display: grid;
-    grid-template-columns: minmax(22rem, 0.9fr) minmax(28rem, 1.12fr);
+    grid-template-columns: minmax(23rem, 0.36fr) minmax(0, 1.64fr);
+    grid-template-areas: "rail stage";
     align-items: stretch;
     width: 100vw;
     min-height: 100dvh;
@@ -3631,11 +3657,18 @@ select.run-token {
     gap: 0;
   }
 
-  .cascade-copy {
+  .cascade-rail {
     display: flex;
+    grid-area: rail;
     flex-direction: column;
-    justify-content: flex-end;
-    padding: 6.75rem 2.75rem 3.5rem max(1.5rem, calc((100vw - 88rem) / 2 + 1.5rem));
+    justify-content: space-between;
+    min-height: 100dvh;
+    padding: 6.5rem 1.75rem 2.5rem max(1.25rem, calc((100vw - 88rem) / 2 + 1.25rem));
+  }
+
+  .cascade-copy,
+  .cascade-brief {
+    grid-area: auto;
   }
 
   .cascade-stage {
@@ -3644,15 +3677,19 @@ select.run-token {
     border: 0;
     border-radius: 0;
     background: transparent;
-    padding: 5.6rem 0 0;
+    padding: 5.25rem 0 0;
   }
 
   .cascade-portrait {
     flex: 1;
-    gap: 0.35rem;
+    gap: 0.65rem;
     border-left: 1px solid var(--exp-line);
     background: var(--cascade-paper);
-    padding: 1.7rem 2.6rem 1.25rem 2rem;
+    padding: 1.45rem 2.75rem 1.15rem 2.15rem;
+  }
+
+  .cascade-portrait .cascade-hop-name {
+    font-size: clamp(1.85rem, 2.15vw, 2.35rem);
   }
 
   .cascade-path {
@@ -3663,7 +3700,7 @@ select.run-token {
 
   .cascade-path li {
     flex: 1;
-    min-height: 4.75rem;
+    min-height: 5.35rem;
   }
 
   .cascade-portrait .cascade-figure b {
@@ -3671,8 +3708,8 @@ select.run-token {
   }
 
   .cascade-portrait .cascade-rack {
-    margin: 0.35rem -2.6rem 0 -2rem;
-    padding: 0.95rem 2.6rem 1.15rem 2rem;
+    margin: 0.35rem -2.75rem 0 -2.15rem;
+    padding: 0.95rem 2.75rem 1.15rem 2.15rem;
   }
 
   .cascade-portrait .cascade-rack li {
@@ -3709,7 +3746,7 @@ select.run-token {
   }
 
   .cascade-title {
-    max-width: none;
+    max-width: 11em;
   }
 }
 
