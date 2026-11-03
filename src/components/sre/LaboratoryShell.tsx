@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 
 /**
- * Words on the left, the live system filling the right, the way About sets
- * the name beside the photograph. Controls and telemetry sit on the next page.
+ * A short title, then the live checkout. On a wide screen the path fills the
+ * right side and the step sits under the title. Controls stay on the next page.
  */
 export function LaboratoryShell({
   toolbar,
   mission,
+  brief,
   topology,
   preface,
   inspection,
@@ -14,6 +15,7 @@ export function LaboratoryShell({
 }: {
   toolbar: ReactNode;
   mission: ReactNode;
+  brief?: ReactNode;
   topology: ReactNode;
   preface?: ReactNode;
   inspection: ReactNode;
@@ -22,9 +24,12 @@ export function LaboratoryShell({
   return (
     <div className="cascade-lab">
       <div className="cascade-hero">
-        <div className="cascade-copy">
-          <div className="cascade-toolbar">{toolbar}</div>
-          <section aria-label="Mission">{mission}</section>
+        <div className="cascade-rail">
+          <div className="cascade-copy">
+            <div className="cascade-toolbar">{toolbar}</div>
+            <section aria-label="Mission">{mission}</section>
+          </div>
+          {brief ? <div className="cascade-brief">{brief}</div> : null}
         </div>
         <section aria-label="Topology" className="cascade-stage">
           {topology}
