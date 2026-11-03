@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Segmented } from "@/components/ui/Segmented";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { TelemetryBoard } from "@/components/sre/TelemetryBoard";
@@ -58,10 +58,6 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
 
   const snapshot = useMemo(() => snapshotSre(engine, controls), [engine, controls]);
   const trace = snapshot.traces.find((item) => item.id === traceId) ?? snapshot.traces[0] ?? null;
-
-  useEffect(() => {
-    setTraceId((current) => current ?? snapshot.traces[0]?.id ?? null);
-  }, [snapshot.traces]);
 
   const restart = (nextMode: Mode, nextSeed = seed) => {
     setMode(nextMode);

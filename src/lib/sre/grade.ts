@@ -3,7 +3,6 @@ import {
   DEFAULT_TARGET,
   PAGE_BURN,
   meetsTarget,
-  type AlertKind,
   type Controls,
   type Scene,
 } from "@/lib/sre/model";

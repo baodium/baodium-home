@@ -1,5 +1,7 @@
 "use client";
 
+import { shareResult } from "@/lib/play/share-result";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
@@ -66,6 +68,7 @@ export function TrafficSurgeGame() {
   const [snap, setSnap] = useState<SurgeSnap>(idleSnap);
   const [result, setResult] = useState<SurgeResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
   const stepMode = stepOverride ?? reduced;
 
@@ -102,6 +105,7 @@ export function TrafficSurgeGame() {
     stop();
     engineRef.current = createSurge();
     setResult(null);
+    setShareError(false);
     setCopied(false);
     setSnap(
       emptySurgeSnap("The table starts at 300 lookups a second."),
@@ -142,6 +146,7 @@ export function TrafficSurgeGame() {
     setPhase("intro");
     setSnap(idleSnap);
     setResult(null);
+    setShareError(false);
   }, [stop]);
 
 
@@ -149,22 +154,14 @@ export function TrafficSurgeGame() {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/traffic-surge`;
     const text = `Traffic Surge on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Traffic Surge · Baodium", text, url });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    }
+    setShareError(false);
+    const outcome = await shareResult({ title: "Traffic Surge · Baodium", text, url });
+    setCopied(outcome === "copied");
+    setShareError(outcome === "failed");
   };
 
-  const technologies =
-    catalog?.technologies ??
-    ["Little's Law", "Load tests", "Admission limits", "Acquire p95"];
+  const technologies = useMemo(() => catalog?.technologies ??
+    ["Little's Law", "Load tests", "Admission limits", "Acquire p95"], []);
   const takeaway =
     catalog?.takeaway ??
     "400 lookups a second is the last passing stage. That is where the admission limit sits.";
@@ -496,6 +493,7 @@ export function TrafficSurgeGame() {
                   onAgain={start}
                   onShare={share}
                   copied={copied}
+                  shareError={shareError}
                 />
               ) : null}
             </div>

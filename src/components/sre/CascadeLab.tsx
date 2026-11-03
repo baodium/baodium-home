@@ -112,14 +112,25 @@ const STEPS: Step[] = [
 ];
 
 export function CascadeLab() {
-  const reduced = usePrefersReducedMotion();
-  const engineRef = useRef<Engine | null>(null);
   const [mode, setMode] = useState<Mode>("guided");
   const [nonce, setNonce] = useState(0);
+  return <CascadeSession key={`${mode}-${nonce}`} mode={mode} setMode={setMode} onReplay={() => setNonce((value) => value + 1)} />;
+}
+
+function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mode: Mode) => void; onReplay: () => void }) {
+  const reduced = usePrefersReducedMotion();
+  const [initialEngine] = useState(() => {
+    const engine = createEngine(42);
+    attachCascade(engine, mode === "challenge" ? incidentControls() : healthyControls());
+    if (mode === "challenge") advanceEngine(engine, 5);
+    setSimFrozen(engine, true);
+    return engine;
+  });
+  const engineRef = useRef<Engine | null>(initialEngine);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [controls, setControls] = useState<CascadeControls>(healthyControls);
-  const [view, setView] = useState<CascadeView | null>(null);
+  const [controls, setControls] = useState<CascadeControls>(() => ({ ...initialEngine.cascade!.controls }));
+  const [view, setView] = useState<CascadeView | null>(() => cascadeView(initialEngine.cascade!, initialEngine.t));
   const [selected, setSelected] = useState<CascadeService>("gateway");
   const [traceId, setTraceId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("metrics");
@@ -131,24 +142,6 @@ export function CascadeLab() {
     setView(cascadeView(engine.cascade, engine.t));
     setControls({ ...engine.cascade.controls });
   }, []);
-
-  useEffect(() => {
-    const engine = createEngine(42);
-    const initial = mode === "challenge" ? incidentControls() : healthyControls();
-    attachCascade(engine, initial);
-    if (mode === "challenge") advanceEngine(engine, 5);
-    setSimFrozen(engine, true);
-    engineRef.current = engine;
-    setControls({ ...engine.cascade!.controls });
-    const next = cascadeView(engine.cascade!, engine.t);
-    setView(next);
-    setPlaying(false);
-    setGrade(null);
-    setStep(0);
-    setSelected("gateway");
-    setTraceId(next.traces[0]?.traceId ?? null);
-    setTab("metrics");
-  }, [mode, nonce]);
 
   useEffect(() => {
     if (!playing) return;
@@ -304,7 +297,7 @@ export function CascadeLab() {
               <button type="button" onClick={stepClock}>
                 Step 0.5s
               </button>
-              <button type="button" onClick={() => setNonce((value) => value + 1)}>
+              <button type="button" onClick={onReplay}>
                 Reset
               </button>
             </div>

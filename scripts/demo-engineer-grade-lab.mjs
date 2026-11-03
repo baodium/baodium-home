@@ -93,7 +93,6 @@ await videoPage.screenshot({
 });
 // Scroll mitigations into view
 await videoPage.evaluate(() => {
-  const el = document.querySelector("h3");
   const all = [...document.querySelectorAll("h3")];
   const m = all.find((h) => h.textContent?.includes("Mitigations"));
   m?.scrollIntoView({ block: "center" });

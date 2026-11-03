@@ -28,6 +28,7 @@ export function GameResultPanel({
   onAgain,
   onShare,
   copied,
+  shareError,
 }: {
   outcome: "won" | "lost";
   score: number;
@@ -44,6 +45,7 @@ export function GameResultPanel({
   onAgain: () => void;
   onShare?: () => void;
   copied?: boolean;
+  shareError?: boolean;
 }) {
   const held = outcome === "won";
   const reduced = usePrefersReducedMotion();
@@ -60,6 +62,7 @@ export function GameResultPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduced ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
+      {shareError ? <p role="alert" className="mb-3 text-sm text-[color:var(--drill-accent-text)]">Could not share this result. Check your browser permissions and try again.</p> : null}
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-signal)]">
           {held ? "Passed" : "Missed"}

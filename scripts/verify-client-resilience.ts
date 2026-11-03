@@ -1,0 +1,47 @@
+import assert from "node:assert/strict";
+import { readStored, writeStored } from "../src/lib/storage";
+import { loadReaderPrefs } from "../src/lib/book/reader-styles";
+import { loadProgress, saveProgress } from "../src/lib/experience/progress";
+import { loadDirectoryMarks, markChapterFinished, subscribeDirectory } from "../src/lib/learning/directory-progress";
+import { shareResult } from "../src/lib/play/share-result";
+
+async function main() {
+  const events = new EventTarget();
+  Object.defineProperty(globalThis, "window", { configurable: true, value: events });
+  Object.defineProperty(events, "localStorage", { configurable: true, get() { throw new Error("Storage blocked"); } });
+  writeStored("test", "session value");
+  assert.equal(readStored("test"), "session value");
+  writeStored("test", null);
+  assert.equal(readStored("test"), null);
+  saveProgress({ stepId: "review", completed: true });
+  assert.equal(loadProgress().completed, true);
+  assert.equal(loadProgress().stepId, "review");
+  let updates = 0;
+  const unsubscribe = subscribeDirectory(() => updates++);
+  markChapterFinished("chapter-1");
+  assert.equal(loadDirectoryMarks()["chapter-1"].finished, true);
+  assert.equal(updates, 1);
+  unsubscribe();
+  writeStored("baodium-book-reader", JSON.stringify({ theme: "__proto__", fontScale: "huge", measure: "invalid", progressBySlug: { good: 0.5, bad: 12, negative: -1 } }));
+  const prefs = loadReaderPrefs();
+  assert.equal(prefs.theme, "light");
+  assert.equal(prefs.fontScale, "md");
+  assert.equal(prefs.measure, "comfortable");
+  assert.deepEqual(prefs.progressBySlug, { good: 0.5 });
+  let copies = 0;
+  const clipboard = { async writeText() { copies++; } };
+  const nav = { clipboard, share: undefined as undefined | (() => Promise<void>) };
+  Object.defineProperty(globalThis, "navigator", { configurable: true, value: nav });
+  const data = { title: "Result", text: "Score 100", url: "https://baodium.com/play" };
+  assert.equal(await shareResult(data), "copied");
+  assert.equal(copies, 1);
+  nav.share = async () => { throw Object.assign(new Error("Cancelled"), { name: "AbortError" }); };
+  assert.equal(await shareResult(data), "cancelled");
+  assert.equal(copies, 1);
+  nav.share = async () => { throw new Error("Share unavailable"); };
+  assert.equal(await shareResult(data), "copied");
+  clipboard.writeText = async () => { throw new Error("Permission denied"); };
+  assert.equal(await shareResult(data), "failed");
+  console.log("verify-client-resilience: storage fallback, validation, subscriptions and sharing ok");
+}
+void main();

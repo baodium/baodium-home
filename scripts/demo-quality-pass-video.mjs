@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { mkdirSync, copyFileSync, existsSync } from "fs";
+import { mkdirSync, copyFileSync } from "fs";
 import { join } from "path";
 import { spawnSync } from "child_process";
 

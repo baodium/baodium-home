@@ -1,3 +1,4 @@
+import { readStored, writeStored } from "@/lib/storage";
 export type ReaderTheme = "light" | "dark" | "paper";
 export type ReaderFontScale = "sm" | "md" | "lg";
 
@@ -38,11 +39,23 @@ const THEME_ALIASES: Record<string, ReaderTheme> = {
 export function loadReaderPrefs(): ReaderPrefs {
   if (typeof window === "undefined") return defaultReaderPrefs;
   try {
-    const raw = localStorage.getItem(READER_STORAGE_KEY);
+    const raw = readStored(READER_STORAGE_KEY);
     if (!raw) return defaultReaderPrefs;
     const parsed = JSON.parse(raw) as Partial<ReaderPrefs> & { theme?: string };
-    const theme = THEME_ALIASES[parsed.theme ?? ""] ?? defaultReaderPrefs.theme;
-    return { ...defaultReaderPrefs, ...parsed, theme };
+    const theme = typeof parsed.theme === "string" && Object.hasOwn(THEME_ALIASES, parsed.theme)
+      ? THEME_ALIASES[parsed.theme] : defaultReaderPrefs.theme;
+    return {
+      ...defaultReaderPrefs,
+      theme,
+      fontScale: ["sm", "md", "lg"].includes(parsed.fontScale ?? "") ? parsed.fontScale! : "md",
+      measure: ["narrow", "comfortable", "wide"].includes(parsed.measure ?? "") ? parsed.measure! : "comfortable",
+      lastSlug: typeof parsed.lastSlug === "string" ? parsed.lastSlug : undefined,
+      scrollTops: numericMap(parsed.scrollTops, Infinity),
+      progressBySlug: numericMap(parsed.progressBySlug, 1),
+      tocCollapsed: parsed.tocCollapsed === true,
+      feedbackDismissedAt: finiteNumber(parsed.feedbackDismissedAt),
+      flipHintDismissedAt: finiteNumber(parsed.flipHintDismissedAt),
+    };
   } catch {
     return defaultReaderPrefs;
   }
@@ -50,5 +63,14 @@ export function loadReaderPrefs(): ReaderPrefs {
 
 export function saveReaderPrefs(prefs: ReaderPrefs) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(READER_STORAGE_KEY, JSON.stringify(prefs));
+  writeStored(READER_STORAGE_KEY, JSON.stringify(prefs));
+}
+
+function finiteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
+}
+
+function numericMap(value: unknown, max: number): Record<string, number> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).filter(([, n]) => finiteNumber(n) !== undefined && n <= max));
 }

@@ -1,12 +1,14 @@
 "use client";
 
+import { shareResult } from "@/lib/play/share-result";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { metadataProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
-import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillControlLabel } from "@/components/play/DrillTip";
 import { DrillNarrator } from "@/components/play/DrillNarrator";
 import {
   DrillPanelHeading,
@@ -91,6 +93,7 @@ export function CacheRouletteGame() {
   const [snap, setSnap] = useState<CacheSnap>(idleSnap);
   const [result, setResult] = useState<CacheResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
   const stepMode = stepOverride ?? reduced;
 
@@ -127,6 +130,7 @@ export function CacheRouletteGame() {
     stop();
     engineRef.current = createCache();
     setResult(null);
+    setShareError(false);
     setCopied(false);
     setSnap(emptyCacheSnap("The key has missed. Watch how many catalog reads that produces."));
     setPaused(false);
@@ -165,6 +169,7 @@ export function CacheRouletteGame() {
     setPhase("intro");
     setSnap(idleSnap);
     setResult(null);
+    setShareError(false);
   }, [stop]);
 
 
@@ -172,20 +177,13 @@ export function CacheRouletteGame() {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/cache-roulette`;
     const text = `Cache Roulette on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Cache Roulette · Baodium", text, url });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    }
+    setShareError(false);
+    const outcome = await shareResult({ title: "Cache Roulette · Baodium", text, url });
+    setCopied(outcome === "copied");
+    setShareError(outcome === "failed");
   };
 
-  const technologies = catalog?.technologies ?? ["Cache-aside", "TTL", "Shared loader", "Source permits"];
+  const technologies = useMemo(() => catalog?.technologies ?? ["Cache-aside", "TTL", "Shared loader", "Source permits"], []);
   const takeaway =
     catalog?.takeaway ??
     "A miss shares one loader, and that loader needs a source permit.";
@@ -527,6 +525,7 @@ export function CacheRouletteGame() {
                   onAgain={start}
                   onShare={share}
                   copied={copied}
+                  shareError={shareError}
                 />
               ) : null}
             </div>

@@ -1,3 +1,4 @@
+import { readStored, writeStored } from "@/lib/storage";
 import { CHAPTERS } from "@/lib/learning/registry";
 import { READER_STORAGE_KEY, loadReaderPrefs } from "@/lib/book/reader-styles";
 
@@ -19,7 +20,7 @@ let readingCache: Record<string, boolean> = EMPTY_READING;
 
 export function loadDirectoryMarks(): Record<string, DirectoryMark> {
   if (typeof window === "undefined") return EMPTY_MARKS;
-  const raw = localStorage.getItem(KEY);
+  const raw = readStored(KEY);
   if (raw === marksRaw) return marksCache;
   marksRaw = raw;
   if (!raw) {
@@ -28,7 +29,11 @@ export function loadDirectoryMarks(): Record<string, DirectoryMark> {
   }
   try {
     const parsed = JSON.parse(raw) as Record<string, DirectoryMark>;
-    marksCache = parsed && typeof parsed === "object" ? parsed : EMPTY_MARKS;
+    marksCache = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? Object.fromEntries(Object.entries(parsed).filter(([, mark]) =>
+          mark && typeof mark.opened === "boolean" && typeof mark.finished === "boolean" &&
+          typeof mark.updatedAt === "number" && Number.isFinite(mark.updatedAt)))
+      : EMPTY_MARKS;
   } catch {
     marksCache = EMPTY_MARKS;
   }
@@ -43,15 +48,17 @@ export function subscribeDirectory(onChange: () => void) {
   if (typeof window === "undefined") return () => {};
   window.addEventListener("storage", onChange);
   window.addEventListener("focus", onChange);
+  window.addEventListener("learning-progress", onChange);
   return () => {
     window.removeEventListener("storage", onChange);
     window.removeEventListener("focus", onChange);
+    window.removeEventListener("learning-progress", onChange);
   };
 }
 
 export function chapterReading(): Record<string, boolean> {
   if (typeof window === "undefined") return EMPTY_READING;
-  const raw = localStorage.getItem(READER_STORAGE_KEY);
+  const raw = readStored(READER_STORAGE_KEY);
   if (raw === readingRaw) return readingCache;
   readingRaw = raw;
   const prefs = loadReaderPrefs();
@@ -70,9 +77,10 @@ export function chapterReadingServerSnapshot() {
 
 function write(next: Record<string, DirectoryMark>) {
   const raw = JSON.stringify(next);
-  localStorage.setItem(KEY, raw);
+  writeStored(KEY, raw);
   marksRaw = raw;
   marksCache = next;
+  window.dispatchEvent(new Event("learning-progress"));
 }
 
 export function markChapterOpened(slug: string) {

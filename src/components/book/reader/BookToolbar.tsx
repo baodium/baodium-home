@@ -104,7 +104,7 @@ export function BookToolbar({
       window.removeEventListener("pointerdown", onPointer);
       window.removeEventListener("keydown", onKey);
     };
-  }, [exploreOpen]);
+  }, [exploreOpen, setExploreOpen]);
 
   const reviewHref = amazonReviewUrl();
 

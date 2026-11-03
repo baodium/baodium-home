@@ -18,7 +18,6 @@ await page.waitForTimeout(800);
 
 await page.screenshot({ path: `${out}/recording-frame-hero.png` });
 
-const path = `${out}/hero-no-overlay-demo.webm`;
 await page.video?.delete?.();
 await page.close();
 await browser.close();

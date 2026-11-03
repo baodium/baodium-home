@@ -1,3 +1,4 @@
+import { readStored, writeStored } from "@/lib/storage";
 import type { DecisionKind, GuidedStepId, LabMode } from "@/lib/experience/types";
 
 const KEY = "baodium-experience-ch1-v2";
@@ -25,9 +26,19 @@ export const defaultProgress = (): Chapter1Progress => ({
 export function loadProgress(): Chapter1Progress {
   if (typeof window === "undefined") return defaultProgress();
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = readStored(KEY);
     if (!raw) return defaultProgress();
-    return { ...defaultProgress(), ...(JSON.parse(raw) as Chapter1Progress) };
+    const parsed = JSON.parse(raw) as Partial<Chapter1Progress>;
+    const defaults = defaultProgress();
+    return {
+      stepId: ["inspect", "deploy", "trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(parsed.stepId ?? "") ? parsed.stepId! : defaults.stepId,
+      decision: ["pause_exposure", "disable_feature", "investigate"].includes(parsed.decision ?? "") ? parsed.decision! : null,
+      mode: ["guided", "practice", "challenge"].includes(parsed.mode ?? "") ? parsed.mode! : defaults.mode,
+      completed: parsed.completed === true,
+      previewToggled: parsed.previewToggled === true,
+      deployedZero: parsed.deployedZero === true,
+      updatedAt: typeof parsed.updatedAt === "number" && Number.isFinite(parsed.updatedAt) ? parsed.updatedAt : defaults.updatedAt,
+    };
   } catch {
     return defaultProgress();
   }
@@ -36,10 +47,10 @@ export function loadProgress(): Chapter1Progress {
 export function saveProgress(patch: Partial<Chapter1Progress>) {
   if (typeof window === "undefined") return;
   const next = { ...loadProgress(), ...patch, updatedAt: Date.now() };
-  localStorage.setItem(KEY, JSON.stringify(next));
+  writeStored(KEY, JSON.stringify(next));
 }
 
 export function clearProgress() {
   if (typeof window === "undefined") return;
-  localStorage.removeItem(KEY);
+  writeStored(KEY, null);
 }

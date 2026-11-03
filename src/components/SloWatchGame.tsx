@@ -1,5 +1,7 @@
 "use client";
 
+import { shareResult } from "@/lib/play/share-result";
+
 import Link from "next/link";
 import {
   useCallback,
@@ -15,7 +17,7 @@ import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { sloProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
-import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
+import { DrillControlLabel } from "@/components/play/DrillTip";
 import { DrillNarrator } from "@/components/play/DrillNarrator";
 import {
   DrillPanelHeading,
@@ -227,10 +229,9 @@ export function SloWatchGame({
   const [snap, setSnap] = useState<TickSnapshot>(initialSnap);
   const [result, setResult] = useState<GameResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
   const [series, setSeries] = useState<SloWavePoint[]>([]);
-  const [peakUtil, setPeakUtil] = useState(0);
-  const [cascaded, setCascaded] = useState(false);
   const stepMode = stepOverride ?? reduced;
 
   const engineRef = useRef(createEngine());
@@ -252,10 +253,6 @@ export function SloWatchGame({
     const { state, snap: next, done } = tick(engineRef.current, controlsRef.current);
     engineRef.current = state;
     setSnap(next);
-    setPeakUtil((prev) => Math.max(prev, next.poolUtil));
-    if (state.cascade || next.cascadeRisk >= 0.9) {
-      setCascaded(true);
-    }
     setSeries((prev) => {
       const point: SloWavePoint = {
         t: next.t,
@@ -270,7 +267,6 @@ export function SloWatchGame({
     });
     if (done) {
       stopLoop();
-      if (state.cascade) setCascaded(true);
       setResult(done);
       setPhase(done.outcome);
     }
@@ -280,11 +276,10 @@ export function SloWatchGame({
     stopLoop();
     engineRef.current = createEngine();
     setResult(null);
+    setShareError(false);
     setCopied(false);
     setSnap(initialSnap);
     setSeries([]);
-    setPeakUtil(0);
-    setCascaded(false);
     setPaused(false);
     setPhase("running");
 
@@ -323,9 +318,8 @@ export function SloWatchGame({
     setPhase("intro");
     setSnap(initialSnap);
     setSeries([]);
-    setPeakUtil(0);
-    setCascaded(false);
     setResult(null);
+    setShareError(false);
   }, [stopLoop]);
 
 
@@ -339,25 +333,17 @@ export function SloWatchGame({
       "https://baodium.com/play/slo-watch",
       url,
     );
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "SLO Watch · Baodium", text, url });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    }
+    setShareError(false);
+    const outcome = await shareResult({ title: "SLO Watch · Baodium", text, url });
+    setCopied(outcome === "copied");
+    setShareError(outcome === "failed");
   };
 
-  const technologies = catalog?.technologies ?? ["Feature flags", "Connection pools", "Acquire wait"];
+  const technologies = useMemo(() => catalog?.technologies ?? ["Feature flags", "Connection pools", "Acquire wait"], []);
   const takeaway =
     catalog?.takeaway ??
     "Disabling the flag stops new recommendation calls. The query stays near 70 ms.";
 
-  const livePeak = Math.max(peakUtil, snap.poolUtil);
   const criteria = useMemo(
     () =>
       liveSloCriteria(snap.errorBudget, snap.pending, phase),
@@ -561,6 +547,7 @@ export function SloWatchGame({
           onAgain={start}
           onShare={share}
           copied={copied}
+          shareError={shareError}
         />
       ) : null}
     </div>

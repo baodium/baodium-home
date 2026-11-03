@@ -56,7 +56,9 @@ function acquireP95(rate: number): number {
   return 80 + (rate - 560) * 0.4;
 }
 
-export function createTail(_seed = 42): TailState {
+export function createTail(seed = 42): TailState {
+  // This deterministic drill has no random inputs; retain the shared engine API.
+  void seed;
   return { t: 0, samples: [], sampleCount: 0, underSec: 0 };
 }
 

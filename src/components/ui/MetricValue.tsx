@@ -21,18 +21,16 @@ export function MetricValue({
   const [shown, setShown] = useState(value);
 
   useEffect(() => {
-    if (reduce) {
-      setShown(value);
-      return;
-    }
-    spring.set(value);
+    if (reduce) spring.jump(value);
+    else spring.set(value);
   }, [reduce, spring, value]);
 
   useMotionValueEvent(spring, "change", (latest) => {
-    if (!reduce) setShown(latest);
+    setShown(latest);
   });
 
-  const text = Number.isFinite(shown) ? shown.toFixed(digits) : "0";
+  const displayed = reduce ? value : shown;
+  const text = Number.isFinite(displayed) ? displayed.toFixed(digits) : "0";
 
   return (
     <span className={`instrument-value ${className}`}>

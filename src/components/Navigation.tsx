@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
@@ -37,6 +37,8 @@ export function Navigation() {
   const reduce = usePrefersReducedMotion();
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const [tucked, setTucked] = useState(false);
   const [entered, setEntered] = useState(false);
   const active = onAbout
@@ -103,10 +105,31 @@ export function Navigation() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+      if (event.key === "Tab") {
+        const links = menuRef.current?.querySelectorAll<HTMLAnchorElement>("a");
+        const last = links?.[links.length - 1];
+        if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          toggleRef.current?.focus();
+        } else if (event.shiftKey && document.activeElement === toggleRef.current) {
+          event.preventDefault();
+          last?.focus();
+        }
+      }
     };
+    const closeOnDesktop = () => {
+      if (window.innerWidth >= 1024) setOpen(false);
+    };
+    window.addEventListener("resize", closeOnDesktop);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", closeOnDesktop);
+    };
   }, [open]);
 
   const coolChrome = onProjects || onAbout || onPlay || onLabs || onBook || onSre;
@@ -114,6 +137,7 @@ export function Navigation() {
   return (
     <motion.header
       id="top"
+      onFocusCapture={() => setTucked(false)}
       initial={reduce ? false : { y: -24, opacity: 0 }}
       animate={barHidden ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
       transition={
@@ -175,6 +199,7 @@ export function Navigation() {
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
+            ref={toggleRef}
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -196,12 +221,13 @@ export function Navigation() {
         {open ? (
           <motion.nav
             id="mobile-menu"
+            ref={menuRef}
             aria-label="Mobile"
             initial={{ opacity: 0, y: -12, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.35, ease }}
-            className={`mx-auto mt-2 max-w-[62rem] overflow-hidden rounded-[1.75rem] border border-white/10 p-3 backdrop-blur-xl lg:hidden ${
+            className={`mx-auto mt-2 max-w-[62rem] max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-[1.75rem] border border-white/10 p-3 backdrop-blur-xl lg:hidden ${
               coolChrome ? "bg-[#1a2330]/[0.96]" : "bg-[#2a211c]/[0.96]"
             }`}
           >
@@ -215,6 +241,7 @@ export function Navigation() {
                 >
                   <Link
                     href={link.href}
+                    aria-current={active === link.id ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={`flex min-h-14 items-center justify-between rounded-2xl px-4 text-2xl tracking-[-0.02em] text-cream active:bg-white/5 ${
                       active === link.id ? "bg-white/[0.08]" : ""

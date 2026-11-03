@@ -1,5 +1,7 @@
 "use client";
 
+import { shareResult } from "@/lib/play/share-result";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
@@ -65,6 +67,7 @@ export function TailLatencyGame() {
   const [snap, setSnap] = useState<TailSnap>(idleSnap);
   const [result, setResult] = useState<TailResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
   const stepMode = stepOverride ?? reduced;
 
@@ -101,6 +104,7 @@ export function TailLatencyGame() {
     stop();
     engineRef.current = createTail();
     setResult(null);
+    setShareError(false);
     setCopied(false);
     setSnap(emptyTailSnap("Collecting latency samples…"));
     setPaused(false);
@@ -139,6 +143,7 @@ export function TailLatencyGame() {
     setPhase("intro");
     setSnap(idleSnap);
     setResult(null);
+    setShareError(false);
   }, [stop]);
 
 
@@ -146,22 +151,14 @@ export function TailLatencyGame() {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/tail-latency`;
     const text = `Tail Latency on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Tail Latency · Baodium", text, url });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    }
+    setShareError(false);
+    const outcome = await shareResult({ title: "Tail Latency · Baodium", text, url });
+    setCopied(outcome === "copied");
+    setShareError(outcome === "failed");
   };
 
-  const technologies =
-    catalog?.technologies ??
-    ["Acquire p95", "Query time", "Little's Law", "The 40-connection pool"];
+  const technologies = useMemo(() => catalog?.technologies ??
+    ["Acquire p95", "Query time", "Little's Law", "The 40-connection pool"], []);
   const takeaway =
     catalog?.takeaway ??
     "The query stays near its baseline. Acquire p95 is the tail the pass bar measures.";
@@ -492,6 +489,7 @@ export function TailLatencyGame() {
                   onAgain={start}
                   onShare={share}
                   copied={copied}
+                  shareError={shareError}
                 />
               ) : null}
             </div>

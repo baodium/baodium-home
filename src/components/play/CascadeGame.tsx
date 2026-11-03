@@ -1,5 +1,7 @@
 "use client";
 
+import { shareResult } from "@/lib/play/share-result";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
@@ -91,6 +93,7 @@ export function CascadeGame() {
   const [snap, setSnap] = useState<CascadeSnap>(idleSnap);
   const [result, setResult] = useState<CascadeResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
   const stepMode = stepOverride ?? reduced;
 
@@ -127,6 +130,7 @@ export function CascadeGame() {
     stop();
     engineRef.current = createCascade();
     setResult(null);
+    setShareError(false);
     setCopied(false);
     setSnap(emptyCascadeSnap("The provider is slower than the time checkout has left."));
     setPaused(false);
@@ -165,6 +169,7 @@ export function CascadeGame() {
     setPhase("intro");
     setSnap(idleSnap);
     setResult(null);
+    setShareError(false);
   }, [stop]);
 
 
@@ -172,22 +177,14 @@ export function CascadeGame() {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/cascade`;
     const text = `Cascade on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Cascade · Baodium", text, url });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    } catch {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-    }
+    setShareError(false);
+    const outcome = await shareResult({ title: "Cascade · Baodium", text, url });
+    setCopied(outcome === "copied");
+    setShareError(outcome === "failed");
   };
 
-  const technologies =
-    catalog?.technologies ??
-    ["Deadlines", "Cancellation", "Outbound permits", "Fraud provider"];
+  const technologies = useMemo(() => catalog?.technologies ??
+    ["Deadlines", "Cancellation", "Outbound permits", "Fraud provider"], []);
   const takeaway =
     catalog?.takeaway ??
     "evaluate_risk receives the child deadline and request.cancellation. The provider stops when checkout is out of time.";
@@ -239,7 +236,7 @@ export function CascadeGame() {
         "Start from a provider that outlasts checkout. Pass cancellation and keep the permit. You can also refuse the permit and watch the deferred branch.",
       takeaway,
     };
-  }, [mode, phase, result, snap.message, takeaway, technologies]);
+  }, [phase, result, snap.message, takeaway, technologies]);
 
   const statusLabel =
     phase === "intro"
@@ -521,6 +518,7 @@ export function CascadeGame() {
                   onAgain={start}
                   onShare={share}
                   copied={copied}
+                  shareError={shareError}
                 />
               ) : null}
             </div>
