@@ -4,7 +4,7 @@ What a reader sees, and where that text comes from. Labs are not a second manusc
 
 ## Author manuscript
 
-The canonical source for this edition is `Practical_System_Design_Source_Lite.zip`, the Frontier Plus source Adewale uploaded on 2026-11-01. It is not committed. `scripts/convert-manuscript.mjs` looks for that name, then for the previous zip `Baodium_System_Design_Final_Language_Pass_Web.zip`, under `manuscript/`, the repo root, `/cursor/stores/self/source/`, and `MANUSCRIPT_ZIP`.
+The canonical source for this edition is `Practical_System_Design_Final_Edition_v5_Lite.zip`, uploaded on 2026-11-02. It replaces Frontier Plus (`Practical_System_Design_Source_Lite.zip`) as the reader and the labs. It is not committed. `scripts/convert-manuscript.mjs` looks for the v5 Lite zip first, then Frontier Plus, then `Baodium_System_Design_Final_Language_Pass_Web.zip`, under `manuscript/`, the repo root, `/cursor/stores/self/`, `/cursor/stores/self/source/`, and `MANUSCRIPT_ZIP`.
 
 `manuscript/README.md` says to place the zip before a conversion. When the zip is absent and `src/generated/book/manifest.json` already exists, the converter keeps the committed output and does not invent chapters.
 
@@ -17,6 +17,12 @@ The zip contains `book.tex`, 14 chapter files, front matter, back matter, `final
 The reader still has 14 chapters, the same slugs, plus preface, acknowledgements, epilogue, appendices A–C, worksheet, glossary, further reading, the concept guide, and about the author. Appendix B is not chapter 15.
 
 Chapter titles in `src/lib/learning/registry.ts` and the short-lab catalog are copied from this manifest. A lab must not rename a chapter.
+
+## Final Edition v5 Lite
+
+The reader was reconverted from `Practical_System_Design_Final_Edition_v5_Lite.zip` on 2026-11-02. Chapter titles and the fourteen `/system-design/chapter-*` routes are unchanged. Figure files match the previous set. The prose in the reader is the manuscript prose, not a rewrite. The concept guide is the edition’s term list with chapter locators.
+
+The Chapter 1 lab executes the manuscript `get_product_page`. Catalog does not take a slot. The flag is checked before `recommendation_service.get`. That call acquires from the 40-connection pool inside Recommendation. The pool readout uses the chapter’s field names and the engine’s counts. Commenting out the call stops new pool acquires. The product page does not return until that call finishes.
 
 ## What changed against the previous edition
 
@@ -43,8 +49,16 @@ The concept guide in the source is a list of terms with chapter locators. The co
 
 Chapter scenarios, drill copy, and short-lab situations are teaching written for the interactive pages. They are not quotes from the manuscript.
 
-The Chapter 1 lab still operates the 40-connection incident (guided, practice, challenge). It names the shared callers and the incident readout. It does not replace that incident with a stub of the later 16-call admission limiter. Chapter 3 still teaches one charge when the provider answers after the client has given up. Chapter 5’s lab title follows “Caching and Data Freshness”. The cache-aside expiry lab is unchanged, because the chapter still teaches cache-aside, aligned expiry, and a shared fill.
+The Chapter 1 lab still operates the 40-connection incident (guided, practice, challenge). It names the shared callers and the incident readout. It does not replace that incident with a stub of the later 16-call admission limiter. The visible response is the feature flag and exposure. Shed and a request-path cache are not offered as the incident response.
 
-Simulated metrics are labeled. SLO Watch is a browser model of pool size versus concurrency. It does not read a live SLO service.
+Chapter 2’s short lab compares building the payload before acquire with holding the connection while the payload is built. Traffic Surge places the admission limit on the last passing load-test stage, 400 lookups a second, where acquire p95 stays under 50 ms and rejections stay under 1 percent. Tail Latency keeps the query at 70 ms and moves acquire p95 with the lookup rate. Neither drill hedges requests or protects a VIP lane.
 
-Drill copy for Traffic Surge, Cascade, Cache Roulette, and Tail Latency is untouched. The five drill URLs are untouched.
+Chapter 3 still teaches one charge when the provider answers after the client has given up. The lab shows the manuscript POST and the unique index on one active authorization.
+
+Chapter 4’s short lab and the Cascade drill run reserve_fraud_call: a child deadline, an outbound permit, and cancellation. They do not open circuit breakers on an auth service.
+
+Chapter 5’s lab title follows “Caching and Data Freshness”. The short lab and Cache Roulette are one missed product-metadata:v1 key, one shared loader, and a source permit. They are not a multi-key stampede and not a soft TTL.
+
+Chapter 7 routes the address that was just saved through choose_read_target. Chapter 12 claims the message, then commits the offset. Chapter 14 sizes the European Catalog pools from the chapter’s read rate and occupancy, including one instance down.
+
+Simulated metrics are labeled. SLO Watch is a browser model of the 40-connection pool, the flag, and exposure. It does not read a live SLO service, and it does not reward a larger pool. The five drill URLs are unchanged.

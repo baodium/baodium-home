@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { useRef } from "react";
@@ -9,6 +10,7 @@ import {
   playGames,
   type PlayGame,
 } from "@/data/play-games";
+import { figureForHref } from "@/lib/learning/chapter-figures";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -115,6 +117,7 @@ function HubFeatured({
           <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#1a2330)]">
             Featured · 01
           </span>
+          <ChapterFigure href={game.chapterHref} className="mb-3 h-24" />
           <div className="h-[11.5rem] md:h-[14.5rem]">
             <DrillPreview game={game} size="lg" />
           </div>
@@ -193,6 +196,7 @@ function HubBand({
           <span className="mb-2 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
             0{index + 1}
           </span>
+          <ChapterFigure href={game.chapterHref} className="mb-2 h-16" />
           <div className="h-[7.25rem] w-full sm:h-[8.5rem]">
             <DrillPreview game={game} size="sm" />
           </div>
@@ -219,5 +223,15 @@ function HubBand({
         </div>
       </Link>
     </motion.div>
+  );
+}
+
+function ChapterFigure({ href, className }: { href: string; className: string }) {
+  const figure = figureForHref(href);
+  if (!figure) return null;
+  return (
+    <div className={`chapter-plate relative w-full ${className}`}>
+      <Image src={figure.src} alt={figure.alt} fill sizes="360px" className="object-contain p-1.5" />
+    </div>
   );
 }

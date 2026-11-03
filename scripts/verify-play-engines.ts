@@ -1,48 +1,12 @@
 /**
- * Deterministic checks that Play drill engines respond to controls
- * with engineer-credible cause → effect (not decorative knobs).
+ * Deterministic checks that Play drill engines follow the chapter's cause and effect.
  */
-import {
-  createCache,
-  tickCache,
-  CACHE_DURATION_S,
-  CACHE_TICK_MS,
-  type CacheControls,
-} from "../src/lib/play/cache-roulette";
-import {
-  createSurge,
-  tickSurge,
-  SURGE_DURATION_S,
-  SURGE_TICK_MS,
-  type SurgeControls,
-} from "../src/lib/play/traffic-surge";
-import {
-  createCascade,
-  tickCascade,
-  CASCADE_DURATION_S,
-  CASCADE_TICK_MS,
-  type CascadeControls,
-} from "../src/lib/play/cascade";
-import {
-  createTail,
-  tickTail,
-  TAIL_DURATION_S,
-  TAIL_TICK_MS,
-  type TailControls,
-} from "../src/lib/play/tail-latency";
-import {
-  createEngine,
-  tick,
-  DURATION_S,
-  TICK_MS,
-  type Controls,
-} from "../src/lib/slo-watch";
-import {
-  createEngine as createCh1,
-  setControls,
-  tick as tickCh1,
-  POOL_SIZE,
-} from "../src/lib/experience/engine";
+import { createCache, tickCache, CACHE_DURATION_S, CACHE_TICK_MS, type CacheControls } from "../src/lib/play/cache-roulette";
+import { createSurge, tickSurge, SURGE_DURATION_S, SURGE_TICK_MS, type SurgeControls } from "../src/lib/play/traffic-surge";
+import { createCascade, tickCascade, CASCADE_DURATION_S, CASCADE_TICK_MS, type CascadeControls } from "../src/lib/play/cascade";
+import { createTail, tickTail, TAIL_DURATION_S, TAIL_TICK_MS, type TailControls } from "../src/lib/play/tail-latency";
+import { createEngine, tick, DURATION_S, TICK_MS, POOL, type Controls } from "../src/lib/slo-watch";
+import { createEngine as createCh1, setControls, tick as tickCh1, POOL_SIZE } from "../src/lib/experience/engine";
 
 function assert(cond: boolean, msg: string) {
   if (!cond) {
@@ -62,26 +26,16 @@ function runCache(controls: CacheControls) {
     if (last.done) break;
   }
   assert(!!last?.done, "cache should finish");
-  return { done: last!.done!, peak: last!.state.peakOriginLoad, stampeded: last!.state.stampededSec };
+  return last!;
 }
 
 {
-  const herd = runCache({
-    ttlSec: 4,
-    singleflight: false,
-    softTtl: false,
-    originWorkers: 6,
-  });
-  const calm = runCache({
-    ttlSec: 8,
-    singleflight: true,
-    softTtl: true,
-    originWorkers: 12,
-  });
-  console.log(JSON.stringify({ cache: { herd, calm: { peak: calm.peak, stampeded: calm.stampeded, outcome: calm.done.outcome } } }, null, 2));
-  assert(herd.peak > calm.peak, "singleflight+SWR should cut peak origin vs herd");
-  assert(herd.stampeded > calm.stampeded, "herd should accumulate more stampede seconds");
-  assert(calm.done.outcome === "won", "coalesced cache should be winnable");
+  const herd = runCache({ readers: 80, fresh: false, singleflight: false, permit: true });
+  const calm = runCache({ readers: 80, fresh: false, singleflight: true, permit: true });
+  assert(herd.snap.inFlightMisses > calm.snap.inFlightMisses, "a shared loader should cut catalog reads");
+  assert(herd.state.stampededSec > calm.state.stampededSec, "separate loads should spend more time in a stampede");
+  assert(calm.done?.outcome === "won", "one shared catalog read should pass");
+  assert(herd.done?.outcome === "lost", "one read per reader should fail");
 }
 
 function runSurge(controls: SurgeControls) {
@@ -99,32 +53,13 @@ function runSurge(controls: SurgeControls) {
 }
 
 {
-  const drown = runSurge({ admit: 1, queueCap: 200, vipFirst: false });
-  const shed = runSurge({ admit: 0.5, queueCap: 80, vipFirst: true });
-  const shedNoVip = runSurge({ admit: 0.5, queueCap: 80, vipFirst: false });
-  console.log(
-    JSON.stringify(
-      {
-        surge: {
-          drownPeak: drown.state.peakP95,
-          shedUnderBudget: shed.state.underBudgetSec,
-          vipOk: shed.snap.vipSuccessRate,
-          vipOkNoPriority: shedNoVip.snap.vipSuccessRate,
-          drownOutcome: drown.done?.outcome,
-          shedOutcome: shed.done?.outcome,
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  assert(drown.state.peakP95 > shed.state.peakP95, "full admit should peak higher p95 than shedding");
-  assert(shed.state.underBudgetSec > drown.state.underBudgetSec, "shedding should spend more time under budget");
-  assert(shed.snap.vipSuccessRate > 0.65, "VIP-first should protect VIP success under shed");
-  assert(
-    shed.snap.vipSuccessRate > shedNoVip.snap.vipSuccessRate,
-    "VIP-first must beat fair-share VIP success at the same admit rate",
-  );
+  const over = runSurge({ admitPerSec: 560 });
+  const pass = runSurge({ admitPerSec: 400 });
+  assert(over.state.peakP95 > pass.state.peakP95, "560/s should peak higher acquire p95 than 400/s");
+  assert(pass.state.underBudgetSec > over.state.underBudgetSec, "the passing stage should spend more time inside the bar");
+  assert(pass.done?.outcome === "won", "400/s should pass");
+  assert(over.done?.outcome === "lost", "560/s should fail");
+  assert(runSurge({ admitPerSec: 480 }).done?.outcome === "lost", "480/s rejects about 2 percent and should fail");
 }
 
 function runCascade(controls: CascadeControls) {
@@ -142,49 +77,16 @@ function runCascade(controls: CascadeControls) {
 }
 
 {
-  const open = runCascade({
-    tripAt: 0.6,
-    bulkheadAuth: false,
-    bulkheadPay: false,
-    timeoutMs: 250,
-  });
-  const contained = runCascade({
-    tripAt: 0.2,
-    bulkheadAuth: true,
-    bulkheadPay: true,
-    timeoutMs: 80,
-  });
-  const openOk =
-    open.state.checkoutOk / Math.max(1, open.state.checkoutOk + open.state.checkoutFail);
-  const containedOk =
-    contained.state.checkoutOk /
-    Math.max(1, contained.state.checkoutOk + contained.state.checkoutFail);
-  console.log(
-    JSON.stringify(
-      {
-        cascade: {
-          openOk,
-          containedOk,
-          openEdge: open.state.health.edge,
-          containedEdge: contained.state.health.edge,
-          openPeakRisk: open.state.peakRisk,
-          containedPeakRisk: contained.state.peakRisk,
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  assert(containedOk >= openOk - 0.01, "bulkheads+fail-fast+early trip should not hurt checkout ok");
-  assert(
-    contained.state.peakRisk < open.state.peakRisk,
-    "isolation should cut peak cascade risk",
-  );
-  assert(contained.state.health.edge >= open.state.health.edge - 0.05, "isolation should protect edge health");
+  const open = runCascade({ providerMs: 900, remainingMs: 500, reserveMs: 80, permit: true, cancel: false });
+  const stopped = runCascade({ providerMs: 900, remainingMs: 500, reserveMs: 80, permit: true, cancel: true });
+  assert(stopped.state.peakRisk < open.state.peakRisk, "cancellation should cut leftover provider work");
+  assert(stopped.done?.outcome === "won", "cancellation with a permit should pass");
+  assert(open.done?.outcome === "lost", "a provider left running should fail");
+  assert(stopped.snap.health.edge >= open.snap.health.edge, "stopping the provider should leave checkout healthier");
 }
 
-function runTail(controls: TailControls, seed = 42) {
-  let state = createTail(seed);
+function runTail(controls: TailControls) {
+  let state = createTail(42);
   let last = null as ReturnType<typeof tickTail> | null;
   const dt = TAIL_TICK_MS / 1000;
   const steps = Math.ceil(TAIL_DURATION_S / dt) + 2;
@@ -198,38 +100,15 @@ function runTail(controls: TailControls, seed = 42) {
 }
 
 {
-  const tiny = runTail({
-    concurrency: 8,
-    hedge: false,
-    hedgeAfterMs: 120,
-    timeoutMs: 500,
-  });
-  const sized = runTail({
-    concurrency: 36,
-    hedge: true,
-    hedgeAfterMs: 140,
-    timeoutMs: 550,
-  });
-  // Same seed → deterministic; undersized pool should have worse p99.
-  const a = runTail({ concurrency: 10, hedge: false, hedgeAfterMs: 100, timeoutMs: 600 }, 99);
-  const b = runTail({ concurrency: 10, hedge: false, hedgeAfterMs: 100, timeoutMs: 600 }, 99);
-  assert(Math.abs(a.snap.p99 - b.snap.p99) < 1e-6, "tail RNG should be deterministic per seed");
-  console.log(
-    JSON.stringify(
-      {
-        tail: {
-          tinyP99: tiny.snap.p99,
-          sizedP99: sized.snap.p99,
-          sizedCost: sized.snap.cost,
-          tinyUtil: tiny.snap.util,
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  assert(tiny.snap.p99 > sized.snap.p99, "more workers + careful hedge should cut p99");
-  assert(tiny.snap.util > sized.snap.util, "tiny pool should show higher util");
+  const hot = runTail({ lookupsPerSec: 560 });
+  const calm = runTail({ lookupsPerSec: 400 });
+  const again = runTail({ lookupsPerSec: 400 });
+  assert(Math.abs(calm.snap.p95 - again.snap.p95) < 1e-6, "tail should be deterministic");
+  assert(hot.snap.p95 > calm.snap.p95, "560/s should have a worse acquire p95 than 400/s");
+  assert(calm.snap.p50 === 70 && hot.snap.p50 === 70, "the query should stay at 70 ms");
+  assert(calm.done?.outcome === "won", "400/s should keep acquire p95 under 50 ms");
+  assert(hot.done?.outcome === "lost", "560/s should miss the acquire bar");
+  assert(calm.snap.cost === 1, "this drill does not send a second copy");
 }
 
 function runSlo(controls: Controls) {
@@ -247,52 +126,17 @@ function runSlo(controls: Controls) {
 }
 
 {
-  const bad = runSlo({
-    poolSize: 40,
-    concurrencyLimit: 200,
-    retries: "aggressive",
-    shedding: false,
-  });
-  const good = runSlo({
-    poolSize: 160,
-    concurrencyLimit: 120,
-    retries: "cautious",
-    shedding: true,
-  });
-  console.log(
-    JSON.stringify(
-      {
-        slo: {
-          badOutcome: bad.done?.outcome,
-          goodOutcome: good.done?.outcome,
-          badBudget: bad.state.errorBudget,
-          goodBudget: good.state.errorBudget,
-          badPendingPeakish: bad.snap.pending,
-          poolVsConc:
-            bad.snap.poolUtil !== bad.snap.concurrencyUtil ||
-            good.snap.poolUtil !== good.snap.concurrencyUtil,
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  assert(good.state.errorBudget > bad.state.errorBudget, "sized+shed+cautious should keep more budget");
-  assert(bad.done?.outcome === "lost" || bad.state.errorBudget < good.state.errorBudget, "bad config should fare worse");
-  // Dual knobs: pool util and concurrency util must be able to diverge.
-  const dual = runSlo({
-    poolSize: 50,
-    concurrencyLimit: 180,
-    retries: "off",
-    shedding: false,
-  });
-  assert(
-    dual.state.peakUtil > 0.5 || dual.snap.pending > 0,
-    "concurrency ≫ pool should create pending or high pool util",
-  );
+  const open = runSlo({ exposurePct: 100, flagOff: false });
+  const stopped = runSlo({ exposurePct: 100, flagOff: true });
+  const eased = runSlo({ exposurePct: 40, flagOff: false });
+  assert(open.snap.inFlight <= POOL, "busy connections stay inside 40");
+  assert(stopped.snap.pending < open.snap.pending, "the flag should leave fewer pending acquisitions");
+  assert(stopped.done?.outcome === "won", "flag off should clear the pool");
+  assert(eased.done?.outcome === "won", "lower exposure should leave spare connections for the burst");
+  assert(open.done?.outcome === "lost", "full exposure through the burst should fail");
+  assert(open.snap.concurrencyUtil === stopped.snap.concurrencyUtil, "the query does not change when the flag changes");
 }
 
-// Chapter 1: pause freezes exposure raises; does not secretly cut λ.
 {
   const eng = createCh1(3, {
     arrivalRate: 550,
@@ -301,27 +145,17 @@ function runSlo(controls: Controls) {
     recLookupSec: 0.09,
   });
   for (let i = 0; i < 500; i++) tickCh1(eng, 0.01);
-  // Raise to 100 under pressure, then pause and try to raise further (blocked).
   setControls(eng, { exposurePct: 100 });
   for (let i = 0; i < 200; i++) tickCh1(eng, 0.01);
   const beforeWait = tickCh1(eng, 0).waitingCount;
   assert(beforeWait > 0, "pressure setup should create waiters before pause");
   setControls(eng, { paused: true });
-  setControls(eng, { exposurePct: 100 }); // same value ok
-  setControls(eng, { exposurePct: 100 }); // no-op
-  // Attempted raise while paused must stick at 100 — use a bogus >100 clamp path:
-  // engine freezes increases, so patching 100→100 is fine; drop to 80 then try 100 while paused.
-  setControls(eng, { exposurePct: 80 }); // lowering still allowed
+  setControls(eng, { exposurePct: 80 });
   assert(eng.controls.exposurePct === 80, "pause allows lowering exposure");
-  setControls(eng, { exposurePct: 100 }); // raise blocked
+  setControls(eng, { exposurePct: 100 });
   assert(eng.controls.exposurePct === 80, "pause must freeze exposure increases");
   assert(eng.controls.arrivalRate === 550, "pause must not cut arrival rate");
-  const frozenExposure = eng.controls.exposurePct;
   for (let i = 0; i < 100; i++) tickCh1(eng, 0.01);
-  const after = tickCh1(eng, 0);
-  assert(after.activeCount <= POOL_SIZE, "active never > 40 after pause");
-  assert(frozenExposure === 80, "frozen exposure snapshot must remain 80");
-  // Disable should drain recommendation demand.
   setControls(eng, {
     featureDisabledForNew: true,
     featureEnabled: false,
@@ -330,72 +164,8 @@ function runSlo(controls: Controls) {
   });
   for (let i = 0; i < 400; i++) tickCh1(eng, 0.01);
   const drained = tickCh1(eng, 0);
-  console.log(
-    JSON.stringify(
-      {
-        ch1: {
-          beforeWait,
-          frozenExposure,
-          afterDisableWait: drained.waitingCount,
-          afterDisableActive: drained.activeCount,
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  assert(
-    drained.waitingCount < beforeWait && drained.activeCount < 25,
-    "disable should relieve pressure vs pre-pause waiters",
-  );
-}
-
-// Exact win matrices (Adewale Phase 3) — lock engine pass/fail thresholds.
-{
-  const goodTail = runTail({
-    concurrency: 36,
-    hedge: true,
-    hedgeAfterMs: 140,
-    timeoutMs: 550,
-  });
-  assert(goodTail.done?.outcome === "won", "sized+hedge tail should meet exact pass criteria");
-  assert(goodTail.snap.p99 <= 420, "tail win requires p99 ≤ 420");
-  assert(goodTail.snap.cost < 1.8, "tail win requires work cost < 1.8×");
-  assert(goodTail.snap.goodput >= 0.9, "tail win requires goodput ≥ 90%");
-  assert(goodTail.snap.sampleCount >= 40, "tail win requires ≥40 samples");
-
-  const goodSurge = runSurge({ admit: 0.7, queueCap: 50, vipFirst: true });
-  assert(goodSurge.done?.outcome === "won", "shed+VIP surge should meet exact pass criteria");
-  const drownSurge = runSurge({ admit: 1, queueCap: 200, vipFirst: false });
-  assert(drownSurge.done?.outcome === "lost", "admit-all surge should miss exact pass criteria");
-
-  const goodCascade = runCascade({
-    tripAt: 0.2,
-    bulkheadAuth: true,
-    bulkheadPay: true,
-    timeoutMs: 80,
-  });
-  assert(goodCascade.done?.outcome === "won", "isolated cascade should meet exact pass criteria");
-
-  const goodSlo = runSlo({
-    poolSize: 160,
-    concurrencyLimit: 120,
-    retries: "cautious",
-    shedding: true,
-  });
-  assert(goodSlo.done?.outcome === "won", "sized+shed+cautious SLO should meet exact pass criteria");
-
-  // calm cache already asserted won above
-  console.log(
-    JSON.stringify({
-      exactWins: {
-        tail: goodTail.done?.outcome,
-        surge: goodSurge.done?.outcome,
-        cascade: goodCascade.done?.outcome,
-        slo: goodSlo.done?.outcome,
-      },
-    }),
-  );
+  assert(drained.activeCount <= POOL_SIZE, "active never exceeds 40");
+  assert(drained.waitingCount < beforeWait && drained.activeCount < 25, "disable should relieve pressure");
 }
 
 console.log("verify-play-engines: ok");

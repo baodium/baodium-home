@@ -20,6 +20,7 @@ import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
 import { flipNavigate } from "@/lib/book/flip-navigate";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { getChapter, labActionLabel } from "@/lib/learning/registry";
 import { withReturnToReading } from "@/lib/learning/interactive-concepts";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
@@ -336,26 +337,33 @@ export function BookChapterView({
             <div aria-hidden="true" className="book-page-gutter" />
             <div aria-hidden="true" className="book-page-grain" />
             <div className="relative z-[1] px-5 py-8 sm:px-9 sm:py-11 md:px-12 md:py-12">
-              <header className="mb-8 border-b border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pb-6">
-                <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-cinnabar">
-                  <span className="mr-2 inline-block min-w-[1.6rem]">
-                    {chapterNumberLabel(chapter.slug)}
-                  </span>
-                  {chapterKicker(chapter.slug, chapter.title)}
-                </p>
-                <h1 className="mt-3 font-serif text-[clamp(1.75rem,3.5vw,2.45rem)] leading-[1.08] tracking-[-0.02em]">
-                  {chapter.title}
-                </h1>
-                {labHref ? (
-                  <Link
-                    href={labHref}
-                    className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--cinnabar)_45%,transparent)] bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] px-4 text-sm font-medium text-cinnabar transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_18%,transparent)]"
-                    data-no-flip=""
-                  >
-                    {labAction}
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                ) : null}
+              <header className="mb-8 flex flex-wrap items-end justify-between gap-5 border-b border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pb-6">
+                <div className="min-w-0 max-w-xl flex-1">
+                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-cinnabar">
+                    <span className="mr-2 inline-block min-w-[1.6rem]">
+                      {chapterNumberLabel(chapter.slug)}
+                    </span>
+                    {chapterKicker(chapter.slug, chapter.title)}
+                  </p>
+                  <h1 className="mt-3 font-serif text-[clamp(1.75rem,3.5vw,2.45rem)] leading-[1.08] tracking-[-0.02em]">
+                    {chapter.title}
+                  </h1>
+                  {labHref ? (
+                    <Link
+                      href={labHref}
+                      className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--cinnabar)_45%,transparent)] bg-[color-mix(in_srgb,var(--cinnabar)_10%,transparent)] px-4 text-sm font-medium text-cinnabar transition-colors hover:bg-[color-mix(in_srgb,var(--cinnabar)_18%,transparent)]"
+                      data-no-flip=""
+                    >
+                      {labAction}
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  ) : null}
+                </div>
+                <ChapterPlate
+                  chapter={chapter.slug}
+                  sizes="180px"
+                  className="h-28 w-40 shrink-0 sm:h-32 sm:w-48"
+                />
               </header>
               <ChapterContent html={chapter.html} chapterSlug={chapter.slug} />
               <BookFeedback

@@ -36,9 +36,9 @@ export function ConnectionPoolGrid({
       : snap.timeoutCount > 0 && snap.controls.acquireTimeoutSec !== null
         ? `${snap.timeoutCount} acquire timeout${snap.timeoutCount === 1 ? "" : "s"}`
         : read.waiting > 0
-          ? `${read.waiting} waiting · acquire.wait.p99 ≈ ${(read.acquireWaitP99Sec * 1000).toFixed(0)}ms`
+          ? `${read.waiting} pending acquisitions. Acquire p99 ${(read.acquireWaitP99Sec * 1000).toFixed(0)} ms.`
           : fillRatio > 0.85
-            ? `Util ${(fillRatio * 100).toFixed(0)}%. thin headroom`
+            ? `${read.busy} of ${read.poolSize} connections are assigned.`
             : null;
 
   return (
@@ -60,9 +60,20 @@ export function ConnectionPoolGrid({
           waiting
         </p>
       </div>
-      <p className="mt-1 text-sm text-[color:var(--exp-muted)]">
-        Shared resource inside Recommendation. Active slots stay within {read.poolSize}. Excess demand waits. Catalog traffic stays on Product Page.
+      <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+        Inside Recommendation. Each instance allows {read.poolSize} connections, shared with the home page and checkout. Catalog does not take one.
       </p>
+      <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 font-mono text-[0.78rem] text-[color:var(--exp-fg)] sm:grid-cols-2">
+        <ReadoutRow label="assigned_connections" value={String(read.busy)} />
+        <ReadoutRow label="idle_connections" value={String(read.idle)} />
+        <ReadoutRow label="pending_acquisitions" value={String(read.waiting)} />
+        <ReadoutRow label="acquire_p99" value={ms(read.acquireWaitP99Sec)} />
+        <ReadoutRow label="query_p99" value={read.queryP99Sec === null ? "no completed query" : ms(read.queryP99Sec)} />
+        <ReadoutRow
+          label="occupancy_mean"
+          value={read.occupancyMeanSec === null ? "no completed query" : ms(read.occupancyMeanSec)}
+        />
+      </dl>
 
       <div
         className="mt-3 h-1.5 overflow-hidden rounded-full bg-[color:var(--exp-slot-free)]"
@@ -157,26 +168,34 @@ export function ConnectionPoolGrid({
           )}
           <div className="mt-3 flex flex-wrap gap-3 text-[0.7rem] text-[color:var(--exp-muted)]">
             <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[color:var(--exp-slot-base)]" />{" "}
-              Baseline hold
-            </span>
-            <span className="inline-flex items-center gap-1.5">
               <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[color:var(--exp-slot-recs)]" />{" "}
-              Recs hold
+              Assigned
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[color:var(--exp-slot-free)] ring-1 ring-[color:var(--exp-line)]" />{" "}
-              Free
+              Idle
             </span>
           </div>
           {snap.controls.featureDisabledForNew ? (
             <p className="mt-3 rounded-lg border border-[color:var(--exp-line)] bg-[color-mix(in_srgb,var(--exp-accent)_6%,transparent)] px-3 py-2 text-xs leading-relaxed text-[color:var(--exp-fg)]">
-              Disable active: new arrivals skip recommendations. Recommendation holds still finish
-              their lookup before releasing. in-flight is not killed.
+              The flag is off for new calls. Connections already assigned still finish the query, then release.
             </p>
           ) : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ms(seconds: number): string {
+  return `${(seconds * 1000).toFixed(0)} ms`;
+}
+
+function ReadoutRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-[color:var(--exp-line)] py-1">
+      <dt className="text-[color:var(--exp-muted)]">{label}</dt>
+      <dd className="tabular-nums">{value}</dd>
     </div>
   );
 }

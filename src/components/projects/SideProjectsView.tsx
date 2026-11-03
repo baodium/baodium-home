@@ -67,7 +67,7 @@ export function SideProjectsView() {
             initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 0.28, ease }}
-            className="mt-6 max-w-xl font-serif text-[clamp(1.1rem,1.7vw,1.35rem)] italic leading-snug text-cream/70"
+            className="mt-6 max-w-xl font-serif text-[clamp(1.1rem,1.7vw,1.35rem)] italic leading-snug text-cream/90"
           >
             Interview practice that follows your answers, and a status page that
             stays true across every profile.
@@ -76,7 +76,7 @@ export function SideProjectsView() {
             initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.65, delay: reduce ? 0 : 0.36, ease }}
-            className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-cream/55"
+            className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-cream/90"
           >
             Open either product, or scroll through a full-page preview of each.
           </motion.p>
@@ -91,7 +91,7 @@ export function SideProjectsView() {
               <li key={project.slug}>
                 <a
                   href={`#${project.slug}`}
-                  className="group inline-flex min-h-10 items-center gap-2.5 text-[0.95rem] text-cream/70 transition-colors hover:text-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
+                  className="group inline-flex min-h-10 items-center gap-2.5 text-[0.95rem] text-cream/90 transition-colors hover:text-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber"
                 >
                   <span className="font-mono text-[0.72rem] tracking-[0.14em] text-amber/80">
                     0{index + 1}

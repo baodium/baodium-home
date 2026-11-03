@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
 import { Decoration, type DecorationSet } from "@codemirror/view";
 import { ViewPlugin, type ViewUpdate } from "@codemirror/view";
 
@@ -30,23 +30,20 @@ function highlight(view: EditorView, lineNo: number): DecorationSet {
 }
 
 /**
- * Read-only handler, highlighted on the line the simulator is executing.
+ * The handler the engine executes, highlighted on the line the request is in.
  */
 export function Ch1CodeEditor({
-  lines,
+  source,
   highlightLine,
+  onChange,
 }: {
-  lines: string[];
+  source: string;
   highlightLine: number;
+  onChange: (source: string) => void;
 }) {
   const viewRef = useRef<EditorView | null>(null);
-  const value = useMemo(() => lines.join("\n"), [lines]);
   const extensions = useMemo(
-    () => [
-      javascript(),
-      lineHighlight(highlightLine),
-      EditorView.editable.of(false),
-    ],
+    () => [python(), lineHighlight(highlightLine), EditorView.editable.of(true)],
     [highlightLine],
   );
 
@@ -58,17 +55,16 @@ export function Ch1CodeEditor({
     view.dispatch({
       effects: EditorView.scrollIntoView(line.from, { y: "center" }),
     });
-  }, [highlightLine, value]);
+  }, [highlightLine, source]);
 
   return (
     <CodeMirror
       className="ch1-editor"
-      value={value}
-      height="280px"
+      value={source}
+      height="148px"
       theme="dark"
-      editable={false}
-      readOnly
       extensions={extensions}
+      onChange={onChange}
       basicSetup={{
         lineNumbers: true,
         foldGutter: false,

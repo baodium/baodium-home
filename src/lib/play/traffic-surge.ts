@@ -1,12 +1,8 @@
-/** Pure engine. Traffic Surge: admit/shed, dual queues, M/M/1-ish wait. */
+/** Traffic Surge. Chapter 2 load test: admission sits on the last passing stage, 400/s. */
 
 export type SurgeControls = {
-  /** Fraction of arrivals admitted (0–1). */
-  admit: number;
-  /** Soft queue cap. excess becomes 503. */
-  queueCap: number;
-  /** Prefer VIP traffic when shedding; VIP gets its own drain priority. */
-  vipFirst: boolean;
+  /** Highest lookups per second the load test is allowed to reach. */
+  admitPerSec: number;
 };
 
 export type SurgeSnap = {
@@ -15,15 +11,12 @@ export type SurgeSnap = {
   admitted: number;
   served: number;
   shed: number;
-  /** Total queue depth (VIP + regular). */
   queue: number;
   vipQueue: number;
-  /** Regular (non-VIP) lane depth. */
   restQueue: number;
   p95: number;
   successRate: number;
   vipSuccessRate: number;
-  /** Seconds spent with p95 under budget. */
   underBudgetSec: number;
   happyMs: number;
   message: string;
@@ -45,22 +38,21 @@ export type SurgeResult = {
 
 export const SURGE_TICK_MS = 200;
 export const SURGE_DURATION_S = 36;
-export const P95_LIMIT_MS = 280;
-export const MIN_SERVED_RATE = 0.55;
-/** Service capacity (req/s). player cannot add capacity, only shed. */
-export const CAPACITY = 90;
+export const P95_LIMIT_MS = 50;
+export const MIN_SERVED_RATE = 0.99;
+/** Last passing stage in the chapter's table. */
+export const CAPACITY = 400;
+
+const STAGES = [300, 400, 480, 560] as const;
 
 export type SurgeState = {
   t: number;
   served: number;
   shed: number;
-  failed: number;
-  queue: number;
-  vipQueue: number;
-  vipServed: number;
-  vipFailed: number;
+  offered: number;
   underBudgetSec: number;
   peakP95: number;
+  worstReject: number;
   happyMs: number;
   lastMessage: string;
 };
@@ -70,275 +62,132 @@ export function createSurge(): SurgeState {
     t: 0,
     served: 0,
     shed: 0,
-    failed: 0,
-    queue: 0,
-    vipQueue: 0,
-    vipServed: 0,
-    vipFailed: 0,
+    offered: 0,
     underBudgetSec: 0,
     peakP95: 0,
-    happyMs: 0,
-    lastMessage: "Calm morning. Spike lands around 12s. Decide who waits.",
+    worstReject: 0,
+    happyMs: 8,
+    lastMessage: "The table starts at 300 lookups a second.",
   };
 }
 
 export function emptySurgeSnap(message?: string): SurgeSnap {
   return {
     t: 0,
-    arrivals: 0,
-    admitted: 0,
+    arrivals: 300,
+    admitted: 300,
     served: 0,
     shed: 0,
     queue: 0,
     vipQueue: 0,
     restQueue: 0,
-    p95: 0,
-    successRate: 0,
-    vipSuccessRate: 0,
+    p95: 2,
+    successRate: 1,
+    vipSuccessRate: 1,
     underBudgetSec: 0,
-    happyMs: 0,
-    message: message ?? "Idle. Start a run to see the spike shape.",
+    happyMs: 8,
+    message: message ?? "300 a second passes. 400 a second passes. 480 a second does not.",
   };
 }
 
-function arrivalCurve(t: number): number {
-  if (t < 10) return 40 + Math.sin(t * 0.8) * 8;
-  if (t < 14) return 40 + ((t - 10) / 4) * 160;
-  if (t < 24) return 200 + Math.sin(t * 1.2) * 20;
-  if (t < 28) return 200 - ((t - 24) / 4) * 120;
-  return 70 + Math.sin(t) * 10;
+function offeredAt(t: number, limit: number): number {
+  const allowed = STAGES.filter((stage) => stage <= limit + 0.5);
+  const ladder = allowed.length > 0 ? allowed : [300];
+  const index = Math.min(ladder.length - 1, Math.floor(Math.max(0, t) / 9));
+  return ladder[index]!;
 }
 
-/**
- * Teaching latency model: queue depth and overflow dominate the tail.
- * At/under capacity with a short queue, p95 stays near budget; a built-up
- * cliff queue pushes it over. Avoids M/M/1 blow-ups at ρ→1 that made the
- * drill unwinnable even with correct shedding.
- */
-function latencyFromQueues(
-  totalQueue: number,
-  drained: number,
-  dt: number,
-  overflow: number,
-): number {
-  const mu = CAPACITY;
-  const offered = Math.max(0, drained / Math.max(dt, 1e-6));
-  const rho = Math.min(1.25, offered / mu);
-  const serviceMs = 55;
-  const queueMs = (totalQueue / Math.max(1, mu)) * 210;
-  const satMs = rho <= 0.9 ? rho * 40 : 36 + (rho - 0.9) * 320;
-  const overflowPenalty = overflow * 9;
-  return Math.max(28, serviceMs + queueMs + satMs + overflowPenalty);
+export function stageStats(rate: number): { p95: number; reject: number } {
+  if (rate <= 300) return { p95: 2, reject: 0 };
+  if (rate <= 400) return { p95: 2 + ((rate - 300) / 100) * 6, reject: 0 };
+  if (rate <= 480) return { p95: 8 + ((rate - 400) / 80) * 17, reject: 0.02 * ((rate - 400) / 80) };
+  return {
+    p95: 25 + ((rate - 480) / 80) * 55,
+    reject: 0.02 + ((rate - 480) / 80) * (120 / 560 - 0.02),
+  };
 }
 
 export function tickSurge(
   state: SurgeState,
   controls: SurgeControls,
   dt = SURGE_TICK_MS / 1000,
-): { state: SurgeState; snap: SurgeSnap; done: SurgeResult | null } {
+): { state: SurgeState; snap: SurgeSnap; done?: SurgeResult } {
   const t = state.t + dt;
-  const arrivals = arrivalCurve(t);
-  const vipShare = 0.22;
-  const vipArrivals = arrivals * vipShare;
-  const rest = arrivals - vipArrivals;
-
-  let admitBudget = arrivals * controls.admit;
-  let admittedVip = 0;
-  let admittedRest = 0;
-  if (controls.vipFirst) {
-    admittedVip = Math.min(vipArrivals, admitBudget);
-    admitBudget -= admittedVip;
-    admittedRest = Math.min(rest, admitBudget);
-  } else {
-    const ratio = arrivals === 0 ? 0 : admitBudget / arrivals;
-    admittedVip = vipArrivals * ratio;
-    admittedRest = rest * ratio;
-  }
-  const admitted = admittedVip + admittedRest;
-  const shedNow = Math.max(0, arrivals - admitted);
-
-  let vipQueue = state.vipQueue + admittedVip * dt;
-  let queue = state.queue + admittedRest * dt;
-
-  // Drain: VIP-first uses priority; otherwise fair share of capacity.
-  let capLeft = CAPACITY * dt;
-  let drainedVip = 0;
-  let drainedRest = 0;
-  if (controls.vipFirst) {
-    drainedVip = Math.min(vipQueue, capLeft);
-    vipQueue -= drainedVip;
-    capLeft -= drainedVip;
-    drainedRest = Math.min(queue, capLeft);
-    queue -= drainedRest;
-  } else {
-    const totalQ = vipQueue + queue;
-    if (totalQ > 0) {
-      const vipFrac = vipQueue / totalQ;
-      drainedVip = Math.min(vipQueue, capLeft * vipFrac);
-      drainedRest = Math.min(queue, capLeft * (1 - vipFrac));
-      vipQueue -= drainedVip;
-      queue -= drainedRest;
-    }
-  }
-  const drained = drainedVip + drainedRest;
-
-  // VIP lane gets a reserved fraction of the cap so priority is visible.
-  const vipCap = Math.max(12, controls.queueCap * 0.35);
-  const overflowVip = Math.max(0, vipQueue - vipCap);
-  const overflowRest = Math.max(0, queue - controls.queueCap);
-  vipQueue = Math.min(vipQueue, vipCap);
-  queue = Math.min(queue, controls.queueCap);
-  const overflow = overflowVip + overflowRest;
-
-  // Overall p95 for the shift (what operators watch on the shared edge).
-  const p95 = latencyFromQueues(vipQueue + queue, drained, dt, overflow);
-
-  // VIP-first: checkout latency follows the short priority lane, not the rest queue.
-  // Without VIP-first, VIP shares the same timeout pressure as everyone else.
-  const vipP95 = controls.vipFirst
-    ? latencyFromQueues(vipQueue, drainedVip, dt, overflowVip)
-    : p95;
-  const restP95 = latencyFromQueues(queue, drainedRest, dt, overflowRest);
-  const timeoutVip = drainedVip * Math.max(0, Math.min(0.85, (vipP95 - P95_LIMIT_MS) / 350));
-  const timeoutRest = drainedRest * Math.max(0, Math.min(0.85, (restP95 - P95_LIMIT_MS) / 350));
-  const servedVip = Math.max(0, drainedVip - timeoutVip);
-  const servedRest = Math.max(0, drainedRest - timeoutRest);
-  const served = servedVip + servedRest;
-
-  // Shed is intentional 503. tracked separately from timeouts/overflow.
-  // VIP-first: shed lands on the rest; VIP failures are timeouts/overflow only.
-  const vipShed = controls.vipFirst ? 0 : shedNow * dt * vipShare;
-  const restShed = controls.vipFirst ? shedNow * dt : shedNow * dt * (1 - vipShare);
-  const failed = timeoutVip + timeoutRest + overflow + vipShed * 0.05 + restShed * 0.05;
-
-  const underBudgetSec =
-    state.underBudgetSec + (p95 <= P95_LIMIT_MS ? dt : 0);
-  const happyMs =
-    state.happyMs + (p95 <= P95_LIMIT_MS ? served * 1000 : 0);
+  const limit = Math.max(300, Math.min(560, controls.admitPerSec));
+  const arrivals = offeredAt(t, limit);
+  const { p95, reject } = stageStats(arrivals);
+  const admittedRate = arrivals * (1 - reject);
+  const served = state.served + admittedRate * dt;
+  const shed = state.shed + arrivals * reject * dt;
+  const offered = state.offered + arrivals * dt;
+  const under = p95 < P95_LIMIT_MS && reject < 0.01 ? state.underBudgetSec + dt : state.underBudgetSec;
+  const worstReject = Math.max(state.worstReject, reject);
   const peakP95 = Math.max(state.peakP95, p95);
+  const successRate = 1 - worstReject;
 
-  let message = state.lastMessage;
-  if (t > 11 && t < 15) message = "Surge arriving. Watch both admission lanes.";
-  else if (p95 > P95_LIMIT_MS)
-    message = `p95 ${p95.toFixed(0)}ms. Queue depth is eating the shift.`;
-  else if (controls.vipFirst && controls.admit < 0.7 && t > 14)
-    message = "VIP priority drain. Checkout lane kept short while rest sheds.";
-  else if (controls.admit < 0.55 && t > 14)
-    message = "Hard shed. Intentional 503s protecting the customers you keep.";
-  else if (queue + vipQueue > controls.queueCap * 0.8)
-    message = "Queue near cap. Overflow turns into errors.";
-  else if (t > 28) message = "Traffic easing. Hold the line.";
+  const message =
+    reject >= 0.01
+      ? `${arrivals.toFixed(0)} lookups a second rejects about ${(reject * 100).toFixed(1)} percent. Acquire p95 is ${p95.toFixed(0)} ms, and the pass bar is both p95 under 50 ms and rejections under 1 percent.`
+      : `${arrivals.toFixed(0)} lookups a second keeps acquire p95 at ${p95.toFixed(0)} ms with no rejections. The chapter's last passing stage is 400.`;
 
   const next: SurgeState = {
     t,
-    served: state.served + served,
-    shed: state.shed + shedNow * dt,
-    failed: state.failed + failed,
-    queue,
-    vipQueue,
-    vipServed: state.vipServed + servedVip,
-    vipFailed: state.vipFailed + timeoutVip + overflowVip + vipShed,
-    underBudgetSec,
+    served,
+    shed,
+    offered,
+    underBudgetSec: under,
     peakP95,
-    happyMs,
+    worstReject,
+    happyMs: p95,
     lastMessage: message,
   };
-
-  const totalDecided = next.served + next.shed + next.failed;
-  const successRate =
-    totalDecided === 0 ? 0 : next.served / Math.max(1, totalDecided);
-  const vipTotal = next.vipServed + next.vipFailed;
-  const vipSuccessRate =
-    vipTotal === 0 ? 0 : next.vipServed / Math.max(1, vipTotal);
 
   const snap: SurgeSnap = {
     t,
     arrivals,
-    admitted,
-    served: next.served,
-    shed: next.shed,
-    queue: queue + vipQueue,
-    vipQueue,
-    restQueue: queue,
+    admitted: admittedRate,
+    served,
+    shed,
+    queue: 0,
+    vipQueue: arrivals * reject,
+    restQueue: admittedRate,
     p95,
     successRate,
-    vipSuccessRate,
-    underBudgetSec: next.underBudgetSec,
-    happyMs: next.happyMs,
+    vipSuccessRate: successRate,
+    underBudgetSec: under,
+    happyMs: p95,
     message,
   };
 
-  if (t >= SURGE_DURATION_S) {
-    const servedFrac =
-      next.served / Math.max(1, next.served + next.shed + next.failed);
-    const budgetFrac = next.underBudgetSec / SURGE_DURATION_S;
-    const latencyOk = budgetFrac >= 0.55 && next.peakP95 < P95_LIMIT_MS * 2.1;
-    const vipOk = !controls.vipFirst || vipSuccessRate >= 0.72;
-    const won =
-      servedFrac >= MIN_SERVED_RATE && latencyOk && successRate > 0.48 && vipOk;
-    const score = Math.round(
-      servedFrac * 360 +
-        budgetFrac * 220 +
-        Math.max(0, P95_LIMIT_MS * 1.2 - next.peakP95) * 0.9 +
-        (controls.vipFirst ? vipSuccessRate * 80 : 20) +
-        (won ? 180 : 35),
-    );
-    const debrief = `Served ${(servedFrac * 100).toFixed(0)}% · under-budget ${(budgetFrac * 100).toFixed(0)}% of the run · peak p95 ${next.peakP95.toFixed(0)}ms · VIP success ${(vipSuccessRate * 100).toFixed(0)}%. Admit ${(controls.admit * 100).toFixed(0)}%, queue cap ${controls.queueCap}${controls.vipFirst ? ", VIP priority on" : ""}. Capacity fixed at ${CAPACITY} rps. Shedding is the only lever past the cliff.`;
+  if (t < SURGE_DURATION_S) return { state: next, snap };
 
-    return {
-      state: next,
-      snap,
-      done: {
-        outcome: won ? "won" : "lost",
-        score,
-        reason: won
-          ? "You shaped the surge. Enough happy requests, p95 held most of the run."
-          : servedFrac < MIN_SERVED_RATE
-            ? "Too much shed. Not enough customers made it through."
-            : !latencyOk
-              ? "Latency spent too long over budget under the spike."
-              : !vipOk
-                ? "VIP lane still suffered. Priority needs earlier shed on the rest."
-                : "Success rate collapsed under the cliff.",
-        chapterHref: "/system-design/chapter-2",
-        chapterLabel: "Ch.2. Modeling requests, latency, and throughput",
-        takeaway:
-          "Shedding early protects the customers you can serve; serving everyone slowly serves no one.",
-        debrief,
-        before:
-          "Cliff at ~12s against fixed capacity. Admit-all sends p95 through the roof and burns the floor you meant to protect.",
-        after: `Served ${(servedFrac * 100).toFixed(0)}%, under-budget ${(budgetFrac * 100).toFixed(0)}% of the run, peak p95 ${next.peakP95.toFixed(0)}ms, VIP success ${(vipSuccessRate * 100).toFixed(0)}% (admit ${(controls.admit * 100).toFixed(0)}%, queue ${controls.queueCap}${controls.vipFirst ? ", VIP on" : ""}).`,
-        changed:
-          controls.admit < 0.85 && won
-            ? "Lower admit at the cliff traded volume for latency. The customers you kept stayed inside budget."
-            : controls.admit >= 0.95 && !latencyOk
-              ? "Near-full admit past capacity queued everyone. P95 failed for the crowd you tried to serve."
-              : "Queue and VIP levers only help after you stop admitting more than the fixed pool can finish.",
-        metrics: [
-          {
-            label: "Served",
-            value: `${(servedFrac * 100).toFixed(0)}%`,
-            tone: servedFrac >= MIN_SERVED_RATE ? "ok" : "bad",
-          },
-          {
-            label: "Peak p95",
-            value: `${next.peakP95.toFixed(0)}ms`,
-            tone: next.peakP95 <= P95_LIMIT_MS ? "ok" : next.peakP95 <= P95_LIMIT_MS * 1.5 ? "warn" : "bad",
-          },
-          {
-            label: "Under budget",
-            value: `${(budgetFrac * 100).toFixed(0)}%`,
-            tone: budgetFrac >= 0.7 ? "ok" : budgetFrac >= 0.45 ? "warn" : "bad",
-          },
-          {
-            label: "VIP success",
-            value: `${(vipSuccessRate * 100).toFixed(0)}%`,
-            tone: vipSuccessRate >= 0.85 ? "ok" : vipSuccessRate >= 0.6 ? "warn" : "bad",
-          },
-        ],
-      },
-    };
-  }
+  const won = limit >= 390 && limit < 450 && worstReject < 0.01 && peakP95 < P95_LIMIT_MS;
+  const reason = won
+    ? "The load test stopped on the 400 per second stage. Acquire p95 stayed under 50 ms and rejections stayed under 1 percent."
+    : limit < 390
+      ? "300 per second passes, and so does 400. The admission limit can sit on that last passing stage."
+      : "A later stage misses the bar. At 480 per second, acquire p95 can still be 25 ms while about 2 percent of requests are rejected.";
 
-  return { state: next, snap, done: null };
+  const done: SurgeResult = {
+    outcome: won ? "won" : "lost",
+    score: Math.round((1 - worstReject) * 100),
+    reason,
+    chapterHref: "/system-design/chapter-2",
+    chapterLabel: "Ch.2 · Requests, latency, throughput",
+    takeaway:
+      "The pass bar is acquire p95 under 50 ms and rejections under 1 percent. The 400 per second stage is the last one that clears both. That is where the admission limit sits.",
+    debrief: `Limit ${limit.toFixed(0)}/s. Peak acquire p95 ${peakP95.toFixed(0)} ms. Worst rejection ${(worstReject * 100).toFixed(1)} percent.`,
+    before: "300 and 400 lookups a second pass. 480 rejects about 2 percent. 560 rejects 120 of 560.",
+    after: won
+      ? "The test never left the passing stages."
+      : "The test included a stage the chapter marks as failed.",
+    changed: "The admission limit chose the highest stage the load test was allowed to reach.",
+    metrics: [
+      { label: "Acquire p95", value: `${peakP95.toFixed(0)} ms`, tone: peakP95 < P95_LIMIT_MS ? "ok" : "bad" },
+      { label: "Rejections", value: `${(worstReject * 100).toFixed(1)}%`, tone: worstReject < 0.01 ? "ok" : "bad" },
+      { label: "Limit", value: `${limit.toFixed(0)}/s`, tone: won ? "ok" : "warn" },
+    ],
+  };
+
+  return { state: next, snap, done };
 }

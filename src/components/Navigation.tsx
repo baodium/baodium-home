@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
-import { book, writing } from "@/data/writing";
+import { writing } from "@/data/writing";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 /** Clear product nav: Home / Book / Labs / Drills / Projects / About */
@@ -14,6 +13,7 @@ const links = [
   { id: "book", label: "Book", href: "/system-design" },
   { id: "labs", label: "Labs", href: "/system-design/experience" },
   { id: "play", label: "Drills", href: "/play" },
+  { id: "sre", label: "SRE", href: "/sre-labs" },
   { id: "projects", label: "Projects", href: "/projects" },
   ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
   { id: "about", label: "About", href: "/about" },
@@ -27,6 +27,7 @@ export function Navigation() {
   const onProjects = pathname === "/projects";
   const onAbout = pathname === "/about";
   const onPlay = pathname === "/play" || pathname.startsWith("/play/");
+  const onSre = pathname === "/sre-labs" || pathname.startsWith("/sre-labs/");
   const onLabs =
     pathname === "/system-design/experience" ||
     pathname.startsWith("/system-design/experience/");
@@ -44,8 +45,10 @@ export function Navigation() {
       ? "projects"
       : onLabs
         ? "labs"
-        : onPlay
-          ? "play"
+        : onSre
+          ? "sre"
+          : onPlay
+            ? "play"
           : onBook
             ? "book"
             : onHome
@@ -106,7 +109,7 @@ export function Navigation() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const coolChrome = onProjects || onAbout || onPlay || onLabs || onBook;
+  const coolChrome = onProjects || onAbout || onPlay || onLabs || onBook || onSre;
 
   return (
     <motion.header
@@ -144,7 +147,7 @@ export function Navigation() {
         </Link>
 
         <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center text-[0.84rem] text-cream/65">
+          <ul className="flex items-center text-[0.84rem] text-cream/88">
             {links.map((link) => (
               <li key={link.id} className="relative">
                 {active === link.id ? (
@@ -169,17 +172,6 @@ export function Navigation() {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          <a
-            href={book.readPath}
-            className="btn btn-cream group !min-h-10 max-w-[11.5rem] !px-3.5 text-[0.72rem] leading-tight sm:max-w-none sm:!px-4 sm:text-[0.82rem] sm:leading-none"
-          >
-            Read the book for free
-            <ArrowUpRight
-              aria-hidden="true"
-              className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              strokeWidth={2}
-            />
-          </a>
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -229,7 +221,7 @@ export function Navigation() {
                     }`}
                   >
                     {link.label}
-                    <span className="font-mono text-xs text-cream/55">0{index + 1}</span>
+                    <span className="font-mono text-xs text-cream/80">0{index + 1}</span>
                   </Link>
                 </motion.li>
               ))}

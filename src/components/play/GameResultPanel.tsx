@@ -62,7 +62,7 @@ export function GameResultPanel({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-signal)]">
-          {held ? "Held" : "Breached"}
+          {held ? "Passed" : "Missed"}
         </p>
         <p className="font-serif text-2xl tracking-[-0.02em] text-[color:var(--drill-fg)]">
           Score {score}

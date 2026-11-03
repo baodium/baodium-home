@@ -80,6 +80,9 @@ export function LearningShell({
                 Labs
               </Link>
             )}
+            <Link href="/sre-labs" className="chrome-link hidden md:inline-flex">
+              SRE
+            </Link>
             <Link href={bookHref} className="chrome-link">
               Book
             </Link>

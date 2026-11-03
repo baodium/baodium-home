@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-01T16:30:32.221Z",
-  "zip": "Practical_System_Design_Source_Lite.zip",
+  "generatedAt": "2026-11-02T16:19:53.871Z",
+  "zip": "Practical_System_Design_Final_Edition_v5_Lite.zip",
   "chapters": [
     {
       "slug": "preface",
@@ -97,6 +97,16 @@
           "id": "capacity-planning-for-a-new-service",
           "title": "Capacity Planning for a New Service",
           "level": 2
+        },
+        {
+          "id": "design-exercise-sizing-a-photo-upload-service",
+          "title": "Design Exercise: Sizing a Photo Upload Service",
+          "level": 2
+        },
+        {
+          "id": "one-workable-design",
+          "title": "One Workable Design",
+          "level": 3
         },
         {
           "id": "summary",
@@ -413,6 +423,16 @@
           "level": 2
         },
         {
+          "id": "design-exercise-caching-a-public-profile-page",
+          "title": "Design Exercise: Caching a Public Profile Page",
+          "level": 2
+        },
+        {
+          "id": "one-workable-design",
+          "title": "One Workable Design",
+          "level": 3
+        },
+        {
           "id": "summary",
           "title": "Summary",
           "level": 2
@@ -642,6 +662,16 @@
           "id": "regional-metadata-write-authority",
           "title": "Regional Metadata Write Authority",
           "level": 2
+        },
+        {
+          "id": "design-exercise-a-messaging-inbox",
+          "title": "Design Exercise: A Messaging Inbox",
+          "level": 2
+        },
+        {
+          "id": "one-workable-design",
+          "title": "One Workable Design",
+          "level": 3
         },
         {
           "id": "summary",
@@ -883,6 +913,16 @@
           "id": "per-tenant-and-fleet-wide-provider-limits",
           "title": "Per-Tenant and Fleet-Wide Provider Limits",
           "level": 2
+        },
+        {
+          "id": "design-exercise-protecting-a-reporting-api",
+          "title": "Design Exercise: Protecting a Reporting API",
+          "level": 2
+        },
+        {
+          "id": "one-workable-design",
+          "title": "One Workable Design",
+          "level": 3
         },
         {
           "id": "summary",
@@ -1337,6 +1377,16 @@
           "id": "scheduled-tasks-and-workflow-orchestration",
           "title": "Scheduled Tasks and Workflow Orchestration",
           "level": 2
+        },
+        {
+          "id": "design-exercise-ride-hailing-trip-events",
+          "title": "Design Exercise: Ride-Hailing Trip Events",
+          "level": 2
+        },
+        {
+          "id": "one-workable-design",
+          "title": "One Workable Design",
+          "level": 3
         },
         {
           "id": "summary",

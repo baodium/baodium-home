@@ -130,8 +130,8 @@ export function BookSection() {
                   Failures from production, written so the next design holds.
                 </p>
                 <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-cream/82">
-                  Free to read here. The labs operate the same incidents, from the
-                  pool above through deadlines, replicas, and consumer lag.
+                  The labs operate the same incidents, from the pool above through
+                  deadlines, replicas, and consumer lag.
                 </p>
                 <p className="mt-4 text-sm text-cream/78">by {book.author}</p>
               </Reveal>
@@ -144,7 +144,7 @@ export function BookSection() {
                     >
                       <span className="absolute inset-0 origin-left scale-x-0 bg-cinnabar transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                       <span className="relative transition-colors duration-500 group-hover:text-white">
-                        Read the book for free
+                        Open the book
                       </span>
                       <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-ember text-cream transition-transform duration-500 group-hover:translate-x-0.5">
                         <BookOpen
@@ -157,7 +157,7 @@ export function BookSection() {
                   </Magnetic>
                   <Link
                     href="/system-design/experience"
-                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/90 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/70"
                   >
                     Labs
                   </Link>
@@ -165,7 +165,7 @@ export function BookSection() {
                     href={book.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                    className="inline-flex min-h-12 items-center gap-1.5 px-2 text-[0.95rem] text-cream/90 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/70"
                   >
                     Amazon
                     <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
@@ -181,7 +181,7 @@ export function BookSection() {
             >
             <Link
               href={book.readPath}
-              aria-label={`Read ${book.title} for free`}
+              aria-label={`Open ${book.title}`}
               className="group/cover relative block cursor-pointer rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-cinnabar/60"
             >
               <div className="relative py-1 lg:py-10">

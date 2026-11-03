@@ -16,10 +16,13 @@
     "verify:play": "npx --yes tsx scripts/verify-play-engines.ts",
     "verify:ch1": "npx --yes tsx scripts/verify-ch1-engine.ts",
     "verify:ch3": "npx --yes tsx scripts/verify-ch3-engine.ts",
-    "verify:labs": "npx --yes tsx scripts/verify-short-labs.ts"
+    "verify:labs": "npx --yes tsx scripts/verify-short-labs.ts",
+    "verify:sre": "npx --yes tsx scripts/verify-sre-lab.ts",
+    "verify:cascade": "npx --yes tsx scripts/verify-cascade.ts"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-python": "^6.2.1",
     "@codemirror/language": "^6.13.1",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",

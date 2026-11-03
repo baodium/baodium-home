@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { surgeProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
@@ -27,9 +29,9 @@ import {
   type DrillMode,
 } from "@/lib/play/success-criteria";
 import {
+  CAPACITY,
   createSurge,
   emptySurgeSnap,
-  MIN_SERVED_RATE,
   P95_LIMIT_MS,
   SURGE_DURATION_S,
   SURGE_TICK_MS,
@@ -42,10 +44,8 @@ import {
 const catalog = getPlayGame("traffic-surge");
 
 const idleSnap: SurgeSnap = emptySurgeSnap(
-  "Calm morning. A spike lands around 12 seconds.",
+  "300 a second passes. 400 a second passes. 480 a second does not.",
 );
-
-const PEAK_LIMIT_MS = P95_LIMIT_MS * 1.55;
 
 function toneFor(met: boolean | null): CriterionTone {
   if (met === true) return "ok";
@@ -61,21 +61,17 @@ export function TrafficSurgeGame() {
   );
   const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<SurgeControls>({
-    admit: 0.85,
-    queueCap: 120,
-    vipFirst: true,
+    admitPerSec: 560,
   });
   const [snap, setSnap] = useState<SurgeSnap>(idleSnap);
   const [result, setResult] = useState<SurgeResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [stepOverride, setStepOverride] = useState<boolean | null>(null);
-  const [peakP95, setPeakP95] = useState(0);
   const stepMode = stepOverride ?? reduced;
 
   const engineRef = useRef(createSurge());
   const controlsRef = useRef(controls);
   const loopRef = useRef<number | null>(null);
-  const peakRef = useRef(0);
 
   useEffect(() => {
     controlsRef.current = controls;
@@ -94,8 +90,6 @@ export function TrafficSurgeGame() {
       controlsRef.current,
     );
     engineRef.current = state;
-    peakRef.current = Math.max(peakRef.current, next.p95);
-    setPeakP95(peakRef.current);
     setSnap(next);
     if (done) {
       stop();
@@ -107,12 +101,10 @@ export function TrafficSurgeGame() {
   const start = useCallback(() => {
     stop();
     engineRef.current = createSurge();
-    peakRef.current = 0;
-    setPeakP95(0);
     setResult(null);
     setCopied(false);
     setSnap(
-      emptySurgeSnap("Spike incoming. Decide admit rate before 12 seconds."),
+      emptySurgeSnap("The table starts at 300 lookups a second."),
     );
     setPaused(false);
     setPhase("running");
@@ -148,8 +140,6 @@ export function TrafficSurgeGame() {
     engineRef.current = createSurge();
     setPaused(false);
     setPhase("intro");
-    peakRef.current = 0;
-    setPeakP95(0);
     setSnap(idleSnap);
     setResult(null);
   }, [stop]);
@@ -158,10 +148,7 @@ export function TrafficSurgeGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/traffic-surge`;
-    const text =
-      result.outcome === "won"
-        ? `Shaped the surge in Baodium Traffic Surge (score ${result.score}). ${url}`
-        : `Traffic Surge got me (score ${result.score}). Can you hold p95? ${url}`;
+    const text = `Traffic Surge on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: "Traffic Surge · Baodium", text, url });
@@ -177,82 +164,33 @@ export function TrafficSurgeGame() {
 
   const technologies =
     catalog?.technologies ??
-    [
-      "Admission control",
-      "Queue caps",
-      "Load shedding",
-      "p95 latency",
-      "VIP priority",
-    ];
-  // Softened vs catalog "Shedding early…" so Challenge mode stays non-spoiler.
+    ["Little's Law", "Load tests", "Admission limits", "Acquire p95"];
   const takeaway =
-    "When capacity is fixed, who you admit decides who you can still serve well.";
+    catalog?.takeaway ??
+    "400 lookups a second is the last passing stage. That is where the admission limit sits.";
 
   const live = phase === "running" || phase === "won" || phase === "lost";
-  const done = phase === "won" || phase === "lost";
+  const onLastPass = controls.admitPerSec >= 390 && controls.admitPerSec < 450;
+  const rejectFrac = 1 - snap.successRate;
 
   const criteria = useMemo((): CriterionLive[] => {
-    const servedDenom = Math.max(1, snap.served + snap.shed);
-    const servedFracLive =
-      snap.served + snap.shed <= 0
-        ? snap.successRate
-        : snap.served / servedDenom;
-    const budgetFracLive = snap.underBudgetSec / Math.max(snap.t, 0.1);
-    const budgetFracFinal = snap.underBudgetSec / SURGE_DURATION_S;
-
-    let servedMet: boolean | null = null;
-    let underBudgetMet: boolean | null = null;
-    let successMet: boolean | null = null;
-    let vipMet: boolean | null = null;
-
-    let servedValue = "—";
-    let underBudgetValue = "—";
-    let successValue = "—";
-    let vipValue = "—";
-
-    if (live) {
-      servedValue = `${(servedFracLive * 100).toFixed(0)}%`;
-      underBudgetValue = `${(budgetFracLive * 100).toFixed(0)}% · p95 ${snap.p95.toFixed(0)}ms`;
-      successValue = `${(snap.successRate * 100).toFixed(0)}%`;
-      vipValue = controls.vipFirst
-        ? `${(snap.vipSuccessRate * 100).toFixed(0)}%`
-        : "off";
-
-      servedMet = servedFracLive >= MIN_SERVED_RATE;
-      // Peak gate stays null until the run ends; live shows time-under-budget + p95.
-      underBudgetMet = done
-        ? budgetFracFinal >= 0.55 && peakP95 < PEAK_LIMIT_MS
-        : null;
-      successMet = snap.successRate > 0.48;
-      vipMet = !controls.vipFirst ? true : snap.vipSuccessRate >= 0.72;
-    }
-
-    if (done && result) {
-      const metric = (label: string) =>
-        result.metrics.find((m) => m.label === label)?.value;
-      servedValue = metric("Served") ?? `${(servedFracLive * 100).toFixed(0)}%`;
-      underBudgetValue = `${(budgetFracFinal * 100).toFixed(0)}% · peak ${peakP95.toFixed(0)}ms`;
-      successValue = `${(snap.successRate * 100).toFixed(0)}%`;
-      vipValue = controls.vipFirst
-        ? (metric("VIP success") ??
-          `${(snap.vipSuccessRate * 100).toFixed(0)}%`)
-        : "off";
-
-      servedMet = servedFracLive >= MIN_SERVED_RATE;
-      underBudgetMet = budgetFracFinal >= 0.55 && peakP95 < PEAK_LIMIT_MS;
-      successMet = snap.successRate > 0.48;
-      vipMet = !controls.vipFirst ? true : snap.vipSuccessRate >= 0.72;
-    }
-
     const byId: Record<string, { value: string; met: boolean | null }> = {
-      served: { value: servedValue, met: servedMet },
-      underBudget: { value: underBudgetValue, met: underBudgetMet },
-      success: { value: successValue, met: successMet },
-      vip: { value: vipValue, met: vipMet },
+      p95: {
+        value: live ? `${snap.p95.toFixed(0)} ms` : "pending",
+        met: live ? snap.p95 < P95_LIMIT_MS : null,
+      },
+      rejected: {
+        value: live ? `${(rejectFrac * 100).toFixed(1)}%` : "pending",
+        met: live ? rejectFrac < 0.01 : null,
+      },
+      stage: {
+        value: `${controls.admitPerSec.toFixed(0)}/s`,
+        met: live ? onLastPass : null,
+      },
     };
 
     return SURGE_CRITERIA.map((def) => {
-      const row = byId[def.id] ?? { value: "—", met: null };
+      const row = byId[def.id] ?? { value: "pending", met: null };
       return {
         ...def,
         value: row.value,
@@ -260,74 +198,11 @@ export function TrafficSurgeGame() {
         tone: toneFor(row.met),
       };
     });
-  }, [
-    controls.vipFirst,
-    done,
-    live,
-    peakP95,
-    result,
-    snap.p95,
-    snap.served,
-    snap.shed,
-    snap.successRate,
-    snap.t,
-    snap.underBudgetSec,
-    snap.vipSuccessRate,
-  ]);
+  }, [controls.admitPerSec, live, onLastPass, rejectFrac, snap.p95]);
 
   const prose = useMemo((): DrillProse => {
-    const challengeQ = `Can you keep p95 under ${P95_LIMIT_MS} ms through the spike?`;
-    const objective = `Keep p95 under ${P95_LIMIT_MS} ms for most of the ${SURGE_DURATION_S}-second run while still serving most of the traffic.`;
-
-    if (mode === "challenge") {
-      if (phase === "won") {
-        return {
-          title: "Traffic Surge",
-          challenge: challengeQ,
-          situation: <p>{result?.reason ?? snap.message}</p>,
-          objective,
-          explore: technologies,
-          gettingStarted:
-            "Adjust the levers, start the run, and judge the pass/fail list from the evidence.",
-          takeaway: result?.takeaway ?? takeaway,
-        };
-      }
-      if (phase === "lost") {
-        return {
-          title: "Traffic Surge",
-          challenge: challengeQ,
-          situation: <p>{result?.reason ?? snap.message}</p>,
-          objective,
-          explore: technologies,
-          gettingStarted:
-            "Read which criteria failed, change one lever, and run again.",
-          takeaway: result?.takeaway ?? takeaway,
-        };
-      }
-      return {
-        title: "Traffic Surge",
-        challenge: challengeQ,
-        situation: (
-          <>
-            <p>
-              11:02, a fixed-capacity API. The morning is quiet. Around 12
-              seconds a spike arrives that the service cannot finish in time.
-              The machines will not grow during this run.
-            </p>
-            <p>
-              You choose who is admitted and how long a request may wait. The
-              pass line is on the page. It does not say when to turn arrivals
-              away.
-            </p>
-          </>
-        ),
-        objective,
-        explore: technologies,
-        gettingStarted:
-          "Adjust the levers, start the run, and judge the pass/fail list from the evidence.",
-        takeaway,
-      };
-    }
+    const challengeQ = "Can you keep acquire p95 under 50 ms on the last passing stage?";
+    const objective = `Over ${SURGE_DURATION_S} seconds, acquire p95 stays under ${P95_LIMIT_MS} ms, rejections stay under 1 percent, and the admission limit sits on the ${CAPACITY} lookups per second stage.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -338,24 +213,39 @@ export function TrafficSurgeGame() {
         explore: technologies,
         gettingStarted:
           phase === "won"
-            ? "Try a higher admit rate next run and watch when the cliff returns."
-            : "Try again: change one lever before the spike, then compare the pass/fail list.",
+            ? "The test stayed on the passing rows. A higher limit includes a stage the table marks as failed."
+            : "Read which bar failed. A stage can show acquire p95 under 50 ms and still fail on rejections.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
+
+    if (mode === "challenge") {
+      return {
+        title: "Traffic Surge",
+        challenge: challengeQ,
+        situation: (
+          <p>
+            The load test raises lookups per second in stages and stops at the admission limit you set. A stage passes only when acquire p95 stays under {P95_LIMIT_MS} ms and rejections stay under 1 percent.
+          </p>
+        ),
+        objective,
+        explore: technologies,
+        gettingStarted:
+          "Set the admission limit, start the run, and read both bars on the highest stage the test reaches.",
+        takeaway,
+      };
+    }
+
     return {
       title: "Traffic Surge",
       challenge: challengeQ,
       situation: (
         <>
           <p>
-            11:02, a fixed-capacity API. The morning is quiet. Around 12
-            seconds, arrivals jump far past what the service can finish in
-            time. Nobody is adding machines in the next minute.
+            The chapter&apos;s load test walks 300, 400, 480, and 560 lookups a second. A stage passes only when acquire p95 stays under {P95_LIMIT_MS} ms and rejections stay under 1 percent.
           </p>
           <p>
-            You decide who gets in, how long people wait, and whether
-            higher-priority traffic is protected when load has to be cut.
+            300 and 400 pass. At 480, acquire p95 can still be 25 ms while about 2 percent of requests are rejected, so that stage fails. At 560, 120 requests are rejected and acquire p95 is about 80 ms.
           </p>
         </>
       ),
@@ -363,19 +253,17 @@ export function TrafficSurgeGame() {
       terms: (
         <>
           <DrillTip
-            label="p95"
-            tip="The 95th-percentile latency: 95% of requests are faster than this number."
+            label="Acquire p95"
+            tip="The 95th percentile of the wait for a connection from the 40-connection pool."
           >
-            <span className="text-[color:var(--drill-fg)]">p95</span>
+            <span className="text-[color:var(--drill-fg)]">Acquire p95</span>
           </DrillTip>{" "}
-          is the latency budget here: 95% of requests should finish faster than
-          this number. A long queue turns wait time into latency even when the
-          backend is still working.
+          is the wait for a connection, at the 95th percentile. Rejections are requests that stage turned away. A stage can look fine on latency and still fail the rejection bar.
         </>
       ),
       explore: technologies,
       gettingStarted:
-        "Set admit rate and queue cap before you start. Watch arrivals climb near 12 seconds, then read queue depth and p95 together.",
+        "Set the admission limit, then start. The test spends about 9 seconds on each stage it is allowed to reach, beginning at 300.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);
@@ -388,8 +276,8 @@ export function TrafficSurgeGame() {
           ? `Paused · ${snap.t.toFixed(1)}s`
           : `${snap.t.toFixed(1)}s`
         : phase === "won"
-          ? "Held"
-          : "Breached";
+          ? "On the passing stage"
+          : "Past the passing stage";
 
   const controlsPanel = (
     <div className="drill-panel flex flex-col gap-5 p-5 md:p-6">
@@ -397,62 +285,22 @@ export function TrafficSurgeGame() {
 
       <label className="block">
         <DrillControlLabel
-          label="Admit rate"
-          tip="Fraction of arrivals allowed into the system."
-          help="Fraction of arrivals allowed into the system. Past fixed capacity, every extra admit turns into queue wait and p95 pressure."
-          value={`${Math.round(controls.admit * 100)}%`}
+          label="Admission limit"
+          tip="Highest lookups per second the load test is allowed to reach."
+          help="Highest lookups per second the load test is allowed to reach. The test walks 300, 400, 480, and 560, and it stops at this limit."
+          value={`${controls.admitPerSec}/s`}
         />
         <input
           className="slo-slider mt-3"
           type="range"
-          min={0.35}
-          max={1}
-          step={0.05}
-          value={controls.admit}
+          min={300}
+          max={560}
+          step={20}
+          value={controls.admitPerSec}
           onChange={(e) =>
-            setControls((c) => ({ ...c, admit: Number(e.target.value) }))
+            setControls({ admitPerSec: Number(e.target.value) })
           }
         />
-      </label>
-
-      <label className="block">
-        <DrillControlLabel
-          label="Queue cap"
-          tip="Maximum waiting requests."
-          help="Maximum waiting requests. Beyond this, new work is refused instead of waiting forever."
-          value={controls.queueCap}
-        />
-        <input
-          className="slo-slider mt-3"
-          type="range"
-          min={40}
-          max={220}
-          step={10}
-          value={controls.queueCap}
-          onChange={(e) =>
-            setControls((c) => ({ ...c, queueCap: Number(e.target.value) }))
-          }
-        />
-      </label>
-
-      <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
-        <input
-          type="checkbox"
-          className="mt-1 size-4 accent-[var(--cinnabar)]"
-          checked={controls.vipFirst}
-          onChange={(e) =>
-            setControls((c) => ({ ...c, vipFirst: e.target.checked }))
-          }
-        />
-        <span>
-          <span className="font-medium text-[color:var(--drill-fg)]">
-            VIP first when shedding
-          </span>
-          <span className="mt-1.5 block leading-relaxed">
-            When load must be cut, prefer keeping higher-priority traffic. This
-            protects critical customers while still reducing pressure.
-          </span>
-        </span>
       </label>
 
       <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
@@ -514,15 +362,23 @@ export function TrafficSurgeGame() {
         }
         canvas={
           <>
+            <RunningCode
+              program={surgeProgram({
+                admitPerSec: controls.admitPerSec,
+                arrivals: snap.arrivals,
+                p95: snap.p95,
+                rejectedPct: (1 - snap.successRate) * 100,
+                elapsed: snap.t,
+                reduced,
+              })}
+              onEdit={(id, value) => setControls((current) => ({ ...current, [id]: value }))}
+            />
             <AdmissionQueueViz
-              vipQueue={snap.vipQueue}
-              restQueue={snap.restQueue}
-              queueCap={controls.queueCap}
-              vipFirst={controls.vipFirst}
-              admit={controls.admit}
+              stage={snap.arrivals}
+              limit={controls.admitPerSec}
               p95={snap.p95}
               p95Limit={P95_LIMIT_MS}
-              arrivals={snap.arrivals}
+              reject={1 - snap.successRate}
             />
 
             <div className="drill-panel p-5 md:p-6">
@@ -544,14 +400,11 @@ export function TrafficSurgeGame() {
                   frame={narrateTrafficSurge({
                     phase,
                     t: snap.t,
-                    admit: controls.admit,
-                    queue: snap.queue,
-                    vipQueue: snap.vipQueue,
+                    arrivals: snap.arrivals,
                     p95: snap.p95,
                     p95Limit: P95_LIMIT_MS,
-                    successRate: snap.successRate,
-                    shed: snap.shed,
-                    vipFirst: controls.vipFirst,
+                    reject: 1 - snap.successRate,
+                    limit: controls.admitPerSec,
                   })}
                 />
               </div>
@@ -566,103 +419,66 @@ export function TrafficSurgeGame() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Arrivals</td>
-                    <td>{snap.arrivals.toFixed(0)} rps</td>
-                    <td>
-                      Incoming request rate. The spike peaks near about 200 rps.
-                    </td>
+                    <td>Stage</td>
+                    <td>{snap.arrivals.toFixed(0)}/s</td>
+                    <td>The load-test row running now. The ladder is 300, 400, 480, 560.</td>
                   </tr>
                   <tr>
-                    <td>Queue</td>
-                    <td>{snap.queue.toFixed(0)}</td>
-                    <td>
-                      Requests waiting for service. A long queue becomes p95
-                      latency.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>p95</td>
+                    <td>Acquire p95</td>
                     <td>{snap.p95.toFixed(0)} ms</td>
-                    <td>Hold this under {P95_LIMIT_MS} ms through the spike.</td>
+                    <td>Hold this under {P95_LIMIT_MS} ms. At 480 it can still be 25 ms.</td>
                   </tr>
                   <tr>
-                    <td>
-                      {controls.vipFirst ? "VIP success" : "Success rate"}
-                    </td>
-                    <td>
-                      {(
-                        (controls.vipFirst
-                          ? snap.vipSuccessRate
-                          : snap.successRate) * 100
-                      ).toFixed(0)}
-                      %
-                    </td>
-                    <td>
-                      Share of requests that complete. Cutting some arrivals
-                      protects latency for the ones you keep.
-                    </td>
+                    <td>Rejections</td>
+                    <td>{((1 - snap.successRate) * 100).toFixed(1)}%</td>
+                    <td>Must stay under 1 percent. 480 fails this bar even when p95 looks fine.</td>
+                  </tr>
+                  <tr>
+                    <td>Limit</td>
+                    <td>{controls.admitPerSec.toFixed(0)}/s</td>
+                    <td>The highest stage the test is allowed to reach. The last passing stage is {CAPACITY}/s.</td>
                   </tr>
                 </tbody>
               </table>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <PlayMeter
-                  label="Arrivals"
-                  tip="Incoming request rate. The spike peaks near ~200 rps."
+                  label="Stage"
+                  tip="Lookups per second on the current load-test row."
                   value={snap.arrivals}
-                  max={240}
-                  format={(n) => `${n.toFixed(0)} rps`}
-                  warnAt={0.5}
-                  dangerAt={0.75}
+                  max={560}
+                  format={(n) => `${n.toFixed(0)}/s`}
+                  warnAt={0.72}
+                  dangerAt={0.86}
                 />
                 <PlayMeter
-                  label="Queue"
-                  tip="Requests waiting for service. A long queue turns into p95 latency."
-                  value={snap.queue}
-                  max={controls.queueCap}
-                  format={(n) => `${n.toFixed(0)}`}
-                />
-                <PlayMeter
-                  label="p95 latency"
-                  tip="95th-percentile response time. Cross the budget and the drill fails."
+                  label="Acquire p95"
+                  tip="95th percentile of the wait for a connection. The bar is 50 ms."
                   value={snap.p95}
-                  max={P95_LIMIT_MS}
+                  max={100}
                   format={(n) => `${n.toFixed(0)} ms`}
-                  warnAt={0.85}
-                  dangerAt={1}
+                  warnAt={0.4}
+                  dangerAt={0.5}
                 />
                 <PlayMeter
-                  label={controls.vipFirst ? "VIP success" : "Success rate"}
-                  tip={
-                    controls.vipFirst
-                      ? "VIP-priority lane success."
-                      : "Share of requests that complete without being refused or timing out."
-                  }
-                  value={Math.max(
-                    0,
-                    1 -
-                      (controls.vipFirst
-                        ? snap.vipSuccessRate
-                        : snap.successRate),
-                  )}
-                  max={0.4}
-                  format={() =>
-                    `${((controls.vipFirst ? snap.vipSuccessRate : snap.successRate) * 100).toFixed(0)}%`
-                  }
-                  warnAt={0.35}
-                  dangerAt={0.7}
+                  label="Rejections"
+                  tip="Share of requests this stage turns away. The bar is 1 percent."
+                  value={1 - snap.successRate}
+                  max={0.25}
+                  format={(n) => `${(n * 100).toFixed(1)}%`}
+                  warnAt={0.04}
+                  dangerAt={0.08}
+                />
+                <PlayMeter
+                  label="Limit"
+                  tip="Highest stage the test may reach. 400 per second is the last row that passes both bars."
+                  value={controls.admitPerSec}
+                  max={560}
+                  format={(n) => `${n.toFixed(0)}/s`}
+                  warnAt={0.72}
+                  dangerAt={0.86}
                 />
               </div>
-
-              {phase === "running" ? (
-                <p className="mt-4 text-sm text-[color:var(--drill-muted)]">
-                  Under budget {snap.underBudgetSec.toFixed(1)}s · shed{" "}
-                  {snap.shed.toFixed(0)}
-                  {controls.vipFirst
-                    ? ` · VIP queue ${snap.vipQueue.toFixed(0)}`
-                    : ""}
-                </p>
-              ) : null}
 
               {(phase === "won" || phase === "lost") && result ? (
                 <GameResultPanel

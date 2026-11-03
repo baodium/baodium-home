@@ -6,11 +6,11 @@ const primaryRoutes = [
   { path: "/system-design/experience", heading: /Labs|Experience|Chapter/i },
   { path: "/system-design/experience/chapter-1", heading: /Resource Contention|Chapter/i },
   { path: "/play", heading: /Drills|Play|SLO Watch/i },
-  { path: "/play/slo-watch", heading: /SLO Watch|checkout/i },
-  { path: "/play/traffic-surge", heading: /Traffic Surge|p95/i },
-  { path: "/play/cascade", heading: /Cascade/i },
-  { path: "/play/cache-roulette", heading: /Cache Roulette/i },
-  { path: "/play/tail-latency", heading: /Tail Latency|p99/i },
+  { path: "/play/slo-watch", heading: /40-connection|burst/i },
+  { path: "/play/traffic-surge", heading: /acquire p95|passing stage/i },
+  { path: "/play/cascade", heading: /fraud provider/i },
+  { path: "/play/cache-roulette", heading: /product-metadata|catalog read/i },
+  { path: "/play/tail-latency", heading: /acquire p95/i },
   { path: "/projects", heading: /Projects|Interview Coach|UpTo/i },
   { path: "/about", heading: /Adewale|About|Baodium/i },
 ];
@@ -35,8 +35,7 @@ test.describe("primary routes", () => {
     for (const label of ["Home", "Book", "Labs", "Drills", "Projects", "About"]) {
       await expect(nav.getByRole("link", { name: label })).toBeVisible();
     }
-    await expect(
-      page.locator("#top").getByRole("link", { name: /Read the book for free/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Read the book for free" })).toHaveCount(1);
+    await expect(page.locator("#top").getByRole("link", { name: /Read the book for free/i })).toHaveCount(0);
   });
 });

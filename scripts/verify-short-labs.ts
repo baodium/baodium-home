@@ -46,12 +46,12 @@ for (const lab of SHORT_LABS) {
 }
 
 const expectPass: Record<string, ControlValues> = {
-  "chapter-2": { workers: 16 },
-  "chapter-4": { propagate: true, cancel: true },
-  "chapter-5": { singleflight: true, jitter: true },
-  "chapter-7": { route: "bound", lagBoundMs: 200 },
-  "chapter-12": { consumers: 4, idempotent: true, ackBefore: false },
-  "chapter-14": { inventoryCritical: false, retryExtra: 0, providerBudgetMs: 300, shedPct: 0 },
+  "chapter-2": { holdDuringBuild: false },
+  "chapter-4": { cancel: true },
+  "chapter-5": { singleflight: true },
+  "chapter-7": { route: "router", allowPrimaryFallback: true },
+  "chapter-12": { consumers: 4, claim: true },
+  "chapter-14": { perInstance: 20 },
 };
 
 for (const lab of SHORT_LABS) {
@@ -78,37 +78,37 @@ const guided: { slug: string; steps: { controls: ControlValues; gate: string; se
   {
     slug: "chapter-2",
     steps: [
-      { controls: {}, gate: "seen", seconds: 2 },
-      { controls: { arrivalPerSec: 800 }, gate: "overCapacity", seconds: 2 },
-      { controls: { arrivalPerSec: 800, retryFactor: 2 }, gate: "queued", seconds: 3 },
-      { controls: { arrivalPerSec: 80, serviceMs: 15, workers: 30, retryFactor: 1 }, gate: "recovered", seconds: 8 },
+      { controls: {}, gate: "estimate", seconds: 1 },
+      { controls: { payloadMs: 40 }, gate: "over", seconds: 1 },
+      { controls: { payloadMs: 40 }, gate: "queued", seconds: 4 },
+      { controls: { payloadMs: 40, holdDuringBuild: false }, gate: "released", seconds: 8 },
     ],
   },
   {
     slug: "chapter-4",
     steps: [
       { controls: {}, gate: "inside", seconds: 1 },
-      { controls: { inventoryMs: 340 }, gate: "overrun", seconds: 1 },
-      { controls: { inventoryMs: 340, propagate: true }, gate: "passedDown", seconds: 1 },
-      { controls: { inventoryMs: 340, propagate: true, cancel: true }, gate: "stopped", seconds: 1 },
+      { controls: { providerMs: 900 }, gate: "overrun", seconds: 1 },
+      { controls: { providerMs: 900, cancel: true }, gate: "stopped", seconds: 1 },
+      { controls: { providerMs: 900, permit: false }, gate: "deferred", seconds: 1 },
     ],
   },
   {
     slug: "chapter-5",
     steps: [
       { controls: {}, gate: "warm", seconds: 2 },
-      { controls: { align: true }, gate: "stampede", seconds: 4 },
-      { controls: { align: true, singleflight: true }, gate: "coalesced", seconds: 3 },
-      { controls: { align: true, singleflight: true, jitter: true }, gate: "spread", seconds: 6 },
+      { controls: { fresh: false }, gate: "stampede", seconds: 1 },
+      { controls: { fresh: false, singleflight: true }, gate: "coalesced", seconds: 1 },
+      { controls: { fresh: false, singleflight: true, permit: false }, gate: "limited", seconds: 1 },
     ],
   },
   {
     slug: "chapter-7",
     steps: [
       { controls: {}, gate: "stale", seconds: 1 },
-      { controls: { route: "primary" }, gate: "primaryOnly", seconds: 1 },
-      { controls: { route: "bound", lagBoundMs: 200 }, gate: "bounded", seconds: 1 },
-      { controls: { route: "bound", lagBoundMs: 200 }, gate: "held", seconds: 4 },
+      { controls: { route: "router" }, gate: "refused", seconds: 1 },
+      { controls: { route: "router", allowPrimaryFallback: true }, gate: "current", seconds: 1 },
+      { controls: { route: "router", lagMs: 0, allowPrimaryFallback: false }, gate: "caughtUp", seconds: 1 },
     ],
   },
   {
@@ -117,16 +117,16 @@ const guided: { slug: string; steps: { controls: ControlValues; gate: string; se
       { controls: {}, gate: "steady", seconds: 1 },
       { controls: { processMs: 100 }, gate: "aged", seconds: 16 },
       { controls: { processMs: 25, consumers: 4 }, gate: "scaled", seconds: 12 },
-      { controls: { processMs: 25, consumers: 4, idempotent: true, ackBefore: false }, gate: "safe", seconds: 1 },
+      { controls: { processMs: 25, consumers: 4, claim: true, commitAfter: true }, gate: "safe", seconds: 1 },
     ],
   },
   {
     slug: "chapter-14",
     steps: [
-      { controls: {}, gate: "fits", seconds: 1 },
-      { controls: { slowdown: true }, gate: "overBudget", seconds: 1 },
-      { controls: { slowdown: true, inventoryCritical: false }, gate: "deferred", seconds: 1 },
-      { controls: { slowdown: true, inventoryCritical: false, retryExtra: 0, shedPct: 0 }, gate: "reserved", seconds: 1 },
+      { controls: {}, gate: "baseline", seconds: 1 },
+      { controls: { extraPct: 25, occupancyMs: 18 }, gate: "planning", seconds: 1 },
+      { controls: { extraPct: 25, occupancyMs: 18, instances: 4, perInstance: 20 }, gate: "fleet", seconds: 1 },
+      { controls: { extraPct: 25, occupancyMs: 18, instances: 4, perInstance: 20, instanceDown: true }, gate: "survivor", seconds: 1 },
     ],
   },
 ];

@@ -27,7 +27,7 @@ const COLOR: Record<RequestFlow, string> = {
 };
 
 /**
- * A solid call with one request moving along it.
+ * A conduit with a port at the far end and one request moving along it.
  * The bead is started from an effect so a parent re-render does not restart the trip.
  * Open breakers are a still copper line labeled open. No marching dashes.
  */
@@ -53,30 +53,40 @@ export function RequestEdge({
   });
   const color = COLOR[flow];
   const moving = (flow === "live" || flow === "strain") && !data?.reduced;
-  const markerId = `arch-arrow-${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const markerId = `arch-port-${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   return (
     <>
       <defs>
         <marker
           id={markerId}
-          markerWidth="10"
-          markerHeight="10"
-          refX="8"
-          refY="5"
+          markerWidth="16"
+          markerHeight="16"
+          refX="12"
+          refY="8"
           orient="auto"
           markerUnits="userSpaceOnUse"
         >
-          <path d="M1 1.2 L8 5 L1 8.8 Z" fill={color} />
+          <circle cx="8" cy="8" r="6.2" fill="#f4f7fa" stroke={color} strokeWidth="2" />
+          <circle cx="8" cy="8" r="2.1" fill={color} />
         </marker>
       </defs>
+      <path
+        d={path}
+        fill="none"
+        stroke={color}
+        strokeWidth={11}
+        strokeOpacity={0.22}
+        strokeLinecap="round"
+      />
       <BaseEdge
         id={id}
         path={path}
         markerEnd={`url(#${markerId})`}
         style={{
           stroke: color,
-          strokeWidth: flow === "live" || flow === "strain" ? 2.35 : 1.6,
+          strokeWidth: flow === "live" || flow === "strain" ? 2.6 : 2,
+          strokeLinecap: "round",
         }}
       />
       {data?.reduced ? null : (

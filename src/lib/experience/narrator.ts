@@ -25,55 +25,55 @@ export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
   const appliedOn = snap.appliedFeatureEnabled && !snap.appliedFeatureDisabledForNew;
 
   if (snap.appliedFeatureDisabledForNew) {
-    segments.push("Flag disabled for new traffic");
+    segments.push("The flag is off for new recommendation calls");
     tone = read.busy > 0 ? "recover" : "calm";
   } else if (!snap.appliedFeatureEnabled) {
-    segments.push("Flag off");
+    segments.push("The flag is off");
   } else if (controls.paused) {
-    segments.push(`Exposure frozen at ${snap.appliedExposurePct}%`);
+    segments.push(`Exposure is paused at ${snap.appliedExposurePct}%`);
     tone = "warn";
   } else if (snap.appliedExposurePct === 0) {
-    segments.push("Flag on at 0% (deployed, not enabled)");
+    segments.push("The flag is on and the cohort is empty");
   } else {
-    segments.push(`Flag at ${snap.appliedExposurePct}%`);
+    segments.push(`Exposure is ${snap.appliedExposurePct}%`);
   }
 
   if (snap.flagPropagationRemainingSec > 0.02) {
-    segments.push(`flag change in ${snap.flagPropagationRemainingSec.toFixed(1)}s`);
+    segments.push(`The flag change lands in ${snap.flagPropagationRemainingSec.toFixed(1)}s`);
   }
 
   if (controls.arrivalRate <= 0) {
-    segments.push("no arrivals yet");
+    segments.push("No arrivals yet");
   } else if (appliedOn && snap.appliedExposurePct > 0) {
-    segments.push(`~${Math.round(read.offeredPoolRps)} recommendation lookups/s`);
+    segments.push(`About ${Math.round(read.offeredPoolRps)} recommendation lookups a second`);
   } else {
-    segments.push(`~${Math.round(controls.arrivalRate)} baseline req/s`);
+    segments.push(`About ${Math.round(controls.arrivalRate)} product-page requests a second`);
   }
 
   if (read.busy >= read.poolSize) {
-    segments.push(`pool full (${read.busy}/${read.poolSize})`);
+    segments.push(`All ${read.poolSize} connections are assigned`);
     tone = "warn";
   } else if (read.utilization >= 0.85) {
     segments.push(
-      `pool nearly full (${read.busy}/${read.poolSize}, ${Math.round(read.utilization * 100)}%)`,
+      `${read.busy} of ${read.poolSize} connections are busy (${Math.round(read.utilization * 100)}%)`,
     );
     tone = "warn";
   } else {
-    segments.push(`pool ${read.busy}/${read.poolSize} busy`);
+    segments.push(`${read.busy} of ${read.poolSize} connections are busy`);
   }
 
   if (read.waiting > 0) {
     const growing =
       read.demand > read.poolSize || read.utilization >= 0.95
-        ? "waiters growing"
-        : "waiters queued";
+        ? "Pending acquisitions are growing"
+        : "Acquisitions are pending";
     segments.push(`${growing} (${read.waiting})`);
     tone = "warn";
   } else if (read.demand > read.poolSize) {
-    segments.push(`demand ≈ ${read.demand.toFixed(0)} over capacity. waiters next`);
+    segments.push(`Estimated demand is about ${read.demand.toFixed(0)}, past the pool`);
     tone = "warn";
   } else {
-    segments.push("no waiters");
+    segments.push("Nothing is waiting for a connection");
   }
 
   if (snap.appliedFeatureDisabledForNew && read.busy === 0 && read.waiting === 0) {
@@ -83,19 +83,19 @@ export function narrateChapter1(snap: EngineSnapshot): NarratorFrame {
   let goodLooksLike: string;
   if (controls.featureDisabledForNew) {
     goodLooksLike =
-      "Good: busy and waiters fall as in-flight holds finish; new traffic stays on the fast baseline path.";
+      "New recommendation calls have stopped. Connections already held finish or time out. The query stays near 70 ms.";
   } else if (read.waiting > 0) {
     goodLooksLike =
-      "Good: busy stays ≤ 40 while you cut demand (disable / shed) or shorten holds (cache). Waiters then drain.";
+      "Busy stays at 40. Pending is the queue for a connection. The flag stops new recommendation calls. A timeout only ends a wait that already started.";
   } else if (read.utilization >= 0.85) {
     goodLooksLike =
-      "Good: keep headroom under ~70–80% util so a small traffic bump does not create waiters.";
+      "The pool is nearly full. The next rise in exposure is what creates pending acquisitions.";
   } else if (controls.exposurePct === 0 && controls.featureEnabled) {
     goodLooksLike =
-      "Good: code is live at 0%. Raise exposure only when you are ready to watch the pool.";
+      "The code is live and the cohort is empty. Raise exposure when you want product pages to call Recommendation.";
   } else {
     goodLooksLike =
-      "Good: estimated demand (arrivals × hold time) stays under 40, busy has headroom, and the slowest 1% of requests stay near the baseline hold.";
+      "Arrivals times the hold should stay under 40. The query stays near its baseline. Acquire wait is the line that moves when the pool fills.";
   }
 
   return {

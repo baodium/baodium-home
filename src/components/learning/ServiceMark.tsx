@@ -32,11 +32,14 @@ export type ServiceMarkId =
   | "log"
   | "consumers"
   | "region"
+  | "fraud"
   | "service";
 
 const BY_LABEL: Record<string, ServiceMarkId> = {
   edge: "edge",
+  gateway: "edge",
   checkout: "checkout",
+  payment: "pay",
   auth: "auth",
   pay: "pay",
   payments: "pay",
@@ -66,6 +69,7 @@ const BY_LABEL: Record<string, ServiceMarkId> = {
   log: "log",
   consumers: "consumers",
   region: "region",
+  fraud: "fraud",
 };
 
 export function markForLabel(label: string): ServiceMarkId {
@@ -82,7 +86,8 @@ export type ServiceShape =
   | "rack"
   | "stack"
   | "lane"
-  | "tray";
+  | "tray"
+  | "tower";
 
 /** Silhouette for the node frame. A database is not a gateway, and a pool is not a service card. */
 export function shapeForMark(id: ServiceMarkId): ServiceShape {
@@ -95,8 +100,9 @@ export function shapeForMark(id: ServiceMarkId): ServiceShape {
     case "db":
     case "primary":
     case "replica":
-    case "origin":
       return "cylinder";
+    case "origin":
+      return "tower";
     case "pool":
       return "rack";
     case "cache":
@@ -138,6 +144,8 @@ export function kindForMark(id: ServiceMarkId): string {
       return "Log";
     case "region":
       return "Region";
+    case "fraud":
+      return "Fraud";
     default:
       return "Service";
   }
@@ -149,7 +157,7 @@ function Glyph({ children }: { children: ReactNode }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -286,6 +294,13 @@ function paths(id: ServiceMarkId) {
         <>
           <path d="M6 18.5V9.2L12 5.2l6 4v9.3" />
           <path d="M10 18.5v-4.2h4v4.2" />
+        </>
+      );
+    case "fraud":
+      return (
+        <>
+          <path d="M12 3.6 19 6.2v5.4c0 4.2-2.8 7.2-7 8.8-4.2-1.6-7-4.6-7-8.8V6.2L12 3.6z" />
+          <path d="M9.2 12.1 11.1 14l3.8-4.2" />
         </>
       );
     case "operation":

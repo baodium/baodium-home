@@ -1,5 +1,8 @@
+import { CHAPTER1_SOURCE } from "../src/lib/experience/chapter1-program";
 import {
+  applyChapter1Source,
   createEngine,
+  injectSingleRequest,
   setControls,
   setSimFrozen,
   snapshot as takeSnapshot,
@@ -7,8 +10,8 @@ import {
   POOL_SIZE,
   FLAG_PROPAGATION_SEC,
 } from "../src/lib/experience/engine";
-import { poolIsOutsideProductPage, SERVICE_EDGES } from "../src/lib/experience/service-topology";
 import { readChapter1 } from "../src/lib/experience/readout";
+import { poolIsOutsideProductPage, SERVICE_EDGES } from "../src/lib/experience/service-topology";
 import { isUserExposed } from "../src/lib/experience/rng";
 import { createEngine as createSlo, tick as tickSlo } from "../src/lib/slo-watch";
 
@@ -345,12 +348,7 @@ console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));
 }
 
 {
-  const controls = {
-    poolSize: 8,
-    concurrencyLimit: 80,
-    retries: "aggressive" as const,
-    shedding: false,
-  };
+  const controls = { exposurePct: 100, flagOff: false };
   let state = createSlo();
   let other = createSlo();
   for (let i = 0; i < 80; i++) {
@@ -358,11 +356,59 @@ console.log(JSON.stringify({ ok: true, topology: "recommendation-owns-pool" }));
     const b = tickSlo(other, controls);
     state = a.state;
     other = b.state;
-    assert(a.snap.inFlight <= controls.poolSize + 1e-9, "SLO in-flight exceeded pool");
+    assert(a.snap.inFlight <= 40 + 1e-9, "SLO in-flight exceeded the 40-connection pool");
     assert(a.snap.poolUtil <= 1 + 1e-9, "SLO util exceeded 1");
     assert(a.snap.inFlight === b.snap.inFlight, "SLO tick was not deterministic");
     assert(a.snap.pending === b.snap.pending, "SLO pending diverged");
   }
+}
+
+{
+  const engine = createEngine(3, {
+    arrivalRate: 0,
+    featureEnabled: true,
+    exposurePct: 100,
+    recLookupSec: 0.07,
+    baselineHoldSec: 0.012,
+  });
+  injectSingleRequest(engine, { forceExposed: true });
+  let sawSlot = false;
+  for (let i = 0; i < 40; i++) {
+    const snap = tick(engine, 0.01, { force: true });
+    if (snap.activeCount > 0) sawSlot = true;
+  }
+  assert(sawSlot, "manuscript recommendation call should take a pool slot");
+  const page = takeSnapshot(engine).lastPage;
+  assert(page?.invokedRecommendation === true, "finished page did not call recommendation");
+  assert(page?.fetchedCatalog === true, "finished page skipped catalog");
+
+  const removed = CHAPTER1_SOURCE.replace(
+    "    recs = recommendation_service.get(user_id, product_id)\n",
+    "    recs = []\n",
+  );
+  applyChapter1Source(engine, removed);
+  assert(takeSnapshot(engine).handler.callsRecommendation === false, "parser still saw the call");
+  injectSingleRequest(engine, { forceExposed: true });
+  for (let i = 0; i < 40; i++) {
+    const snap = tick(engine, 0.01, { force: true });
+    const traced = snap.tracedRequest;
+    assert(traced?.acquiresPool !== true, "removed call acquired a connection");
+    assert(snap.activeCount === 0, "removed call occupied the pool");
+    if (traced?.phase === "done") {
+      assert(traced.skipReason === "listing", "removed call was not marked as a listing skip");
+      assert(traced.invokedRecommendation === false, "removed call still invoked recommendation");
+    }
+  }
+
+  applyChapter1Source(engine, CHAPTER1_SOURCE);
+  const restored = takeSnapshot(engine);
+  assert(restored.poolSize === 40, `pool left the chapter size of 40 (${restored.poolSize})`);
+  assert(restored.handler.callsRecommendation === true, "manuscript listing dropped the call");
+  assert(restored.handler.poolSize === 40, "handler pool is not the chapter's 40");
+  const read = readChapter1(restored);
+  assert(read.busy === restored.activeCount, "assigned_connections drifted from the pool");
+  assert(read.idle === restored.idleCount, "idle_connections drifted from the pool");
+  assert(read.waiting === restored.waitingCount, "pending_acquisitions drifted from the queue");
 }
 
 console.log(JSON.stringify({ ok: true, boundaries: "pool-outside-product-page" }));

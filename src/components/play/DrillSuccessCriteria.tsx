@@ -34,7 +34,7 @@ export function DrillSuccessCriteria({
                 ? "border-[color-mix(in_srgb,var(--drill-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--drill-accent)_8%,var(--drill-panel))]"
                 : "border-[color:var(--drill-line)] bg-[color:var(--drill-panel-soft)]";
           const mark =
-            item.met === true ? "Pass" : item.met === false ? "Fail" : "—";
+            item.met === true ? "Pass" : item.met === false ? "Fail" : "pending";
           const markColor =
             item.met === true
               ? "text-[color:var(--drill-signal)]"

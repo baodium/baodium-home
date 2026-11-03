@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
@@ -76,13 +77,18 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           }`}
           style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
         >
-          <p
-            className={`font-mono text-[0.62rem] uppercase tracking-[0.22em] text-[var(--reader-muted)] ${
-              collapsed ? "lg:hidden" : ""
-            }`}
-          >
-            Contents
-          </p>
+          <div className={`flex min-w-0 items-center gap-2.5 ${collapsed ? "lg:hidden" : ""}`}>
+            <Image
+              src={book.cover}
+              alt=""
+              width={64}
+              height={96}
+              className="h-11 w-8 shrink-0 rounded-[2px] object-cover shadow-[0_8px_16px_-12px_rgba(40,24,12,0.7)]"
+            />
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-[var(--reader-muted)]">
+              Contents
+            </p>
+          </div>
           <div className="flex items-center gap-1">
             <button
               type="button"

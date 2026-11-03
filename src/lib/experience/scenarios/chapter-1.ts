@@ -1,3 +1,4 @@
+import { CHAPTER1_SOURCE } from "@/lib/experience/chapter1-program";
 import type { ChapterScenario } from "@/lib/experience/scenarios/types";
 import { getChapter } from "@/lib/learning/registry";
 
@@ -8,7 +9,7 @@ export const chapter1Scenario: ChapterScenario = {
     id: ch.id,
     slug: ch.slug,
     number: ch.number,
-    title: "Resource Contention",
+    title: ch.title,
     subtitle: ch.labSubtitle,
     bookHref: ch.bookHref,
     status: "ready",
@@ -21,40 +22,16 @@ export const chapter1Scenario: ChapterScenario = {
     "Each Recommendation instance allows 40 connections. Home page, checkout, and product-page personalization share that pool. Product Page does not hold the connection.",
     "Baseline path: Client → Product Page → Catalog, no pool slot. Personalized: Product Page → Recommendation → pool → database. The incident’s mean occupancy was about 70 ms, with acquire p99 near 600 ms while all 40 connections were assigned.",
     "Feature flag uses stable user hashing. A change reaches new arrivals after a short propagation delay. In-flight holds continue.",
-    "Disabling the flag stops new recommendation work; requests already waiting for a connection still finish or time out.",
-    "Acquire timeout maps to connectionTimeout; load shed skips recs when util is high; cache shortens W.",
-    "Latency SLO target: p99 < 200ms (simulated error-budget burn).",
+    "Disabling the flag stops new recommendation calls. Requests already waiting for a connection still finish or time out. The query stays near its baseline. Acquire time is the queue.",
+    "A later design capped each Product Page instance at 16 in-flight recommendation calls. This lab stays on the incident above, not that limiter.",
   ],
-  codeLines: [
-    "async function getProductPage(req) {",
-    "  const product = await catalog.get(req.productId);",
-    "  let recommendations = [];",
-    "  if (flags.recommendations.enabledFor(req.userId)) {",
-    "    // Product Page calls Recommendation. The pool stays in that service.",
-    "    recommendations = await recommendation.get(req.productId);",
-    "  }",
-    "  return render({ product, recommendations });",
-    "}",
-    "",
-    "// Recommendation service: 40 connections, shared with home and checkout",
-    "async function recommendation.get(productId) {",
-    "  const conn = await pool.acquire();          // ← shared pool",
-    "  try {",
-    "    return await conn.query(",
-    "      `SELECT … FROM recommendations WHERE product_id = $1`,",
-    "      [productId],",
-    "    );",
-    "  } finally {",
-    "    pool.release(conn);",
-    "  }",
-    "}",
-  ],
+  codeLines: CHAPTER1_SOURCE.split("\n"),
   steps: [
     {
       id: "inspect",
       letter: "A",
       title: "Inspect the feature",
-      body: "Toggle the product page preview. Recommendations appear as a rail on the page. The catalog lookup stays on Product Page. The expensive path will live in Recommendation, behind a feature flag, still invisible to live traffic until exposure rises.",
+      body: "Run get_product_page. Catalog is fetched on Product Page and does not take a connection. With the flag off, the handler does not call Recommendation, so the page has no recommendation row and the pool stays idle. The row appears when the flag lets a request through and the call is still in the listing. Comment out that call and the pool is not asked for a slot.",
       require: "toggle_preview",
     },
     {
@@ -93,14 +70,14 @@ export const chapter1Scenario: ChapterScenario = {
       id: "investigate",
       letter: "F",
       title: "Investigate",
-      body: "Pause and read the system. Compare baseline vs recommendation path latency. Note utilization, pending, acquire wait, and whether the p99 SLO is burning. Form a hypothesis before you change anything.",
+      body: "Pause and read the system. Compare the catalog path with the recommendation path. Note pending acquisitions, acquire wait, and whether the query stayed near baseline. The delay you are looking for is the wait for a connection.",
       require: "none",
     },
     {
       id: "mitigate",
       letter: "G",
       title: "Mitigate",
-      body: "Choose a response. Pause freezes exposure at the current % (traffic continues; the cohort cannot grow). Disable routes new traffic to the baseline path while in-flight holds finish. Investigate leaves pressure running so you can try timeout, shed, or cache afterward. Your choice mutates this same system.",
+      body: "Choose a response. Pause freezes exposure at the current percent, so the cohort cannot grow. Disable stops new recommendation calls while holds already taken finish or time out. Investigate leaves the pressure running so you can watch the queue.",
       require: "decision",
     },
     {
@@ -113,16 +90,16 @@ export const chapter1Scenario: ChapterScenario = {
   ],
   debriefTemplates: {
     pause_exposure:
-      "You paused exposure at {exposure}%. The rollout stopped raising the cohort. Traffic kept arriving at that mix, so anyone hashed into the {exposure}% still hit Recommendation and the shared pool. Waiters {waiterOutcome}. Pausing does not cut λ and does not kill in-flight holds; it only freezes further exposure increases. Disable (or shed/cache) is what drops recommendation demand. In production you would still watch pool.pending and acquire.wait.p99.",
+      "You paused exposure at {exposure}%. The rollout stopped raising the cohort. Traffic kept arriving at that mix, so anyone hashed into the {exposure}% still hit Recommendation and the shared pool. Waiters {waiterOutcome}. Pausing does not cut the arrival rate and does not end in-flight holds. Disabling the flag is what stops new recommendation calls.",
     disable_feature:
-      "You disabled recommendations for new traffic. New product pages stayed on Catalog and stopped calling Recommendation. Requests already holding a connection kept it until they finished or timed out. Disable does not cancel that work. Waiting drained as those holds completed. The shared resource is the 40-connection pool inside Recommendation, the same pool the home page and checkout use. Ops signature: pool.pending falls, acquire timeouts stop rising, and p99 moves back toward the catalog path.",
+      "You disabled recommendations for new traffic. New product pages stayed on Catalog and stopped calling Recommendation. Requests already holding a connection kept it until they finished or timed out. Disable does not cancel that work. Waiting drained as those holds completed. The shared resource is the 40-connection pool inside Recommendation, the same pool the home page and checkout use. Pending falls. The query was already near baseline. Acquire wait is the line that comes down.",
     investigate:
-      "You chose to keep investigating while pressure continued. Active slots stayed capped at 40; waiters grew as λ × W exceeded capacity. Correct code still caused waiting because every exposed request synchronously acquired from Recommendation’s finite pool. Without pausing or disabling, new recommendation traffic kept competing with in-flight work. Expect SLO burn and, if connectionTimeout is armed, acquire.timeouts.",
+      "You chose to keep investigating while pressure continued. Active connections stayed capped at 40. Pending grew because the arrival rate times the hold exceeded the pool. Correct code still waited because every exposed request acquired from Recommendation’s finite pool. Without pausing or disabling, new recommendation traffic kept competing with in-flight work. Acquire wait stays high. A timeout only ends a wait that already started.",
   },
   challenge: {
     title: "Can you clear the pool under live pressure?",
     objective:
-      "The storefront is already saturated. Waiting requests are stacking beside the 40-slot pool. Bring the system back under the latency SLO without being told which lever to pull.",
+      "Waiting requests are stacking beside the 40-connection pool. Pending acquisitions should finish, and acquire time should come off the queue. The query does not have to change.",
     criteria: {
       maxSimSec: 45,
       requireWaitingZero: true,
@@ -130,8 +107,8 @@ export const chapter1Scenario: ChapterScenario = {
       maxUtilization: 0.75,
     },
     success:
-      "Waiting cleared, pool util ≤ 75%, and p99 under the 200 ms SLO within 45 sim seconds.",
+      "Pending acquisitions finish, and acquire time comes off the queue, within 45 sim seconds.",
     gettingStarted:
-      "Press Start challenge. Logical time advances while you adjust the flag, exposure, shed, timeout, or cache. Watch Live metrics. Pause, step, or reset anytime.",
+      "Press Start challenge. Logical time advances while you adjust the flag and exposure. Watch pending acquisitions and acquire time. Pause, step, or reset anytime.",
   },
 };

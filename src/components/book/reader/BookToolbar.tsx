@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   useEffect,
@@ -227,12 +228,13 @@ export function BookToolbar({
                 className="text-btn group !h-9 shrink-0 gap-2 !px-2 !text-[var(--reader-fg)]"
                 aria-label="Baodium home"
               >
-                <span
-                  aria-hidden="true"
-                  className="relative h-2.5 w-2.5 shrink-0"
-                >
-                  <span className="absolute inset-0 rounded-[3px] bg-cinnabar transition-transform duration-500 group-hover:rotate-45" />
-                </span>
+                <Image
+                  src={book.cover}
+                  alt=""
+                  width={40}
+                  height={60}
+                  className="h-7 w-5 shrink-0 rounded-[1px] object-cover"
+                />
                 <span className="whitespace-nowrap font-mono text-[0.7rem] font-medium tracking-[0.2em]">
                   BAODIUM
                 </span>

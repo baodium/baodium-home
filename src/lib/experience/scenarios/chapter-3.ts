@@ -101,6 +101,6 @@ export const chapter3Copy = {
     objective: `Finish ${IDEMPOTENCY_WINDOW} checkouts in a row with no duplicate charge, no unresolved timeout, and no lost notification.`,
     success: `${IDEMPOTENCY_WINDOW} checkouts in a row with no duplicate charge, no unresolved timeout, and no lost notification, inside ${limitSec} seconds.`,
     gettingStarted:
-      "Provider time and the client timeout stay fixed for this wave. Charges that already landed stay on the ledger. Reset starts a clean wave on the same seed. The score is the clean streak in the live metrics.",
+      "Provider time and the client timeout stay fixed for this run. Charges that already landed stay on the ledger. Reset starts the same seed again. The score is the clean streak in the live metrics.",
   },
 };

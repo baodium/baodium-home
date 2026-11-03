@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RunningCode } from "@/components/experience/RunningCode";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
+import { metadataProgram } from "@/lib/experience/running-code";
 import { DrillModeBar } from "@/components/play/DrillModeBar";
 import { DrillSuccessCriteria } from "@/components/play/DrillSuccessCriteria";
 import { DrillControlLabel, DrillTip } from "@/components/play/DrillTip";
@@ -38,42 +40,39 @@ import {
 
 const catalog = getPlayGame("cache-roulette");
 
-const idleSnap: CacheSnap = emptyCacheSnap(
-  "Warm cache. Keys expire on a TTL. Watch origin when they do.",
-);
+const idleSnap: CacheSnap = emptyCacheSnap();
 
 function liveCacheCriteria(
-  hitRate: number,
-  stampededSec: number,
-  peakOriginLoad: number,
+  origin: number,
+  unavailable: number,
+  fresh: boolean,
   phase: "intro" | "running" | "won" | "lost",
 ): CriterionLive[] {
   const active = phase !== "intro";
   return CACHE_CRITERIA.map((c) => {
-    if (c.id === "hitRate") {
-      const met = hitRate >= 0.7;
+    if (c.id === "origin") {
+      const met = !fresh && origin === 1;
       return {
         ...c,
-        value: `${(hitRate * 100).toFixed(0)}%`,
+        value: `${origin}`,
         tone: !active ? "idle" : met ? "ok" : "bad",
         met: active ? met : null,
       };
     }
-    if (c.id === "stampede") {
-      const met = stampededSec < 2.2;
+    if (c.id === "permit") {
+      const met = unavailable === 0 && origin === 1;
       return {
         ...c,
-        value: `${stampededSec.toFixed(1)}s`,
-        tone: !active ? "idle" : met ? "ok" : "bad",
+        value: `${unavailable}`,
+        tone: !active ? "idle" : met ? "ok" : "warn",
         met: active ? met : null,
       };
     }
-    const met = peakOriginLoad < 1.45;
     return {
       ...c,
-      value: `${peakOriginLoad.toFixed(2)}×`,
-      tone: !active ? "idle" : met ? "ok" : "bad",
-      met: active ? met : null,
+      value: fresh ? "Fresh" : "Miss",
+      tone: !active ? "idle" : fresh ? "warn" : "ok",
+      met: active ? !fresh : null,
     };
   });
 }
@@ -84,10 +83,10 @@ export function CacheRouletteGame() {
   const [phase, setPhase] = useState<"intro" | "running" | "won" | "lost">("intro");
   const [paused, setPaused] = useState(false);
   const [controls, setControls] = useState<CacheControls>({
-    ttlSec: 6,
+    readers: 80,
+    fresh: false,
     singleflight: false,
-    softTtl: false,
-    originWorkers: 8,
+    permit: true,
   });
   const [snap, setSnap] = useState<CacheSnap>(idleSnap);
   const [result, setResult] = useState<CacheResult | null>(null);
@@ -129,7 +128,7 @@ export function CacheRouletteGame() {
     engineRef.current = createCache();
     setResult(null);
     setCopied(false);
-    setSnap(emptyCacheSnap("Run started. Watch the next TTL edge."));
+    setSnap(emptyCacheSnap("The key has missed. Watch how many catalog reads that produces."));
     setPaused(false);
     setPhase("running");
     if (stepMode) {
@@ -186,28 +185,19 @@ export function CacheRouletteGame() {
     }
   };
 
-  const technologies =
-    catalog?.technologies ??
-    ["TTL caches", "Singleflight / coalescing", "Soft TTL (SWR)", "Origin fill latency", "Thundering herd"];
+  const technologies = catalog?.technologies ?? ["Cache-aside", "TTL", "Shared loader", "Source permits"];
   const takeaway =
     catalog?.takeaway ??
-    "Without request coalescing, a TTL expiry becomes an origin stampede.";
+    "A miss shares one loader, and that loader needs a source permit.";
 
   const criteria = useMemo(
-    () =>
-      liveCacheCriteria(
-        snap.hitRate,
-        snap.stampededSec,
-        snap.peakOriginLoad,
-        phase,
-      ),
-    [snap.hitRate, snap.stampededSec, snap.peakOriginLoad, phase],
+    () => liveCacheCriteria(snap.inFlightMisses, snap.waitingOnFill, controls.fresh, phase),
+    [controls.fresh, phase, snap.inFlightMisses, snap.waitingOnFill],
   );
 
   const prose = useMemo((): DrillProse => {
-    const challengeQ =
-      "Can you survive a hot-key expiry without stampeding origin?";
-    const objective = `Hit rate ≥ 70%, stampede window under 2.2s, and peak origin load under 1.45× for ${CACHE_DURATION_S}s.`;
+    const challengeQ = "Can one catalog read fill a missed product-metadata key?";
+    const objective = `One catalog read for the miss, and unavailable responses at zero, for ${CACHE_DURATION_S}s.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -218,10 +208,10 @@ export function CacheRouletteGame() {
         explore: technologies,
         gettingStarted:
           mode === "challenge"
-            ? "Compare hit rate, stampede seconds, and peak origin to the pass lines, then adjust the levers and run again."
+            ? "Compare catalog reads with the reader count, then share one loader and run again."
             : phase === "won"
-              ? "Try a shorter TTL next to pressure the same defenses."
-              : "Watch which pass line failed at the expiry edge, then change TTL, workers, or coalesce settings and retry.",
+              ? "Turn the shared loader off once and watch Catalog see every reader."
+              : "The miss is still calling Catalog once per reader, or the source permit is missing.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
@@ -233,33 +223,23 @@ export function CacheRouletteGame() {
         mode === "challenge" ? (
           <>
             <p>
-              Friday afternoon, the product cache. One key is most of the
-              reads. It expires on a timer, and every client that misses tries
-              to fill from origin in the same moment. Origin is a small pool.
+              The key is product-metadata:v1. It is cache-aside, with a 300 second TTL.
+              This run is the miss: every reader would call Catalog unless they share one loader.
             </p>
             <p>
-              You can change how long an entry stays fresh, how many origin
-              workers you have, and how misses are filled. The page does not
-              say which of those keeps origin inside its limit.
+              The loader also has to acquire a source permit. Without it, readers get
+              source_read_limit and Catalog stays idle.
             </p>
           </>
         ) : (
           <>
             <p>
-              Friday afternoon, the product cache. A popular key stays fresh
-              for a fixed{" "}
-              <DrillTip
-                label="TTL"
-                tip="Time-to-live: how long a cached key stays valid before it must be refreshed from origin."
-              >
-                <span className="text-[color:var(--drill-fg)]">TTL</span>
-              </DrillTip>
-              . When it expires, every waiting client may try to refresh from
-              origin at once.
+              The key is product-metadata:v1, kept for 300 seconds. While it is fresh,
+              Catalog is not called. This drill starts from the miss.
             </p>
             <p>
-              That herd can fill a small origin pool even though each client is
-              doing the reasonable thing: the value was missing, so it asked.
+              Readers that do not share a loader each call catalog_db.fetch_metadata.
+              The loader that does run still needs source_reads.try_acquire.
             </p>
           </>
         ),
@@ -267,18 +247,15 @@ export function CacheRouletteGame() {
       terms:
         mode === "practice" ? (
           <>
-            <span className="text-[color:var(--drill-fg)]">Singleflight</span>{" "}
-            coalesces concurrent misses so only one fetch goes to origin.{" "}
-            <span className="text-[color:var(--drill-fg)]">Soft TTL</span> keeps
-            serving a slightly stale value while one background refresh updates
-            the cache.
+            A shared loader means one catalog read for every waiter on the key.
+            A source permit is what lets that loader call Catalog.
           </>
         ) : undefined,
       explore: technologies,
       gettingStarted:
         mode === "challenge"
-          ? "Choose TTL and origin workers, start the run, and watch hit rate, stampede seconds, and origin load at each expiry."
-          : "Choose TTL, origin workers, and whether to coalesce misses. Then start and watch hit rate, origin load, and in-flight misses at each expiry.",
+          ? "Start on the miss, then share one loader and keep the source permit."
+          : "Start with each reader loading alone. Then share one loader and watch Catalog fall to one read.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);
@@ -295,7 +272,6 @@ export function CacheRouletteGame() {
           : "Stampeded";
 
   const running = phase === "running";
-  const ttlSec = snap.ttlSec || controls.ttlSec;
 
   return (
     <div className="slo-game">
@@ -315,45 +291,35 @@ export function CacheRouletteGame() {
 
               <label className="block">
                 <DrillControlLabel
-                  label="TTL"
-                  tip="Time-to-live in seconds."
-                  help="How long a cached key stays valid. Shorter TTLs mean more expiry storms and more pressure on origin."
-                  value={`${controls.ttlSec}s`}
+                  label="Readers on this key"
+                  tip="How many requests miss product-metadata:v1 together."
+                  help="How many requests miss product-metadata:v1 together. Without a shared loader, each one calls Catalog."
+                  value={controls.readers}
                 />
                 <input
                   className="slo-slider mt-3"
                   type="range"
-                  min={2}
-                  max={14}
+                  min={1}
+                  max={120}
                   step={1}
-                  value={controls.ttlSec}
-                  onChange={(e) =>
-                    setControls((c) => ({ ...c, ttlSec: Number(e.target.value) }))
-                  }
+                  value={controls.readers}
+                  onChange={(e) => setControls((c) => ({ ...c, readers: Number(e.target.value) }))}
                 />
               </label>
 
-              <label className="block">
-                <DrillControlLabel
-                  label="Origin workers"
-                  tip="How many concurrent origin fetches the backend can handle."
-                  help="How many concurrent origin fetches the backend can handle. The herd saturates this pool when misses are not coalesced."
-                  value={controls.originWorkers}
-                />
+              <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
                 <input
-                  className="slo-slider mt-3"
-                  type="range"
-                  min={3}
-                  max={16}
-                  step={1}
-                  value={controls.originWorkers}
-                  onChange={(e) =>
-                    setControls((c) => ({
-                      ...c,
-                      originWorkers: Number(e.target.value),
-                    }))
-                  }
+                  type="checkbox"
+                  className="mt-1 size-4 accent-[var(--cinnabar)]"
+                  checked={controls.fresh}
+                  onChange={(e) => setControls((c) => ({ ...c, fresh: e.target.checked }))}
                 />
+                <span>
+                  <span className="font-medium text-[color:var(--drill-fg)]">Entry is fresh</span>
+                  <span className="mt-1.5 block leading-relaxed">
+                    On, the 300 second TTL still holds and Catalog is not called. Off, the key has missed.
+                  </span>
+                </span>
               </label>
 
               <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
@@ -366,12 +332,9 @@ export function CacheRouletteGame() {
                   }
                 />
                 <span>
-                  <span className="font-medium text-[color:var(--drill-fg)]">
-                    Singleflight
-                  </span>
+                  <span className="font-medium text-[color:var(--drill-fg)]">Share one loader</span>
                   <span className="mt-1.5 block leading-relaxed">
-                    Coalesce concurrent misses into one origin fetch. Other waiters
-                    share that result instead of each punching origin.
+                    On, every waiter on this key uses one loader. Catalog should see one read.
                   </span>
                 </span>
               </label>
@@ -380,18 +343,13 @@ export function CacheRouletteGame() {
                 <input
                   type="checkbox"
                   className="mt-1 size-4 accent-[var(--cinnabar)]"
-                  checked={controls.softTtl}
-                  onChange={(e) =>
-                    setControls((c) => ({ ...c, softTtl: e.target.checked }))
-                  }
+                  checked={controls.permit}
+                  onChange={(e) => setControls((c) => ({ ...c, permit: e.target.checked }))}
                 />
                 <span>
-                  <span className="font-medium text-[color:var(--drill-fg)]">
-                    Soft TTL
-                  </span>
+                  <span className="font-medium text-[color:var(--drill-fg)]">Source permit</span>
                   <span className="mt-1.5 block leading-relaxed">
-                    Serve a slightly stale value while one background revalidate
-                    updates the cache. Users stay warm during the fill.
+                    On, try_acquire returns a permit and the loader may read Catalog. Off, readers get source_read_limit.
                   </span>
                 </span>
               </label>
@@ -432,31 +390,39 @@ export function CacheRouletteGame() {
         }
         canvas={
           <>
+            <RunningCode
+              program={metadataProgram(
+                {
+                  readers: controls.readers,
+                  fresh: controls.fresh,
+                  singleflight: controls.singleflight,
+                  permit: controls.permit,
+                  origin: snap.inFlightMisses,
+                  unavailable: snap.waitingOnFill,
+                },
+                snap.t,
+                reduced,
+              )}
+              onEdit={(id, value) => setControls((current) => ({ ...current, [id]: value }))}
+            />
             <CacheHeatmapViz
-              t={snap.t}
-              ttlSec={ttlSec}
-              keyAge={snap.keyAge}
-              filling={snap.filling}
-              fillRemainingSec={snap.fillRemainingSec}
+              ttlSec={snap.ttlSec}
               singleflight={controls.singleflight}
-              softTtl={controls.softTtl}
               waitingOnFill={snap.waitingOnFill}
               inFlightMisses={snap.inFlightMisses}
-              originLoad={snap.originLoad}
-              stampeded={snap.stampeded}
+              fresh={controls.fresh}
+              permit={controls.permit}
+              readers={controls.readers}
             />
 
             <DrillNarrator
               frame={narrateCacheRoulette({
                 phase,
-                hitRate: snap.hitRate,
-                originLoad: snap.originLoad,
-                originWorkers: controls.originWorkers,
+                readers: controls.readers,
+                origin: snap.inFlightMisses,
+                fresh: controls.fresh,
                 singleflight: controls.singleflight,
-                softTtl: controls.softTtl,
-                ttlSec: controls.ttlSec,
-                stampeded: snap.stampeded,
-                inFlightMisses: snap.inFlightMisses,
+                permit: controls.permit,
               })}
             />
 
@@ -484,76 +450,64 @@ export function CacheRouletteGame() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Hit rate</td>
-                    <td>{(snap.hitRate * 100).toFixed(0)}%</td>
-                    <td>Share of requests served from cache.</td>
-                  </tr>
-                  <tr>
-                    <td>Stampede window</td>
-                    <td>{snap.stampededSec.toFixed(1)}s</td>
-                    <td>Seconds spent in a stampede this run (pass under 2.2s).</td>
-                  </tr>
-                  <tr>
-                    <td>Origin load</td>
-                    <td>{snap.originLoad.toFixed(2)}×</td>
-                    <td>How busy origin workers are right now.</td>
-                  </tr>
-                  <tr>
-                    <td>Peak origin</td>
-                    <td>{snap.peakOriginLoad.toFixed(2)}×</td>
-                    <td>Highest origin load this run (pass under 1.45×).</td>
-                  </tr>
-                  <tr>
-                    <td>In-flight misses</td>
+                    <td>Catalog reads</td>
                     <td>{snap.inFlightMisses}</td>
-                    <td>
-                      Concurrent cache misses hitting origin. A herd drives this up
-                      for the whole fill latency.
-                    </td>
+                    <td>fetch_metadata calls this miss produces.</td>
+                  </tr>
+                  <tr>
+                    <td>Unavailable</td>
+                    <td>{snap.waitingOnFill}</td>
+                    <td>Readers who got source_read_limit.</td>
+                  </tr>
+                  <tr>
+                    <td>TTL</td>
+                    <td>{snap.ttlSec}s</td>
+                    <td>How long a fresh product-metadata entry is kept.</td>
+                  </tr>
+                  <tr>
+                    <td>Readers</td>
+                    <td>{snap.rps}</td>
+                    <td>Requests on this one key.</td>
                   </tr>
                 </tbody>
               </table>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <PlayMeter
-                  label="Hit rate"
-                  tip="Share of requests served from cache."
-                  value={Math.max(0, 1 - snap.hitRate)}
-                  max={0.5}
-                  format={() => `${(snap.hitRate * 100).toFixed(0)}%`}
-                  warnAt={0.4}
-                  dangerAt={0.7}
-                />
-                <PlayMeter
-                  label="Origin load"
-                  tip="How busy origin workers are."
-                  value={snap.originLoad}
-                  max={1.45}
-                  format={(n) => `${n.toFixed(2)}×`}
-                  warnAt={0.7}
-                  dangerAt={0.95}
-                />
-                <PlayMeter
-                  label="Peak origin"
-                  tip="Highest origin load this run."
-                  value={snap.peakOriginLoad}
-                  max={1.45}
-                  format={(n) => `${n.toFixed(2)}×`}
-                  warnAt={0.7}
-                  dangerAt={0.95}
-                />
-                <PlayMeter
-                  label={
-                    snap.filling
-                      ? `Fill · ${snap.fillRemainingSec.toFixed(1)}s`
-                      : "In-flight misses"
-                  }
-                  tip="Concurrent cache misses hitting origin right now."
+                  label="Catalog reads"
+                  tip="fetch_metadata calls this missed key produces. The pass is one."
                   value={snap.inFlightMisses}
-                  max={80}
-                  format={(n) => `${n}`}
-                  warnAt={0.2}
-                  dangerAt={0.5}
+                  max={Math.max(8, controls.readers)}
+                  format={(n) => `${n.toFixed(0)}`}
+                  warnAt={0.15}
+                  dangerAt={0.3}
+                />
+                <PlayMeter
+                  label="Unavailable"
+                  tip="Readers who got source_read_limit because the permit was missing."
+                  value={snap.waitingOnFill}
+                  max={Math.max(8, controls.readers)}
+                  format={(n) => `${n.toFixed(0)}`}
+                  warnAt={0.05}
+                  dangerAt={0.15}
+                />
+                <PlayMeter
+                  label="TTL"
+                  tip="How long a fresh product-metadata entry is kept. This drill is the miss."
+                  value={snap.ttlSec}
+                  max={300}
+                  format={(n) => `${n.toFixed(0)} s`}
+                  warnAt={1}
+                  dangerAt={1}
+                />
+                <PlayMeter
+                  label="Readers"
+                  tip="Requests on product-metadata:v1."
+                  value={controls.readers}
+                  max={120}
+                  format={(n) => `${n.toFixed(0)}`}
+                  warnAt={0.7}
+                  dangerAt={0.9}
                 />
               </div>
 

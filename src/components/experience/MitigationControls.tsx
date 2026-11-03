@@ -10,10 +10,7 @@ export type MitigationPatch = {
   cacheHitRate?: number;
 };
 
-/**
- * Engineer levers that change the same sim: bound wait, shed under util, cut W via cache.
- * Each control names the production analogue so this is practice, not a toy slider row.
- */
+/** Bound how long a request may wait for a connection. The flag is what stops new calls. */
 export function MitigationControls({
   snap,
   onChange,
@@ -25,19 +22,15 @@ export function MitigationControls({
 }) {
   const c = snap.controls;
   const timeoutOn = c.acquireTimeoutSec !== null;
-  const shedOn = c.shedAtUtil !== null;
 
   return (
     <div className="exp-panel">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Mitigations</h3>
-        <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-          Change one lever · read ops
-        </p>
+        <h3 className="font-serif text-lg text-[color:var(--exp-fg)]">Acquire timeout</h3>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-        Real incident tools: bound acquire wait, shed the optional path under saturation, or shorten
-        hold time with a cache. Disable (flag panel) still stops new demand cold.
+        The flag stops new recommendation calls. A timeout only ends a wait that is already in
+        the queue. The query time does not have to change.
       </p>
 
       <div className="mt-4 space-y-4">
@@ -69,71 +62,11 @@ export function MitigationControls({
             ))}
           </div>
           <p className="mt-2 text-xs text-[color:var(--exp-muted)]">
-            Caps queueing delay; converts long waits into{" "}
-            <span className="font-mono text-[color:var(--exp-fg)]">acquire.timeouts</span>. Prefer
-            shedding or disable before living on the timeout wall.
+            Ends a wait that has already started. It does not stop the next recommendation call.
+            That is what the flag does.
           </p>
         </MitigationRow>
 
-        <MitigationRow
-          title="Load shed at util"
-          prod="Skip optional work when pool.util is high"
-          active={shedOn}
-          reducedMotion={reducedMotion}
-        >
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                [null, "Off"],
-                [0.7, "70%"],
-                [0.85, "85%"],
-                [0.95, "95%"],
-              ] as const
-            ).map(([v, label]) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => onChange({ shedAtUtil: v })}
-                className={`exp-btn !min-h-9 !px-3 font-mono text-[0.72rem] ${
-                  c.shedAtUtil === v ? "exp-btn-solid" : "exp-btn-ghost"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-[color:var(--exp-muted)]">
-            New exposed arrivals skip the recs lookup when busy/pool ≥ threshold. Protects the page;
-            degrades recommendations first.
-          </p>
-        </MitigationRow>
-
-        <MitigationRow
-          title="Cache hit rate"
-          prod="Shorten W. hits skip the long hold"
-          active={c.cacheHitRate > 0}
-          reducedMotion={reducedMotion}
-        >
-          <label className="block text-sm text-[color:var(--exp-muted)]">
-            Hits:{" "}
-            <span className="font-mono tabular-nums text-[color:var(--exp-fg)]">
-              {Math.round(c.cacheHitRate * 100)}%
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={90}
-              step={5}
-              value={Math.round(c.cacheHitRate * 100)}
-              onChange={(e) => onChange({ cacheHitRate: Number(e.target.value) / 100 })}
-              className="mt-2 w-full accent-[color:var(--exp-accent)]"
-            />
-          </label>
-          <p className="mt-2 text-xs text-[color:var(--exp-muted)]">
-            Attacks <span className="font-mono">W</span> in L = λ × W. Does not change arrival rate
-           . compare with disable (cuts demand) under the same pressure.
-          </p>
-        </MitigationRow>
       </div>
     </div>
   );

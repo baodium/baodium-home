@@ -16,3 +16,8 @@ export function utilization(busy: number, capacity: number): number {
   if (!Number.isFinite(capacity) || capacity <= 0) return 0;
   return clampBusy(busy, capacity) / capacity;
 }
+
+/** Whole-number utilization. This never prints a pool as more than 100% full. */
+export function utilizationPercent(busy: number, capacity: number): number {
+  return Math.round(utilization(busy, capacity) * 100);
+}

@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CHAPTER1_SOURCE } from "@/lib/experience/chapter1-program";
 import {
-  CODE_LINES,
+  applyChapter1Source,
   createEngine,
   injectSingleRequest,
   setControls,
@@ -34,7 +34,9 @@ import {
   type ChallengeStatus,
 } from "@/lib/experience/challenge";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { CodePanel } from "@/components/experience/CodePanel";
+import { chapter1Call } from "@/lib/experience/running-code";
 import { ConnectionPoolGrid } from "@/components/experience/ConnectionPoolGrid";
 import { FeatureFlagPanel } from "@/components/experience/FeatureFlagPanel";
 import { GuidedProgress } from "@/components/experience/GuidedProgress";
@@ -103,7 +105,8 @@ export function Chapter1Experience() {
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [stepId, setStepId] = useState<GuidedStepId>("inspect");
-  const [showRecs, setShowRecs] = useState(false);
+  const [source, setSource] = useState(CHAPTER1_SOURCE);
+  const sourceRef = useRef(CHAPTER1_SOURCE);
   const [previewToggled, setPreviewToggled] = useState(false);
   const [deployedZero, setDeployedZero] = useState(false);
   const [traced, setTraced] = useState(false);
@@ -203,10 +206,40 @@ export function Chapter1Experience() {
     );
   };
 
-  const onTogglePreview = () => {
-    setShowRecs((v) => !v);
+  const onSource = (next: string) => {
+    sourceRef.current = next;
+    setSource(next);
+    applyChapter1Source(engineRef.current, next);
+    sync();
+  };
+
+  const onRunPage = () => {
+    const engine = engineRef.current;
+    const wasFrozen = engine.frozen;
+    const req = injectSingleRequest(engine, { forceExposed: false });
+    let guard = 0;
+    while (guard < 500) {
+      const live = engine.requests.get(req.id);
+      if (!live || live.phase === "done" || live.phase === "timed_out" || live.phase === "waiting" || live.phase === "holding") {
+        break;
+      }
+      tick(engine, 0.01, { force: true });
+      guard += 1;
+    }
+    const caught = engine.requests.get(req.id);
+    engine.frozen = caught && (caught.phase === "holding" || caught.phase === "waiting") ? true : wasFrozen;
+    if (engine.frozen) setRunning(false);
+    engine.tracedId = req.id;
+    const live = engine.requests.get(req.id) ?? null;
+    setSelectedId(req.id);
+    setFocusedReq(live ? { ...live } : null);
     setPreviewToggled(true);
-    logAction("Toggled product page preview");
+    sync();
+    logAction(
+      live?.invokedRecommendation
+        ? `Ran get_product_page as ${req.id}. The call took a connection.`
+        : `Ran get_product_page as ${req.id}. Recommendation was not called.`,
+    );
   };
 
   const onDeployZero = () => {
@@ -298,7 +331,7 @@ export function Chapter1Experience() {
   const canContinue = useMemo(() => {
     switch (stepDef.require) {
       case "toggle_preview":
-        return previewToggled || showRecs;
+        return previewToggled;
       case "deploy_zero":
         return deployedZero || snap.controls.featureEnabled;
       case "trace_request":
@@ -318,7 +351,6 @@ export function Chapter1Experience() {
     stepDef.require,
     stepDef.prediction,
     previewToggled,
-    showRecs,
     deployedZero,
     snap.controls.featureEnabled,
     traced,
@@ -385,6 +417,7 @@ export function Chapter1Experience() {
       shedAtUtil: null,
       cacheHitRate: 0,
     });
+    applyChapter1Source(engineRef.current, sourceRef.current);
     // Warm the incident so the learner starts mid-saturation.
     for (let i = 0; i < 400; i++) tick(engineRef.current, 0.01);
     setChallengeStartT(engineRef.current.t);
@@ -413,6 +446,7 @@ export function Chapter1Experience() {
       featureEnabled: mode === "practice",
       exposurePct: mode === "practice" ? 25 : 0,
     });
+    applyChapter1Source(engineRef.current, sourceRef.current);
     setSimFrozen(engineRef.current, true);
     setSelectedId(null);
     setFocusedReq(null);
@@ -428,16 +462,18 @@ export function Chapter1Experience() {
     setSimFrozen(engineRef.current, true);
     setSimFrozen(engineRef.current, true);
     setRunning(false);
+    sourceRef.current = CHAPTER1_SOURCE;
+    setSource(CHAPTER1_SOURCE);
     engineRef.current = createEngine(42, {
       arrivalRate: 0,
       featureEnabled: false,
       exposurePct: 0,
     });
+    applyChapter1Source(engineRef.current, CHAPTER1_SOURCE);
     setSimFrozen(engineRef.current, true);
     setReplaySeed(42);
     setStepId("inspect");
     setMode("guided");
-    setShowRecs(false);
     setPreviewToggled(false);
     setDeployedZero(false);
     setTraced(false);
@@ -451,14 +487,13 @@ export function Chapter1Experience() {
   };
 
   const tracedReq = focusedReq;
-  const highlight =
-    tracedReq && (tracedReq.phase === "holding" || tracedReq.phase === "waiting")
-      ? tracedReq.codeLine
-      : tracedReq?.phase === "done"
-        ? CODE_LINES.respond
-        : showRecs
-          ? CODE_LINES.callRec
-          : CODE_LINES.catalog;
+  const pageReq =
+    snap.tracedRequest &&
+    snap.tracedRequest.phase !== "done" &&
+    snap.tracedRequest.phase !== "timed_out"
+      ? snap.tracedRequest
+      : snap.lastPage ?? snap.tracedRequest;
+  const highlight = pageReq?.codeLine && pageReq.codeLine > 0 ? pageReq.codeLine : 2;
 
   const debriefText = decision ? fillDebrief(decision, snap) : null;
   const liveFrame = useMemo(() => narrateChapter1(snap), [snap]);
@@ -486,9 +521,12 @@ export function Chapter1Experience() {
   const showProduct = stepId === "inspect" || stepId === "deploy" || open;
   const showPool =
     open ||
-    ["trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(stepId) ||
+    ["deploy", "trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(
+      stepId,
+    ) ||
     snap.activeCount > 0 ||
-    snap.waitingCount > 0;
+    snap.waitingCount > 0 ||
+    !snap.handler.callsRecommendation;
   const showFlag =
     open ||
     ["deploy", "trace", "exposure", "saturation", "investigate", "mitigate", "review"].includes(
@@ -558,7 +596,8 @@ export function Chapter1Experience() {
           className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[#eef3f7]/80"
         />
       ) : null}
-      <header className="relative max-w-3xl">
+      <header className="relative flex flex-wrap items-end justify-between gap-5">
+        <div className="min-w-0 max-w-3xl flex-1">
         <motion.p
           className="exp-kicker"
           initial={reduced ? false : { opacity: 0, y: 8 }}
@@ -585,6 +624,12 @@ export function Chapter1Experience() {
             {scenario.meta.subtitle}
           </motion.p>
         ) : null}
+        </div>
+        <ChapterPlate
+          chapter={scenario.meta.number}
+          sizes="200px"
+          className="relative z-[1] hidden h-28 w-44 sm:block"
+        />
       </header>
 
       <div className="mt-6 space-y-4">
@@ -665,11 +710,11 @@ export function Chapter1Experience() {
           <>
             <LabIntro
               embedded
-              challenge="Can you keep a 40-slot pool healthy when recommendations turn on?"
+              challenge="Can you clear pending acquisitions when all 40 connections are assigned?"
               situation={`${scenario.brief} Product Page still talks to Catalog for the core page. When too many users hit the long path, waiting appears beside the pool even though every query is correct.`}
               objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
-              terms="p50 is the median end-to-end latency. p99 is the slow tail. Acquire wait is time spent waiting for a free pool slot before the database hold even starts. Busy slots never exceed 40; overflow waits beside the grid."
-              explore="Feature flags, connection pools, Little’s Law, acquire timeout, load shedding, and a request-path cache."
+              terms="Acquire wait is the time spent waiting for a free connection before the database hold starts. The query stays near its baseline. Busy connections never exceed 40. Overflow waits."
+              explore="The recommendation call, the feature flag, and the 40-connection pool."
               gettingStarted="Use Guided for the eight stages. Pause, step, or reset the shared clock anytime. Practice unlocks the levers after your first decision. Challenge starts mid-incident with exact pass and fail numbers, and the intro does not name the fix."
             />
             <TeachingOverlay
@@ -731,12 +776,8 @@ export function Chapter1Experience() {
                   ) : null}
 
                   {stepId === "inspect" ? (
-                    <button
-                      type="button"
-                      onClick={onTogglePreview}
-                      className="exp-btn exp-btn-primary mt-4"
-                    >
-                      Toggle page preview
+                    <button type="button" onClick={onRunPage} className="exp-btn exp-btn-primary mt-4">
+                      Run get_product_page
                     </button>
                   ) : null}
 
@@ -822,9 +863,9 @@ export function Chapter1Experience() {
                         </p>
                         <p className="text-[color:var(--exp-fg)]">{debriefText}</p>
                         <p className="text-[color:var(--exp-fg)]">
-                          Correct code still waits on a shared finite pool. Disable cuts new demand;
-                          in-flight holds drain on their own. Cache cuts hold time; shedding and
-                          timeouts trade errors for headroom.
+                          Correct code still waits on a shared finite pool. Disabling the flag stops
+                          new recommendation calls. Holds already taken finish or time out. The
+                          query stays near its baseline.
                         </p>
                       </div>
                       <ul className="mt-1 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -920,8 +961,8 @@ export function Chapter1Experience() {
                             ["Time left", `${challengeRemaining.toFixed(1)} s`],
                             ["Pending", `${snap.waitingCount}`],
                             ["Util", `${(snap.utilization * 100).toFixed(0)}%`],
-                            ["p99", `${(snap.latencyP99 * 1000).toFixed(0)} ms`],
-                            ["SLO", `${(snap.slo.targetP99Sec * 1000).toFixed(0)} ms`],
+                            ["End-to-end p99", `${(snap.latencyP99 * 1000).toFixed(0)} ms`],
+                            ["Acquire p99", `${(snap.acquireWaitP99 * 1000).toFixed(0)} ms`],
                           ] as const
                         ).map(([label, value]) => (
                           <li key={label} className="text-sm">
@@ -961,8 +1002,8 @@ export function Chapter1Experience() {
                 >
                   <h2 className="font-serif text-xl text-[color:var(--exp-fg)]">Practice</h2>
                   <p className="mt-2 text-sm text-[color:var(--exp-muted)]">
-                    Pressure Recommendation’s pool, then respond: disable, shed, timeout, or cache.
-                    Read Ops like an on-call dashboard. Same rules as the guided path.
+                    Pressure Recommendation’s 40-connection pool, then stop new recommendation
+                    calls. In-flight holds finish or time out. The query does not have to change.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -979,27 +1020,14 @@ export function Chapter1Experience() {
                     </button>
                     <button
                       type="button"
-                      data-testid="demo-shed"
                       onClick={() => {
                         startPressure();
-                        applyMitigation({ shedAtUtil: 0.85 });
-                        logAction("Practice shed@85% under pressure");
+                        setControls(engineRef.current, { exposurePct: 25 });
+                        logAction("Practice exposure 25% under pressure");
                       }}
                       className="exp-btn exp-btn-ghost"
                     >
-                      Pressure + shed
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="demo-timeout"
-                      onClick={() => {
-                        startPressure();
-                        applyMitigation({ acquireTimeoutSec: 0.1 });
-                        logAction("Practice timeout 100ms under pressure");
-                      }}
-                      className="exp-btn exp-btn-ghost"
-                    >
-                      Pressure + timeout
+                      Pressure, then 25% exposure
                     </button>
                     <button
                       type="button"
@@ -1104,12 +1132,6 @@ export function Chapter1Experience() {
                     />
                   </label>
 
-                  <Link
-                    href={scenario.meta.bookHref}
-                    className="mt-4 inline-flex text-sm text-[color:var(--exp-amber-text)] underline-offset-4 hover:underline"
-                  >
-                    Read Chapter 1 in the book →
-                  </Link>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -1135,10 +1157,29 @@ export function Chapter1Experience() {
           <>
             <RequestPath snap={snap} reducedMotion={reduced} />
             <LatencyBreakdownChart snap={snap} />
-            {showProduct ? (
-              <ProductPreview showRecs={showRecs} onToggle={onTogglePreview} />
-            ) : null}
-            <CodePanel lines={scenario.codeLines} highlightLine={highlight} />
+            {showProduct ? <ProductPreview request={pageReq} snap={snap} onRun={onRunPage} /> : null}
+            <CodePanel
+              source={source}
+              highlightLine={highlight}
+              onSource={onSource}
+              program={chapter1Call({
+                exposurePct: snap.appliedExposurePct,
+                flagOff: snap.appliedFeatureDisabledForNew || !snap.appliedFeatureEnabled,
+                busy: snap.activeCount,
+                pending: snap.waitingCount,
+                acquireMs: snap.acquireWaitP99 * 1000,
+                poolSize: snap.poolSize,
+                callsCatalog: snap.handler.callsCatalog,
+                callsRecommendation: snap.handler.callsRecommendation,
+                acquiresPool: snap.handler.acquiresPool,
+                invoked: pageReq?.invokedRecommendation ?? false,
+                phase: pageReq?.phase ?? null,
+                skipReason:
+                  pageReq?.skipReason ??
+                  (snap.appliedFeatureDisabledForNew || !snap.appliedFeatureEnabled ? "flag" : null),
+              })}
+              onEdit={() => undefined}
+            />
             {showFlag ? (
               <FeatureFlagPanel
                 snap={snap}

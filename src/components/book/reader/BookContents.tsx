@@ -5,6 +5,8 @@ import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
 import { BookResume } from "@/components/book/reader/BookResume";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
+import { figureForChapter } from "@/lib/learning/chapter-figures";
 import { getChapter, labActionLabel } from "@/lib/learning/registry";
 import { withReturnToReading } from "@/lib/learning/interactive-concepts";
 
@@ -49,8 +51,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
           <p className="mt-10 text-lg leading-relaxed text-[var(--reader-muted)]">
             Fourteen production incidents, and the design decisions behind reliable systems.
             Baodium, the company in these stories, is fictional. The failures and tradeoffs are
-            teaching material, not claims about a real employer. Read online for free, with no
-            account required.
+            teaching material, not claims about a real employer.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -107,11 +108,20 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                 return (
                   <li
                     key={chapter.slug}
-                    className="grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-baseline gap-3 rounded-lg py-1.5"
+                    className="grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg py-2 sm:grid-cols-[2.4rem_4.75rem_minmax(0,1fr)_auto]"
                   >
                     <span className="font-mono text-xs tracking-[0.08em] text-[var(--reader-muted)]">
                       {chapterNumberLabel(chapter.slug)}
                     </span>
+                    {figureForChapter(chapter.slug) ? (
+                      <ChapterPlate
+                        chapter={chapter.slug}
+                        sizes="76px"
+                        className="hidden h-12 w-[4.75rem] sm:block"
+                      />
+                    ) : (
+                      <span className="hidden sm:block" aria-hidden="true" />
+                    )}
                     <Link
                       href={`/system-design/${chapter.slug}`}
                       prefetch
@@ -123,12 +133,12 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                     {lab?.labHref && labActionLabel(lab) ? (
                       <Link
                         href={lab.labHref}
-                        className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
+                        className="font-mono text-[0.72rem] text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
                       >
                         {lab.labKind === "short" ? "Short lab" : "Lab"}
                       </Link>
                     ) : (
-                      <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[var(--reader-muted)]">
+                      <span className="font-mono text-[0.72rem] text-[var(--reader-muted)]">
                         {lab ? "Book" : ""}
                       </span>
                     )}
@@ -139,7 +149,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
           </div>
 
           <p className="mt-10 border-t border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pt-6 text-sm text-[var(--reader-muted)]">
-            Enjoying the free book?{" "}
+            Enjoying this?{" "}
             <a
               href={book.amazonReviewHref}
               target="_blank"

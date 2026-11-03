@@ -35,7 +35,17 @@ export function RequestPath({
           </p>
         </div>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
-          {pressure ? (
+          {!snap.handler.callsRecommendation ? (
+            <>
+              The handler does not call recommendation_service.get. Product Page can still fetch
+              from Catalog, and that lookup does not take a connection from the {snap.poolSize}-slot pool.
+            </>
+          ) : !snap.handler.acquiresPool ? (
+            <>
+              recommendation_service.get is in the handler, and pool.acquire is not. The call can
+              return a row without occupying one of the {snap.poolSize} connections.
+            </>
+          ) : pressure ? (
             <>
               Recommendation’s pool is full. New personalized calls wait for a free connection, and
               busy slots stay at {snap.poolSize}. Product Page does not hold those connections.

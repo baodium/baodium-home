@@ -1,4 +1,4 @@
-/** Shared live plain-English state chains for Play drills. */
+/** Live sentences for the Play drills. */
 
 export type DrillNarratorTone = "calm" | "warn" | "recover";
 
@@ -6,15 +6,10 @@ export type DrillNarratorFrame = {
   chain: string;
   segments: string[];
   tone: DrillNarratorTone;
-  /** What “good” looks like for the current meters. */
   goodLooksLike: string;
 };
 
-function frame(
-  sentence: string,
-  tone: DrillNarratorTone,
-  goodLooksLike: string,
-): DrillNarratorFrame {
+function frame(sentence: string, tone: DrillNarratorTone, goodLooksLike: string): DrillNarratorFrame {
   return { chain: sentence, segments: [sentence], tone, goodLooksLike };
 }
 
@@ -24,258 +19,137 @@ export function narrateSloWatch(input: {
   poolUtil: number;
   pending: number;
   arrivals: number;
-  successRate: number;
   errorBudget: number;
-  retries: string;
-  shedding: boolean;
-  sloTarget: number;
+  flagOff: boolean;
+  exposurePct: number;
 }): DrillNarratorFrame {
-  const {
-    phase,
-    wave,
-    poolUtil,
-    pending,
-    arrivals,
-    successRate,
-    errorBudget,
-    retries,
-    shedding,
-    sloTarget,
-  } = input;
-
+  const { phase, wave, poolUtil, pending, arrivals, errorBudget, flagOff, exposurePct } = input;
   if (phase === "intro") {
     return frame(
-      "The shift has not started. Three arrival waves will hit checkout. Watch the error budget and the pool together.",
+      "Recommendation allows 40 connections. About 400 lookups a second at 70 ms use 28 of them. A burst of about 1.7 times that rate fills the rest.",
       "calm",
-      `Pass: success ≥ ${(sloTarget * 100).toFixed(1)}% with budget left, no cascade, peak util under 120%.`,
+      "Pass when pending acquisitions finish at zero and acquire wait stays under 50 ms. The pool stays at 40.",
     );
   }
-
   const where =
-    phase === "won" ? "The shift held." : phase === "lost" ? "The error budget is gone." : `Wave ${wave} is in progress.`;
-  const queue =
-    pending > 0
-      ? `${pending.toFixed(0)} requests are waiting for a connection.`
-      : "Nobody is waiting for a connection.";
-  const shed = shedding ? " Load shedding is on." : "";
-  let tone: DrillNarratorTone = "calm";
-  if (phase === "won") tone = "recover";
-  else if (phase === "lost" || errorBudget < 25 || poolUtil > 0.95) tone = "warn";
-  else if (poolUtil > 0.85 || pending > 8) tone = "warn";
-
+    phase === "won"
+      ? "The burst is over and the pool is clear."
+      : phase === "lost"
+        ? "Acquire wait is still the queue."
+        : wave === 1
+          ? "This is the 400 per second estimate."
+          : "The burst is on.";
+  const flag = flagOff ? " The flag is off for new calls." : ` Exposure is ${exposurePct.toFixed(0)} percent.`;
+  const tone: DrillNarratorTone =
+    phase === "won" ? "recover" : phase === "lost" || pending > 8 || errorBudget < 40 ? "warn" : "calm";
   return frame(
-    `${where} The pool is ${Math.round(poolUtil * 100)}% busy. ${queue} About ${arrivals.toFixed(0)} arrivals per second are coming in, with retries set to ${retries}. Success is ${(successRate * 100).toFixed(1)}%, and ${errorBudget.toFixed(0)}% of the error budget is left.${shed}`,
+    `${where} ${arrivals.toFixed(0)} lookups a second are asking for a connection. The pool is ${Math.round(poolUtil * 100)} percent busy and ${pending.toFixed(0)} acquisitions are pending. Acquire headroom against the 600 ms incident is ${errorBudget.toFixed(0)} percent.${flag} The query stays at 70 ms.`,
     tone,
-    `Good: pool under about 85%, pending near 0, success at least ${(sloTarget * 100).toFixed(1)}%, and the budget not draining.`,
+    "Good: pending near zero, acquire wait under 50 ms, and the query still near 70 ms.",
   );
 }
 
 export function narrateTrafficSurge(input: {
   phase: string;
   t: number;
-  admit: number;
-  queue: number;
-  vipQueue: number;
+  arrivals: number;
   p95: number;
   p95Limit: number;
-  successRate: number;
-  shed: number;
-  vipFirst: boolean;
+  reject: number;
+  limit: number;
 }): DrillNarratorFrame {
-  const {
-    phase,
-    t,
-    admit,
-    queue,
-    vipQueue,
-    p95,
-    p95Limit,
-    successRate,
-    shed,
-    vipFirst,
-  } = input;
-
+  const { phase, t, arrivals, p95, p95Limit, reject, limit } = input;
   if (phase === "intro") {
     return frame(
-      "It is a quiet morning on a service with fixed capacity. A spike lands around 12 seconds. Queue depth and p95 are what you watch.",
+      "The load test walks 300, then 400, then 480, then 560 lookups a second, and it stops at the admission limit you set.",
       "calm",
-      `Good: p95 under ${p95Limit} ms while still serving most of the floor.`,
+      "Pass on the 400 per second stage: acquire p95 under 50 ms and rejections under 1 percent.",
     );
   }
-
-  const vip = vipFirst ? ` ${vipQueue.toFixed(0)} of them are in the VIP lane.` : "";
-  const shedLine = shed > 0 ? ` ${shed.toFixed(0)} arrivals have been turned away.` : "";
   const tone: DrillNarratorTone =
-    phase === "won"
-      ? "recover"
-      : phase === "lost" || p95 > p95Limit
-        ? "warn"
-        : queue > 40
-          ? "warn"
-          : "calm";
-
+    phase === "won" ? "recover" : phase === "lost" || p95 > p95Limit || reject >= 0.01 ? "warn" : "calm";
   return frame(
-    `At ${t.toFixed(0)} seconds, ${Math.round(admit * 100)}% of arrivals are admitted. ${queue.toFixed(0)} requests are waiting.${vip} p95 is ${p95.toFixed(0)} ms against a ${p95Limit} ms budget. Success is ${(successRate * 100).toFixed(0)}%.${shedLine}`,
+    `At ${t.toFixed(0)} seconds the stage is ${arrivals.toFixed(0)} lookups a second, inside a limit of ${limit.toFixed(0)}. Acquire p95 is ${p95.toFixed(0)} ms. Rejections are ${(reject * 100).toFixed(1)} percent.`,
     tone,
-    `Pass: p95 at or under ${p95Limit} ms for most of the run, a useful share served, and the VIP lane protected if priority is on.`,
+    `Pass: acquire p95 at or under ${p95Limit} ms, rejections under 1 percent, and the limit on the 400 per second stage.`,
   );
 }
 
 export function narrateCascade(input: {
   phase: string;
-  edgeHealth: number;
-  authHealth: number;
-  dbHealth: number;
-  payHealth: number;
-  circuitsOpen: number;
-  bulkheadAuth: boolean;
-  bulkheadPay: boolean;
-  cascadeRisk: number;
+  callerMs: number;
+  orphanMs: number;
+  childMs: number;
+  cancel: boolean;
+  permit: boolean;
 }): DrillNarratorFrame {
-  const {
-    phase,
-    edgeHealth,
-    authHealth,
-    dbHealth,
-    payHealth,
-    circuitsOpen,
-    bulkheadAuth,
-    bulkheadPay,
-    cascadeRisk,
-  } = input;
-
+  const { phase, callerMs, orphanMs, childMs, cancel, permit } = input;
   if (phase === "intro") {
     return frame(
-      "Checkout is healthy. A dependency will slow down and hold shared workers. Watch which service loses health, and whether the edge falls with it.",
+      "Checkout calls the fraud provider with a child deadline. The provider should stop when that deadline is spent.",
       "calm",
-      "Pass when checkout stays at or above 60 percent, edge health stays above 42 percent, and cascade risk stays under 82 percent.",
+      "Pass when leftover provider work is 0 ms and checkout returns inside the time it had left.",
     );
   }
-
-  const circuits =
-    circuitsOpen > 0
-      ? `${circuitsOpen} breaker${circuitsOpen === 1 ? " is" : "s are"} open, so those calls fail fast.`
-      : "Every breaker is still closed.";
-  const walls = [
-    bulkheadAuth ? "Auth has its own workers" : null,
-    bulkheadPay ? "Pay and the database have their own workers" : null,
-  ].filter(Boolean);
-  const budget = walls.length > 0 ? walls.join(", and ") + "." : "Auth, Pay, and the database still share one worker pool.";
-  const tone: DrillNarratorTone =
-    phase === "won"
-      ? "recover"
-      : phase === "lost" || edgeHealth < 0.55 || cascadeRisk > 0.7
-        ? "warn"
-        : authHealth < 0.7 || dbHealth < 0.7 || payHealth < 0.7
-          ? "warn"
-          : "calm";
-
+  const tone: DrillNarratorTone = phase === "won" ? "recover" : phase === "lost" || orphanMs > 0 ? "warn" : "calm";
+  const permitLine = permit ? "A permit was acquired." : "The permit is missing, so the call does not start.";
+  const cancelLine = cancel ? "Cancellation is passed with the deadline." : "Cancellation is not passed, so the provider can keep running.";
   return frame(
-    `Edge health is ${Math.round(edgeHealth * 100)}%. Auth is ${Math.round(authHealth * 100)}%, Pay is ${Math.round(payHealth * 100)}%, and the database is ${Math.round(dbHealth * 100)}%. ${circuits} ${budget} Cascade risk is ${Math.round(cascadeRisk * 100)}%.`,
+    `The child deadline is ${childMs.toFixed(0)} ms. Checkout has used ${callerMs.toFixed(0)} ms. The provider is still running for ${orphanMs.toFixed(0)} ms. ${permitLine} ${cancelLine}`,
     tone,
-    "Pass when checkout stays at or above 60 percent, edge health stays above 42 percent, and cascade risk stays under 82 percent. There is no path that skips Auth.",
+    "Pass when the provider stops with the caller and the child deadline is the time checkout had left, minus the reserve, capped at 1000 ms.",
   );
 }
 
 export function narrateCacheRoulette(input: {
   phase: string;
-  hitRate: number;
-  originLoad: number;
-  originWorkers: number;
+  readers: number;
+  origin: number;
+  fresh: boolean;
   singleflight: boolean;
-  softTtl: boolean;
-  ttlSec: number;
-  stampeded: boolean;
-  inFlightMisses: number;
+  permit: boolean;
 }): DrillNarratorFrame {
-  const {
-    phase,
-    hitRate,
-    originLoad,
-    originWorkers,
-    singleflight,
-    softTtl,
-    ttlSec,
-    stampeded,
-    inFlightMisses,
-  } = input;
-
+  const { phase, readers, origin, fresh, singleflight, permit } = input;
   if (phase === "intro") {
     return frame(
-      `Keys stay fresh for ${ttlSec} seconds. When a popular key expires, watch how many fills reach origin at once.`,
+      "The key is product-metadata:v1. While it is fresh, Catalog is not called. A miss is what this drill runs.",
       "calm",
-      "Pass: hit rate at least 70%, stampede under 2.2 seconds, peak origin under 1.45 times capacity.",
+      "Pass when one missed key produces one catalog read and the source permit is present.",
     );
   }
-
-  const coalesce = singleflight
-    ? "Misses for the same key share one fill."
-    : "Each miss fills from origin on its own.";
-  const swr = softTtl ? " A slightly stale value is still being served during refresh." : "";
-  const misses = inFlightMisses > 0 ? ` ${inFlightMisses} fills are in flight.` : "";
-  const herd = stampeded ? " This is the stampede window." : "";
-  const tone: DrillNarratorTone =
-    phase === "won"
-      ? "recover"
-      : phase === "lost" || stampeded || originLoad > 1
-        ? "warn"
-        : "calm";
-
+  const tone: DrillNarratorTone = phase === "won" ? "recover" : phase === "lost" || origin > 1 ? "warn" : "calm";
+  const how = fresh
+    ? "The entry is fresh."
+    : singleflight
+      ? "The readers share one loader."
+      : "Each reader loads the miss alone.";
+  const permitLine = permit ? "The source permit is available." : "The source permit is missing.";
   return frame(
-    `Hit rate is ${(hitRate * 100).toFixed(0)}%. Origin is using ${(originLoad * 100).toFixed(0)}% of ${originWorkers} workers. ${coalesce}${swr}${misses}${herd}`,
+    `${readers} readers are on this key. Catalog reads are ${origin}. ${how} ${permitLine}`,
     tone,
-    "Pass: hit rate recovers after each expiry, and origin stays under capacity during the fill.",
+    "Pass: one catalog read for the miss, and no source_read_limit responses.",
   );
 }
 
 export function narrateTailLatency(input: {
   phase: string;
-  p50: number;
-  p99: number;
+  queryMs: number;
+  p95: number;
   budget: number;
-  hedge: boolean;
-  hedgeAfterMs: number;
-  workers: number;
-  queueDepth: number;
-  cost: number;
+  lookups: number;
 }): DrillNarratorFrame {
-  const {
-    phase,
-    p50,
-    p99,
-    budget,
-    hedge,
-    hedgeAfterMs,
-    workers,
-    queueDepth,
-    cost,
-  } = input;
-
+  const { phase, queryMs, p95, budget, lookups } = input;
   if (phase === "intro") {
     return frame(
-      "The latency window is still filling. Stragglers show up after about 10 seconds. Compare the median with the slowest 1 percent.",
+      "The query holds a connection for about 70 ms and stays there. Acquire p95 is what changes when the lookup rate changes.",
       "calm",
-      `Pass: p99 at or under ${budget} ms, goodput at least 90%, work cost under 1.8 times, and at least 40 samples.`,
+      `Pass: acquire p95 at or under ${budget} ms, which is the chapter's bar, at a rate the table marks as passing.`,
     );
   }
-
-  const spread = Math.max(0, p99 - p50);
-  const hedgeLine = hedge
-    ? `A second copy goes out if a request is still running after ${hedgeAfterMs} ms.`
-    : "Late requests do not get a second copy.";
-  const costLine = cost > 1.15 ? ` Work cost is ${cost.toFixed(2)} times a single try.` : "";
-  const tone: DrillNarratorTone =
-    phase === "won"
-      ? "recover"
-      : phase === "lost" || p99 > budget
-        ? "warn"
-        : spread > 80
-          ? "warn"
-          : "calm";
-
+  const tone: DrillNarratorTone = phase === "won" ? "recover" : phase === "lost" || p95 > budget ? "warn" : "calm";
   return frame(
-    `The median is ${p50.toFixed(0)} ms and the slowest 1 percent is ${p99.toFixed(0)} ms, against a ${budget} ms budget. The spread is ${spread.toFixed(0)} ms. ${hedgeLine} ${workers} workers are on shift and ${queueDepth.toFixed(0)} requests are queued.${costLine}`,
+    `The query is ${queryMs.toFixed(0)} ms. Acquire p95 is ${p95.toFixed(0)} ms against a ${budget} ms bar. The pool is offered ${lookups.toFixed(0)} lookups a second.`,
     tone,
-    `Pass: p99 inside ${budget} ms, goodput holds, and extra copies keep work cost under 1.8 times.`,
+    `Pass: acquire p95 inside ${budget} ms while the query stays near 70 ms.`,
   );
 }

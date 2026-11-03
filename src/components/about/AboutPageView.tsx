@@ -114,7 +114,7 @@ export function AboutPageView() {
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.32, ease }}
-              className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cream/55"
+              className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-cream/88"
             >
               {(["Engineer", "Philanthropist", "Author"] as const).map((role, index) => (
                 <li key={role} className="flex items-center gap-4">
@@ -132,9 +132,9 @@ export function AboutPageView() {
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 0.4, ease }}
-              className="mt-7 max-w-lg text-[clamp(1.08rem,1.65vw,1.28rem)] leading-relaxed text-cream/72"
+              className="mt-7 max-w-lg text-[clamp(1.08rem,1.65vw,1.28rem)] leading-relaxed text-cream/90"
             >
-              Founder of Baodium: products, a free system-design book, and labs
+              Founder of Baodium: products, a system-design book, and labs
               drawn from production failures.
             </motion.p>
 
@@ -160,7 +160,7 @@ export function AboutPageView() {
                 href={site.personal}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex min-h-12 items-center gap-2 px-2 text-[0.95rem] text-cream/70 underline decoration-cream/25 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/55"
+                className="group inline-flex min-h-12 items-center gap-2 px-2 text-[0.95rem] text-cream/90 underline decoration-cream/40 underline-offset-4 transition-colors hover:text-cream hover:decoration-cream/70"
               >
                 obadimu.com
                 <ArrowUpRight

@@ -50,7 +50,7 @@ const LABELS: Record<ServiceNodeId, string> = {
 
 function activeNode(snap: EngineSnapshot): ServiceNodeId {
   const c = snap.controls;
-  const flagLive = c.featureEnabled && !c.featureDisabledForNew;
+  const flagLive = c.featureEnabled && !c.featureDisabledForNew && snap.handler.callsRecommendation;
   const tr = snap.tracedRequest;
   if (!tr) {
     if (flagLive && c.exposurePct > 0) return "recommendation";
@@ -60,12 +60,12 @@ function activeNode(snap: EngineSnapshot): ServiceNodeId {
   if (tr.phase === "arriving") return tr.path === "recs" ? "recommendation" : "catalog";
   if (tr.phase === "waiting") return "pool";
   if (tr.phase === "holding") {
-    if (tr.path === "recs") {
-      if (tr.codeLine >= 15) return "db";
-      if (tr.codeLine >= 13) return "pool";
-      return "recommendation";
-    }
-    return "catalog";
+    if (tr.path !== "recs") return "catalog";
+    if (tr.acquireTime == null || tr.poolHoldSec <= 0) return "pool";
+    const held = Math.max(0, snap.t - tr.acquireTime);
+    const frac = held / tr.poolHoldSec;
+    if (frac >= 0.2 && frac < 0.8) return "db";
+    return "pool";
   }
   if (tr.phase === "done") return "product";
   return flagLive ? "recommendation" : "client";
@@ -76,10 +76,12 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
   edges: ReturnType<typeof requestEdge>[];
 } {
   const c = snap.controls;
-  const flagLive = c.featureEnabled && !c.featureDisabledForNew;
-  const pressure = snap.waitingCount > 0 || snap.littles.overDemand;
+  const flagLive = c.featureEnabled && !c.featureDisabledForNew && snap.handler.callsRecommendation;
+  const takesPool = flagLive && snap.handler.acquiresPool;
+  const pressure = takesPool && (snap.waitingCount > 0 || snap.littles.overDemand);
   const active = activeNode(snap);
-  const recsDim = !flagLive && snap.active.every((r) => r.path !== "recs");
+  const recsLive = snap.active.some((r) => r.path === "recs") || snap.waiting.some((r) => r.path === "recs");
+  const recsDim = !recsLive && (!snap.handler.callsRecommendation || !flagLive);
   const holdMs =
     snap.recentLatency.length > 0
       ? (snap.recentLatency[snap.recentLatency.length - 1]!.holdSec * 1000).toFixed(0)
@@ -87,13 +89,21 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
 
   const detail: Record<ServiceNodeId, string> = {
     client: `${Math.round(c.arrivalRate)} req/s arriving`,
-    product: flagLive ? `Routes ${c.exposurePct}% to recommendations` : "Catalog path only",
-    catalog: "Catalog lookup, no pool slot",
-    recommendation: c.featureDisabledForNew
-      ? "Closed to new callers"
+    product: !snap.handler.callsRecommendation
+      ? "Handler does not call Recommendation"
       : flagLive
-        ? "Owns the pool acquire"
-        : "Flag off",
+        ? `Routes ${c.exposurePct}% to recommendations`
+        : "Catalog path only",
+    catalog: snap.handler.callsCatalog ? "Catalog lookup, no pool slot" : "fetch is not in the handler",
+    recommendation: !snap.handler.callsRecommendation
+      ? "Call is not in the handler"
+      : !snap.handler.acquiresPool
+        ? "Returns without pool.acquire"
+        : c.featureDisabledForNew
+          ? "Closed to new callers"
+          : flagLive
+            ? "Owns the pool acquire"
+            : "Flag off",
     pool: `${snap.activeCount}/${snap.poolSize} busy · ${snap.waitingCount} waiting`,
     db: holdMs ? `Last hold ${holdMs} ms` : "Query hold",
   };
@@ -158,10 +168,10 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
       (edge.id === "client-product" && (active === "client" || active === "product")) ||
       (edge.id === "product-catalog" && active === "catalog") ||
       (edge.id === "product-recommendation" && active === "recommendation") ||
-      (edge.id === "recommendation-pool" && (active === "pool" || pressure)) ||
-      (edge.id === "pool-db" && (active === "db" || pressure));
+      (edge.id === "recommendation-pool" && snap.handler.acquiresPool && (active === "pool" || pressure)) ||
+      (edge.id === "pool-db" && snap.handler.acquiresPool && (active === "db" || pressure));
     const strained = pressure && edge.kind === "recs" && hot;
-    const quiet = edge.kind === "recs" && recsDim && !hot;
+    const quiet = edge.kind === "recs" && (recsDim || !snap.handler.callsRecommendation) && !hot;
     const flow: RequestFlow = strained ? "strain" : hot ? "live" : quiet ? "stopped" : "idle";
     return requestEdge({
       id: edge.id,
@@ -169,7 +179,13 @@ function build(snap: EngineSnapshot, reducedMotion: boolean): {
       target: edge.target,
       sourceHandle: edge.sourceHandle,
       targetHandle: edge.targetHandle,
-      label: quiet ? "flag off" : callLabel[edge.id],
+      label: !snap.handler.callsRecommendation && edge.kind === "recs"
+        ? "not called"
+        : !snap.handler.acquiresPool && (edge.id === "recommendation-pool" || edge.id === "pool-db")
+          ? "no acquire"
+          : quiet
+            ? "flag off"
+            : callLabel[edge.id],
       flow,
       reduced: reducedMotion,
     });

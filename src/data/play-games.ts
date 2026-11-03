@@ -1,4 +1,4 @@
-/** Catalog for the /play interactive hub (reliability drills). */
+/** Catalog for the /play drills. */
 
 import { drillChapterMeta } from "@/lib/learning/registry";
 
@@ -7,33 +7,23 @@ export type PlayDifficulty = "easy" | "medium" | "spicy";
 export type PlayGame = {
   slug: string;
   title: string;
-  /** Challenge-style one-liner for hub cards (no spoiler solution). */
   feel: string;
-  /** What the meters will show when the failure is live. */
   notice: string;
-  /** Explicit win condition. */
   success: string;
-  /** What you learn by finishing the drill. */
   learn: string;
-  /** What changed in the system when you acted. */
   changed: string;
-  /** Why that change matters on a real service. */
   matters: string;
-  /** Stack / concepts shown beside the scenario. */
   technologies: string[];
   difficulty: PlayDifficulty;
   minutes: string;
   chapterHref: string;
   chapterLabel: string;
-  /** Compact takeaway for share/debrief fallback. */
   takeaway: string;
-  /** Clear challenge question matching the drill H1. */
   challenge: string;
-  /** Mini-preview seed metrics shown on the hub card. */
   preview: {
     primary: { label: string; value: string; tone: "ok" | "warn" | "bad" };
     secondary: { label: string; value: string; tone: "ok" | "warn" | "bad" };
-    spark: number[]; // 0..1 heights for sparkline
+    spark: number[];
     caption: string;
   };
 };
@@ -42,174 +32,120 @@ export const playGames: PlayGame[] = [
   {
     slug: "slo-watch",
     title: "SLO Watch",
-    challenge: "Can you hold checkout at 99.5% through three waves?",
-    feel: "Saturday sale. Three waves hit checkout, and the error budget is what this window can still absorb.",
-    notice:
-      "Watch the budget and the pool together. Retries under saturation spend the same budget twice.",
-    success:
-      "Budget > 0 for 48s, success ≥ 98.3%, no cascade, peak pool util < 120%.",
-    learn: "Pool size and concurrency are different levers: one caps holds, the other caps admission.",
-    changed:
-      "Sizing the pool without capping admission still queues; capping admission without retries still fails under Wave 3.",
-    matters:
-      "In production, a retry storm under saturation doubles offered load and spends the same error budget twice, before anyone pages on util alone.",
-    technologies: [
-      "Error budgets",
-      "Connection pools",
-      "Concurrency limits",
-      "Retry policy",
-      "Load shedding",
-    ],
+    challenge: "Can you clear the 40-connection pool when the burst lands?",
+    feel: "Recommendation shares 40 connections with the home page and checkout. A burst of about 1.7 times the 400 lookups a second estimate fills the spare connections.",
+    notice: "Watch pending acquisitions and acquire wait. The query stays near 70 ms.",
+    success: "Pending ends at 0 and acquire wait stays under 50 ms. The pool stays at 40.",
+    learn: "The flag stops new recommendation calls. A larger pool is not the response in this incident.",
+    changed: "Cutting exposure, or turning the flag off, drops new demand. Holds already taken finish on their own.",
+    matters: "Acquire p99 near 600 ms with the query still near baseline means the wait is the queue for a connection.",
+    technologies: ["Feature flags", "Connection pools", "Little's Law", "Acquire wait"],
     difficulty: "medium",
     minutes: "~1 min",
     chapterHref: drillChapterMeta("slo-watch")?.chapterHref ?? "/system-design/chapter-1",
-    chapterLabel:
-      drillChapterMeta("slo-watch")?.chapterLabel ?? "Ch.1 · Resource contention",
+    chapterLabel: drillChapterMeta("slo-watch")?.chapterLabel ?? "Ch.1 · Resource contention",
     takeaway:
-      "Capacity and retries are coupled: aggressive retries under saturation spend the budget twice.",
+      "Disabling the flag stops new recommendation calls. The query stays near 70 ms. Acquire wait is the line that was the queue.",
     preview: {
-      primary: { label: "Error budget", value: "18%", tone: "bad" },
-      secondary: { label: "Success", value: "98.7%", tone: "warn" },
-      spark: [0.35, 0.42, 0.55, 0.72, 0.88, 0.96, 0.91, 0.78],
-      caption: "Wave 3 · pool 97% · retry amp 2.4×",
+      primary: { label: "Acquire", value: "600 ms", tone: "bad" },
+      secondary: { label: "Pending", value: "80", tone: "bad" },
+      spark: [0.3, 0.35, 0.42, 0.7, 0.9, 0.95, 0.8, 0.55],
+      caption: "40 connections assigned. Query still near 70 ms.",
     },
   },
   {
     slug: "traffic-surge",
     title: "Traffic Surge",
-    challenge: "Can you keep p95 under budget through the spike?",
-    feel: "11:02 on a fixed-capacity API. A spike lands around 12 seconds, and the machines will not grow in time.",
-    notice: "Past the cliff, turning arrivals away protects latency you cannot buy more of.",
-    success:
-      "Serve ≥ 55%, under-budget ≥ 55% of the run with peak p95 < 588ms, success > 48%, VIP ≥ 72% if priority on.",
-    learn: "When capacity is fixed, early shedding is the only lever that protects latency.",
-    changed:
-      "Dropping admit rate at the cliff keeps p95 inside budget; serving everyone slowly breaches it for everyone.",
-    matters:
-      "Real flash sales do not get more machines in the first 30 seconds. Protect the customers you can still serve.",
-    technologies: [
-      "Admission control",
-      "Queue caps",
-      "Load shedding",
-      "p95 latency",
-      "VIP priority",
-    ],
+    challenge: "Can you keep acquire p95 under 50 ms on the last passing stage?",
+    feel: "The load test walks 300, 400, 480, and 560 lookups a second. Two of those stages pass. Two do not.",
+    notice: "A stage can show acquire p95 under 50 ms and still fail, because rejections crossed 1 percent.",
+    success: "Admission sits at 400/s. Acquire p95 stays under 50 ms and rejections stay under 1 percent.",
+    learn: "The pass bar is both numbers. The admission limit belongs on the last stage that clears both.",
+    changed: "Stopping the test at 400 per second keeps the run on the passing rows of the table.",
+    matters: "At 480 per second the chapter records about 2 percent rejected, with acquire p95 still at 25 ms.",
+    technologies: ["Little's Law", "Load tests", "Admission limits", "Acquire p95"],
     difficulty: "easy",
     minutes: "~45s",
-    chapterHref:
-      drillChapterMeta("traffic-surge")?.chapterHref ?? "/system-design/chapter-2",
-    chapterLabel:
-      drillChapterMeta("traffic-surge")?.chapterLabel ??
-      "Ch.2 · Requests, latency, throughput",
+    chapterHref: drillChapterMeta("traffic-surge")?.chapterHref ?? "/system-design/chapter-2",
+    chapterLabel: drillChapterMeta("traffic-surge")?.chapterLabel ?? "Ch.2 · Requests, latency, throughput",
     takeaway:
-      "Shedding early protects the customers you can serve. Serving everyone slowly serves no one.",
+      "400 lookups a second is the last passing stage. That is where the admission limit sits.",
     preview: {
-      primary: { label: "p95", value: "840ms", tone: "bad" },
-      secondary: { label: "Served", value: "61%", tone: "warn" },
-      spark: [0.25, 0.28, 0.32, 0.9, 0.95, 0.7, 0.45, 0.38],
-      caption: "Cliff at 12s · capacity fixed · dual admission lanes",
+      primary: { label: "Acquire p95", value: "80 ms", tone: "bad" },
+      secondary: { label: "Rejected", value: "21%", tone: "bad" },
+      spark: [0.15, 0.2, 0.28, 0.45, 0.7, 0.9, 0.85, 0.6],
+      caption: "560/s rejects 120. 400/s does not.",
     },
   },
   {
     slug: "cascade",
     title: "Cascade",
-    challenge: "Can you keep checkout alive when a dependency fails?",
-    feel: "14:12 UTC. The pay button spins, then fails. A slow dependency is holding the workers checkout still needs.",
-    notice: "Watch health on each service, the request moving along each call, and cascade risk on the same graph.",
-    success: "Checkout ok ≥ 60%, edge health > 42%, peak cascade risk < 82%. No auth bypass.",
-    learn: "A slow dependency on a shared pool can take the edge down with it.",
-    changed:
-      "Stopping the call returns a worker. Checkout still needs that dependency off the shared pool.",
-    matters:
-      "Most total outages start as one slow dependency holding threads that every other path needs.",
-    technologies: [
-      "Circuit breakers",
-      "Bulkheads",
-      "Fail-fast timeouts",
-      "Shared worker pools",
-      "Dependency health",
-    ],
+    challenge: "Can you stop the fraud provider when checkout is out of time?",
+    feel: "Checkout calls fraud with a child deadline. A slow provider can still be running after checkout has returned.",
+    notice: "Watch caller time, the child deadline, and provider work that continues after the caller returns.",
+    success: "Leftover provider work is 0 ms, and checkout returns inside the time it had left.",
+    learn: "The child deadline is the time left minus the reserve, capped at 1000 ms. Cancellation stops the provider with the caller.",
+    changed: "Passing cancellation with the deadline ends provider work that would otherwise continue.",
+    matters: "A missing permit defers the call. That is a different branch from stopping a call that already started.",
+    technologies: ["Deadlines", "Cancellation", "Outbound permits", "Fraud provider"],
     difficulty: "spicy",
     minutes: "~1 min",
     chapterHref: drillChapterMeta("cascade")?.chapterHref ?? "/system-design/chapter-4",
-    chapterLabel:
-      drillChapterMeta("cascade")?.chapterLabel ?? "Ch.4 · Cascading failure",
+    chapterLabel: drillChapterMeta("cascade")?.chapterLabel ?? "Ch.4 · Cascading failure",
     takeaway:
-      "Failing a call quickly returns the worker. It does not, by itself, stop that dependency from using the same pool as the rest of checkout.",
+      "evaluate_risk receives the child deadline and request.cancellation. The provider stops when checkout is out of time.",
     preview: {
-      primary: { label: "Checkout ok", value: "41%", tone: "bad" },
-      secondary: { label: "Cascade risk", value: "0.86", tone: "bad" },
-      spark: [0.2, 0.35, 0.55, 0.78, 0.92, 0.88, 0.7, 0.55],
-      caption: "Auth slows. The edge waits with it.",
+      primary: { label: "Still running", value: "480 ms", tone: "bad" },
+      secondary: { label: "Child deadline", value: "420 ms", tone: "warn" },
+      spark: [0.2, 0.35, 0.5, 0.72, 0.88, 0.8, 0.6, 0.4],
+      caption: "Provider work continues after checkout returns.",
     },
   },
   {
     slug: "cache-roulette",
     title: "Cache Roulette",
-    challenge: "Can you survive a hot-key expiry without stampeding origin?",
-    feel: "Cached keys expire on a timer. Watch origin load when the hot key's TTL fires.",
-    notice: "Compare heatmap age, fill-window coalesce state, and origin load at each expiry.",
-    success: "Hit rate ≥ 70%, stampede < 2.2s, peak origin load < 1.45×.",
-    learn: "Without request coalescing, a TTL expiry becomes an origin stampede for the whole fill window.",
-    changed: "Singleflight collapses N miss fills into one; soft TTL hides the wait from clients.",
-    matters:
-      "A popular key’s TTL expiry can multiply origin QPS by RPS × fill latency, enough to take down the database behind the cache.",
-    technologies: [
-      "TTL caches",
-      "Singleflight / coalescing",
-      "Soft TTL (SWR)",
-      "Origin fill latency",
-      "Thundering herd",
-    ],
+    challenge: "Can one catalog read fill a missed product-metadata key?",
+    feel: "product-metadata:v1 is cache-aside with a 300 second TTL. On a miss, every reader would call Catalog unless they share one loader.",
+    notice: "Watch catalog reads and readers who get source_read_limit when the permit is missing.",
+    success: "One catalog read for the miss, and unavailable responses stay at zero.",
+    learn: "singleflight.run shares one loader. That loader calls source_reads.try_acquire before Catalog.",
+    changed: "Sharing the loader drops catalog reads from the reader count to one.",
+    matters: "A permit miss returns TemporarilyUnavailable(source_read_limit) instead of a catalog query.",
+    technologies: ["Cache-aside", "TTL", "Shared loader", "Source permits"],
     difficulty: "medium",
     minutes: "~50s",
-    chapterHref:
-      drillChapterMeta("cache-roulette")?.chapterHref ?? "/system-design/chapter-5",
-    chapterLabel:
-      drillChapterMeta("cache-roulette")?.chapterLabel ?? "Ch.5 · Caching",
+    chapterHref: drillChapterMeta("cache-roulette")?.chapterHref ?? "/system-design/chapter-5",
+    chapterLabel: drillChapterMeta("cache-roulette")?.chapterLabel ?? "Ch.5 · Caching",
     takeaway:
-      "Without request coalescing, a TTL expiry becomes an origin stampede.",
+      "A fresh entry does not call Catalog. A miss shares one loader, and that loader needs a source permit.",
     preview: {
-      primary: { label: "Origin load", value: "3.2×", tone: "bad" },
-      secondary: { label: "Hit rate", value: "54%", tone: "warn" },
-      spark: [0.3, 0.32, 0.95, 0.88, 0.4, 0.35, 0.9, 0.85],
-      caption: "TTL fire · thundering herd on fill",
+      primary: { label: "Catalog reads", value: "80", tone: "bad" },
+      secondary: { label: "TTL", value: "300 s", tone: "ok" },
+      spark: [0.2, 0.2, 0.9, 0.85, 0.3, 0.25, 0.2, 0.2],
+      caption: "One missed key. Many readers.",
     },
   },
   {
     slug: "tail-latency",
     title: "Tail Latency",
-    challenge: "Can you keep p99 below 420 ms?",
-    feel: "Stragglers arrive after about 10 seconds. Hold p99 under budget without multiplying work through careless hedges.",
-    notice:
-      "p50 is the median; p99 is the slowest 1%. They diverge under stragglers and queueing.",
-    success: "p99 ≤ 420ms, goodput ≥ 90%, work cost < 1.8×, ≥40 samples.",
-    learn: "The slowest requests shape the customer experience. Hedging only helps when duplicate work still fits.",
-    changed:
-      "Right-sized concurrency drops queue wait; hedges cut p99 only while cost stays under ~1.8×.",
-    matters:
-      "An SLO on the median can pass while the slowest 1% of checkouts already time out. Track the percentile customers feel.",
-    technologies: [
-      "p50 / p99 latency",
-      "Worker pools",
-      "Request hedging",
-      "Timeouts",
-      "Work amplification",
-    ],
+    challenge: "Can you keep acquire p95 under 50 ms while the query stays at 70?",
+    feel: "The recommendation query holds a connection for about 70 ms and does not slow down. Acquire time does, once the pool is full.",
+    notice: "The histogram is acquire time. The query line stays flat.",
+    success: "Acquire p95 stays under 50 ms at a lookup rate the load-test table marks as passing.",
+    learn: "The tail in this chapter is the wait for a connection, not a second copy of the query.",
+    changed: "Lowering the lookup rate brings acquire p95 back under 50 ms. The query stays at 70 ms.",
+    matters: "At 400 per second, acquire p95 is about 8 ms. At 560 it is about 80 ms, past the bar.",
+    technologies: ["Acquire p95", "Query time", "Little's Law", "The 40-connection pool"],
     difficulty: "medium",
     minutes: "~45s",
-    chapterHref:
-      drillChapterMeta("tail-latency")?.chapterHref ?? "/system-design/chapter-2",
-    chapterLabel:
-      drillChapterMeta("tail-latency")?.chapterLabel ??
-      "Ch.2 · Requests, latency, throughput",
-    takeaway:
-      "The slowest requests shape the customer experience. Hedging helps only when the duplicate work still fits.",
+    chapterHref: drillChapterMeta("tail-latency")?.chapterHref ?? "/system-design/chapter-2",
+    chapterLabel: drillChapterMeta("tail-latency")?.chapterLabel ?? "Ch.2 · Requests, latency, throughput",
+    takeaway: "The query stays near its baseline. Acquire p95 is the tail the pass bar measures.",
     preview: {
-      primary: { label: "p99", value: "1.4s", tone: "bad" },
-      secondary: { label: "p50", value: "48ms", tone: "ok" },
-      spark: [0.22, 0.24, 0.26, 0.28, 0.55, 0.85, 0.92, 0.78],
-      caption: "Median steady · tail climbing",
+      primary: { label: "Acquire p95", value: "80 ms", tone: "bad" },
+      secondary: { label: "Query", value: "70 ms", tone: "ok" },
+      spark: [0.2, 0.22, 0.24, 0.3, 0.55, 0.8, 0.9, 0.7],
+      caption: "Query flat. Acquire time climbs.",
     },
   },
 ];

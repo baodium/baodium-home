@@ -1,7 +1,13 @@
+import {
+  CHAPTER1_SOURCE,
+  parseChapter1Program,
+  type Chapter1Program,
+} from "@/lib/experience/chapter1-program";
 import { createRng, isUserExposed, type Rng } from "@/lib/experience/rng";
 import { littlesLaw } from "@/lib/experience/littles";
 import { requestTiming } from "@/lib/experience/readout";
 import { clampBusy, utilization } from "@/lib/sim/bounds";
+import { advanceCascade, type CascadeState } from "@/lib/experience/cascade";
 import type {
   EngineControls,
   EngineSnapshot,
@@ -24,18 +30,19 @@ export const METRIC_WINDOW_SEC = 5;
 export const FLAG_PROPAGATION_SEC = 0.25;
 
 /**
- * 1-based lines matching chapter1Scenario.codeLines.
+ * 1-based lines of the default Chapter 1 program.
  * Product Page calls Recommendation; the shared pool lives only in Recommendation.
  */
-const CODE = {
-  entry: 1,
-  catalog: 2,
-  flagCheck: 4,
-  callRec: 6,
-  acquire: 13,
-  query: 15,
-  release: 20,
-  respond: 8,
+const DEFAULT_PROGRAM = parseChapter1Program(CHAPTER1_SOURCE);
+export const CODE_LINES = {
+  entry: DEFAULT_PROGRAM.lines.pageDef,
+  catalog: DEFAULT_PROGRAM.lines.catalog,
+  flagCheck: DEFAULT_PROGRAM.lines.call,
+  callRec: DEFAULT_PROGRAM.lines.call,
+  acquire: DEFAULT_PROGRAM.lines.acquire,
+  query: DEFAULT_PROGRAM.lines.query,
+  release: DEFAULT_PROGRAM.lines.release,
+  respond: DEFAULT_PROGRAM.lines.respond,
 } as const;
 
 type FlagView = {
@@ -72,6 +79,15 @@ export type Engine = {
   arrivalMultiplier: number;
   /** Completion timestamps for throughput window. */
   completionTimes: number[];
+  /** Handler the next arrival will execute. */
+  program: Chapter1Program;
+  /** Last request that returned a page. Kept for the storefront. */
+  lastPageId: string | null;
+  /**
+   * Checkout cascade. When set, tick advances this model instead of the
+   * product-page pool. Chapter 1 leaves it null.
+   */
+  cascade: CascadeState | null;
 };
 
 export function defaultControls(): EngineControls {
@@ -131,6 +147,9 @@ export function createEngine(seed = 42, controls?: Partial<EngineControls>): Eng
     tracedId: null,
     arrivalMultiplier: 1,
     completionTimes: [],
+    program: parseChapter1Program(CHAPTER1_SOURCE),
+    lastPageId: null,
+    cascade: null,
   };
 }
 
@@ -168,6 +187,9 @@ function poolDemand(engine: Engine): {
   shedding: boolean;
 } {
   const c = engine.controls;
+  if (!engine.program.callsRecommendation || !engine.program.acquiresPool) {
+    return { offeredRps: 0, admittedRps: 0, W: c.recLookupSec, shedding: false };
+  }
   const p = exposureFraction(engine.appliedFlag);
   const miss = Math.min(1, Math.max(0, 1 - c.cacheHitRate));
   const offeredRps = c.arrivalRate * engine.arrivalMultiplier * p * miss;
@@ -186,11 +208,32 @@ function effectiveArrival(engine: Engine): number {
   return engine.controls.arrivalRate * engine.arrivalMultiplier;
 }
 
+function poolCapacity(engine: Engine): number {
+  return engine.slots.length;
+}
+
 function utilizationNow(engine: Engine): number {
   return utilization(
     engine.slots.filter((s) => s !== null).length,
-    POOL_SIZE,
+    poolCapacity(engine),
   );
+}
+
+function fitPool(engine: Engine) {
+  const configured = Math.max(1, Math.min(80, Math.round(engine.program.poolSize)));
+  const holders = engine.slots.filter((id): id is string => id !== null);
+  const nextLen = Math.max(configured, holders.length);
+  const same =
+    nextLen === engine.slots.length &&
+    holders.every((id, index) => engine.slots[index] === id);
+  if (same) return;
+  const next: (string | null)[] = Array.from({ length: nextLen }, () => null);
+  holders.forEach((id, index) => {
+    next[index] = id;
+    const req = engine.requests.get(id);
+    if (req) req.slotIndex = index;
+  });
+  engine.slots = next;
 }
 
 function spawnRequest(engine: Engine, opts?: { forceExposed?: boolean }): SimRequest {
@@ -205,7 +248,12 @@ function spawnRequest(engine: Engine, opts?: { forceExposed?: boolean }): SimReq
   const callerSec = engine.controls.baselineHoldSec * (0.85 + engine.rng.next() * 0.3);
   let poolHoldSec = 0;
 
-  if (opts?.forceExposed) {
+  const program = engine.program;
+  if (!program.callsRecommendation) {
+    path = "baseline";
+    exposed = false;
+    poolHoldSec = 0;
+  } else if (opts?.forceExposed) {
     path = "recs";
     exposed = true;
     poolHoldSec = engine.controls.recLookupSec * (0.85 + engine.rng.next() * 0.3);
@@ -230,6 +278,19 @@ function spawnRequest(engine: Engine, opts?: { forceExposed?: boolean }): SimReq
     }
   }
 
+  if (program.callsRecommendation && path === "recs" && !program.acquiresPool) {
+    poolHoldSec = 0;
+  }
+  const lines = program.lines;
+  const invoked = path === "recs";
+  const skipReason: SimRequest["skipReason"] = invoked
+    ? null
+    : !program.callsRecommendation
+      ? "listing"
+      : shed
+        ? "shed"
+        : "flag";
+
   const req: SimRequest = {
     id,
     userId,
@@ -245,11 +306,15 @@ function spawnRequest(engine: Engine, opts?: { forceExposed?: boolean }): SimReq
     callerSec,
     poolHoldSec,
     holdSec: poolHoldSec,
-    codeLine: path === "recs" ? CODE.callRec : CODE.catalog,
+    codeLine: program.callsCatalog ? lines.catalog : invoked ? lines.call : lines.pageDef,
     path,
     shed,
     cacheHit,
     timedOut: false,
+    fetchedCatalog: program.callsCatalog,
+    invokedRecommendation: invoked,
+    acquiresPool: invoked && poolHoldSec > 0,
+    skipReason,
   };
   engine.requests.set(id, req);
   return req;
@@ -263,7 +328,7 @@ function tryAcquire(engine: Engine, req: SimRequest, at: number): boolean {
   req.slotIndex = free;
   req.acquireTime = at;
   req.phase = "holding";
-  req.codeLine = CODE.acquire;
+  req.codeLine = engine.program.lines.acquire;
   return true;
 }
 
@@ -271,7 +336,7 @@ function enqueueWait(engine: Engine, req: SimRequest, at: number) {
   if (req.phase === "waiting") return;
   req.phase = "waiting";
   req.waitStart = req.waitStart ?? at;
-  req.codeLine = CODE.acquire;
+  req.codeLine = engine.program.lines.acquire;
   engine.waitingIds.push(req.id);
 }
 
@@ -286,7 +351,9 @@ function completeRequest(engine: Engine, req: SimRequest, now: number, timedOut 
   req.doneTime = now;
   req.timedOut = timedOut;
   req.phase = timedOut ? "timed_out" : "done";
-  req.codeLine = timedOut ? CODE.acquire : CODE.respond;
+  req.codeLine = timedOut ? engine.program.lines.acquire : engine.program.lines.respond;
+  engine.lastPageId = req.id;
+  fitPool(engine);
 
   const timing = requestTiming(req, now);
   engine.latency.push({
@@ -353,9 +420,9 @@ function advanceHolders(engine: Engine, now: number) {
   for (const req of holders) {
     if (req.acquireTime === null) continue;
     const held = now - req.acquireTime;
-    if (held < req.poolHoldSec * 0.2) req.codeLine = CODE.acquire;
-    else if (held < req.poolHoldSec * 0.8) req.codeLine = CODE.query;
-    else req.codeLine = CODE.release;
+    if (held < req.poolHoldSec * 0.2) req.codeLine = engine.program.lines.acquire;
+    else if (held < req.poolHoldSec * 0.8) req.codeLine = engine.program.lines.query;
+    else req.codeLine = engine.program.lines.release;
     if (held >= req.poolHoldSec) {
       completeRequest(engine, req, req.acquireTime + req.poolHoldSec, false);
     }
@@ -383,7 +450,7 @@ function pruneDone(engine: Engine) {
       req.doneTime !== null &&
       engine.t - req.doneTime > 2
     ) {
-      if (engine.tracedId !== id) engine.requests.delete(id);
+      if (engine.tracedId !== id && engine.lastPageId !== id) engine.requests.delete(id);
     }
     if (req.phase === "rejected_new" && req.doneTime !== null && engine.t - req.doneTime > 1.5) {
       engine.requests.delete(id);
@@ -503,9 +570,20 @@ export function setControls(engine: Engine, patch: Partial<EngineControls>, log 
 export function injectSingleRequest(engine: Engine, opts?: { forceExposed?: boolean }): SimRequest {
   const req = spawnRequest(engine, opts);
   req.phase = "arriving";
-  req.codeLine = req.path === "recs" ? CODE.callRec : CODE.catalog;
+  req.codeLine = req.fetchedCatalog
+    ? engine.program.lines.catalog
+    : req.invokedRecommendation
+      ? engine.program.lines.call
+      : engine.program.lines.pageDef;
   engine.tracedId = req.id;
   return req;
+}
+
+export function advanceEngine(engine: Engine, seconds: number, dt = DEFAULT_TICK_SEC): EngineSnapshot {
+  const steps = Math.max(1, Math.round(seconds / dt));
+  let snap = snapshot(engine);
+  for (let i = 0; i < steps; i++) snap = tick(engine, dt, { force: true });
+  return snap;
 }
 
 export function tick(
@@ -514,6 +592,10 @@ export function tick(
   opts?: { force?: boolean },
 ): EngineSnapshot {
   if (engine.frozen && !opts?.force) return snapshot(engine);
+  if (engine.cascade) {
+    engine.t = advanceCascade(engine.cascade, engine.rng, engine.t, dt);
+    return snapshot(engine);
+  }
 
   applyDueFlag(engine);
   const now = engine.t + dt;
@@ -577,15 +659,16 @@ export function snapshot(engine: Engine): EngineSnapshot {
     };
   });
 
-  const activeCount = clampBusy(active.length, POOL_SIZE);
-  const idleCount = POOL_SIZE - activeCount;
+  const capacity = poolCapacity(engine);
+  const activeCount = clampBusy(active.length, capacity);
+  const idleCount = capacity - activeCount;
 
   const waiting = engine.waitingIds
     .map((id) => engine.requests.get(id))
     .filter((r): r is SimRequest => !!r && r.phase === "waiting");
 
   const demand = poolDemand(engine);
-  const littles = littlesLaw(demand.admittedRps, demand.W, POOL_SIZE);
+  const littles = littlesLaw(demand.admittedRps, demand.W, capacity);
 
   const recent = engine.latency.slice(-80);
   const okSamples = recent.filter((s) => !s.timedOut);
@@ -615,7 +698,7 @@ export function snapshot(engine: Engine): EngineSnapshot {
 
   return {
     t: engine.t,
-    poolSize: POOL_SIZE,
+    poolSize: capacity,
     slots,
     waiting,
     active,
@@ -635,7 +718,7 @@ export function snapshot(engine: Engine): EngineSnapshot {
     acquireWaitP99,
     meanWaitSec,
     throughputRps,
-    utilization: utilization(activeCount, POOL_SIZE),
+    utilization: utilization(activeCount, capacity),
     latencyBaseline: pathLatency(recent, "baseline"),
     latencyRecs: pathLatency(recent, "recs"),
     slo,
@@ -654,12 +737,29 @@ export function snapshot(engine: Engine): EngineSnapshot {
     appliedFeatureEnabled: engine.appliedFlag.featureEnabled,
     appliedFeatureDisabledForNew: engine.appliedFlag.featureDisabledForNew,
     flagPropagationRemainingSec: remaining,
+    handler: {
+      callsCatalog: engine.program.callsCatalog,
+      callsRecommendation: engine.program.callsRecommendation,
+      acquiresPool: engine.program.acquiresPool,
+      poolSize: engine.program.poolSize,
+      occupancyMs: engine.program.occupancyMs,
+    },
+    lastPage: engine.lastPageId ? (engine.requests.get(engine.lastPageId) ?? null) : null,
   };
+}
+
+/** Replace the handler the next arrival executes. Pool size and occupancy follow the source. */
+export function applyChapter1Source(engine: Engine, source: string) {
+  const next = parseChapter1Program(source);
+  const occupancyChanged = next.occupancyMs !== engine.program.occupancyMs;
+  engine.program = next;
+  fitPool(engine);
+  if (occupancyChanged) {
+    engine.controls = { ...engine.controls, recLookupSec: next.occupancyMs / 1000 };
+  }
 }
 
 export function getRequest(engine: Engine, id: string | null): SimRequest | null {
   if (!id) return null;
   return engine.requests.get(id) ?? null;
 }
-
-export { CODE as CODE_LINES };

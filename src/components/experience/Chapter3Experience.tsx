@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { IdempotencyGraph } from "@/components/experience/IdempotencyGraph";
 import { LabIntro } from "@/components/experience/LabIntro";
+import { RunningCode } from "@/components/experience/RunningCode";
+import { chapter3Program } from "@/lib/experience/running-code";
 import { SimControls } from "@/components/experience/SimControls";
 import { Segmented } from "@/components/ui/Segmented";
 import {
@@ -112,16 +115,21 @@ export function Chapter3Experience() {
 
   return (
     <div className="mx-auto w-full max-w-[88rem] px-4 py-8 sm:px-6 sm:py-10">
-      <p className="exp-kicker">Chapter 3 · State, identity, uncertainty</p>
-      <h1 className="mt-3 max-w-3xl font-serif text-[clamp(1.8rem,4vw,2.7rem)] leading-[1.08] tracking-[-0.03em] text-[color:var(--exp-fg)]">
-        {chapter3Copy.h1}
-      </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[color:var(--exp-muted)]">
-        {chapter3Copy.situation}
-      </p>
-      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-faint)]">
-        {chapter3Copy.approximation}
-      </p>
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div className="min-w-0 max-w-3xl flex-1">
+          <p className="exp-kicker">Chapter 3 · State, identity, uncertainty</p>
+          <h1 className="mt-3 font-serif text-[clamp(1.8rem,4vw,2.7rem)] leading-[1.08] tracking-[-0.03em] text-[color:var(--exp-fg)]">
+            {chapter3Copy.h1}
+          </h1>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[color:var(--exp-muted)]">
+            {chapter3Copy.situation}
+          </p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-faint)]">
+            {chapter3Copy.approximation}
+          </p>
+        </div>
+        <ChapterPlate chapter={3} sizes="200px" className="hidden h-28 w-44 sm:block" />
+      </header>
 
       <div className="mt-6 space-y-4">
         <div className="exp-progress-track" role="list" aria-label="Guided progress">
@@ -303,6 +311,29 @@ export function Chapter3Experience() {
         canvas={
           <>
             <IdempotencyGraph read={read} reducedMotion={reduced} />
+            <RunningCode
+              program={chapter3Program({
+                reuse: read.controls.reuseOperationId,
+                outbox: read.controls.outbox,
+                timeoutMs: read.controls.timeoutMs,
+                providerMs: read.controls.providerMs,
+                unique: read.uniqueCharges,
+                duplicate: read.duplicateCharges,
+                unresolved: read.unresolved,
+                lost: read.lostNotifications,
+                elapsed: read.checkoutsSent,
+                reduced,
+                lockTimes: mode === "challenge",
+              })}
+              onEdit={(id, value) => {
+                if (id === "reuseOperationId") setDecided(true);
+                apply((engine) =>
+                  setIdempotencyControls(engine, {
+                    [id]: value,
+                  }),
+                );
+              }}
+            />
             <section className="exp-panel" aria-label="Live metrics">
               <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">Live metrics</h2>
               <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{read.narration}</p>
@@ -424,7 +455,7 @@ function ControlsPanel({
             <span className="tabular-nums text-[color:var(--exp-faint)]">{read.controls.providerMs} ms</span>
           </span>
           {locked ? (
-            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this wave.</p>
+            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this run.</p>
           ) : (
             <input
               className="mt-2 w-full"
@@ -447,7 +478,7 @@ function ControlsPanel({
             <span className="tabular-nums text-[color:var(--exp-faint)]">{read.controls.timeoutMs} ms</span>
           </span>
           {locked ? (
-            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this wave.</p>
+            <p className="mt-1 leading-relaxed text-[color:var(--exp-muted)]">Fixed for this run.</p>
           ) : (
             <input
               className="mt-2 w-full"

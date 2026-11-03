@@ -41,6 +41,14 @@ export type SimRequest = {
   cacheHit: boolean;
   /** Acquire wait exceeded connectionTimeout. */
   timedOut: boolean;
+  /** catalog_service.fetch was in the handler when this request arrived. */
+  fetchedCatalog: boolean;
+  /** recommendation_service.get ran for this request. */
+  invokedRecommendation: boolean;
+  /** The call asked the pool for a connection. */
+  acquiresPool: boolean;
+  /** Why recommendation_service.get did not run. */
+  skipReason: "flag" | "listing" | "shed" | null;
 };
 
 export type SlotState = {
@@ -170,6 +178,16 @@ export type EngineSnapshot = {
   appliedFeatureDisabledForNew: boolean;
   /** Seconds until a commanded flag change reaches new arrivals. */
   flagPropagationRemainingSec: number;
+  /** What the current handler will do on the next arrival. */
+  handler: {
+    callsCatalog: boolean;
+    callsRecommendation: boolean;
+    acquiresPool: boolean;
+    poolSize: number;
+    occupancyMs: number;
+  };
+  /** Last request that finished building a page. */
+  lastPage: SimRequest | null;
 };
 
 /**

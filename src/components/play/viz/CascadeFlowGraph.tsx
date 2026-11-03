@@ -36,32 +36,24 @@ export function CascadeFlowGraph({
   health,
   circuitOpen,
   util,
-  bulkheadAuth,
+  cancel,
   cascadeRisk,
-  bulkheadPay,
+  permit,
 }: {
   health: HealthMap;
   circuitOpen: CircuitMap;
   util: UtilMap;
-  bulkheadAuth: boolean;
+  cancel: boolean;
   cascadeRisk: number;
-  bulkheadPay: boolean;
+  permit: boolean;
 }) {
   const reduced = usePrefersReducedMotion();
   const detail: Record<Id, string> = {
-    edge: `Health ${(health.edge * 100).toFixed(0)}%`,
-    checkout: `Cascade risk ${(cascadeRisk * 100).toFixed(0)}%`,
-    auth: circuitOpen.auth
-      ? "Breaker open"
-      : bulkheadAuth
-        ? `Own pool · util ${(util.auth * 100).toFixed(0)}%`
-        : `Shared pool · util ${(util.auth * 100).toFixed(0)}%`,
-    pay: circuitOpen.pay
-      ? "Breaker open"
-      : bulkheadPay
-        ? `Own pool · util ${(util.pay * 100).toFixed(0)}%`
-        : `Shared pool · util ${(util.pay * 100).toFixed(0)}%`,
-    db: circuitOpen.db ? "Breaker open" : `Util ${(util.db * 100).toFixed(0)}%`,
+    edge: "Client",
+    checkout: `Risk ${(cascadeRisk * 100).toFixed(0)}%`,
+    auth: cancel ? `Child deadline ${(util.auth * 1000).toFixed(0)} ms` : "Deadline without cancellation",
+    pay: health.pay < 0.5 ? "Still running" : "Stopped with the caller",
+    db: permit ? "Permit acquired" : "Permit missing",
   };
 
   const meter: Record<Id, number> = {
@@ -91,11 +83,11 @@ export function CascadeFlowGraph({
   };
 
   const labels: Record<Id, string> = {
-    edge: "Edge",
+    edge: "Client",
     checkout: "Checkout",
-    auth: "Auth",
-    pay: "Pay",
-    db: "DB",
+    auth: "Fraud",
+    pay: "Provider",
+    db: "Permit",
   };
 
   const nodes: FlowServiceNode[] = (Object.keys(POS) as Id[]).map((id) => ({
@@ -133,7 +125,7 @@ export function CascadeFlowGraph({
       target: "auth",
       sourceHandle: "down",
       targetHandle: "in",
-      label: circuitOpen.auth ? "open" : "auth",
+      label: "assess",
       flow: circuitOpen.auth ? "open" : health.auth < 0.55 ? "strain" : "live",
       reduced,
     }),
@@ -143,7 +135,7 @@ export function CascadeFlowGraph({
       target: "pay",
       sourceHandle: "down",
       targetHandle: "in",
-      label: circuitOpen.pay ? "open" : "pay",
+      label: "score",
       flow: circuitOpen.pay ? "open" : health.pay < 0.55 ? "strain" : "live",
       reduced,
     }),
@@ -153,7 +145,7 @@ export function CascadeFlowGraph({
       target: "db",
       sourceHandle: "out",
       targetHandle: "in",
-      label: circuitOpen.db ? "open" : "query",
+      label: permit ? "permit" : "none",
       flow: circuitOpen.db ? "open" : health.db < 0.55 ? "strain" : "live",
       reduced,
     }),
@@ -164,7 +156,7 @@ export function CascadeFlowGraph({
   return (
     <div
       className="service-flow service-flow-short"
-      aria-label="Checkout dependency graph. Requests move along each call. An open label means that breaker stopped waiting. No path skips Auth."
+      aria-label="Checkout calls fraud. Fraud calls the provider when a permit was acquired. Cancellation stops the provider when checkout is out of time."
     >
       <ReactFlow
         nodes={flow.nodes}
