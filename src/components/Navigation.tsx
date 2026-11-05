@@ -4,19 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { writing } from "@/data/writing";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
-/** Clear product nav: Home / Book / Labs / Drills / Projects / About */
+/** Top navigation, for now: Home, Book, and Projects. */
 const links = [
   { id: "home", label: "Home", href: "/" },
   { id: "book", label: "Book", href: "/system-design" },
-  { id: "labs", label: "Labs", href: "/system-design/experience" },
-  { id: "play", label: "Drills", href: "/play" },
-  { id: "sre", label: "SRE", href: "/sre-labs" },
   { id: "projects", label: "Projects", href: "/projects" },
-  ...(writing.length > 0 ? [{ id: "writing", label: "Writing", href: "/#writing" }] : []),
-  { id: "about", label: "About", href: "/about" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;

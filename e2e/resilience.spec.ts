@@ -22,9 +22,9 @@ test("mobile menu scrolls on short screens and returns focus on Escape", async (
   const toggle = page.getByRole("button", { name: "Open menu" });
   await toggle.click();
   const menu = page.getByRole("navigation", { name: "Mobile" });
-  const about = menu.getByRole("link", { name: /About/ });
-  await about.focus();
-  await expect(about).toBeInViewport();
+  const projects = menu.getByRole("link", { name: "Projects" });
+  await projects.focus();
+  await expect(projects).toBeInViewport();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Close menu" })).toBeFocused();
   await page.keyboard.press("Escape");

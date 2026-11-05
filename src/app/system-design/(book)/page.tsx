@@ -1,7 +1,27 @@
+import Image from "next/image";
 import { BookContents } from "@/components/book/reader/BookContents";
 import { BookPageTransition } from "@/components/book/reader/BookPageTransition";
 import { getManifest } from "@/lib/book/catalog";
 import Link from "next/link";
+
+function BookIntroFilm() {
+  return (
+    <figure className="mx-auto mb-6 w-full max-w-[calc(var(--reader-measure)+3rem)]">
+      <Image
+        src="/book/book-hero.gif"
+        alt="Adewale Obadimu introducing Practical System Design, beside a path from clients through a load balancer, API, cache, and database."
+        width={549}
+        height={305}
+        unoptimized
+        priority
+        className="block h-auto w-full rounded-[1.15rem] border border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)]"
+      />
+      <figcaption className="mt-3 text-sm leading-relaxed text-[var(--reader-muted)]">
+        Practical System Design, introduced by Adewale Obadimu.
+      </figcaption>
+    </figure>
+  );
+}
 
 export default function SystemDesignIndexPage() {
   const manifest = getManifest();
@@ -24,6 +44,7 @@ export default function SystemDesignIndexPage() {
 
   return (
     <BookPageTransition>
+      <BookIntroFilm />
       <BookContents chapters={manifest.chapters} />
     </BookPageTransition>
   );

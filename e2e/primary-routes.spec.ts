@@ -26,14 +26,17 @@ test.describe("primary routes", () => {
     });
   }
 
-  test("nav labels Home / Book / Labs / Drills / Projects / About", async ({
+  test("nav labels Home / Book / Projects", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Primary" });
-    for (const label of ["Home", "Book", "Labs", "Drills", "Projects", "About"]) {
+    for (const label of ["Home", "Book", "Projects"]) {
       await expect(nav.getByRole("link", { name: label })).toBeVisible();
+    }
+    for (const label of ["Labs", "Drills", "About"]) {
+      await expect(nav.getByRole("link", { name: label })).toHaveCount(0);
     }
     await expect(page.getByRole("link", { name: "Read the book for free" })).toHaveCount(1);
     await expect(page.locator("#top").getByRole("link", { name: /Read the book for free/i })).toHaveCount(0);

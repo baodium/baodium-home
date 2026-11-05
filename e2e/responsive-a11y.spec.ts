@@ -56,9 +56,9 @@ test.describe("responsive + a11y smoke", () => {
     await page.getByRole("button", { name: /Open menu/i }).click();
     await page
       .getByRole("navigation", { name: "Mobile" })
-      .getByRole("link", { name: "Drills" })
+      .getByRole("link", { name: "Projects" })
       .click();
-    await expect(page).toHaveURL(/\/play/);
+    await expect(page).toHaveURL(/\/projects/);
   });
 
   test("book drawer is inert when closed on mobile", async ({ page }) => {

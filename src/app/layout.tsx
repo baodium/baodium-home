@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import { site } from "@/data/site";
 import "lenis/dist/lenis.css";
@@ -23,6 +23,14 @@ const instrument = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
   variable: "--font-instrument",
+  display: "swap",
+});
+
+const bookSerif = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-book",
   display: "swap",
 });
 
@@ -62,7 +70,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geist.variable} ${geistMono.variable} ${instrument.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} ${instrument.variable} ${bookSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-cream font-sans text-cream">
         <a className="skip-link" href="#main">

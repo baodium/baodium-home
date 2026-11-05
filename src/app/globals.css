@@ -486,8 +486,24 @@ html[data-reader-measure="wide"] {
   --reader-measure: 46rem;
 }
 
+/* Desktop chapter text uses more of the page. Phones keep the shorter measure. */
+@media (min-width: 1100px) {
+  html[data-reader-measure="narrow"] {
+    --reader-measure: 52rem;
+  }
+  html[data-reader-measure="comfortable"] {
+    --reader-measure: 64rem;
+  }
+  html[data-reader-measure="wide"] {
+    --reader-measure: 72rem;
+  }
+}
+
 .book-reader {
   /* Fallbacks before client theme attribute hydrates — light/white page default */
+  --font-serif: var(--font-book), "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, serif;
+  font-family: var(--font-book), "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, serif;
+  font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
   --reader-bg: #c9c8c3;
   --reader-chrome: #c2c1bc;
   --reader-page: #ffffff;
@@ -532,6 +548,12 @@ html[data-reader-measure="wide"] {
   .book-reader-stage {
     /* Keep reading column clearly separated from TOC */
     border-left: 1px solid color-mix(in srgb, var(--reader-fg) 6%, transparent);
+  }
+}
+
+@media (min-width: 1100px) {
+  .book-reader {
+    --reader-measure: 64rem;
   }
 }
 
@@ -666,8 +688,8 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 }
 
 .book-prose {
-  font-family: var(--font-serif);
-  line-height: 1.75;
+  font-family: var(--font-book), "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, serif;
+  line-height: 1.7;
   color: var(--reader-fg);
 }
 
@@ -700,9 +722,9 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .book-interactive-concept__lead {
   margin-top: 0.65rem;
-  font-family: var(--font-sans, inherit);
-  font-size: 0.98rem;
-  line-height: 1.55;
+  font-family: inherit;
+  font-size: 1.02rem;
+  line-height: 1.65;
   color: var(--reader-fg);
 }
 
@@ -764,9 +786,9 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .book-interactive-concept__return-hint {
   margin-top: 0.7rem;
-  font-family: var(--font-sans, inherit);
-  font-size: 0.78rem;
-  line-height: 1.4;
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.5;
   color: var(--reader-muted);
 }
 
@@ -789,12 +811,19 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   transition: width 280ms ease;
 }
 
+.book-reader .font-serif,
 .book-prose h2,
 .book-prose h3,
 .book-prose h4 {
-  font-family: var(--font-serif);
+  font-family: var(--font-book), "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, serif;
+  font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+}
+
+.book-prose h2,
+.book-prose h3,
+.book-prose h4 {
   scroll-margin-top: 5rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
 }
 
 .book-prose h2 {
@@ -948,7 +977,7 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 .book-prose thead th {
   background: rgba(43, 34, 29, 0.05);
-  font-family: var(--font-sans);
+  font-family: inherit;
   font-weight: 600;
 }
 
