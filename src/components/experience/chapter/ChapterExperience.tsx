@@ -161,15 +161,15 @@ export function ChapterExperience({
 
   return (
     <article className="bg-[#f6f1ea] text-[#241c18]" onKeyDown={onKeyDown}>
-      <header className="mx-auto max-w-[1240px] px-6 pb-3 pt-8 sm:px-8 sm:pt-10">
-        <p className="font-mono text-[0.75rem] uppercase tracking-[0.16em] text-[#b4532a]">
+      <header className="mx-auto max-w-[1240px] px-6 pb-5 pt-12 sm:px-8 sm:pt-14">
+        <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">
           Chapter {chapter.number} · {chapter.title}
         </p>
-        <h1 className="mt-3 max-w-[22ch] font-serif text-[clamp(1.8rem,3vw,2.6rem)] leading-[1.08] tracking-[-0.03em]">
+        <h1 className="mt-4 max-w-[22ch] font-serif text-[clamp(2.15rem,3.4vw,3.15rem)] leading-[1.05] tracking-[-0.03em]">
           {chapter.headline}
         </h1>
       </header>
-      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2 px-6 sm:px-8" aria-label="Acts">
+      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2.5 px-6 sm:px-8" aria-label="Acts">
         {chapter.acts.map((act, index) => {
           const current = act.id === actId;
           const done = firstCursor(act.id) < cursor || (act.id === "deeper" && labDone);
@@ -178,7 +178,7 @@ export function ChapterExperience({
               key={act.id}
               type="button"
               aria-current={current ? "true" : undefined}
-              className={`rounded-full border px-3.5 py-1.5 text-[0.95rem] ${
+              className={`rounded-full border px-4 py-2 text-base ${
                 current
                   ? "border-[#241c18] bg-[#241c18] text-white"
                   : "border-[#e6ddd2] bg-[#fffdf9] text-[#6f625a]"
@@ -191,7 +191,7 @@ export function ChapterExperience({
           );
         })}
       </nav>
-      <div className="mx-auto grid max-w-[1240px] gap-6 px-6 py-6 sm:px-8 lg:grid-cols-[22rem_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-[1240px] gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[24rem_minmax(0,1fr)]">
         <StoryPanel
           beat={
             beat ?? {

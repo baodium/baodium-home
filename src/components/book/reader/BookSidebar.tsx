@@ -73,8 +73,8 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
         style={{ viewTransitionName: "reader-sidebar" }}
       >
         <div
-          className={`flex items-center gap-2 px-2 pb-2 pt-4 lg:pt-5 ${
-            collapsed ? "lg:justify-center lg:px-1" : "justify-between px-4"
+          className={`flex items-center gap-3 px-3 pb-3 pt-5 lg:pt-6 ${
+            collapsed ? "lg:justify-center lg:px-1" : "justify-between px-5"
           }`}
           style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
         >
@@ -84,9 +84,9 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               alt=""
               width={64}
               height={96}
-              className="h-11 w-8 shrink-0 rounded-[2px] object-cover shadow-[0_8px_16px_-12px_rgba(40,24,12,0.7)]"
+              className="h-14 w-10 shrink-0 rounded-[2px] object-cover shadow-[0_8px_16px_-12px_rgba(40,24,12,0.7)]"
             />
-            <p className="font-mono text-[0.75rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
+            <p className="font-mono text-sm uppercase tracking-[0.16em] text-[var(--reader-muted)]">
               Contents
             </p>
           </div>
@@ -111,7 +111,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           </div>
         </div>
         <div
-          className={`flex flex-wrap gap-x-4 gap-y-1 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-5 pb-4 text-[0.95rem] ${
+          className={`flex flex-wrap gap-x-5 gap-y-2 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-5 pb-5 text-base ${
             collapsed ? "lg:hidden" : ""
           }`}
         >
@@ -130,7 +130,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           data-lenis-prevent-wheel
           className={`flex-1 overflow-y-auto pb-6 pt-3 ${collapsed ? "px-1" : "px-3"}`}
         >
-          <ol className="space-y-1 text-[0.95rem]">
+          <ol className="space-y-1.5 text-base">
             <li>
               <Link
                 href="/system-design"

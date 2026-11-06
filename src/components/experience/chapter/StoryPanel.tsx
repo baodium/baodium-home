@@ -54,8 +54,8 @@ export function StoryPanel({
       {beat ? (
         <>
           <p className="font-mono text-[0.75rem] uppercase tracking-[0.12em] text-[#6f625a]">{beat.label}</p>
-          <h2 className="mt-2 font-serif text-[1.65rem] leading-snug tracking-[-0.02em]">{beat.title}</h2>
-          <div className="mt-4 space-y-4 text-[1.05rem] leading-relaxed">
+          <h2 className="mt-3 font-serif text-[1.85rem] leading-snug tracking-[-0.02em]">{beat.title}</h2>
+          <div className="mt-5 space-y-4 text-lg leading-relaxed">
             {beat.body_md.split("\n\n").map((paragraph) => {
               const trimmed = paragraph.trim();
               if (trimmed.startsWith("[button:")) {

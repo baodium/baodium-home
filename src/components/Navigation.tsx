@@ -165,7 +165,7 @@ export function Navigation() {
         </Link>
 
         <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center text-[0.84rem] text-cream/88">
+          <ul className="flex items-center text-base text-cream/88">
             {links.map((link) => (
               <li key={link.id} className="relative">
                 {active === link.id ? (
@@ -178,7 +178,7 @@ export function Navigation() {
                 <Link
                   href={link.href}
                   aria-current={active === link.id ? "page" : undefined}
-                  className={`relative inline-flex min-h-10 items-center rounded-full px-3 transition-colors hover:text-cream aria-[current]:text-cream xl:px-3.5 ${
+                  className={`relative inline-flex min-h-11 items-center rounded-full px-4 transition-colors hover:text-cream aria-[current]:text-cream ${
                     active === link.id ? "" : "hover:bg-white/[0.06]"
                   }`}
                 >

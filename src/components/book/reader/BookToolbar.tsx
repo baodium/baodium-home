@@ -94,7 +94,7 @@ export function BookToolbar({
             animate={{ y: 0, opacity: 1 }}
             exit={reduceMotion ? { opacity: 0 } : { y: -10, opacity: 0 }}
             transition={{ duration: reduceMotion ? 0.01 : 0.28, ease }}
-            className="book-reader-hud relative flex w-full items-center gap-1.5 overflow-visible rounded-none border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] px-3 py-1.5 sm:px-4"
+            className="book-reader-hud relative flex w-full items-center gap-2 overflow-visible rounded-none border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] bg-[var(--reader-page)] px-4 py-2.5 sm:px-5"
             style={{ viewTransitionName: "reader-hud" }}
           >
             <div className="flex min-w-0 shrink-0 items-center gap-0.5">
@@ -118,7 +118,7 @@ export function BookToolbar({
                   height={60}
                   className="h-7 w-5 shrink-0 rounded-[1px] object-cover"
                 />
-                <span className="whitespace-nowrap font-mono text-[0.7rem] font-medium tracking-[0.2em]">
+                <span className="whitespace-nowrap font-mono text-[0.8rem] font-medium tracking-[0.18em]">
                   BAODIUM
                 </span>
               </Link>
@@ -134,7 +134,7 @@ export function BookToolbar({
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-btn !px-2 text-[0.78rem]"
+                    className="text-btn !px-2.5 text-[0.95rem]"
                   >
                     {link.label}
                   </Link>
@@ -142,7 +142,7 @@ export function BookToolbar({
               </nav>
             </div>
 
-            <p className="hidden min-w-0 flex-1 truncate px-2 text-center font-serif text-[0.8125rem] italic text-[var(--reader-muted)] lg:block">
+            <p className="hidden min-w-0 flex-1 truncate px-3 text-center font-serif text-base italic text-[var(--reader-muted)] lg:block">
               {book.title}
             </p>
 
