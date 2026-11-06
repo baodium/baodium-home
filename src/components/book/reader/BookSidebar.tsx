@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { X } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { useReader } from "@/components/book/reader/ReaderProvider";
@@ -62,8 +62,8 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${
           collapsed
-            ? "w-[min(100%,18.5rem)] lg:w-[3.25rem]"
-            : "w-[min(100%,18.5rem)] lg:w-[15.75rem]"
+            ? "w-[min(100%,18.5rem)] lg:w-[4.5rem]"
+            : "w-[min(100%,18.5rem)] lg:w-64"
         }`}
         aria-label="Table of contents"
         aria-hidden={drawerInert ? true : undefined}
@@ -90,24 +90,19 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               Contents
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              className="icon-btn hidden h-8 w-8 lg:inline-flex"
+              className="hidden text-[0.75rem] text-[var(--reader-muted)] hover:text-[var(--reader-fg)] lg:inline"
               onClick={toggleCollapsed}
               aria-pressed={collapsed}
               aria-label={collapsed ? "Expand table of contents" : "Collapse table of contents"}
-              title={collapsed ? "Expand contents" : "Collapse contents"}
             >
-              {collapsed ? (
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              )}
+              {collapsed ? "Show" : "Hide"}
             </button>
             <button
               type="button"
-              className="icon-btn h-8 w-8 lg:hidden"
+              className="inline-flex h-8 items-center px-1 text-[0.75rem] text-[var(--reader-muted)] lg:hidden"
               onClick={() => setSidebarOpen(false)}
               aria-label="Close contents"
             >
@@ -116,7 +111,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           </div>
         </div>
         <div
-          className={`flex flex-wrap gap-x-3 gap-y-1 border-b border-[color-mix(in_srgb,var(--reader-fg)_7%,transparent)] px-4 pb-3 text-xs sm:hidden ${
+          className={`flex flex-wrap gap-x-3 gap-y-1 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-4 pb-3 text-xs ${
             collapsed ? "lg:hidden" : ""
           }`}
         >
@@ -173,11 +168,11 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                     title={chapter.title}
                     transitionTypes={active ? undefined : flipTransitionTypes(direction)}
                     data-active={active ? "true" : "false"}
-                    className={`book-toc-link flex items-baseline gap-2.5 rounded-lg py-2 leading-snug transition-colors hover:bg-white/10 ${
+                    className={`book-toc-link flex items-baseline gap-2.5 rounded-lg py-2 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
                       collapsed ? "justify-center px-1" : "px-2.5"
                     } ${
                       active
-                        ? "bg-white/10 font-medium text-[var(--reader-fg)]"
+                        ? "bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] font-medium text-[var(--reader-fg)]"
                         : "text-[var(--reader-muted)]"
                     }`}
                     onClick={() => setSidebarOpen(false)}

@@ -69,7 +69,7 @@ function ShellBody({
     <div className="book-reader relative min-h-[100dvh] text-[var(--reader-fg)]">
       <div aria-hidden="true" className="book-reader-atmosphere" />
       <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <div className="relative z-[1] mx-auto flex h-[100dvh] w-full max-w-[92rem]">
+      <div className="reader-sheet relative z-[1] mx-auto flex h-[100dvh] w-full max-w-[calc(var(--reader-measure)+22rem)]">
         <BookSidebar chapters={chapters} />
         <div className="book-reader-stage relative z-0 flex min-w-0 flex-1 flex-col">
           <div className="relative z-50 shrink-0">
@@ -90,7 +90,7 @@ function ShellBody({
             id="book-reader-scroll"
             data-lenis-prevent
             data-lenis-prevent-wheel
-            className="relative z-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-3 md:px-8 md:pb-14 lg:px-10"
+            className="relative z-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-10 pt-3 md:px-6 md:pb-14 lg:px-0 lg:pb-12"
           >
             {children}
           </div>

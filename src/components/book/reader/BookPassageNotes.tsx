@@ -169,7 +169,7 @@ export function BookNotesList({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="border-t border-white/10 px-3 py-3">
+    <div className="border-t border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-3 py-3">
       <p className="px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
         Notes on this device
       </p>
@@ -180,12 +180,12 @@ export function BookNotesList({ slug }: { slug: string }) {
       ) : (
         <ul className="mt-2 space-y-2">
           {notes.map((note) => (
-            <li key={note.id} className="rounded-lg bg-white/5 px-2 py-1.5">
+            <li key={note.id} className="rounded-lg bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] px-2 py-1.5">
               <button type="button" className="block w-full text-left" onClick={() => show(note)}>
                 <span className="line-clamp-2 font-serif text-[0.78rem] italic leading-snug">{note.quote}</span>
                 {note.note ? <span className="mt-1 block text-[0.72rem] leading-snug text-[var(--reader-muted)]">{note.note}</span> : null}
               </button>
-              <button type="button" className="mt-1 text-[0.68rem] text-[#e7b199]" onClick={() => deleteBookNote(note.id)}>
+              <button type="button" className="mt-1 text-[0.68rem] text-cinnabar" onClick={() => deleteBookNote(note.id)}>
                 Remove
               </button>
             </li>

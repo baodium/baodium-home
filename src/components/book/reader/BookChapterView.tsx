@@ -280,7 +280,7 @@ export function BookChapterView({
   return (
     <div
       ref={scrollRef}
-      className="book-chapter-scroll group/stage relative mx-auto w-full max-w-[calc(var(--reader-measure)+4.5rem)] pb-16 pt-2 md:pt-3"
+      className="book-chapter-scroll group/stage relative w-full pb-16 pt-2 md:pt-3"
     >
       <BookEdgeCues prevHref={prevHref} nextHref={nextHref} />
       <div
@@ -295,10 +295,10 @@ export function BookChapterView({
         {/* Paper underlay fills the stage — desk grey never shows through a swipe. */}
         <motion.div
           aria-hidden="true"
-          className="book-page-underlay pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[1.15rem]"
+          className="book-page-underlay pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[1.15rem] lg:rounded-l-none"
           style={{ scale: reduceMotion ? 1 : underlayLift }}
         >
-          <div className="book-page absolute inset-0 rounded-[1.15rem]">
+          <div className="book-page absolute inset-0 rounded-[1.15rem] lg:rounded-l-none">
             <div className="book-page-gutter" />
             <div className="book-page-grain" />
             {preview && dragDir !== 0 ? (
@@ -334,7 +334,7 @@ export function BookChapterView({
               style={{ opacity: pageShade }}
             />
           ) : null}
-          <article className="book-page relative overflow-hidden rounded-[1.15rem]">
+          <article className="book-page relative overflow-hidden rounded-[1.15rem] lg:rounded-l-none">
             <div aria-hidden="true" className="book-page-gutter" />
             <div aria-hidden="true" className="book-page-grain" />
             <div className="relative z-[1] px-5 py-8 sm:px-9 sm:py-11 md:px-12 md:py-12">

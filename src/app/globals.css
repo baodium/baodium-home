@@ -556,12 +556,12 @@ html[data-reader-measure="wide"] .book-reader {
 
 .book-reader-stage {
   position: relative;
+  background: var(--reader-page);
 }
 
 @media (min-width: 1024px) {
   .book-reader-stage {
-    /* Keep reading column clearly separated from TOC */
-    border-left: 1px solid color-mix(in srgb, var(--reader-fg) 6%, transparent);
+    border-left: 0;
   }
 }
 
@@ -572,12 +572,9 @@ html[data-reader-measure="wide"] .book-reader {
 }
 
 .book-sidebar {
-  --reader-fg: #f6f0e8;
-  --reader-muted: rgba(246, 240, 232, 0.78);
-  background: #070605;
-  color: #f6f0e8;
-  border-right: 1px solid rgba(255, 236, 214, 0.1);
-  box-shadow: inset -1px 0 0 rgba(180, 83, 42, 0.45);
+  background: var(--reader-page);
+  color: var(--reader-fg);
+  border-right: 1px solid color-mix(in srgb, var(--reader-fg) 12%, transparent);
 }
 
 .book-page {
