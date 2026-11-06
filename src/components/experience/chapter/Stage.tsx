@@ -48,19 +48,19 @@ export function Stage({
   }, [engine, tick, mix, reduced]);
 
   const metric = (label: string, value: string, bad = false) => (
-    <div key={label} className={`border-t-2 pt-1 ${bad ? "border-[#b03a2e]" : "border-[#e6ddd2]"}`}>
-      <span className="block text-xs text-[#6f625a]">{label}</span>
-      <strong className={`text-lg tabular-nums ${bad ? "text-[#b03a2e]" : "text-[#241c18]"}`}>{value}</strong>
+    <div key={label} className={`border-t-2 pt-2 ${bad ? "border-[#b03a2e]" : "border-[#e6ddd2]"}`}>
+      <span className="block text-sm leading-snug text-[#6f625a]">{label}</span>
+      <strong className={`text-xl tabular-nums ${bad ? "text-[#b03a2e]" : "text-[#241c18]"}`}>{value}</strong>
     </div>
   );
 
   return (
-    <section className="rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-3 text-[#241c18]">
+    <section className="rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-4 text-[#241c18] sm:p-5">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <div className="inline-flex overflow-hidden rounded-full border border-[#e6ddd2]" role="group" aria-label="View">
           <button
             type="button"
-            className={`px-3 py-1.5 text-sm ${view === "customer" ? "bg-[#241c18] text-white" : "bg-white text-[#6f625a]"}`}
+            className={`px-3.5 py-2 text-[0.95rem] ${view === "customer" ? "bg-[#241c18] text-white" : "bg-white text-[#6f625a]"}`}
             aria-pressed={view === "customer"}
             onClick={() => onView("customer")}
           >
@@ -68,17 +68,17 @@ export function Stage({
           </button>
           <button
             type="button"
-            className={`px-3 py-1.5 text-sm ${view === "xray" ? "bg-[#241c18] text-white" : "bg-white text-[#6f625a]"}`}
+            className={`px-3.5 py-2 text-[0.95rem] ${view === "xray" ? "bg-[#241c18] text-white" : "bg-white text-[#6f625a]"}`}
             aria-pressed={view === "xray"}
             onClick={() => onView("xray")}
           >
             The pool
           </button>
         </div>
-        <button type="button" className="rounded-lg border border-[#e6ddd2] bg-white px-3 py-1.5 text-sm" onClick={onTogglePlay}>
+        <button type="button" className="rounded-lg border border-[#e6ddd2] bg-white px-3.5 py-2 text-[0.95rem]" onClick={onTogglePlay}>
           {playing ? "Pause" : "Play"}
         </button>
-        <label className="ml-auto flex items-center gap-2 text-sm text-[#6f625a]">
+        <label className="ml-auto flex items-center gap-2 text-[0.95rem] text-[#6f625a]">
           Speed
           <select
             className="rounded-md border border-[#e6ddd2] bg-white px-1.5 py-1"
@@ -113,7 +113,7 @@ export function Stage({
           armed={engine.flagOffAt != null}
         />
       ) : null}
-      <p className="mt-2 text-xs text-[#6f625a]">
+      <p className="mt-3 text-sm leading-relaxed text-[#6f625a]">
         One Recommendation Service instance, modelled on the chapter: {CHAPTER1_MODEL.pool} connections, ~
         {Math.round(CHAPTER1_MODEL.holdMean * 1000)} ms per lookup, ~
         {CHAPTER1_MODEL.otherRate + CHAPTER1_MODEL.pageRate} lookups/s at full exposure. Not every request is drawn.

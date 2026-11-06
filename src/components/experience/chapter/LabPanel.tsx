@@ -476,18 +476,18 @@ export function LabPanel({
   );
 
   return (
-    <section className="text-[#241c18]" aria-label="Live lab">
+    <section className="text-[#241c18]" aria-label="The store">
       {notice ? <p className="mb-3 rounded-lg bg-[#f6f1ea] px-3 py-2 text-sm">{notice}</p> : null}
       {phase === "boot" ? <p className="text-sm text-[#6f625a]">Checking lab availability…</p> : null}
       {phase === "idle" ? (
-        <div className="rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b4532a]">Live lab</p>
-          <h2 className="mt-2 text-xl">Start your own Baodium</h2>
-          <p className="mt-2 text-sm text-[#6f625a]">{guide.blurb}</p>
+        <div className="rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-7 sm:p-8">
+          <p className="font-mono text-[0.75rem] uppercase tracking-[0.14em] text-[#b4532a]">The store</p>
+          <h2 className="mt-3 font-serif text-[1.7rem] leading-snug tracking-[-0.02em]">A private copy of the store</h2>
+          <p className="mt-3 text-[1.05rem] leading-relaxed text-[#6f625a]">{guide.blurb}</p>
           {tasks}
           <button
             type="button"
-            className="mt-4 rounded-lg bg-[#b4532a] px-3.5 py-2 text-sm font-semibold text-white"
+            className="mt-6 rounded-lg bg-[#b4532a] px-4 py-2.5 text-[0.98rem] font-semibold text-white"
             onClick={() => void startLab()}
           >
             Start lab
@@ -495,9 +495,9 @@ export function LabPanel({
         </div>
       ) : null}
       {phase === "busy" ? (
-        <div className="rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-5">
-          <h2 className="text-xl">All lab machines are busy right now</h2>
-          <p className="mt-2 text-sm text-[#6f625a]">Try again in a few minutes, or use the other lab.</p>
+        <div className="rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-7 sm:p-8">
+          <h2 className="font-serif text-[1.7rem] leading-snug tracking-[-0.02em]">All lab machines are busy right now</h2>
+          <p className="mt-3 text-[1.05rem] leading-relaxed text-[#6f625a]">Try again in a few minutes, or use the other lab.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
@@ -512,9 +512,9 @@ export function LabPanel({
         </div>
       ) : null}
       {phase === "starting" ? (
-        <div className="rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-5">
-          <h2 className="text-xl">Starting your lab</h2>
-          <p className="mt-2 text-sm leading-relaxed">
+        <div className="rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-7 sm:p-8">
+          <h2 className="font-serif text-[1.7rem] leading-snug tracking-[-0.02em]">Starting your lab</h2>
+          <p className="mt-3 text-[1.05rem] leading-relaxed">
             Starting your private Baodium (about 1-2 minutes): PostgreSQL, the store, Recommendation Service, shoppers…
           </p>
           {tasks}
@@ -533,9 +533,9 @@ export function LabPanel({
         </div>
       ) : null}
       {phase === "error" ? (
-        <div className="rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-5">
-          <h2 className="text-xl">The lab did not start</h2>
-          <p className="mt-2 text-sm text-[#6f625a]">{error || "Something went wrong starting the lab."}</p>
+        <div className="rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-7 sm:p-8">
+          <h2 className="font-serif text-[1.7rem] leading-snug tracking-[-0.02em]">The lab did not start</h2>
+          <p className="mt-3 text-[1.05rem] leading-relaxed text-[#6f625a]">{error || "Something went wrong starting the lab."}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
@@ -611,7 +611,7 @@ function TaskList({
   const done = new Set(progress.completed);
   return (
     <div className="mt-4">
-      <ol className="space-y-1 text-sm">
+      <ol className="space-y-1.5 text-[1rem]">
         {guide.tasks.map((task) => (
           <li key={task.id}>
             <button type="button" className="text-left hover:underline" onClick={() => onTask(task.id)}>
@@ -625,7 +625,7 @@ function TaskList({
           </li>
         ))}
       </ol>
-      <label className="mt-3 flex items-center gap-2 text-sm">
+      <label className="mt-4 flex items-center gap-2 text-[1rem]">
         <input
           type="checkbox"
           checked={progress.manual || done.size >= guide.tasks.length}
@@ -660,7 +660,7 @@ function StaticLab({
   iframeRef: RefObject<HTMLIFrameElement | null>;
 }) {
   return (
-    <section className="text-[#241c18]" aria-label="Live lab">
+    <section className="text-[#241c18]" aria-label="The store">
       <div className="mb-2">
         <a className="text-sm underline" href={url} target="_blank" rel="noopener noreferrer">
           Open in new tab

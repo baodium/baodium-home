@@ -63,7 +63,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
         } ${
           collapsed
             ? "w-[min(100%,18.5rem)] lg:w-[4.5rem]"
-            : "w-[min(100%,18.5rem)] lg:w-64"
+            : "w-[min(100%,20rem)] lg:w-[18rem]"
         }`}
         aria-label="Table of contents"
         aria-hidden={drawerInert ? true : undefined}
@@ -86,14 +86,14 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               height={96}
               className="h-11 w-8 shrink-0 rounded-[2px] object-cover shadow-[0_8px_16px_-12px_rgba(40,24,12,0.7)]"
             />
-            <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-[var(--reader-muted)]">
+            <p className="font-mono text-[0.75rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
               Contents
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="hidden text-[0.75rem] text-[var(--reader-muted)] hover:text-[var(--reader-fg)] lg:inline"
+              className="hidden text-[0.875rem] text-[var(--reader-muted)] hover:text-[var(--reader-fg)] lg:inline"
               onClick={toggleCollapsed}
               aria-pressed={collapsed}
               aria-label={collapsed ? "Expand table of contents" : "Collapse table of contents"}
@@ -111,7 +111,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           </div>
         </div>
         <div
-          className={`flex flex-wrap gap-x-3 gap-y-1 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-4 pb-3 text-xs ${
+          className={`flex flex-wrap gap-x-4 gap-y-1 border-b border-[color-mix(in_srgb,var(--reader-fg)_10%,transparent)] px-5 pb-4 text-[0.95rem] ${
             collapsed ? "lg:hidden" : ""
           }`}
         >
@@ -128,15 +128,15 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
         <nav
           data-lenis-prevent
           data-lenis-prevent-wheel
-          className={`flex-1 overflow-y-auto pb-4 pt-1 ${collapsed ? "px-1" : "px-2"}`}
+          className={`flex-1 overflow-y-auto pb-6 pt-3 ${collapsed ? "px-1" : "px-3"}`}
         >
-          <ol className="space-y-0.5 text-[0.8125rem]">
+          <ol className="space-y-1 text-[0.95rem]">
             <li>
               <Link
                 href="/system-design"
                 title="Overview"
-                className={`flex items-baseline gap-2.5 rounded-lg py-1.5 transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
-                  collapsed ? "justify-center px-1" : "px-2.5"
+                className={`flex items-baseline gap-3 rounded-lg py-2 transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
+                  collapsed ? "justify-center px-1" : "px-3"
                 } ${
                   pathname === "/system-design"
                     ? "bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] font-medium text-[var(--reader-fg)]"
@@ -146,7 +146,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               >
                 <span
                   aria-hidden="true"
-                  className="w-6 shrink-0 text-center font-mono text-[0.62rem] tracking-[0.08em] text-[var(--reader-muted)]"
+                  className="w-7 shrink-0 text-center font-mono text-[0.72rem] tracking-[0.06em] text-[var(--reader-muted)]"
                 >
                   ··
                 </span>
@@ -168,8 +168,8 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                     title={chapter.title}
                     transitionTypes={active ? undefined : flipTransitionTypes(direction)}
                     data-active={active ? "true" : "false"}
-                    className={`book-toc-link flex items-baseline gap-2.5 rounded-lg py-2 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
-                      collapsed ? "justify-center px-1" : "px-2.5"
+                    className={`book-toc-link flex items-baseline gap-3 rounded-lg py-2.5 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
+                      collapsed ? "justify-center px-1" : "px-3"
                     } ${
                       active
                         ? "bg-[color-mix(in_srgb,var(--reader-fg)_6%,transparent)] font-medium text-[var(--reader-fg)]"
@@ -179,7 +179,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                   >
                     <span
                       aria-hidden="true"
-                      className={`w-6 shrink-0 text-center font-mono text-[0.62rem] tracking-[0.08em] ${
+                      className={`w-7 shrink-0 text-center font-mono text-[0.72rem] tracking-[0.06em] ${
                         active ? "text-cinnabar" : "text-[var(--reader-muted)]"
                       }`}
                     >

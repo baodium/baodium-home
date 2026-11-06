@@ -161,13 +161,15 @@ export function ChapterExperience({
 
   return (
     <article className="bg-[#f6f1ea] text-[#241c18]" onKeyDown={onKeyDown}>
-      <header className="mx-auto flex max-w-[1240px] flex-wrap items-baseline gap-3 px-5 pb-2 pt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#b4532a]">
+      <header className="mx-auto max-w-[1240px] px-6 pb-3 pt-8 sm:px-8 sm:pt-10">
+        <p className="font-mono text-[0.75rem] uppercase tracking-[0.16em] text-[#b4532a]">
           Chapter {chapter.number} · {chapter.title}
         </p>
-        <h1 className="text-xl font-semibold">{chapter.headline}</h1>
+        <h1 className="mt-3 max-w-[22ch] font-serif text-[clamp(1.8rem,3vw,2.6rem)] leading-[1.08] tracking-[-0.03em]">
+          {chapter.headline}
+        </h1>
       </header>
-      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-1.5 px-5" aria-label="Acts">
+      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2 px-6 sm:px-8" aria-label="Acts">
         {chapter.acts.map((act, index) => {
           const current = act.id === actId;
           const done = firstCursor(act.id) < cursor || (act.id === "deeper" && labDone);
@@ -176,7 +178,7 @@ export function ChapterExperience({
               key={act.id}
               type="button"
               aria-current={current ? "true" : undefined}
-              className={`rounded-full border px-3 py-1 text-sm ${
+              className={`rounded-full border px-3.5 py-1.5 text-[0.95rem] ${
                 current
                   ? "border-[#241c18] bg-[#241c18] text-white"
                   : "border-[#e6ddd2] bg-[#fffdf9] text-[#6f625a]"
@@ -189,7 +191,7 @@ export function ChapterExperience({
           );
         })}
       </nav>
-      <div className="mx-auto grid max-w-[1240px] gap-4 px-5 py-4 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-[1240px] gap-6 px-6 py-6 sm:px-8 lg:grid-cols-[22rem_minmax(0,1fr)]">
         <StoryPanel
           beat={
             beat ?? {

@@ -32,13 +32,13 @@ export function BookPageOutline({ sections }: { sections: BookSection[] }) {
 
   return (
     <details className="book-page-outline group/outline mt-0.5" aria-label="On this page">
-      <summary className="cursor-pointer list-none rounded-md px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)] [&::-webkit-details-marker]:hidden">
+      <summary className="cursor-pointer list-none rounded-md px-3 py-1.5 font-mono text-[0.75rem] uppercase tracking-[0.1em] text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)] [&::-webkit-details-marker]:hidden">
         On this page
         <span aria-hidden="true" className="ml-1 opacity-60 group-open/outline:hidden">
           · {headings.length}
         </span>
       </summary>
-      <ol className="mt-0.5 space-y-px pb-1 text-[0.7rem] leading-snug">
+      <ol className="mt-1 space-y-0.5 pb-1 text-[0.84rem] leading-snug">
         {headings.map((section) => {
           const active = activeId === section.id;
           return (

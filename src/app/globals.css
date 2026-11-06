@@ -592,28 +592,6 @@ html[data-reader-measure="wide"] .book-reader {
   box-shadow: inset 2px 0 0 #c56a3a;
 }
 
-.project-blurb {
-  opacity: 1;
-}
-
-@media (hover: hover) {
-  .project-blurb {
-    opacity: 0;
-    transition: opacity 180ms ease;
-  }
-
-  .group:hover .project-blurb,
-  .group:focus-visible .project-blurb {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .project-blurb {
-    transition: none;
-  }
-}
-
 /* Quieter scrollbars so chrome stays calm */
 .book-reader #book-reader-scroll,
 .book-reader .book-sidebar nav {

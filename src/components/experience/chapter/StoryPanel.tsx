@@ -50,12 +50,12 @@ export function StoryPanel({
   nextLabel: string;
 }) {
   return (
-    <section className="flex min-h-[28rem] flex-col rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-5 text-[#241c18]" aria-live="polite">
+    <section className="flex min-h-[28rem] flex-col rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-6 text-[#241c18] sm:p-7" aria-live="polite">
       {beat ? (
         <>
-          <p className="text-[0.8rem] text-[#6f625a]">{beat.label}</p>
-          <h2 className="mt-1 text-xl leading-snug">{beat.title}</h2>
-          <div className="mt-3 space-y-3 text-[0.95rem] leading-relaxed">
+          <p className="font-mono text-[0.75rem] uppercase tracking-[0.12em] text-[#6f625a]">{beat.label}</p>
+          <h2 className="mt-2 font-serif text-[1.65rem] leading-snug tracking-[-0.02em]">{beat.title}</h2>
+          <div className="mt-4 space-y-4 text-[1.05rem] leading-relaxed">
             {beat.body_md.split("\n\n").map((paragraph) => {
               const trimmed = paragraph.trim();
               if (trimmed.startsWith("[button:")) {
@@ -63,7 +63,7 @@ export function StoryPanel({
                   <button
                     key={trimmed}
                     type="button"
-                    className="rounded-lg bg-[#b4532a] px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    className="rounded-lg bg-[#b4532a] px-4 py-2.5 text-[0.95rem] font-semibold text-white disabled:opacity-50"
                     onClick={onFlagOff}
                     disabled={flagOff}
                   >
@@ -88,10 +88,10 @@ export function StoryPanel({
           </div>
           {"predict" in beat && beat.predict && prediction ? (
             <fieldset className="mt-3 rounded-lg bg-[#f6f1ea] p-3">
-              <legend className="mb-1 text-sm font-semibold">{prediction.question}</legend>
+              <legend className="mb-2 text-[1rem] font-semibold">{prediction.question}</legend>
               <div className="space-y-1" role="radiogroup" aria-label={prediction.question}>
                 {(Object.entries(prediction.options) as [PredictionId, string][]).map(([id, label]) => (
-                  <label key={id} className="flex items-start gap-2 text-sm">
+                  <label key={id} className="flex items-start gap-2 text-[1rem] leading-snug">
                     <input
                       type="radio"
                       name="ch01-prediction"
@@ -106,7 +106,7 @@ export function StoryPanel({
             </fieldset>
           ) : null}
           {showReveal && prediction ? (
-            <p className="mt-3 border-l-[3px] border-[#2f7d4f] bg-[#f2f7f2] px-3 py-2 text-sm">
+            <p className="mt-4 border-l-[3px] border-[#2f7d4f] bg-[#f2f7f2] px-4 py-3 text-[1rem] leading-relaxed">
               {predictionChoice
                 ? predictionChoice === prediction.answer
                   ? "You predicted it. "
@@ -120,7 +120,7 @@ export function StoryPanel({
       <div className="mt-auto flex gap-2 pt-4">
         <button
           type="button"
-          className="rounded-lg border border-[#e6ddd2] bg-white px-3.5 py-2 text-sm disabled:opacity-40"
+          className="rounded-lg border border-[#e6ddd2] bg-white px-4 py-2.5 text-[0.95rem] disabled:opacity-40"
           onClick={onBack}
           disabled={backDisabled}
         >
@@ -128,7 +128,7 @@ export function StoryPanel({
         </button>
         <button
           type="button"
-          className="rounded-lg bg-[#b4532a] px-3.5 py-2 text-sm font-semibold text-white"
+          className="rounded-lg bg-[#b4532a] px-4 py-2.5 text-[0.95rem] font-semibold text-white"
           onClick={onNext}
         >
           {nextLabel}
