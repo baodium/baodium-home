@@ -298,31 +298,58 @@ function renderMath(html) {
   );
 }
 
+function attrValue(attrs, name) {
+  const match = attrs.match(new RegExp(`\\b${name}="([^"]*)"`));
+  return match ? decodeEntities(match[1]) : "";
+}
+
+function plainFromHighlighted(inner) {
+  return decodeEntities(
+    inner.replace(/<a\b[^>]*>[\s\S]*?<\/a>/g, "").replace(/<[^>]+>/g, ""),
+  )
+    .replace(/\u00a0/g, " ")
+    .replace(/^\n+|\n+$/g, "");
+}
+
+async function frameListing(highlighter, code, fields) {
+  const lang = detectLanguage(code, fields.language);
+  const highlighted = await highlightCode(highlighter, code, lang);
+  const idAttr = fields.label ? ` id="${escapeHtml(fields.label)}"` : "";
+  const caption = fields.caption
+    ? `<figcaption class="book-listing-caption">${escapeHtml(fields.caption)}</figcaption>`
+    : "";
+  const langBadge = `<span class="book-listing-lang">${escapeHtml(displayLang(lang))}</span>`;
+  const framed = highlighted.replace(
+    /^<pre([^>]*)>/,
+    `<pre$1 data-language="${escapeHtml(lang)}">`,
+  );
+  return `<figure class="book-listing"${idAttr}>${caption}<div class="book-listing-frame"><div class="book-listing-chrome">${langBadge}<button type="button" class="code-copy" aria-label="Copy code"><span class="code-copy-label">Copy</span></button></div>${framed}</div></figure>`;
+}
+
 async function enhanceListings(html, highlighter) {
   const parts = [];
-  const re = /<pre><code>([\s\S]*?)<\/code><\/pre>/g;
+  const re =
+    /<div class="sourceCode"([^>]*)>\s*<pre class="sourceCode[^"]*"><code class="sourceCode[^"]*">([\s\S]*?)<\/code><\/pre>\s*<\/div>|<pre><code>([\s\S]*?)<\/code><\/pre>/g;
   let last = 0;
   let match;
   while ((match = re.exec(html))) {
     parts.push(html.slice(last, match.index));
-    const decoded = decodeEntities(match[1] ?? "");
-    const parsed = parseOptionBlock(decoded);
-    const code = parsed ? parsed.code : decoded;
-    const fields = parsed?.fields ?? {};
-    const lang = detectLanguage(code, fields.language);
-    const highlighted = await highlightCode(highlighter, code, lang);
-    const idAttr = fields.label ? ` id="${escapeHtml(fields.label)}"` : "";
-    const caption = fields.caption
-      ? `<figcaption class="book-listing-caption">${escapeHtml(fields.caption)}</figcaption>`
-      : "";
-    const langBadge = `<span class="book-listing-lang">${escapeHtml(displayLang(lang))}</span>`;
-    const framed = highlighted.replace(
-      /^<pre([^>]*)>/,
-      `<pre$1 data-language="${escapeHtml(lang)}">`,
-    );
-    parts.push(
-      `<figure class="book-listing"${idAttr}>${caption}<div class="book-listing-frame"><div class="book-listing-chrome">${langBadge}<button type="button" class="code-copy" aria-label="Copy code"><span class="code-copy-label">Copy</span></button></div>${framed}</div></figure>`,
-    );
+    if (match[2] != null) {
+      const attrs = match[1] ?? "";
+      const code = plainFromHighlighted(match[2]);
+      parts.push(
+        await frameListing(highlighter, code, {
+          language: attrValue(attrs, "data-language"),
+          caption: attrValue(attrs, "data-caption"),
+          label: attrValue(attrs, "data-label") || attrValue(attrs, "id"),
+        }),
+      );
+    } else {
+      const decoded = decodeEntities(match[3] ?? "");
+      const parsed = parseOptionBlock(decoded);
+      const code = parsed ? parsed.code : decoded;
+      parts.push(await frameListing(highlighter, code, parsed?.fields ?? {}));
+    }
     last = match.index + match[0].length;
   }
   parts.push(html.slice(last));

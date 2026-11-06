@@ -57,7 +57,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
         onClick={() => setSidebarOpen(false)}
       />
       <aside
-        className={`book-sidebar fixed inset-y-0 left-0 z-[70] flex flex-col border-r border-[color-mix(in_srgb,var(--reader-fg)_7%,transparent)] bg-[color-mix(in_srgb,var(--reader-chrome)_88%,transparent)] text-[var(--reader-fg)] backdrop-blur-md transition-[transform,width] duration-300 lg:static lg:z-0 lg:h-full lg:translate-x-0 lg:shrink-0 lg:bg-transparent lg:backdrop-blur-none ${
+        className={`book-sidebar fixed inset-y-0 left-0 z-[70] flex flex-col text-[var(--reader-fg)] transition-[transform,width] duration-300 lg:static lg:z-0 lg:h-full lg:translate-x-0 lg:shrink-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${
           collapsed

@@ -66,9 +66,38 @@ function expandBookFigure(asset, caption, label) {
 \\begin{figure}[htbp]
 \\centering
 \\includegraphics[width=\\linewidth]{final_image/${base}.webp}
-\\caption{${caption.trim()}}\\label{${label}}
+\\caption{${caption.trim()}}\\label{${label.trim()}}
 \\end{figure}
 `;
+}
+
+function skipSpace(source, index) {
+  let i = index;
+  while (i < source.length && /\s/.test(source[i])) i += 1;
+  return i;
+}
+
+/** Expand \\bookfigure{asset}{caption}{label}, including a label on the next line. */
+function expandInlineBookFigures(source) {
+  const token = "\\bookfigure";
+  let out = "";
+  let i = 0;
+  while (i < source.length) {
+    if (source.startsWith(token, i)) {
+      let pos = skipSpace(source, i + token.length);
+      const asset = readBracedGroup(source, pos);
+      const caption = asset ? readBracedGroup(source, skipSpace(source, asset.end)) : null;
+      const label = caption ? readBracedGroup(source, skipSpace(source, caption.end)) : null;
+      if (asset && caption && label) {
+        out += expandBookFigure(asset.content, caption.content, label.content);
+        i = label.end;
+        continue;
+      }
+    }
+    out += source[i];
+    i += 1;
+  }
+  return out;
 }
 
 function readBracedGroup(source, openIndex) {
@@ -284,16 +313,17 @@ export function preprocessLatex(source, options = {}) {
     }
   }
 
-  out = out.replace(
-    /\\bookfigure\{([^}]+)\}\{([\s\S]*?)\}\{([^}]+)\}/g,
-    (_, asset, caption, label) => expandBookFigure(asset, caption, label),
-  );
+  out = expandInlineBookFigures(out);
 
   for (const [pattern, replacement] of INLINE_MACRO_REPLACEMENTS) {
     out = out.replace(pattern, replacement);
   }
 
   out = expandDecisionHelpers(out);
+
+  // Pandoc's LaTeX reader treats TikZ as an open figure and stops.
+  // The caption and the surrounding prose stay.
+  out = out.replace(/\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g, "");
 
   out = replaceTitledEnvironments(out, ENV_MAP);
 

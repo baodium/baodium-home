@@ -2,7 +2,8 @@
 /**
  * Build-time LaTeX → structured book content for the Baodium reader.
  * Canonical source: the newest author zip (not committed).
- * Practical_System_Design_Final_Edition_v5_Lite.zip is the current edition.
+ * Practical_System_Design_Cursor_Under_10MB.zip is the current edition.
+ * Practical_System_Design_Final_Edition_v5_Lite.zip is the previous edition.
  * Practical_System_Design_Source_Lite.zip is the Frontier Plus edition.
  * Baodium_System_Design_Final_Language_Pass_Web.zip is the edition before that.
  */
@@ -20,6 +21,7 @@ import {
 } from "./preprocess-latex.mjs";
 
 const ZIP_NAMES = [
+  "Practical_System_Design_Cursor_Under_10MB.zip",
   "Practical_System_Design_Final_Edition_v5_Lite.zip",
   "Practical_System_Design_Source_Lite.zip",
   "Baodium_System_Design_Final_Language_Pass_Web.zip",
@@ -288,7 +290,12 @@ function extractSectionsFromHtml(html) {
 
 function writeReport(report) {
   const dir = path.dirname(REPORT_PATH);
-  fs.mkdirSync(dir, { recursive: true });
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+  } catch (err) {
+    console.warn(`[convert-manuscript] Could not write ${REPORT_PATH}: ${err.message}`);
+    return;
+  }
   const subagentId = process.env.CONVERSION_SUBAGENT_ID || "bc-3bf7069c-f698-5543-85ed-8e856fdb1f2f";
   const frontmatter = `---
 cursor:

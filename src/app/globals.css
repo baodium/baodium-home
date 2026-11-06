@@ -438,8 +438,11 @@ html {
 }
 
 /* ——— Online book reader ——— */
-/* Light: white page on calm desk. Dark: near-black page. Paper: optional cream. */
-html[data-reader-theme="light"] {
+/* Light: white page on calm desk. Dark: near-black page. Paper: optional cream.
+   Variables are set on both html and .book-reader. The reader element also
+   declares fallbacks, so the theme selectors have to win on that element. */
+html[data-reader-theme="light"],
+html[data-reader-theme="light"] .book-reader {
   --reader-bg: #c9c8c3;
   --reader-chrome: #c2c1bc;
   --reader-page: #ffffff;
@@ -448,7 +451,8 @@ html[data-reader-theme="light"] {
   --reader-desk: #c8c7c1;
 }
 
-html[data-reader-theme="dark"] {
+html[data-reader-theme="dark"],
+html[data-reader-theme="dark"] .book-reader {
   --reader-bg: #0e0d0c;
   --reader-chrome: #151311;
   --reader-page: #080707;
@@ -457,7 +461,8 @@ html[data-reader-theme="dark"] {
   --reader-desk: #100e0c;
 }
 
-html[data-reader-theme="paper"] {
+html[data-reader-theme="paper"],
+html[data-reader-theme="paper"] .book-reader {
   --reader-bg: #e4d9c6;
   --reader-chrome: #dbd0bb;
   --reader-page: #f6edd9;
@@ -466,36 +471,45 @@ html[data-reader-theme="paper"] {
   --reader-desk: #ddd2bc;
 }
 
-html[data-reader-scale="sm"] {
+html[data-reader-scale="sm"],
+html[data-reader-scale="sm"] .book-reader {
   --reader-font-size: 1.02rem;
 }
-html[data-reader-scale="md"] {
+html[data-reader-scale="md"],
+html[data-reader-scale="md"] .book-reader {
   --reader-font-size: 1.12rem;
 }
-html[data-reader-scale="lg"] {
+html[data-reader-scale="lg"],
+html[data-reader-scale="lg"] .book-reader {
   --reader-font-size: 1.22rem;
 }
 
-html[data-reader-measure="narrow"] {
+html[data-reader-measure="narrow"],
+html[data-reader-measure="narrow"] .book-reader {
   --reader-measure: 34rem;
 }
-html[data-reader-measure="comfortable"] {
+html[data-reader-measure="comfortable"],
+html[data-reader-measure="comfortable"] .book-reader {
   --reader-measure: 40rem;
 }
-html[data-reader-measure="wide"] {
+html[data-reader-measure="wide"],
+html[data-reader-measure="wide"] .book-reader {
   --reader-measure: 46rem;
 }
 
-/* Desktop chapter text uses more of the page. Phones keep the shorter measure. */
+/* Desktop lines stay wider than a phone, and a little shorter than 64rem. */
 @media (min-width: 1100px) {
-  html[data-reader-measure="narrow"] {
+  html[data-reader-measure="narrow"],
+  html[data-reader-measure="narrow"] .book-reader {
+    --reader-measure: 46rem;
+  }
+  html[data-reader-measure="comfortable"],
+  html[data-reader-measure="comfortable"] .book-reader {
     --reader-measure: 52rem;
   }
-  html[data-reader-measure="comfortable"] {
-    --reader-measure: 64rem;
-  }
-  html[data-reader-measure="wide"] {
-    --reader-measure: 72rem;
+  html[data-reader-measure="wide"],
+  html[data-reader-measure="wide"] .book-reader {
+    --reader-measure: 58rem;
   }
 }
 
@@ -553,12 +567,16 @@ html[data-reader-measure="wide"] {
 
 @media (min-width: 1100px) {
   .book-reader {
-    --reader-measure: 64rem;
+    --reader-measure: 52rem;
   }
 }
 
 .book-sidebar {
-  background: transparent;
+  --reader-fg: #f4efe8;
+  --reader-muted: rgba(244, 239, 232, 0.7);
+  background: #1a1411;
+  color: #f4efe8;
+  border-right: 1px solid rgba(255, 244, 230, 0.08);
 }
 
 .book-page {
