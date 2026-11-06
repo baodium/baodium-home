@@ -11,7 +11,7 @@
   "acts": [
     {
       "id": "story",
-      "title": "Story",
+      "title": "Recommended for you",
       "minutes": 2,
       "source": "story/scenes.json",
       "beats": [
@@ -22,7 +22,7 @@
     },
     {
       "id": "feel",
-      "title": "Feel it",
+      "title": "The product page",
       "minutes": 1,
       "source": "story/scenes.json",
       "beats": [
@@ -32,7 +32,7 @@
     },
     {
       "id": "xray",
-      "title": "X-ray",
+      "title": "The recommendation call",
       "minutes": 3,
       "source": "story/scenes.json",
       "beats": [
@@ -43,14 +43,14 @@
     },
     {
       "id": "operate",
-      "title": "Operate",
+      "title": "The pool",
       "minutes": 12,
       "source": "existing site: /system-design/experience/chapter-1 (Guided, Practice, Challenge)",
-      "note": "Keep your current implementation. Start it from the X-ray act's state (100% rollout, pool full)."
+      "note": "Keep your current implementation. Start it from the recommendation-call act's state (100% rollout, pool full)."
     },
     {
       "id": "act",
-      "title": "Act on it",
+      "title": "The flag",
       "minutes": 1,
       "source": "story/scenes.json",
       "beats": [

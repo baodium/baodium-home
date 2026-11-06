@@ -64,7 +64,7 @@ export function Stage({
             aria-pressed={view === "customer"}
             onClick={() => onView("customer")}
           >
-            Customer view
+            Product page
           </button>
           <button
             type="button"
@@ -72,7 +72,7 @@ export function Stage({
             aria-pressed={view === "xray"}
             onClick={() => onView("xray")}
           >
-            X-ray
+            The pool
           </button>
         </div>
         <button type="button" className="rounded-lg border border-[#e6ddd2] bg-white px-3 py-1.5 text-sm" onClick={onTogglePlay}>

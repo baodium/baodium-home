@@ -9,7 +9,7 @@ const PROGRESS_KEY = "baodium:lab:ch01";
 const START_LIMIT_MS = 4 * 60 * 1000;
 const WARN_SECONDS = 5 * 60;
 
-type Phase = "boot" | "idle" | "busy" | "starting" | "ready" | "error";
+type Phase = "boot" | "idle" | "busy" | "starting" | "ready" | "error" | "down";
 
 type Session = {
   id: string;
@@ -214,6 +214,11 @@ export function LabPanel({
         const response = await fetch(`${base}/api/health`);
         const body = (await readBody(response)) as { free?: number };
         if (cancel || startedRef.current) return;
+        if (response.status === 404) {
+          setNotice("");
+          setPhase("down");
+          return;
+        }
         if (response.ok && body.free === 0) {
           setPhase("busy");
           return;
@@ -426,7 +431,11 @@ export function LabPanel({
     setPhase("boot");
     try {
       const response = await fetch(`${runnerBase(runnerUrl)}/api/health`);
-      const body = (await response.json()) as { free?: number };
+      const body = (await response.json().catch(() => ({}))) as { free?: number };
+      if (response.status === 404) {
+        setPhase("down");
+        return;
+      }
       if (!response.ok) throw new Error("health");
       setPhase(body.free === 0 ? "busy" : "idle");
     } catch {
@@ -509,6 +518,18 @@ export function LabPanel({
             Starting your private Baodium (about 1-2 minutes): PostgreSQL, the store, Recommendation Service, shoppers…
           </p>
           {tasks}
+        </div>
+      ) : null}
+      {phase === "down" ? (
+        <div>
+          <GoDeeperCard url={killercodaUrl} unavailable />
+          <button
+            type="button"
+            className="mt-4 rounded-lg border border-[#e6ddd2] bg-white px-3.5 py-2 text-sm"
+            onClick={() => void retryHealth()}
+          >
+            Check again
+          </button>
         </div>
       ) : null}
       {phase === "error" ? (

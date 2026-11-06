@@ -258,11 +258,11 @@ export function directoryStatus(chapter: ChapterRecord): string {
   return "In the book";
 }
 
-/** Reader-facing lab link. Book-only chapters stay on the prose. */
+/** Reader-facing lab link. Names the incident. Book-only chapters stay on the prose. */
 export function labActionLabel(chapter: ChapterRecord): string | null {
   if (!chapter.labHref) return null;
-  if (chapter.labKind === "short") return "Open the short lab";
-  return "Operate this incident";
+  if (chapter.number === 1) return "The product page and the pool";
+  return chapter.labSubtitle;
 }
 
 /** Map a Play drill slug to its book chapter label + href from the registry. */

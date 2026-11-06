@@ -71,7 +71,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_18%,transparent)] px-6 text-sm font-medium text-[var(--reader-fg)] transition-colors hover:border-cinnabar hover:text-cinnabar"
             >
               <FlaskConical className="h-4 w-4" aria-hidden="true" />
-              Operate this incident
+              {ch1 ? labActionLabel(ch1) : "The product page and the pool"}
             </Link>
             {primaryDrill ? (
               <Link
@@ -133,9 +133,9 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                     {lab?.labHref && labActionLabel(lab) ? (
                       <Link
                         href={lab.labHref}
-                        className="font-mono text-[0.72rem] text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
+                        className="max-w-[14rem] text-right font-mono text-[0.72rem] leading-snug text-[var(--reader-muted)] transition-colors hover:text-cinnabar"
                       >
-                        {lab.labKind === "short" ? "Short lab" : "Lab"}
+                        {labActionLabel(lab)}
                       </Link>
                     ) : (
                       <span className="font-mono text-[0.72rem] text-[var(--reader-muted)]">

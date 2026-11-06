@@ -14,10 +14,10 @@ export function Recap({ onOperate, onLiveLab }: { onOperate: () => void; onLiveL
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" className="rounded-lg border border-[#e6ddd2] px-3 py-2 text-sm" onClick={onOperate}>
-          Operate this incident
+          Back to the pool
         </button>
         <button type="button" className="rounded-lg border border-[#e6ddd2] px-3 py-2 text-sm" onClick={onLiveLab}>
-          Live lab
+          Open the same store
         </button>
       </div>
     </section>

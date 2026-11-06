@@ -31,13 +31,13 @@ const PATH: Step[] = [
 ];
 
 const ACT_LABELS: Record<string, string> = {
-  story: "Story",
-  feel: "Feel it",
-  xray: "X-ray",
-  operate: "Operate",
-  act: "Act on it",
-  deeper: "Live lab",
-  recap: "Recap",
+  story: "Recommended for you",
+  feel: "The product page",
+  xray: "The recommendation call",
+  operate: "The pool",
+  act: "The flag",
+  deeper: "The store",
+  recap: "What you saw",
 };
 
 function firstCursor(actId: string) {
@@ -194,16 +194,16 @@ export function ChapterExperience({
           beat={
             beat ?? {
               act: actId,
-              label: actId === "operate" ? "Operate" : "Live lab",
+              label: actId === "operate" ? "The pool" : "The store",
               title:
                 actId === "operate"
-                  ? "Operate the incident yourself."
-                  : "The same failure, on real services.",
+                  ? "All 40 connections are busy."
+                  : "The same product page, on real services.",
               body_md:
                 actId === "operate"
-                  ? "Guided, Practice, and Challenge are the lab you already have. They start from the feature, and the incident they reach is this one: 100% rollout, all 40 connections busy.\n\nThe story on the left stays here while you work the pool."
+                  ? "The flag is at 100%. The product page calls Recommendation Service, and every lookup waits on the pool.\n\nWork the pool from this state. The story stays here."
                   : runnerUrl
-                    ? "About 45 minutes. Real services in your browser, nothing to install. Start lab opens a private copy on this page."
+                    ? "About 45 minutes. Real services in your browser, nothing to install. Start lab opens a private copy of the store on this page."
                     : "About 45 minutes. Real services in your browser, nothing to install. Docker stays on your machine or on Killercoda. This site does not start it.",
               view: "xray",
               target: 1,

@@ -4,7 +4,7 @@ import { ChapterExperience } from "@/components/experience/chapter/ChapterExperi
 export const metadata: Metadata = {
   title: "Chapter 1 experience · Resource Contention",
   description:
-    "Follow the recommendation row from the storefront into a full connection pool, then operate the incident and open the live lab.",
+    "Follow the product page into the recommendation call, the flag, and a full connection pool.",
   alternates: { canonical: "/system-design/experience/chapter-1" },
 };
 

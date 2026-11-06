@@ -31,7 +31,7 @@ async function main() {
 
   await page.goto(`${BASE}/system-design`, { waitUntil: "networkidle" });
   await settle(page, 900);
-  await page.getByRole("link", { name: /Operate this incident/i }).first().scrollIntoViewIfNeeded();
+  await page.getByRole("link", { name: /The product page and the pool/i }).first().scrollIntoViewIfNeeded();
   await page.screenshot({ path: path.join(OUT, "book-cta.png") });
 
   await page.goto(`${BASE}/system-design/experience`, { waitUntil: "networkidle" });

@@ -40,7 +40,7 @@
     },
     {
       "act": "xray",
-      "label": "X-ray",
+      "label": "The recommendation call",
       "title": "Same moment, seen from the inside.",
       "body_md": "Each figure is now a request. Product Page asks Catalog (fast), then calls Recommendation Service, which must **borrow one of 40 database connections** before its query can run.\n\nAll 40 are busy. Everyone else waits in line. That amber line is the incident.",
       "view": "xray",
@@ -50,7 +50,7 @@
     },
     {
       "act": "xray",
-      "label": "X-ray · Maya's request",
+      "label": "Maya's recommendation call",
       "title": "Where did Maya's time go?",
       "body_md": "The timeline under the picture splits one real request into its parts. The **SQL itself** is quick. Almost all of the time was spent **waiting for a connection**.\n\nThe database isn't slow. The queue in front of it is. The chapter calls these intervals **acquisition**, **execution** and **occupancy**.",
       "view": "xray",
@@ -59,7 +59,7 @@
     },
     {
       "act": "act",
-      "label": "Act on it",
+      "label": "The flag",
       "title": "Turn the flag off, and time how long recovery takes.",
       "body_md": "Doubling the pool or adding instances would spend more of PostgreSQL's **shared** session budget, which checkout also depends on. Turning off the optional feature removes the demand.\n\n[button: Turn personalization off]\n\n_It won't be instant: 8 Product Page instances refresh the flag every 15 seconds, one by one._",
       "view": "xray",
@@ -70,7 +70,7 @@
       "act": "recap",
       "label": "What you saw",
       "title": "Three things to carry into the rest of the book.",
-      "body_md": "**1. Acquisition is not execution.** Requests waited for a connection while the SQL stayed fast. Query metrics alone would have said “database fine.”\n\n**2. Exposure is not traffic.** “1% of customers” said nothing about how many lookups reached one pool of 40.\n\n**3. Optional work must stay optional.** In the chapter's fix, the page gives recommendations at most 150 ms and a limited number of permits, then renders without them.\n\n▶ Operate this incident yourself · Go deeper in the real lab\n\n_Next, in Chapter 2, Baodium plans capacity for its biggest sale, and you'll learn to do the arithmetic before the rollout, not after._",
+      "body_md": "**1. Acquisition is not execution.** Requests waited for a connection while the SQL stayed fast. Query metrics alone would have said “database fine.”\n\n**2. Exposure is not traffic.** “1% of customers” said nothing about how many lookups reached one pool of 40.\n\n**3. Optional work must stay optional.** In the chapter's fix, the page gives recommendations at most 150 ms and a limited number of permits, then renders without them.\n\n▶ Work the pool · Open the same store\n\n_Next, in Chapter 2, Baodium plans capacity for its biggest sale, and you'll learn to do the arithmetic before the rollout, not after._",
       "view": "customer",
       "target": 0.0
     }

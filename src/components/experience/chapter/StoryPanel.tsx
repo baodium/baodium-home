@@ -71,14 +71,14 @@ export function StoryPanel({
                   </button>
                 );
               }
-              if (trimmed.includes("Operate this incident")) {
+              if (trimmed.includes("Work the pool")) {
                 return (
                   <p key={trimmed} className="flex flex-wrap gap-3">
                     <button type="button" className="underline" onClick={onOperate}>
-                      Operate this incident yourself
+                      Work the pool
                     </button>
                     <button type="button" className="underline" onClick={onLiveLab}>
-                      Open the live lab
+                      Open the same store
                     </button>
                   </p>
                 );

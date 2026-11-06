@@ -1,11 +1,23 @@
-export function GoDeeperCard({ url }: { url: string }) {
+export function GoDeeperCard({ url, unavailable = false }: { url: string; unavailable?: boolean }) {
   return (
     <section className="rounded-xl border border-[#e6ddd2] bg-[#fffdf9] p-5 text-[#241c18]">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b4532a]">Live lab</p>
-      <h2 className="mt-2 text-xl">Run the same store with real services</h2>
-      <p className="mt-2 text-sm leading-relaxed text-[#6f625a]">
-        About 45 minutes. Real services in your browser, nothing to install.
-      </p>
+      {unavailable ? (
+        <>
+          <h2 className="text-xl">The lab machine is not answering</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#6f625a]">
+            The health check returned the website&apos;s 404 page, so this page will not start a lab.
+            Use Killercoda, or run the store on your machine.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b4532a]">The store</p>
+          <h2 className="mt-2 text-xl">Run the same store with real services</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#6f625a]">
+            About 45 minutes. Real services in your browser, nothing to install.
+          </p>
+        </>
+      )}
       {url ? (
         <a
           href={url}
