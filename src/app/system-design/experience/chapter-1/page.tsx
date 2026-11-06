@@ -10,6 +10,10 @@ export const metadata: Metadata = {
 
 export default function Chapter1ExperiencePage() {
   return (
-    <ChapterExperience killercodaUrl={process.env.NEXT_PUBLIC_KILLERCODA_URL_CH01 ?? ""} />
+    <ChapterExperience
+      killercodaUrl={process.env.NEXT_PUBLIC_KILLERCODA_URL_CH01 ?? ""}
+      runnerUrl={process.env.NEXT_PUBLIC_LAB_RUNNER_URL ?? ""}
+      labUrl={process.env.NEXT_PUBLIC_LAB_URL_CH01 ?? ""}
+    />
   );
 }

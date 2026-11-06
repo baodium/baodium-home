@@ -1,0 +1,14 @@
+{
+  "chapter": 1,
+  "minutes": 45,
+  "blurb": "About 45 minutes · real services · nothing to install",
+  "tasks": [
+    { "id": 1, "title": "Meet Baodium" },
+    { "id": 2, "title": "Ship the feature to everyone" },
+    { "id": 3, "title": "Find where requests are waiting" },
+    { "id": 4, "title": "Stop the bleeding" },
+    { "id": 5, "title": "Make recommendations optional" },
+    { "id": 6, "title": "Give Recommendation Service capacity" },
+    { "id": 7, "title": "Break it on purpose" }
+  ]
+}

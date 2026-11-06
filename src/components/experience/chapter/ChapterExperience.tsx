@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import chapter from "../../../../content/experience/ch01/chapter.json";
 import scenes from "../../../../content/experience/ch01/story/scenes.json";
 import { Chapter1Experience } from "@/components/experience/Chapter1Experience";
-import { GoDeeperCard } from "@/components/experience/chapter/GoDeeperCard";
+import { LabPanel, useChapter1LabDone } from "@/components/experience/chapter/LabPanel";
 import { Recap } from "@/components/experience/chapter/Recap";
 import { Stage } from "@/components/experience/chapter/Stage";
 import { StoryPanel, type PredictionId } from "@/components/experience/chapter/StoryPanel";
@@ -45,7 +45,15 @@ function firstCursor(actId: string) {
   return index < 0 ? 0 : index;
 }
 
-export function ChapterExperience({ killercodaUrl }: { killercodaUrl: string }) {
+export function ChapterExperience({
+  killercodaUrl,
+  runnerUrl,
+  labUrl,
+}: {
+  killercodaUrl: string;
+  runnerUrl: string;
+  labUrl: string;
+}) {
   const reduced = usePrefersReducedMotion();
   const engineRef = useRef<ChapterSimEngine | null>(null);
   if (!engineRef.current) engineRef.current = new ChapterSimEngine();
@@ -58,6 +66,8 @@ export function ChapterExperience({ killercodaUrl }: { killercodaUrl: string }) 
   const [tick, setTick] = useState(0);
   const [mix, setMix] = useState(0);
   const [ready, setReady] = useState(false);
+  const labDone = useChapter1LabDone(Boolean(runnerUrl || labUrl));
+
   const playingRef = useRef(true);
   const speedRef = useRef(0.3);
   const viewRef = useRef(view);
@@ -160,7 +170,7 @@ export function ChapterExperience({ killercodaUrl }: { killercodaUrl: string }) 
       <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-1.5 px-5" aria-label="Acts">
         {chapter.acts.map((act, index) => {
           const current = act.id === actId;
-          const done = firstCursor(act.id) < cursor;
+          const done = firstCursor(act.id) < cursor || (act.id === "deeper" && labDone);
           return (
             <button
               key={act.id}
@@ -192,7 +202,9 @@ export function ChapterExperience({ killercodaUrl }: { killercodaUrl: string }) 
               body_md:
                 actId === "operate"
                   ? "Guided, Practice, and Challenge are the lab you already have. They start from the feature, and the incident they reach is this one: 100% rollout, all 40 connections busy.\n\nThe story on the left stays here while you work the pool."
-                  : "About 45 minutes. Real services in your browser, nothing to install. Docker stays on your machine or on Killercoda. This site does not start it.",
+                  : runnerUrl
+                    ? "About 45 minutes. Real services in your browser, nothing to install. Start lab opens a private copy on this page."
+                    : "About 45 minutes. Real services in your browser, nothing to install. Docker stays on your machine or on Killercoda. This site does not start it.",
               view: "xray",
               target: 1,
             }
@@ -218,7 +230,7 @@ export function ChapterExperience({ killercodaUrl }: { killercodaUrl: string }) 
               <Chapter1Experience />
             </div>
           ) : step.kind === "lab" ? (
-            <GoDeeperCard url={killercodaUrl} />
+            <LabPanel runnerUrl={runnerUrl} labUrl={labUrl} killercodaUrl={killercodaUrl} />
           ) : (
             <>
               <Stage
