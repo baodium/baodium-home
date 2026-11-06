@@ -14,6 +14,7 @@ import type { BookChapter } from "@/lib/book/types";
 import { ChapterContent } from "@/components/book/reader/ChapterContent";
 import { BookChapterNav } from "@/components/book/reader/BookChapterNav";
 import { BookFeedback } from "@/components/book/reader/BookFeedback";
+import { BookPassageNotes } from "@/components/book/reader/BookPassageNotes";
 import { BookEdgeCues } from "@/components/book/reader/BookEdgeCues";
 import { BookFlipHint } from "@/components/book/reader/BookFlipHint";
 import { useReader } from "@/components/book/reader/ReaderProvider";
@@ -366,6 +367,7 @@ export function BookChapterView({
                 />
               </header>
               <ChapterContent html={chapter.html} chapterSlug={chapter.slug} />
+              <BookPassageNotes slug={chapter.slug} />
               <BookFeedback
                 chapterTitle={chapter.title}
                 chapterSlug={chapter.slug}

@@ -9,6 +9,7 @@ import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { BookPageOutline } from "@/components/book/reader/BookPageOutline";
+import { BookNotesList } from "@/components/book/reader/BookPassageNotes";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
 import { flipTransitionTypes } from "@/lib/book/flip-navigate";
 
@@ -171,11 +172,12 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                     prefetch
                     title={chapter.title}
                     transitionTypes={active ? undefined : flipTransitionTypes(direction)}
-                    className={`flex items-baseline gap-2.5 rounded-lg py-1.5 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
+                    data-active={active ? "true" : "false"}
+                    className={`book-toc-link flex items-baseline gap-2.5 rounded-lg py-2 leading-snug transition-colors hover:bg-white/10 ${
                       collapsed ? "justify-center px-1" : "px-2.5"
                     } ${
                       active
-                        ? "bg-[color-mix(in_srgb,var(--cinnabar)_9%,transparent)] font-medium text-[var(--reader-fg)]"
+                        ? "bg-white/10 font-medium text-[var(--reader-fg)]"
                         : "text-[var(--reader-muted)]"
                     }`}
                     onClick={() => setSidebarOpen(false)}
@@ -205,6 +207,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
             })}
           </ol>
         </nav>
+        {!collapsed && activeChapter ? <BookNotesList slug={activeChapter.slug} /> : null}
       </aside>
     </>
   );

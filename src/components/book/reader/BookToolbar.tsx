@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import {
   Check,
+  Flag,
   List,
   MessageCircleHeart,
   Search,
@@ -15,7 +16,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { book } from "@/data/writing";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { BookSettings } from "@/components/book/reader/BookSettings";
-import { amazonReviewUrl } from "@/lib/book/feedback";
+import { amazonReviewUrl, buildCorrectionMailto } from "@/lib/book/feedback";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -40,6 +41,15 @@ export function BookToolbar({
   const [copied, setCopied] = useState(false);
 
   const reviewHref = amazonReviewUrl();
+  const problemHref = chapterTitle
+    ? buildCorrectionMailto({
+        chapterTitle,
+        chapterSlug: chapterSlug ?? "book",
+        url: chapterSlug
+          ? `https://baodium.com/system-design/${chapterSlug}`
+          : "https://baodium.com/system-design",
+      })
+    : null;
 
   const shareChapter = async () => {
     const shareUrl =
@@ -171,6 +181,16 @@ export function BookToolbar({
                   <Share2 className="h-4 w-4" aria-hidden="true" />
                 )}
               </button>
+              {problemHref ? (
+                <a
+                  href={problemHref}
+                  className="icon-btn"
+                  aria-label={`Report a problem in ${chapterTitle}`}
+                  title="Report a problem"
+                >
+                  <Flag className="h-4 w-4" aria-hidden="true" />
+                </a>
+              ) : null}
               <a
                 href={reviewHref}
                 target="_blank"

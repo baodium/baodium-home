@@ -92,10 +92,10 @@ export function BookFeedback({
           </a>
           <a
             href={correctionHref}
-            className="inline-flex min-h-9 items-center gap-2 text-sm text-[var(--reader-muted)] transition-colors hover:text-[var(--reader-fg)]"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_16%,transparent)] px-3.5 text-sm font-medium text-[var(--reader-fg)] transition-colors hover:border-cinnabar hover:text-cinnabar"
           >
             <Flag className="h-3.5 w-3.5" aria-hidden="true" />
-            Report a correction
+            Report a problem
           </a>
           <button
             type="button"
@@ -131,7 +131,7 @@ export function BookFeedback({
               Enjoying this?
             </p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--reader-muted)]">
-              A quick Amazon rating helps the book reach more readers. Corrections still go by email.
+              A quick Amazon rating helps the book reach more readers. A problem in this chapter still goes by email.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <a

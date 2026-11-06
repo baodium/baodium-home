@@ -113,7 +113,7 @@ export function useChapter1LabDone(enabled: boolean) {
 }
 
 function runnerBase(url: string) {
-  return url.replace(/\/$/, "");
+  return url.trim().replace(/\/$/, "");
 }
 
 function embedSrc(url: string) {
@@ -142,7 +142,7 @@ function sessionFrom(body: LabBody, startedAt: number): Session | null {
 }
 
 export function LabPanel({
-  runnerUrl,
+  runnerUrl: rawRunnerUrl,
   labUrl,
   killercodaUrl,
 }: {
@@ -150,6 +150,7 @@ export function LabPanel({
   labUrl: string;
   killercodaUrl: string;
 }) {
+  const runnerUrl = rawRunnerUrl.trim();
   const progress = parseProgress(useStoredString(PROGRESS_KEY));
   const [phase, setPhase] = useState<Phase>(runnerUrl ? "boot" : "idle");
   const [session, setSession] = useState<Session | null>(null);
@@ -211,14 +212,20 @@ export function LabPanel({
       }
       try {
         const response = await fetch(`${base}/api/health`);
-        const body = (await response.json()) as { free?: number };
+        const body = (await readBody(response)) as { free?: number };
         if (cancel || startedRef.current) return;
-        if (!response.ok) throw new Error("health");
-        setPhase(body.free === 0 ? "busy" : "idle");
+        if (response.ok && body.free === 0) {
+          setPhase("busy");
+          return;
+        }
+        if (!response.ok) {
+          setNotice("The lab runner did not answer the availability check. You can still try Start lab.");
+        }
+        setPhase("idle");
       } catch {
         if (cancel || startedRef.current) return;
-        setError("The lab runner did not answer.");
-        setPhase("error");
+        setNotice("The lab runner did not answer the availability check. You can still try Start lab.");
+        setPhase("idle");
       }
     };
     void boot();

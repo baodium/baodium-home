@@ -582,15 +582,39 @@ html[data-reader-measure="wide"] .book-reader {
 
 .book-page {
   background:
-    linear-gradient(90deg, rgba(20, 18, 16, 0.03) 0%, transparent 0.9rem),
+    linear-gradient(90deg, rgba(20, 18, 16, 0.035) 0%, transparent 1.1rem),
     var(--reader-page);
   color: var(--reader-fg);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.9) inset,
-    0 0 0 1px rgba(20, 18, 16, 0.04),
-    0 2px 4px rgba(20, 18, 16, 0.03),
-    0 24px 48px -20px rgba(20, 18, 16, 0.38),
-    0 14px 28px -18px rgba(20, 18, 16, 0.22);
+    0 1px 0 rgba(255, 255, 255, 0.72) inset,
+    0 0 0 1px rgba(20, 18, 16, 0.05),
+    0 18px 36px -28px rgba(20, 18, 16, 0.42);
+}
+
+.book-toc-link[data-active="true"] {
+  box-shadow: inset 2px 0 0 #c56a3a;
+}
+
+.project-blurb {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .project-blurb {
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .group:hover .project-blurb,
+  .group:focus-visible .project-blurb {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-blurb {
+    transition: none;
+  }
 }
 
 /* Quieter scrollbars so chrome stays calm */
