@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { Chapter1Experience } from "@/components/experience/Chapter1Experience";
+import { ChapterExperience } from "@/components/experience/chapter/ChapterExperience";
 
 export const metadata: Metadata = {
   title: "Chapter 1 experience · Resource Contention",
   description:
-    "Operate a recommendations rollout: feature flag, 40-slot connection pool, Little’s Law, and decisions with consequences.",
+    "Follow the recommendation row from the storefront into a full connection pool, then operate the incident and open the live lab.",
   alternates: { canonical: "/system-design/experience/chapter-1" },
 };
 
 export default function Chapter1ExperiencePage() {
-  return <Chapter1Experience />;
+  return (
+    <ChapterExperience killercodaUrl={process.env.NEXT_PUBLIC_KILLERCODA_URL_CH01 ?? ""} />
+  );
 }

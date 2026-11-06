@@ -1,0 +1,14 @@
+[
+ {"id": 1,  "slug": "alpine-2-tent",      "name": "Alpine 2-person tent",     "price": 249, "category": "Tents",      "icon": "tree",       "tint": "#e7efe4", "blurb": "Two doors, two vestibules, and a frame that shrugs off spring storms."},
+ {"id": 2,  "slug": "ridge-40-pack",      "name": "Ridge 40 L pack",          "price": 139, "category": "Packs",      "icon": "backpack2",  "tint": "#efe7df", "blurb": "A frame that carries 15 kg like 10, with a lid that actually closes."},
+ {"id": 3,  "slug": "trail-mug",          "name": "Trail mug",                "price": 18,  "category": "Kitchen",    "icon": "cup-hot",    "tint": "#f3e6dc", "blurb": "Double-walled steel. Coffee stays hot through the first switchback."},
+ {"id": 4,  "slug": "camp-lantern",       "name": "Camp lantern",             "price": 42,  "category": "Lighting",   "icon": "lamp",       "tint": "#f5edd6", "blurb": "Warm light for the whole tent, and a USB-C port to charge your phone."},
+ {"id": 5,  "slug": "fieldbook-compass",  "name": "Fieldbook compass",        "price": 29,  "category": "Navigation", "icon": "compass",    "tint": "#e3ebf2", "blurb": "Liquid-damped needle and a mirror for sighting distant peaks."},
+ {"id": 6,  "slug": "topo-map-set",       "name": "Topo map set",             "price": 24,  "category": "Navigation", "icon": "map",        "tint": "#e8ecef", "blurb": "Waterproof 1:25,000 sheets for the three most-walked ranges."},
+ {"id": 7,  "slug": "ember-stove",        "name": "Ember stove",              "price": 79,  "category": "Kitchen",    "icon": "fire",       "tint": "#f5e3da", "blurb": "Boils a litre in three minutes and folds smaller than your fist."},
+ {"id": 8,  "slug": "drybag-20",          "name": "Dry bag, 20 L",            "price": 22,  "category": "Packs",      "icon": "droplet",    "tint": "#e0ecf1", "blurb": "Roll-top, welded seams. Your sleeping bag stays dry in the canoe."},
+ {"id": 9,  "slug": "glacier-sunglasses", "name": "Glacier sunglasses",       "price": 65,  "category": "Apparel",    "icon": "sunglasses", "tint": "#ebe7f0", "blurb": "Category 4 lenses and side shields for snow and high altitude."},
+ {"id": 10, "slug": "storm-umbrella",     "name": "Storm umbrella",           "price": 35,  "category": "Apparel",    "icon": "umbrella",   "tint": "#e6eaf2", "blurb": "Vented canopy that stays the right way out in a 60 km/h gust."},
+ {"id": 11, "slug": "down-jacket",        "name": "800-fill down jacket",     "price": 189, "category": "Apparel",    "icon": "cloud-snow", "tint": "#e9eef3", "blurb": "Warm at minus ten, packs into its own pocket."},
+ {"id": 12, "slug": "summit-binoculars",  "name": "Summit binoculars 8x32",   "price": 119, "category": "Navigation", "icon": "binoculars", "tint": "#ece9e3", "blurb": "Bright, light, and sharp to the edges. Spot the next cairn first."}
+]

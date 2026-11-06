@@ -1,0 +1,26 @@
+{
+  "chapter": 1,
+  "about": "One Recommendation Service instance, as in the chapter. The browser experience, the Killercoda lab (at 1/4 scale) and the book must agree on these numbers.",
+  "parameters": {
+    "pool_connections": 40,
+    "occupancy_mean_ms": 71.5,
+    "sql_mean_ms": 22,
+    "catalog_median_ms": 20,
+    "acquire_timeout_ms": 1000,
+    "other_callers_per_s": 110,
+    "product_page_lookups_per_s_at_100pct": 447,
+    "product_page_instances": 8,
+    "flag_refresh_s": 15,
+    "page_objective_p99_ms": 300
+  },
+  "expected_readings": {
+    "flag_0": { "busy": "about 8 of 40", "waiting": 0, "page_p99_ms": "< 100" },
+    "flag_50": { "busy": "20-35 of 40", "waiting": "0, with brief bursts", "page_p99_ms": "120-200, still under 300" },
+    "flag_100": { "busy": "40 of 40", "waiting": "dozens to a few hundred", "acquire_p99_ms": "350-650",
+                  "sql_p99_ms": "near baseline (book: 'near its pre-release range')", "page_p99_ms": "> 300" },
+    "flag_off_after_incident": { "all_instances_updated_within_s": 15, "queue_drained_within_s": "15-17" },
+    "littles_law": "(110 + 447) lookups/s x 0.0715 s = 39.8 connections of 40: no headroom, so bursts queue"
+  },
+  "book_figures": { "snapshot_listing_1_2": "all 40 assigned, 0 idle, 80 pending, acquire p99 ~600 ms, query p99 near baseline" },
+  "lab_scale": "The Docker lab runs at 1/4: 10 connections per pool, ~140 lookups/s per instance. Same ratio, same failure."
+}

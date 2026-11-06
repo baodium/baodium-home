@@ -128,16 +128,6 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           <Link href="/projects" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
             Projects
           </Link>
-          <a
-            href={book.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]"
-            onClick={() => setSidebarOpen(false)}
-          >
-            Amazon
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
         </div>
         <nav
           data-lenis-prevent

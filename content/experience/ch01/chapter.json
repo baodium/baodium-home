@@ -1,0 +1,96 @@
+{
+  "id": "ch01",
+  "number": 1,
+  "title": "Resource Contention in Production",
+  "headline": "The recommendation row that slowed checkout",
+  "book_url": "https://baodium.com/system-design/chapter-1",
+  "experience_url": "https://baodium.com/system-design/experience/chapter-1",
+  "builds_on": null,
+  "baodium_adds": "A personalized 'Recommended for you' row on every product page",
+  "store_state_after": "Recommendations are optional content: 16 permits per Product Page instance, a 150 ms budget, a fallback; Recommendation Service sized within the PostgreSQL session budget with its own admission limit.",
+  "acts": [
+    {
+      "id": "story",
+      "title": "Story",
+      "minutes": 2,
+      "source": "story/scenes.json",
+      "beats": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "feel",
+      "title": "Feel it",
+      "minutes": 1,
+      "source": "story/scenes.json",
+      "beats": [
+        3
+      ],
+      "view": "customer"
+    },
+    {
+      "id": "xray",
+      "title": "X-ray",
+      "minutes": 3,
+      "source": "story/scenes.json",
+      "beats": [
+        4,
+        5
+      ],
+      "view": "xray"
+    },
+    {
+      "id": "operate",
+      "title": "Operate",
+      "minutes": 12,
+      "source": "existing site: /system-design/experience/chapter-1 (Guided, Practice, Challenge)",
+      "note": "Keep your current implementation. Start it from the X-ray act's state (100% rollout, pool full)."
+    },
+    {
+      "id": "act",
+      "title": "Act on it",
+      "minutes": 1,
+      "source": "story/scenes.json",
+      "beats": [
+        6
+      ]
+    },
+    {
+      "id": "deeper",
+      "title": "Live lab",
+      "minutes": 45,
+      "optional": true,
+      "source": "lab/killercoda/ch01-resource-contention",
+      "launch_url": "https://killercoda.com/<your-killercoda-name>/scenario/ch01-resource-contention",
+      "teardown": "Killercoda ends the session when the learner closes the tab or time runs out. Locally: `baodium teardown`.",
+      "launch_env": "NEXT_PUBLIC_KILLERCODA_URL_CH01"
+    },
+    {
+      "id": "recap",
+      "title": "Recap",
+      "minutes": 1,
+      "source": "story/scenes.json",
+      "beats": [
+        7
+      ]
+    }
+  ],
+  "takeaways": [
+    "Acquisition is not execution: requests waited for a connection while the SQL stayed fast.",
+    "Exposure is not traffic: '1% of customers' said nothing about lookups reaching one pool of 40.",
+    "Optional work must stay optional: bounded permits, a time budget derived from the deadline, and a fallback."
+  ],
+  "next_teaser": {
+    "chapter": 2,
+    "text": "Baodium plans capacity for its biggest sale, and you do the arithmetic before the rollout, not after."
+  },
+  "files": {
+    "reference_experience": "experience/reference.html",
+    "story": "story/scenes.json",
+    "model": "sim/model.json",
+    "lab_overlay": "lab-overlay/",
+    "killercoda_scenario": "lab/killercoda/ch01-resource-contention/"
+  }
+}
