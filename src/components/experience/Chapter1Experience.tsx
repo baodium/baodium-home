@@ -604,16 +604,16 @@ export function Chapter1Experience() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.45, ease }}
         >
-          Labs / Chapter {scenario.meta.number} · ~{scenario.meta.durationMin} min
+          The pool
         </motion.p>
-        <motion.h1
+        <motion.h2
           className="mt-2 font-serif text-[clamp(1.95rem,4.2vw,2.9rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]"
           initial={reduced ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.6, delay: reduced ? 0 : 0.05, ease }}
         >
           {scenario.meta.title}
-        </motion.h1>
+        </motion.h2>
         {scenario.meta.subtitle ? (
           <motion.p
             className="mt-2 font-serif text-[1.05rem] italic leading-snug text-[color:var(--exp-amber-text)] sm:text-[1.12rem]"

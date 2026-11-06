@@ -483,7 +483,9 @@ export function LabPanel({
         <div className="rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-7 sm:p-8">
           <p className="font-mono text-[0.75rem] uppercase tracking-[0.14em] text-[#b4532a]">The store</p>
           <h2 className="mt-3 font-serif text-[1.7rem] leading-snug tracking-[-0.02em]">A private copy of the store</h2>
-          <p className="mt-3 text-[1.05rem] leading-relaxed text-[#6f625a]">{guide.blurb}</p>
+          <p className="mt-4 text-lg leading-relaxed text-[#3d322c]">
+            The product page calls Recommendation Service. Each lookup borrows one of 40 connections.
+          </p>
           {tasks}
           <button
             type="button"

@@ -2,9 +2,9 @@ import { projects } from "@/data/projects";
 
 export function SideProjectsView() {
   return (
-    <div className="min-h-[100dvh] bg-[#f4efe8] px-6 pb-24 pt-28 text-[#1c1612] md:px-10 md:pt-36">
+    <div className="min-h-[100dvh] bg-[#f4efe8] px-6 pb-24 pt-28 text-[#1c1612] md:px-10 md:pt-32">
       <div className="mx-auto max-w-5xl">
-        <p className="font-mono text-[0.75rem] uppercase tracking-[0.2em] text-[#8a7364]">Projects</p>
+        <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">Projects</p>
         <h1 className="mt-4 max-w-[14ch] font-serif text-[clamp(2.75rem,6vw,4.4rem)] leading-[0.98] tracking-[-0.035em]">
           Interview Coach and UpTo
         </h1>

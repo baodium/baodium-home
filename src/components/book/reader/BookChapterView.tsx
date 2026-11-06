@@ -337,16 +337,16 @@ export function BookChapterView({
           <article className="book-page relative overflow-hidden rounded-[1.15rem] lg:rounded-l-none">
             <div aria-hidden="true" className="book-page-gutter" />
             <div aria-hidden="true" className="book-page-grain" />
-            <div className="relative z-[1] px-5 py-8 sm:px-9 sm:py-11 md:px-12 md:py-12">
-              <header className="mb-8 flex flex-wrap items-end justify-between gap-5 border-b border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pb-6">
+            <div className="relative z-[1] px-6 py-10 sm:px-10 sm:py-14 md:px-14 md:py-16">
+              <header className="mb-12 flex flex-wrap items-end justify-between gap-8 border-b border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pb-8">
                 <div className="min-w-0 max-w-xl flex-1">
-                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-cinnabar">
+                  <p className="font-mono text-sm uppercase tracking-[0.16em] text-cinnabar">
                     <span className="mr-2 inline-block min-w-[1.6rem]">
                       {chapterNumberLabel(chapter.slug)}
                     </span>
                     {chapterKicker(chapter.slug, chapter.title)}
                   </p>
-                  <h1 className="mt-3 font-serif text-[clamp(1.75rem,3.5vw,2.45rem)] leading-[1.08] tracking-[-0.02em]">
+                  <h1 className="mt-4 font-serif text-[clamp(2.1rem,4vw,3rem)] leading-[1.05] tracking-[-0.03em]">
                     {chapter.title}
                   </h1>
                   {labHref ? (

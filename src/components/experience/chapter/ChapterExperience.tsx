@@ -161,7 +161,7 @@ export function ChapterExperience({
 
   return (
     <article className="bg-[#f6f1ea] text-[#241c18]" onKeyDown={onKeyDown}>
-      <header className="mx-auto max-w-[1240px] px-6 pb-5 pt-12 sm:px-8 sm:pt-14">
+      <header className="mx-auto max-w-[1240px] px-6 pb-8 pt-16 sm:px-10 sm:pt-20">
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">
           Chapter {chapter.number} · {chapter.title}
         </p>
@@ -169,7 +169,7 @@ export function ChapterExperience({
           {chapter.headline}
         </h1>
       </header>
-      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2.5 px-6 sm:px-8" aria-label="Acts">
+      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2.5 px-6 sm:px-10" aria-label="Acts">
         {chapter.acts.map((act, index) => {
           const current = act.id === actId;
           const done = firstCursor(act.id) < cursor || (act.id === "deeper" && labDone);
@@ -191,7 +191,7 @@ export function ChapterExperience({
           );
         })}
       </nav>
-      <div className="mx-auto grid max-w-[1240px] gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[24rem_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-[1240px] gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[24rem_minmax(0,1fr)] lg:gap-14">
         <StoryPanel
           beat={
             beat ?? {
@@ -204,9 +204,7 @@ export function ChapterExperience({
               body_md:
                 actId === "operate"
                   ? "The flag is at 100%. The product page calls Recommendation Service, and every lookup waits on the pool.\n\nWork the pool from this state. The story stays here."
-                  : runnerUrl
-                    ? "About 45 minutes. Real services in your browser, nothing to install. Start lab opens a private copy of the store on this page."
-                    : "About 45 minutes. Real services in your browser, nothing to install. Docker stays on your machine or on Killercoda. This site does not start it.",
+                  : "The product page calls Recommendation Service. Every lookup waits on the pool of 40. Start the store and turn the flag on.",
               view: "xray",
               target: 1,
             }
