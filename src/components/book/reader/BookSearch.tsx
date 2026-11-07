@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import type { BookSearchEntry } from "@/lib/book/types";
+import { isFullEditionSlug } from "@/lib/book/edition";
 
 export function BookSearch({
   open,
@@ -36,11 +37,11 @@ export function BookSearch({
     const q = query.trim().toLowerCase();
     if (!q) return [];
     return index
-      .filter(
-        (entry) =>
-          entry.title.toLowerCase().includes(q) ||
-          entry.excerpt.toLowerCase().includes(q),
-      )
+      .filter((entry) => {
+        if (entry.title.toLowerCase().includes(q)) return true;
+        if (isFullEditionSlug(entry.slug)) return false;
+        return entry.excerpt.toLowerCase().includes(q);
+      })
       .slice(0, 12);
   }, [index, query]);
 
@@ -78,7 +79,9 @@ export function BookSearch({
               {query ? "No matches." : "Type to search chapter text."}
             </li>
           ) : (
-            results.map((hit) => (
+            results.map((hit) => {
+              const locked = isFullEditionSlug(hit.slug);
+              return (
               <li key={hit.slug}>
                 <Link
                   href={`/system-design/${hit.slug}`}
@@ -87,11 +90,12 @@ export function BookSearch({
                 >
                   <p className="font-medium">{hit.title}</p>
                   <p className="mt-1 line-clamp-2 text-sm text-[var(--reader-muted)]">
-                    {hit.excerpt}
+                    {locked ? "Full edition" : hit.excerpt}
                   </p>
                 </Link>
               </li>
-            ))
+              );
+            })
           )}
         </ul>
       </div>

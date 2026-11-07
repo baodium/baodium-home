@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { BookChapterView } from "@/components/book/reader/BookChapterView";
 import { BookPageTransition } from "@/components/book/reader/BookPageTransition";
 import { getAllSlugs, getChapter, getManifest } from "@/lib/book/catalog";
+import { isFullEditionSlug } from "@/lib/book/edition";
 import type { Metadata } from "next";
 import { book } from "@/data/writing";
 
@@ -15,9 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const chapter = getChapter(slug);
   if (!chapter) return {};
+  const locked = isFullEditionSlug(slug);
   return {
-    title: `${chapter.title} · ${book.title}`,
-    description: `Read “${chapter.title}” from ${book.title} by ${book.author}.`,
+    title: locked ? `Full edition · ${book.title}` : `${chapter.title} · ${book.title}`,
+    description: locked
+      ? `Chapters 1 through 7 of ${book.title} are here. The rest is the full edition.`
+      : `Read “${chapter.title}” from ${book.title} by ${book.author}.`,
     alternates: { canonical: `${book.readPath}/${slug}` },
   };
 }
@@ -34,11 +38,12 @@ export default async function SystemDesignChapterPage({ params }: Props) {
   const next = chapter.next
     ? manifest.chapters.find((c) => c.slug === chapter.next)
     : null;
+  const locked = isFullEditionSlug(slug);
 
   return (
     <BookPageTransition>
       <BookChapterView
-        chapter={chapter}
+        chapter={locked ? { ...chapter, html: "" } : chapter}
         prev={prev ? { slug: prev.slug, title: prev.title } : null}
         next={next ? { slug: next.slug, title: next.title } : null}
       />

@@ -20,6 +20,8 @@ import { BookFlipHint } from "@/components/book/reader/BookFlipHint";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { loadReaderPrefs, saveReaderPrefs } from "@/lib/book/reader-styles";
 import { chapterKicker, chapterNumberLabel } from "@/lib/book/chapter-label";
+import { FREE_THROUGH_CHAPTER, isFullEditionSlug } from "@/lib/book/edition";
+import { FullEditionPanel } from "@/components/book/reader/FullEditionPanel";
 import { flipNavigate } from "@/lib/book/flip-navigate";
 import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { getChapter, labActionLabel } from "@/lib/learning/registry";
@@ -262,8 +264,10 @@ export function BookChapterView({
     settleDrag();
   };
 
+  const locked = isFullEditionSlug(chapter.slug);
+  const showEdition = locked || chapter.slug === `chapter-${FREE_THROUGH_CHAPTER}`;
   const prevHref = prev ? `/system-design/${prev.slug}` : null;
-  const nextHref = next ? `/system-design/${next.slug}` : null;
+  const nextHref = next && !locked ? `/system-design/${next.slug}` : null;
   const goingNext = dragDir !== -1;
   const preview = goingNext ? next : prev;
   const chapterMeta = getChapter(chapter.slug);
@@ -338,6 +342,13 @@ export function BookChapterView({
             <div aria-hidden="true" className="book-page-gutter" />
             <div aria-hidden="true" className="book-page-grain" />
             <div className="relative z-[1] px-6 py-10 sm:px-10 sm:py-14 md:px-14 md:py-16">
+              {locked ? (
+                <>
+                  <FullEditionPanel />
+                  <BookChapterNav prev={prev} next={null} />
+                </>
+              ) : (
+              <>
               <header className="mb-12 flex flex-wrap items-end justify-between gap-8 border-b border-[color-mix(in_srgb,var(--reader-fg)_8%,transparent)] pb-8">
                 <div className="min-w-0 max-w-xl flex-1">
                   <p className="font-mono text-sm uppercase tracking-[0.16em] text-cinnabar">
@@ -373,7 +384,10 @@ export function BookChapterView({
                 chapterSlug={chapter.slug}
                 suppressToast={flipHintOpen}
               />
+              {showEdition ? <FullEditionPanel atEnd /> : null}
               <BookChapterNav prev={prev} next={next} />
+              </>
+              )}
             </div>
           </article>
         </motion.div>

@@ -4,6 +4,7 @@ import { Activity, ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
+import { isFullEditionSlug } from "@/lib/book/edition";
 import { BookResume } from "@/components/book/reader/BookResume";
 import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { figureForChapter } from "@/lib/learning/chapter-figures";
@@ -105,6 +106,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
             <ol className="mt-4 space-y-1.5 font-serif text-lg">
               {chapters.map((chapter) => {
                 const lab = getChapter(chapter.slug);
+                const locked = isFullEditionSlug(chapter.slug);
                 return (
                   <li
                     key={chapter.slug}
@@ -127,10 +129,15 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                       prefetch
                       transitionTypes={["nav-forward"]}
                       className="min-w-0 transition-colors hover:text-cinnabar"
+                      aria-label={locked ? `${chapter.title}, full edition` : undefined}
                     >
                       {chapter.title}
                     </Link>
-                    {lab?.labHref && labActionLabel(lab) ? (
+                    {locked ? (
+                      <span className="font-mono text-[0.72rem] text-[var(--reader-muted)]">
+                        Full edition
+                      </span>
+                    ) : lab?.labHref && labActionLabel(lab) ? (
                       <Link
                         href={lab.labHref}
                         className="max-w-[14rem] text-right font-mono text-[0.72rem] leading-snug text-[var(--reader-muted)] transition-colors hover:text-cinnabar"

@@ -401,9 +401,26 @@ Place the author zip in \`manuscript/\` at the repo root (gitignored) or set \`M
     ),
   );
 
+  const fullEdition = (slug) => {
+    const numbered = /^chapter-(\d+)$/.exec(slug);
+    if (numbered) return Number(numbered[1]) > 7;
+    return new Set([
+      "epilogue",
+      "appendix-a",
+      "appendix-b",
+      "appendix-c",
+      "worksheet",
+      "glossary",
+      "further-reading",
+      "index",
+      "about-the-author",
+    ]).has(slug);
+  };
   const searchIndex = manifest.chapters.map((ch) => {
     const data = JSON.parse(fs.readFileSync(path.join(OUT_DIR, `${ch.slug}.json`), "utf8"));
-    const plain = data.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 8000);
+    const plain = fullEdition(ch.slug)
+      ? ""
+      : data.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 8000);
     return { slug: ch.slug, title: ch.title, excerpt: plain.slice(0, 400) };
   });
   fs.mkdirSync(path.join(process.cwd(), "public", "book"), { recursive: true });

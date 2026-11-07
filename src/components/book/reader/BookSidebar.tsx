@@ -11,6 +11,7 @@ import { useReader } from "@/components/book/reader/ReaderProvider";
 import { BookPageOutline } from "@/components/book/reader/BookPageOutline";
 import { BookNotesList } from "@/components/book/reader/BookPassageNotes";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
+import { isFullEditionSlug } from "@/lib/book/edition";
 import { flipTransitionTypes } from "@/lib/book/flip-navigate";
 
 function subscribeLg(onChange: () => void) {
@@ -157,6 +158,7 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
               const href = `/system-design/${chapter.slug}`;
               const active = pathname === href;
               const number = chapterNumberLabel(chapter.slug);
+              const locked = isFullEditionSlug(chapter.slug);
               const direction: 1 | -1 =
                 activeIndex < 0 ? 1 : to >= activeIndex ? 1 : -1;
               return (
@@ -165,7 +167,8 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                     ref={active ? activeRef : undefined}
                     href={href}
                     prefetch
-                    title={chapter.title}
+                    title={locked ? `${chapter.title}. Full edition` : chapter.title}
+                    aria-label={locked ? `${chapter.title}, full edition` : undefined}
                     transitionTypes={active ? undefined : flipTransitionTypes(direction)}
                     data-active={active ? "true" : "false"}
                     className={`book-toc-link flex items-baseline gap-3 rounded-lg py-2.5 leading-snug transition-colors hover:bg-[color-mix(in_srgb,var(--reader-fg)_5%,transparent)] ${
@@ -186,10 +189,16 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
                       {number}
                     </span>
                     <span className={`min-w-0 ${collapsed ? "sr-only" : ""}`}>
-                      {chapter.title}
+                      <span className="block">{chapter.title}</span>
+                      {locked ? (
+                        <span className="mt-1 block font-mono text-[0.65rem] uppercase tracking-[0.12em] text-[var(--reader-muted)]">
+                          Full edition
+                        </span>
+                      ) : null}
                     </span>
                   </Link>
                   {!collapsed &&
+                  !locked &&
                   active &&
                   activeChapter &&
                   activeChapter.sections.length > 1 ? (
