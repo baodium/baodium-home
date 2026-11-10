@@ -556,3 +556,11 @@
   }
 }
 .course-toolchain .course-download { display:flex; width:max-content; max-width:100%; margin-top:.3rem; }
+
+.course-rubric { margin: 1.2rem 0; display: grid; gap: 1rem; }
+.course-rubric > div { border-left: 2px solid var(--exp-signal); padding-left: 1rem; }
+.course-rubric dt { font-weight: 650; font-size: 13px; color: var(--exp-signal); margin-bottom: .35rem; }
+.course-rubric dd { margin: 0; font-size: 14px; line-height: 1.8; color: var(--exp-muted); }
+
+.course-objective h2 { font-size: 1.3rem; line-height: 1.35; margin: .4rem 0 .8rem; letter-spacing: -.025em; }
+.course-objective .product-button { margin: .8rem 0; }

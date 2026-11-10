@@ -30,7 +30,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
       {
         title: "Prepare the workspace",
         instruction:
-          "Install Docker with Compose and Node.js 20 or newer. Download and extract the lab kit, then open a terminal in the extracted baodium-observability directory.",
+          "Use the course overview to create a GitHub Codespace; wait for its startup task and open a terminal in labs/observability. Alternatively, install Docker with Compose and Node.js 20+, extract the downloaded kit and open its baodium-observability directory.",
         command: "node lab.mjs doctor",
         expect:
           "The Docker server version and a successful Compose configuration check. If the daemon is unavailable, start Docker before continuing.",
@@ -39,14 +39,14 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
         title: "Start your stack",
         instruction:
           "Build the Express checkout and FastAPI payment service. Start Prometheus, Grafana and Jaeger alongside them. The first run downloads pinned images and dependencies.",
-        command: "node lab.mjs up",
+        command: "node lab.mjs launch",
         expect:
-          "Five services start under the baodium-observability Compose project. Only loopback interfaces are published.",
+          "Five services start, then real traffic proves metrics, Grafana connectivity and a connected cross-service trace. reports/session.json records tool addresses and payment settings.",
       },
       {
         title: "Find your tools",
         instruction:
-          "Open checkout at localhost:4319/health, Prometheus at localhost:9097, Grafana at localhost:3007 and Jaeger at localhost:16697. The two applications communicate over the Compose network.",
+          "In Codespaces, open the labeled services in the Ports tab. Locally, open checkout at localhost:4319/health, Prometheus at localhost:9097, Grafana at localhost:3007 and Jaeger at localhost:16697. The two applications communicate over the Compose network.",
         expect:
           "The checkout health response, a Prometheus UI, the Baodium dashboard folder and the Jaeger search UI.",
       },

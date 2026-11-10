@@ -2,6 +2,12 @@
 
 A real local observability environment, not a browser simulation. Express checkout calls a FastAPI payment service. Prometheus scrapes request metrics, Grafana queries Prometheus, and both applications export OpenTelemetry spans to Jaeger. The same trace IDs appear in JSON logs.
 
+## Browser workspace (recommended for the hosted course)
+
+Open https://codespaces.new/baodium/baodium-home?ref=main and create a Codespace. The repository devcontainer includes Node and Docker-in-Docker; its post-start task runs the same verified launcher below. Wait for “Workspace ready”, then work in labs/observability. Open services through the labeled Ports tab, keeping visibility private. The CLI prints forwarded HTTPS tool URLs when running in Codespaces. The website’s localhost links apply only to local Docker.
+
+GitHub sign-in and Codespaces quota/billing are required. Run `node lab.mjs down` when finished, then stop/delete the Codespace through GitHub; removing lab containers alone does not stop workspace billing. Vercel serves the learning pages; it does not host these containers. The Docker stack is integration-tested locally; provisioning on an actual Codespaces account still requires provider-side validation.
+
 ## Prerequisites and start
 
 - Docker with the Compose plugin and a running daemon.
@@ -11,12 +17,11 @@ A real local observability environment, not a browser simulation. Express checko
 Open a terminal in this extracted directory:
 
 ```sh
-node lab.mjs doctor
-node lab.mjs up
-node lab.mjs verify setup
-node lab.mjs traffic 15
-node lab.mjs verify baseline
+node lab.mjs launch
+node lab.mjs status
 ```
+
+The guided launcher checks prerequisites, builds the stack, waits for readiness and generates real traffic to verify metrics, dashboard connectivity and trace propagation. It writes reports/baseline.json and reports/session.json only after those checks pass. Rerunning preserves existing fault settings and prints them; use recover when you want a healthy configuration. If startup fails, bounded container diagnostics are printed and containers remain available for inspection. status checks live HTTP readiness without generating traffic.
 
 The first run downloads images and builds the two apps. Source code, dependency pins, tool configuration and verification commands are included. No host npm/pip installation is needed. Follow the eight exercises at https://baodium.com/sre-labs/observability.
 

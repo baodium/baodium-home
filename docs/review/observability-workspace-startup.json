@@ -1,0 +1,17 @@
+{
+  "environment": "Local Dev Containers CLI 0.90.0 with Docker-in-Docker",
+  "automaticPostStartPassed": true,
+  "baseline": {
+    "course": "baodium-observability",
+    "checkpoint": "baseline",
+    "passed": true,
+    "checkedAt": "2026-11-10T21:59:39.057Z",
+    "checks": [
+      "Checkout, Prometheus, Grafana and Jaeger respond on loopback.",
+      "Prometheus recorded 120 completed checkout requests.",
+      "Grafana serves the provisioned four-panel checkout dashboard and its Prometheus data source is healthy. Learner-added panels need visual inspection.",
+      "Trace aa880f3cbbc8e69a3c18a05ac1b6888c crosses Express and FastAPI; both logs carry the same trace ID."
+    ]
+  },
+  "hostedCodespacesProvisioningTested": false
+}

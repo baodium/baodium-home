@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 const links = [
   { label: "Home", href: "/" },
   { label: "Book", href: "/system-design" },
+  { label: "SRE Labs", href: "/sre-labs" },
   { label: "Projects", href: "/projects" },
 ];
 
 function currentHref(pathname: string) {
   if (pathname === "/") return "/";
+  if (pathname === "/sre-labs" || pathname.startsWith("/sre-labs/")) return "/sre-labs";
   if (pathname === "/projects" || pathname.startsWith("/projects/")) return "/projects";
   if (pathname === "/system-design" || (pathname.startsWith("/system-design/") && !pathname.startsWith("/system-design/experience"))) {
     return "/system-design";
@@ -18,7 +20,7 @@ function currentHref(pathname: string) {
   return "";
 }
 
-/** The book bar: BAODIUM, Home, Book, Projects. */
+/** Shared site navigation. */
 export function SiteHeader({ fixed = false }: { fixed?: boolean }) {
   const pathname = usePathname() ?? "";
   const current = currentHref(pathname);
@@ -38,7 +40,7 @@ export function SiteHeader({ fixed = false }: { fixed?: boolean }) {
           <span aria-hidden="true" className="h-2.5 w-2.5 rounded-[3px] bg-cinnabar" />
           BAODIUM
         </Link>
-        <nav aria-label="Site" className="flex items-center gap-1 text-base">
+        <nav aria-label="Site" className="flex flex-wrap items-center gap-1 text-base">
           {links.map((link) => {
             const active = current === link.href;
             return (

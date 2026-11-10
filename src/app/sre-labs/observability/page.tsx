@@ -15,7 +15,7 @@ export default function CourseOverview() {
       <section className="course-overview">
         <header>
           <p className="product-eyebrow">
-            Baodium SRE / Real tools, local execution
+            Baodium SRE / Real tools, your own workspace
           </p>
           <h1>
             Build an observable checkout.
@@ -43,6 +43,13 @@ export default function CourseOverview() {
             </a>
           </div>
         </header>
+        <section className="course-objective" aria-labelledby="workspace-title">
+          <p className="product-eyebrow">Recommended · browser workspace</p>
+          <h2 id="workspace-title">Launch the tools in GitHub Codespaces</h2>
+          <p>Create your own workspace from the repository. Its startup task builds the five-service lab and verifies real telemetry. Wait for “Workspace ready” in the creation log, then use the Ports tab to open Grafana, Prometheus and Jaeger. Run exercise commands in labs/observability.</p>
+          <a className="product-button" href="https://codespaces.new/baodium/baodium-home?ref=main" target="_blank" rel="noopener noreferrer">Create SRE workspace ↗<span className="sr-only"> (opens in a new tab)</span></a>
+          <p>Requires GitHub and available Codespaces quota or billing. First startup takes several minutes. Keep forwarded ports private. When finished, run node lab.mjs down, then stop or delete the Codespace in GitHub to release compute and storage. Local Docker remains available through the download.</p>
+        </section>
         <div className="course-overview-facts">
           <div>
             <strong>What runs</strong>
@@ -55,7 +62,7 @@ export default function CourseOverview() {
           <div>
             <strong>What you need</strong>
             <p>
-              Docker with Compose and Node.js 20+. The kit contains the
+              A GitHub account with Codespaces quota, or local Docker with Compose and Node.js 20+. The kit contains the
               application source, pinned dependencies, tool configurations and a
               dependency-free verification CLI.
             </p>
@@ -89,7 +96,7 @@ export default function CourseOverview() {
         <aside className="course-boundary">
           <h2>Two different kinds of practice</h2>
           <p>
-            This course runs real tools in your local Docker environment.
+            This course runs real tools in Codespaces or your local Docker environment.
             Baodium’s browser exercises remain available when you want a quick,
             guided simulation without setup.
           </p>

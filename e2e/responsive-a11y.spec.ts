@@ -52,6 +52,7 @@ test.describe("responsive + a11y smoke", () => {
     await page.goto("/");
     await page.getByRole("button", { name: /Open menu/i }).click();
     await expect(page.getByRole("navigation", { name: "Mobile" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Mobile" }).getByRole("link", { name: "SRE Labs", exact: true })).toHaveAttribute("href", "/sre-labs");
     await page.keyboard.press("Escape");
     await expect(page.getByRole("navigation", { name: "Mobile" })).toHaveCount(0);
 

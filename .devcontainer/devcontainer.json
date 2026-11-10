@@ -1,0 +1,15 @@
+{
+  "name": "Baodium SRE observability workspace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": { "ghcr.io/devcontainers/features/docker-in-docker:2": {} },
+  "hostRequirements": { "cpus": 4, "memory": "8gb", "storage": "32gb" },
+  "forwardPorts": [4319, 9097, 3007, 16697],
+  "portsAttributes": {
+    "4319": { "label": "Checkout API", "onAutoForward": "notify" },
+    "9097": { "label": "Prometheus", "onAutoForward": "notify" },
+    "3007": { "label": "Grafana", "onAutoForward": "notify" },
+    "16697": { "label": "Jaeger", "onAutoForward": "notify" }
+  },
+  "postStartCommand": "node labs/observability/lab.mjs launch",
+  "customizations": { "vscode": { "settings": { "terminal.integrated.cwd": "${workspaceFolder}/labs/observability" } } }
+}

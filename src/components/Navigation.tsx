@@ -7,10 +7,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
-/** Top navigation, for now: Home, Book, and Projects. */
+/** Shared destinations in the homepage navigation. */
 const links = [
   { id: "home", label: "Home", href: "/" },
   { id: "book", label: "Book", href: "/system-design" },
+  { id: "sre", label: "SRE Labs", href: "/sre-labs" },
   { id: "projects", label: "Projects", href: "/projects" },
 ];
 
@@ -194,7 +195,7 @@ function HomePill() {
                     }`}
                   >
                     {link.label}
-                    <span className="font-mono text-xs text-cream/80">0{index + 1}</span>
+                    <span aria-hidden="true" className="font-mono text-xs text-cream/80">0{index + 1}</span>
                   </Link>
                 </motion.li>
               ))}

@@ -16,10 +16,13 @@ test("hands-on course has eight actionable, independently reachable exercises", 
 }) => {
   await page.goto("/sre-labs/observability");
   await expect(page.locator(".course-index > li")).toHaveCount(8);
+  await expect(page.getByRole("link", { name: /Create SRE workspace/ })).toHaveAttribute("href", "https://codespaces.new/baodium/baodium-home?ref=main");
   for (const slug of lessons) {
     const response = await page.goto(`/sre-labs/observability/${slug}`);
     expect(response?.ok()).toBe(true);
     await expect(page.locator("h1")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Make a prediction first" })).toBeVisible();
+    await expect(page.locator(".course-rubric > div")).toHaveCount(3);
     await expect(page.locator(".course-steps > li")).toHaveCount(3);
     await expect(page.locator(".course-checkpoint")).toContainText(
       "node lab.mjs verify",
@@ -74,7 +77,7 @@ test("mobile lesson syllabus, copy command, hints and next exercise work", async
   await page
     .getByText("Need a hint or a troubleshooting path?", { exact: true })
     .click();
-  await expect(page.locator(".course-hint")).toHaveAttribute("open", "");
+  await expect(page.locator(".course-hint").first()).toHaveAttribute("open", "");
   await page.getByRole("link", { name: /Next: Instrument requests/ }).click();
   await expect(page).toHaveURL(/observability\/metrics$/);
   expect(

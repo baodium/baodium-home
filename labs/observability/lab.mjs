@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const ports={api:process.env.BAODIUM_API_PORT??4319,prometheus:process.env.BAODIUM_PROMETHEUS_PORT??9097,grafana:process.env.BAODIUM_GRAFANA_PORT??3007,jaeger:process.env.BAODIUM_JAEGER_PORT??16697};
 const url=(service,route)=>`http://127.0.0.1:${ports[service]}${route}`;
+const toolUrl=(service,route='')=>process.env.CODESPACE_NAME&&process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN?`https://${process.env.CODESPACE_NAME}-${ports[service]}.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}${route}`:url(service,route);
 const command=process.argv[2]??'help';
 const pause=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
 async function json(service,route,options){const response=await fetch(url(service,route),{signal:AbortSignal.timeout(6000),...options});if(!response.ok)throw new Error(`${service} ${route}: HTTP ${response.status}`);return response.json();}
@@ -73,8 +74,41 @@ async function verify(stage){
  const report={course:'baodium-observability',checkpoint:stage,passed:true,checkedAt:new Date().toISOString(),checks};
  mkdirSync(path.join(root,'reports'),{recursive:true});writeFileSync(path.join(root,'reports',`${stage}.json`),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));return report;
 }
+function doctor(){
+ assert(Number(process.versions.node.split('.')[0])>=20,'Install Node.js 20 or newer.');
+ compose(['version']);
+ const result=spawnSync('docker',['info','--format','{{.ServerVersion}}'],{stdio:'inherit'});
+ assert(result.status===0,'Start Docker Desktop or the Docker daemon.');
+ compose(['config','--quiet']);
+ for(const [service,port] of Object.entries(ports))assert(/^\d+$/.test(String(port))&&Number(port)>0&&Number(port)<=65535,`Invalid ${service} port: ${port}`);
+ console.log('Prerequisites ready. Ports: '+JSON.stringify(ports));
+}
+async function status(){
+ const services=await Promise.all([['api','/health'],['prometheus','/-/ready'],['grafana','/api/health'],['jaeger','/api/v3/services']].map(async([service,route])=>{
+  try{const response=await fetch(url(service,route),{signal:AbortSignal.timeout(3000)});return {service,url:url(service,route),ready:response.ok,status:response.status};}
+  catch(error){return {service,url:url(service,route),ready:false,error:error.message};}
+ }));
+ return {checkedAt:new Date().toISOString(),services,ready:services.every(service=>service.ready)};
+}
+async function launch(){
+ for(const report of ['baseline','session'])rmSync(path.join(root,'reports',report+'.json'),{force:true});
+ console.log('1/3 · Checking prerequisites');doctor();
+ console.log('2/3 · Building and starting your five-service workspace. The first build can take several minutes.');
+ compose(['up','-d','--build','--wait','--wait-timeout','120']);
+ console.log('3/3 · Proving telemetry: real requests, scraped metrics, dashboard connectivity and connected traces');
+ await verify('baseline');
+ const settings=await json('api','/lab/config');
+ const session={...await status(),project:process.env.COMPOSE_PROJECT_NAME??'baodium-observability',settings,baselineReport:'reports/baseline.json'};
+ writeFileSync(path.join(root,'reports','session.json'),JSON.stringify(session,null,2)+'\n');
+ console.log('\nWorkspace ready. Baseline proves instrumentation; it does not grade your investigation.');
+ console.log(`Payment settings: ${JSON.stringify(settings)}. Existing experiment settings are preserved.`);
+ console.log(`Prometheus: ${toolUrl('prometheus')}\nGrafana: ${toolUrl('grafana','/d/baodium-checkout')}\nJaeger: ${toolUrl('jaeger')}`);
+ console.log('Next: open the metrics exercise. Resume: node lab.mjs status. Cleanup: node lab.mjs down (removes this project’s volumes).');
+}
 try{
- if(command==='doctor'){assert(Number(process.versions.node.split('.')[0])>=20,'Install Node.js 20 or newer.');compose(['version']);const result=spawnSync('docker',['info','--format','{{.ServerVersion}}'],{stdio:'inherit'});assert(result.status===0,'Start Docker Desktop or the Docker daemon.');compose(['config','--quiet']);console.log('Prerequisites ready. Ports: '+JSON.stringify(ports));}
+ if(command==='doctor')doctor();
+ else if(command==='launch')await launch();
+ else if(command==='status'){const result=await status();console.log(JSON.stringify(result,null,2));if(!result.ready)process.exitCode=1;}
  else if(command==='up')compose(['up','-d','--build','--wait','--wait-timeout','120']);
  else if(command==='down')compose(['down','--volumes','--remove-orphans']);
  else if(command==='traffic'){const seconds=Number(process.argv[3]??10);assert(Number.isInteger(seconds)&&seconds>=1&&seconds<=120,'Traffic duration must be 1–120 seconds.');console.log(JSON.stringify(await traffic(seconds),null,2));}
@@ -84,9 +118,10 @@ try{
  else if(command==='query'){assert(process.argv[3],'Provide a quoted PromQL expression.');console.log(JSON.stringify(await query(process.argv[3]),null,2));}
  else if(command==='reload'){const response=await fetch(url('prometheus','/-/reload'),{method:'POST'});assert(response.ok,'Prometheus rejected the configuration. Check its container logs.');console.log('Prometheus configuration reloaded.');}
  else if(command==='logs')compose(['logs','--tail','50','checkout','payment']);
- else console.log('Baodium observability lab\nnode lab.mjs doctor | up | down | traffic [seconds] | fault errors|slow|timeout | recover | query "PromQL" | reload | logs | verify setup|metrics|dashboards|traces|alerts|recovery|baseline');
+ else console.log('Baodium observability lab\nnode lab.mjs launch | doctor | status | up | down | traffic [seconds] | fault errors|slow|timeout | recover | query "PromQL" | reload | logs | verify setup|metrics|dashboards|traces|alerts|recovery|baseline');
 }catch(error){
  console.error('CHECK FAILED: '+error.message);
+ if(command==='launch'){console.error('Startup did not finish. Containers are preserved for diagnosis; no baseline pass is implied.');try{compose(['ps']);compose(['logs','--tail','15']);}catch{}console.error('Resolve the reported failure, then rerun node lab.mjs launch. To remove this workspace: node lab.mjs down.');}
  if(command==='verify'){
   const requested=process.argv[3]??'baseline';
   const checkpoint=['setup','metrics','dashboards','traces','alerts','recovery','baseline','all'].includes(requested)?requested:'unknown';

@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Download } from "lucide-react";
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { SreChrome } from "@/components/sre/SreChrome";
 import { CourseSyllabus } from "@/components/sre/CourseSyllabus";
+import { COURSE_TEACHING } from "@/lib/sre/course-teaching";
 import { CourseCommand } from "@/components/sre/CourseCommand";
 export function generateStaticParams() {
   return OBSERVABILITY_COURSE.map(({ slug }) => ({ lesson: slug }));
@@ -31,6 +32,7 @@ export default async function LessonPage({
   const index = OBSERVABILITY_COURSE.findIndex((row) => row.slug === lesson);
   if (index < 0) notFound();
   const item = OBSERVABILITY_COURSE[index];
+  const teaching = COURSE_TEACHING[item.slug];
   const next = OBSERVABILITY_COURSE[index + 1];
   const previous = OBSERVABILITY_COURSE[index - 1];
   return (
@@ -56,8 +58,7 @@ export default async function LessonPage({
             <Download size={15} /> Download lab kit
           </a>
           <p>
-            Real services on your machine. Docker + Node.js 20+. No cloud
-            account or production credentials.
+            Real services in Codespaces or local Docker. Use the workspace Ports tab for hosted tool addresses.
           </p>
         </aside>
         <article className="course-lesson">
@@ -73,7 +74,7 @@ export default async function LessonPage({
             </div>
           </header>
           <nav className="course-tool-links" aria-label="Local tool shortcuts">
-            <span>After starting your stack:</span>
+            <span>Local Docker shortcuts:</span>
             <a
               href="http://localhost:9097"
               target="_blank"
@@ -100,9 +101,15 @@ export default async function LessonPage({
             <strong>Before you begin</strong>
             <p>
               {index === 0
-                ? "Download and extract the kit. Run every command from inside its baodium-observability folder."
-                : "Keep your local stack running. Run commands from the extracted baodium-observability folder. Earlier exercises establish the signals used here."}
+                ? "In Codespaces, wait for Workspace ready and open a terminal in labs/observability. For local Docker, download and extract the kit, then open its baodium-observability folder."
+                : "Keep your stack running. In Codespaces, use labs/observability and the Ports tab for tool URLs; locally, use the extracted baodium-observability folder. Earlier exercises establish the signals used here."}
             </p>
+          </section>
+          <section className="course-objective" aria-labelledby="prediction-title">
+            <p className="product-eyebrow">Predict · experiment · explain</p>
+            <h2 id="prediction-title">Make a prediction first</h2>
+            <p>{teaching.prediction}</p>
+            <p>Write your prediction in your lab notes. After the experiment, compare it with what actually happened.</p>
           </section>
           <ol className="course-steps">
             {item.steps.map((step, i) => (
@@ -140,6 +147,20 @@ export default async function LessonPage({
             <summary>Need a hint or a troubleshooting path?</summary>
             <p>{item.hint}</p>
           </details>
+          <details className="course-hint">
+            <summary>Check a common misconception</summary>
+            <p>{teaching.misconception}</p>
+          </details>
+          <section className="course-challenge" aria-labelledby="debrief-title">
+            <p className="product-eyebrow">Debrief rubric</p>
+            <h2 id="debrief-title">Turn observations into an explanation</h2>
+            <dl className="course-rubric">
+              <div><dt>Evidence</dt><dd>{teaching.evidence}</dd></div>
+              <div><dt>Reasoning</dt><dd>{teaching.explanation}</dd></div>
+              <div><dt>Transfer</dt><dd>{teaching.transfer}</dd></div>
+            </dl>
+            <p>Use these criteria to review your notes. Automated system checks do not assess your explanation.</p>
+          </section>
           <section className="course-challenge">
             <h2>Explain what you found</h2>
             <p>{item.challenge}</p>
