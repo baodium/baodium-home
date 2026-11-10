@@ -8,9 +8,10 @@ const browser = await chromium.launch();
 const report = [];
 for (const width of [375, 390, 768, 1024, 1440, 1920]) {
   const page = await browser.newPage({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
-  for (const [name, route] of [["home", "/"], ["catalog", "/sre-labs"], ["cascade", "/sre-labs/cascade"], ["capacity", "/sre-labs/capacity"], ["deployment", "/sre-labs/deployment"]]) {
+  for (const [name, route] of [["home", "/"], ["catalog", "/sre-labs"], ["course", "/sre-labs/observability"], ["course-lesson", "/sre-labs/observability/traces"], ["cascade", "/sre-labs/cascade"], ["capacity", "/sre-labs/capacity"], ["deployment", "/sre-labs/deployment"]]) {
     await page.goto(baseURL + route);
     await page.locator("h1").waitFor();
+    if (route === "/") await page.waitForTimeout(2400);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
     if (overflow) throw new Error(`Horizontal overflow on ${route} at ${width}`);
     report.push({ route, width, horizontalOverflow: overflow });

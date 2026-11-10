@@ -1,0 +1,15 @@
+groups:
+  - name: checkout
+    rules:
+      - alert: CheckoutFailuresHigh
+        expr: sum(rate(baodium_checkout_requests_total{status=~"5.."}[30s])) / sum(rate(baodium_checkout_requests_total[30s])) > 0.10 and sum(rate(baodium_checkout_requests_total[30s])) > 1
+        for: 5s
+        labels: {severity: page}
+        annotations:
+          summary: More than 10% of checkout requests are failing
+      - alert: CheckoutMetricsMissing
+        expr: up{job="checkout"} == 0
+        for: 10s
+        labels: {severity: warning}
+        annotations:
+          summary: Prometheus cannot scrape checkout

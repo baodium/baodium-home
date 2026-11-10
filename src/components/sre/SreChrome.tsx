@@ -1,5 +1,7 @@
 "use client";
 
+import "./foundations.css";
+import "./course.css";
 import "./catalog.css";
 import "./laboratory.css";
 import "./operations.css";
@@ -10,6 +12,7 @@ import type { ReactNode } from "react";
 import { Navigation } from "@/components/Navigation";
 
 const labs = [
+  { href: "/sre-labs/observability", label: "Hands-on course" },
   { href: "/sre-labs/cascade", label: "Cascade" },
   { href: "/sre-labs/instrument", label: "Instrument" },
   { href: "/sre-labs/slo", label: "SLO" },

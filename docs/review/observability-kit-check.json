@@ -1,0 +1,14 @@
+{
+  "course": "baodium-observability",
+  "checkpoint": "baseline",
+  "passed": true,
+  "checkedAt": "2026-11-10T21:01:34.357Z",
+  "checks": [
+    "Checkout, Prometheus, Grafana and Jaeger respond on loopback.",
+    "Prometheus recorded 3433 completed checkout requests.",
+    "Grafana serves the provisioned four-panel checkout dashboard and its Prometheus data source is healthy. Learner-added panels need visual inspection.",
+    "Trace 4ffed033b2ecb24d2670a9b693c22c0e crosses Express and FastAPI; both logs carry the same trace ID."
+  ],
+  "archiveVerified": true,
+  "sourceParity": "Every bundled file matched labs/observability source."
+}

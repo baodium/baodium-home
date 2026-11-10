@@ -17,6 +17,8 @@ const routes = [
   "/play/slo-watch",
   "/projects",
   "/about",
+  "/sre-labs/observability",
+  "/sre-labs/observability/traces",
 ] as const;
 
 async function assertNoHorizontalScroll(page: Page) {

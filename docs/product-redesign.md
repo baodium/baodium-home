@@ -1,5 +1,7 @@
 # Baodium product redesign
 
+> Homepage direction superseded by the user’s November 10 correction: the original portrait homepage is restored. The new real-tool course and its validation are described in [Observability course](observability-course.md). Earlier homepage performance results and scores below describe commit 0447cfb, not the restored homepage.
+
 ## Phase A — baseline and architecture
 
 The November 3 brief supersedes the previous hero-only homepage direction. Preserve the book's 14 numbered chapters, all manuscript content, and existing URLs. This implementation extends the current Next.js application and browser simulators; it does not add an execution backend or claim to run real infrastructure.

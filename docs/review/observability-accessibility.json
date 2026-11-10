@@ -1,0 +1,52 @@
+[
+  {
+    "route": "/sre-labs",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability/setup",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability/traces",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability/alerts",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs",
+    "width": 1440,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 1440,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability/setup",
+    "width": 1440,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability/traces",
+    "width": 1440,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/observability/alerts",
+    "width": 1440,
+    "violations": []
+  }
+]

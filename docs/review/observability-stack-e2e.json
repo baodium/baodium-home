@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "verifiedAt": "2026-11-10T20:58:49.616Z",
+  "checks": [
+    "recover",
+    "verify baseline",
+    "invalid fault input rejected with HTTP 400",
+    "fault slow",
+    "900 ms downstream fault produces a real delayed successful request",
+    "fault timeout",
+    "2200 ms downstream work exceeds 1500 ms caller wait and returns HTTP 504",
+    "fault errors",
+    "traffic 30",
+    "verify alerts",
+    "recover",
+    "verify recovery",
+    "reload"
+  ]
+}

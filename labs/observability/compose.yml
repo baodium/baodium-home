@@ -1,0 +1,55 @@
+name: baodium-observability
+x-app-logging: &app-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "2"
+services:
+  checkout:
+    logging: *app-logging
+    build: ./checkout
+    ports: ["127.0.0.1:${BAODIUM_API_PORT:-4319}:4319"]
+    environment:
+      PAYMENT_URL: http://payment:8000
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger:4318/v1/traces
+    depends_on:
+      payment: {condition: service_healthy}
+      jaeger: {condition: service_started}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4319/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+  payment:
+    logging: *app-logging
+    build: ./payment
+    environment:
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger:4318/v1/traces
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--web.enable-lifecycle", "--storage.tsdb.retention.time=2h"]
+    ports: ["127.0.0.1:${BAODIUM_PROMETHEUS_PORT:-9097}:9090"]
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+  grafana:
+    image: grafana/grafana:13.3.0
+    ports: ["127.0.0.1:${BAODIUM_GRAFANA_PORT:-3007}:3000"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Editor
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+  jaeger:
+    image: jaegertracing/jaeger:2.23.0
+    command: ["--config=/etc/jaeger/config.yml"]
+    ports: ["127.0.0.1:${BAODIUM_JAEGER_PORT:-16697}:16686"]
+    volumes: ["./jaeger/config.yml:/etc/jaeger/config.yml:ro"]

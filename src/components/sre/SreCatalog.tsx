@@ -9,7 +9,7 @@ import {
   sreServerSnapshot,
   subscribeSreProgress,
 } from "@/lib/sre/progress";
-import { SystemPreview } from "@/components/product/SystemPreview";
+import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -56,41 +56,126 @@ export function SreCatalog() {
             Baodium SRE Lab / Learn by operating
           </p>
           <h1>
-            Know what happened.
+            Run the tools.
             <br />
-            <em>Know what to do next.</em>
+            <em>Investigate the evidence.</em>
           </h1>
           <p>
-            Build the signals, define reliability, decide when to page, and
-            investigate a failing checkout. Six working labs, one progression
-            from observation to action.
+            Build an observable checkout with Express, FastAPI, Prometheus,
+            Grafana, OpenTelemetry and Jaeger. Eight local exercises take you
+            from a working environment to a verified incident recovery.
           </p>
-          <Link className="product-button" href={`/sre-labs/${next.id}`}>
-            {completed ? "Continue learning" : "Start with instrumentation"}
-            <ArrowRight size={17} />
+          <Link className="product-button" href="/sre-labs/observability/setup">
+            Start the hands-on course <ArrowRight size={17} />
+          </Link>
+          <Link className="catalog-secondary" href="#practice-labs">
+            Or practice immediately in your browser ↓
           </Link>
           <p className="catalog-disclosure">
-            Browser simulations · no sign-in · recommended prerequisites never
-            lock a lab
+            Real stack course: Docker + Node.js 20+. Browser practice: no setup.
           </p>
-          <div className="catalog-progress">
+        </div>
+        <aside className="course-toolchain">
+          <p className="product-eyebrow">
+            One system. Several kinds of evidence.
+          </p>
+          <div className="course-service-pair">
             <span>
-              {completed} of {SRE_LESSONS.length} labs assessed successfully
+              <strong>Express</strong>Checkout service
             </span>
-            <progress
-              value={completed}
-              max={SRE_LESSONS.length}
-              aria-label="SRE curriculum completion"
-            />
-            <small>
-              Stored in this browser. Complete any mode to finish a lab.
-            </small>
+            <ArrowRight size={20} />
+            <span>
+              <strong>FastAPI</strong>Payment service
+            </span>
           </div>
-        </div>
-        <div className="catalog-preview">
-          <SystemPreview />
-        </div>
+          <dl>
+            <div>
+              <dt>Metrics →</dt>
+              <dd>Prometheus + PromQL</dd>
+            </div>
+            <div>
+              <dt>Dashboards →</dt>
+              <dd>Grafana</dd>
+            </div>
+            <div>
+              <dt>Traces →</dt>
+              <dd>OpenTelemetry + Jaeger</dd>
+            </div>
+            <div>
+              <dt>Logs →</dt>
+              <dd>Correlated JSON events</dd>
+            </div>
+          </dl>
+          <Link href="/sre-labs/observability" className="product-text-link">
+            View the course and prerequisites <ArrowRight size={15} />
+          </Link>
+          <a
+            className="course-download"
+            href="/downloads/baodium-observability-lab.zip"
+            download
+          >
+            Download the runnable lab kit ↗
+          </a>
+        </aside>
       </header>
+      <section
+        className="course-catalog-outline"
+        aria-labelledby="course-outline-title"
+      >
+        <div className="section-heading">
+          <div>
+            <p className="product-eyebrow">The hands-on path</p>
+            <h2 id="course-outline-title">
+              Set up. Measure. Investigate. Recover.
+            </h2>
+          </div>
+          <span>8 exercises · local execution</span>
+        </div>
+        <ol>
+          {OBSERVABILITY_COURSE.map((lesson, index) => (
+            <li key={lesson.slug}>
+              <Link href={`/sre-labs/observability/${lesson.slug}`}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <strong>{lesson.title}</strong>
+                  <small>
+                    {lesson.tool} · {lesson.minutes} min
+                  </small>
+                </div>
+                <ArrowRight size={16} />
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className="practice-introduction" id="practice-labs">
+        <p className="product-eyebrow">
+          A separate practice path / Browser simulations
+        </p>
+        <h2>Build intuition before opening a terminal.</h2>
+        <p>
+          Six guided simulations for exploring reliability decisions without
+          installing tools. Completion below records assessed browser practice,
+          not execution of the local course.
+        </p>
+        <Link href={`/sre-labs/${next.id}`} className="product-text-link">
+          {completed ? "Continue browser practice" : "Start browser practice"}
+          <ArrowRight size={15} />
+        </Link>
+      </section>
+      <div className="catalog-progress">
+        <span>
+          {completed} of {SRE_LESSONS.length} labs assessed successfully
+        </span>
+        <progress
+          value={completed}
+          max={SRE_LESSONS.length}
+          aria-label="SRE curriculum completion"
+        />
+        <small>
+          Stored in this browser. Complete any mode to finish a lab.
+        </small>
+      </div>
       <section
         className="curriculum-path"
         aria-label="Recommended learning path"

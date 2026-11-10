@@ -2,28 +2,27 @@ import { expect, test } from "@playwright/test";
 
 test.use({ reducedMotion: "reduce" });
 
-test("home experiment produces an incident, recovery and deterministic reset", async ({
+test("homepage preserves the portrait introduction and direct reading links", async ({
   page,
 }) => {
   await page.goto("/");
-  const preview = page.getByLabel("Interactive checkout preview");
-  await expect(preview).toContainText("Checkout healthy");
-  await preview
-    .getByRole("button", { name: "Introduce a slow provider" })
-    .click();
-  await expect(preview).toContainText("Checkout degraded");
-  await expect(preview.locator(".preview-metrics")).not.toContainText("100%");
-  await preview
-    .getByRole("button", { name: "Cap retries and allow time to finish" })
-    .click();
-  await expect(preview).toContainText("Checkout recovered");
-  await expect(preview.locator(".preview-metrics")).toContainText("100%");
-  await preview.getByRole("button", { name: "Reset preview" }).click();
-  await expect(preview).toContainText("Checkout healthy");
-  await page
-    .getByRole("link", { name: "Start your first lab", exact: true })
-    .click();
-  await expect(page).toHaveURL(/experience\/chapter-1/);
+  await expect(
+    page.getByRole("region", { name: "Introduction" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Read the book for free", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Chapter 1 lab", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollHeight <= innerHeight + 1,
+    ),
+  ).toBe(true);
+  await expect(
+    page.getByText("Understand the systems.", { exact: false }),
+  ).toHaveCount(0);
 });
 
 test("SRE catalog filters intersect and an empty result can be cleared", async ({
@@ -229,10 +228,18 @@ test("beginner instruments a trace, assesses it, then completes an SLO experimen
   await expect(page.locator(".catalog-progress")).toContainText("2 of 6");
 });
 
-test("book keeps the seven free chapters and the full-edition boundary", async ({ page }) => {
- await page.goto("/system-design/chapter-7");
- await expect(page.getByRole("region", { name:"Full edition" })).toHaveCount(1);
- await page.goto("/system-design/chapter-8");
- await expect(page.getByRole("heading", { level:1 })).toHaveText("The rest of the book");
- await expect(page.getByRole("link", { name:/Buy it on Amazon/ })).toBeVisible();
+test("book keeps the seven free chapters and the full-edition boundary", async ({
+  page,
+}) => {
+  await page.goto("/system-design/chapter-7");
+  await expect(page.getByRole("region", { name: "Full edition" })).toHaveCount(
+    1,
+  );
+  await page.goto("/system-design/chapter-8");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "The rest of the book",
+  );
+  await expect(
+    page.getByRole("link", { name: /Buy it on Amazon/ }),
+  ).toBeVisible();
 });

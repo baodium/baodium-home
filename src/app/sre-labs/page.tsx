@@ -6,7 +6,7 @@ import { site } from "@/data/site";
 export const metadata: Metadata = {
   title: "SRE Lab",
   description:
-    "Instrument services, define SLOs, build alerts and diagnose a cascading checkout failure in four browser-based engineering labs.",
+    "Run a real observability stack locally with Express, FastAPI, Prometheus, Grafana and Jaeger, or explore six browser reliability exercises.",
   alternates: { canonical: `${site.url}/sre-labs` },
 };
 export default function SreLabsPage() {

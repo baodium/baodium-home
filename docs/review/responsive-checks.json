@@ -10,6 +10,16 @@
     "horizontalOverflow": false
   },
   {
+    "route": "/sre-labs/observability",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability/traces",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
     "route": "/sre-labs/cascade",
     "width": 375,
     "horizontalOverflow": false
@@ -31,6 +41,16 @@
   },
   {
     "route": "/sre-labs",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability/traces",
     "width": 390,
     "horizontalOverflow": false
   },
@@ -56,6 +76,16 @@
   },
   {
     "route": "/sre-labs",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability/traces",
     "width": 768,
     "horizontalOverflow": false
   },
@@ -81,6 +111,16 @@
   },
   {
     "route": "/sre-labs",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability/traces",
     "width": 1024,
     "horizontalOverflow": false
   },
@@ -106,6 +146,16 @@
   },
   {
     "route": "/sre-labs",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability/traces",
     "width": 1440,
     "horizontalOverflow": false
   },
@@ -131,6 +181,16 @@
   },
   {
     "route": "/sre-labs",
+    "width": 1920,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability",
+    "width": 1920,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/observability/traces",
     "width": 1920,
     "horizontalOverflow": false
   },

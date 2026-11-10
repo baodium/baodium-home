@@ -1,5 +1,9 @@
 # Product review evidence — November 10, 2026
 
+The original portrait homepage has been restored. Current SRE evidence now also includes an eight-exercise real-tool course. See [the focused implementation report](../observability-course.md). The older performance measurements and provisional scorecard below are historical results from commit 0447cfb; they do not assess the restored homepage.
+
+Current course screenshots: [overview desktop](course-1440.png), [overview mobile](course-390.png), [lesson desktop](course-lesson-1440.png), [lesson mobile](course-lesson-390.png). Actual tool screenshots: [Grafana](tools-grafana.png), [Jaeger](tools-jaeger.png). Real execution results: `observability-stack-e2e.json`, `observability-kit-check.json`. Course accessibility results: `observability-accessibility.json` (ten views, no violations).
+
 Run `PLAYWRIGHT_BASE_URL=http://localhost:3102 node scripts/capture-product-review.mjs` against a running production build to refresh the screenshots and overflow checks. The script captures actual healthy, incident and recovered states. Screenshot review occurred in two passes; the final captures below reflect the refinement pass.
 
 ## Screenshots
@@ -12,7 +16,7 @@ Run `PLAYWRIGHT_BASE_URL=http://localhost:3102 node scripts/capture-product-revi
 
 ## Automated evidence
 
-- `responsive-checks.json`: 30 route/viewport combinations, no horizontal document overflow.
+- `responsive-checks.json`: 42 route/viewport combinations, no horizontal document overflow.
 - `accessibility.json`: axe WCAG A/AA tagged checks on seven routes × two widths, zero reported violations.
 - `dark-accessibility.json`: active incident Metrics/Traces/Logs/Timeline tabs, zero reported violations.
 - `performance.json`: eight local Chromium runs, split between desktop and a throttled mobile profile. These are lab measurements, not field data or field INP.
