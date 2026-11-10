@@ -93,6 +93,8 @@ function p99(values: number[]) {
 }
 
 export class ChapterSimEngine {
+  requestMaya() { this.mayaWanted = true; }
+
   rnd: Rng = mulberry32(42);
   t = 0;
   target = 0;

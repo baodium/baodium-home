@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Activity, ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
+import { ArrowUpRight, BookOpen, FlaskConical } from "lucide-react";
 import type { BookChapterMeta } from "@/lib/book/types";
 import { book } from "@/data/writing";
 import { chapterNumberLabel } from "@/lib/book/chapter-label";
@@ -8,16 +8,15 @@ import { isFullEditionSlug } from "@/lib/book/edition";
 import { BookResume } from "@/components/book/reader/BookResume";
 import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { figureForChapter } from "@/lib/learning/chapter-figures";
-import { getChapter, labActionLabel } from "@/lib/learning/registry";
+import { CHAPTERS, getChapter, labActionLabel } from "@/lib/learning/registry";
 import { withReturnToReading } from "@/lib/learning/interactive-concepts";
 
 export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
   const start = chapters.find((c) => c.slug === "chapter-1") ?? chapters[0];
   const ch1 = getChapter("chapter-1");
   const labHref = ch1?.labHref
-    ? withReturnToReading(ch1.labHref, "chapter-1", "synchronous-dependencies")
+    ? withReturnToReading(ch1.labHref, "chapter-1", "diagnosing-connection-pool-saturation")
     : "/system-design/experience/chapter-1";
-  const primaryDrill = ch1?.drills[0];
 
   return (
     <div className="book-contents-wrap mx-auto w-full max-w-[calc(var(--reader-measure)+3rem)] pt-2 md:pt-3">
@@ -27,13 +26,13 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
         <div className="relative z-[1]">
           <BookResume chapters={chapters} />
           <div className="flex items-end gap-5">
-            <div className="w-16 shrink-0 overflow-hidden rounded-[2px_6px_6px_2px] shadow-[0_16px_30px_-18px_rgba(70,40,20,0.55)] md:w-20">
+            <div className="w-24 shrink-0 overflow-hidden rounded-[2px_6px_6px_2px] shadow-[0_16px_30px_-18px_rgba(70,40,20,0.55)] md:w-32">
               <Image
                 src={book.cover}
                 alt={`Cover of ${book.title} by ${book.author}`}
                 width={994}
                 height={1500}
-                sizes="5rem"
+                sizes="(max-width: 768px) 96px, 128px"
                 priority
                 className="block h-auto w-full"
               />
@@ -52,7 +51,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
           <p className="mt-10 text-lg leading-relaxed text-[var(--reader-muted)]">
             Fourteen production incidents, and the design decisions behind reliable systems.
             Baodium, the company in these stories, is fictional. The failures and tradeoffs are
-            teaching material, not claims about a real employer.
+            teaching material, not claims about a real employer. Chapters 1–7 are free online; the full edition is available on Amazon.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -74,19 +73,7 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
               <FlaskConical className="h-4 w-4" aria-hidden="true" />
               {ch1 ? labActionLabel(ch1) : "The product page and the pool"}
             </Link>
-            {primaryDrill ? (
-              <Link
-                href={withReturnToReading(
-                  primaryDrill.href,
-                  "chapter-1",
-                  "connection-demand-and-utilization",
-                )}
-                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] px-5 text-sm font-medium text-[var(--reader-muted)] transition-colors hover:border-cinnabar hover:text-cinnabar"
-              >
-                <Activity className="h-4 w-4" aria-hidden="true" />
-                {primaryDrill.title}
-              </Link>
-            ) : null}
+            <Link href="/system-design/experience" className="inline-flex min-h-12 items-center gap-2 px-3 text-sm text-[var(--reader-muted)] underline underline-offset-4">All chapter experiences</Link>
             <a
               href={book.href}
               target="_blank"
@@ -131,7 +118,8 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
                       className="min-w-0 transition-colors hover:text-cinnabar"
                       aria-label={locked ? `${chapter.title}, full edition` : undefined}
                     >
-                      {chapter.title}
+                      <span className="block">{chapter.title}</span>
+                      {lab ? <span className="mt-1 block font-sans text-[13px] leading-relaxed text-[var(--reader-muted)]">{chapterDescription(chapter.slug)}</span> : null}
                     </Link>
                     {locked ? (
                       <span className="font-mono text-[0.72rem] text-[var(--reader-muted)]">
@@ -172,4 +160,25 @@ export function BookContents({ chapters }: { chapters: BookChapterMeta[] }) {
       </div>
     </div>
   );
+}
+
+const CHAPTER_DESCRIPTIONS = [
+  "Follow a feature rollout into connection-pool contention, and learn what actually bounds demand.",
+  "Separate arrival rate, work in progress and request duration before choosing a capacity limit.",
+  "Reason about retries, idempotency and ambiguous outcomes when a timed-out operation may have committed.",
+  "Carry deadlines and cancellation across service boundaries to contain cascading failure.",
+  "Trade freshness against latency and load, and reason about behavior when cached data misses.",
+  "Make deployment artifacts reproducible and understand the boundaries containers provide.",
+  "Choose replication, partitioning and sharding strategies around ownership and failure behavior.",
+  "Use metrics, logs and traces to explain the health of a request path.",
+  "Design operational guardrails that bound failure and protect shared capacity.",
+  "Treat rollouts as controlled experiments with observable evidence and a recovery path.",
+  "Find service boundaries by examining state, ownership and the cost of coordination.",
+  "Reason about asynchronous processing, delivery semantics, lag and backpressure.",
+  "Operate machine-learning systems with attention to data, model behavior and production feedback.",
+  "Bring the tradeoffs together and build a design from explicit production constraints.",
+];
+function chapterDescription(slug: string) {
+  const chapter = CHAPTERS.find((item) => item.slug === slug);
+  return chapter ? CHAPTER_DESCRIPTIONS[chapter.number - 1] : "";
 }

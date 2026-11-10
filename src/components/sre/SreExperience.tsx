@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { recordSreProgress } from "@/lib/sre/progress";
+import Link from "next/link";
+import { AlertRuleWorkbench } from "@/components/sre/AlertRuleWorkbench";
 import { Segmented } from "@/components/ui/Segmented";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { TelemetryBoard } from "@/components/sre/TelemetryBoard";
@@ -34,7 +37,8 @@ import {
 
 export type SreLabId = "instrument" | "slo" | "alert";
 type Mode = "guided" | "practice" | "challenge";
-type PageScene = "cpu-spike" | "short-spike" | "sustained" | "missing-telemetry";
+type PageScene =
+  "cpu-spike" | "short-spike" | "sustained" | "missing-telemetry";
 
 const MODES = [
   { id: "guided" as const, label: "Guided" },
@@ -43,11 +47,16 @@ const MODES = [
 ];
 
 export function SreExperience({ lab }: { lab: SreLabId }) {
+  useEffect(() => recordSreProgress(lab), [lab]);
   const [mode, setMode] = useState<Mode>("guided");
   const [step, setStep] = useState(0);
   const [seed, setSeed] = useState(7);
-  const [controls, setControls] = useState<Controls>(() => initialControls(lab, "guided"));
-  const [engine, setEngine] = useState<EngineState>(() => initialEngine(lab, "guided", 7));
+  const [controls, setControls] = useState<Controls>(() =>
+    initialControls(lab, "guided"),
+  );
+  const [engine, setEngine] = useState<EngineState>(() =>
+    initialEngine(lab, "guided", 7),
+  );
   const [traceId, setTraceId] = useState<string | null>(null);
   const [hop, setHop] = useState<"checkout" | "payment" | null>(null);
   const [verdict, setVerdict] = useState<"meet" | "miss" | null>(null);
@@ -56,8 +65,14 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
   const [decision, setDecision] = useState<"page" | "hold" | null>(null);
   const [grade, setGrade] = useState<Grade | null>(null);
 
-  const snapshot = useMemo(() => snapshotSre(engine, controls), [engine, controls]);
-  const trace = snapshot.traces.find((item) => item.id === traceId) ?? snapshot.traces[0] ?? null;
+  const snapshot = useMemo(
+    () => snapshotSre(engine, controls),
+    [engine, controls],
+  );
+  const trace =
+    snapshot.traces.find((item) => item.id === traceId) ??
+    snapshot.traces[0] ??
+    null;
 
   const restart = (nextMode: Mode, nextSeed = seed) => {
     setMode(nextMode);
@@ -86,7 +101,16 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
   };
 
   const runCheckout = (seconds: number, patch?: Partial<Controls>) => {
-    const next = patch ? { ...controls, ...patch, instrumentation: { ...controls.instrumentation, ...patch.instrumentation } } : controls;
+    const next = patch
+      ? {
+          ...controls,
+          ...patch,
+          instrumentation: {
+            ...controls.instrumentation,
+            ...patch.instrumentation,
+          },
+        }
+      : controls;
     if (patch) setControls(next);
     const stepped = runSre(engine, next, seconds);
     setEngine(stepped);
@@ -95,19 +119,18 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
   };
 
   const check = () => {
-    if (lab === "instrument") {
-      setGrade(gradeInstrument({ controls, snapshot, trace, hop }));
-      return;
-    }
-    if (lab === "slo") {
-      setGrade(mode === "challenge" ? gradeSloChallenge(snapshot, controls, verdict) : gradeSlo(snapshot, controls));
-      return;
-    }
-    setGrade(
-      mode === "challenge"
-        ? gradeAlertChallenge(snapshot, decision)
-        : gradeAlert({ controls, choice: pageChoice }),
-    );
+    const result =
+      lab === "instrument"
+        ? gradeInstrument({ controls, snapshot, trace, hop })
+        : lab === "slo"
+          ? mode === "challenge"
+            ? gradeSloChallenge(snapshot, controls, verdict)
+            : gradeSlo(snapshot, controls)
+          : mode === "challenge"
+            ? gradeAlertChallenge(snapshot, decision)
+            : gradeAlert({ controls, choice: pageChoice });
+    setGrade(result);
+    if (result.ok) recordSreProgress(lab, mode, result.reason);
   };
 
   const guided = guidedStep({
@@ -122,78 +145,121 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
   });
 
   return (
-    <LearningWorkbench
-      canvas={
-        <>
-          <TelemetryBoard
-            controls={controls}
-            snapshot={snapshot}
-            traceId={trace?.id ?? null}
-            onTrace={setTraceId}
-            hop={hop}
-            onHop={setHop}
-          />
-          {grade ? (
-            <p className="exp-panel text-sm leading-relaxed text-[color:var(--exp-fg)]" role="status">
-              {grade.reason}
-            </p>
-          ) : null}
-        </>
-      }
-      rail={
-        <>
-          <div className="exp-panel">
-            <p className="exp-kicker">{labTitle(lab)}</p>
-            <h1 className="mt-1 font-serif text-[1.65rem] leading-tight text-[color:var(--exp-fg)]">{labChallenge(lab)}</h1>
-            <div className="mt-4">
-              <Segmented value={mode} onChange={restart} options={MODES} label="Mode" layoutId={`sre-mode-${lab}`} size="sm" />
-            </div>
-          </div>
-
-          {mode === "guided" ? (
-            <div className="exp-panel">
-              <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-                Step {step + 1} of {guided.total}
-              </p>
-              <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">{guided.title}</h2>
-              <div className="mt-2 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">{guided.body}</div>
-              <div className="mt-4 flex flex-wrap gap-2">{guided.actions}</div>
-              {step < guided.total - 1 ? (
-                <button
-                  type="button"
-                  className="exp-btn exp-btn-solid mt-4"
-                  disabled={!guided.ready}
-                  onClick={() => setStep((value) => value + 1)}
-                >
-                  Continue
-                </button>
-              ) : lab !== "alert" ? (
-                <button type="button" className="exp-btn exp-btn-solid mt-4" onClick={check}>
-                  Check this run
-                </button>
-              ) : null}
-            </div>
-          ) : (
-            <PracticeRail
-              lab={lab}
-              mode={mode}
+    <>
+      <header className="sre-lesson-mast">
+        <div>
+          <p className="exp-kicker">{labTitle(lab)} · Browser simulation</p>
+          <h1>{labChallenge(lab)}</h1>
+          <p>{objective(lab, mode)}</p>
+        </div>
+        <Segmented
+          value={mode}
+          onChange={restart}
+          options={MODES}
+          label="Mode"
+          layoutId={`sre-mode-${lab}`}
+          size="sm"
+        />
+      </header>
+      <LearningWorkbench
+        canvas={
+          <>
+            <TelemetryBoard
               controls={controls}
-              setControls={setControls}
-              verdict={verdict}
-              setVerdict={setVerdict}
-              pageChoice={pageChoice}
-              setPageChoice={setPageChoice}
-              decision={decision}
-              setDecision={setDecision}
-              onRun={() => runCheckout(lab === "instrument" ? 4 : 20)}
-              onSpend={() => runCheckout(20, { errorRate: 0.2, timeoutMs: 300, cpu: 0.35 })}
-              onAnother={() => restart("challenge", seed + 1)}
-              onCheck={check}
+              snapshot={snapshot}
+              traceId={trace?.id ?? null}
+              onTrace={setTraceId}
+              hop={hop}
+              onHop={setHop}
             />
-          )}
-        </>
-      }
-    />
+            {lab === "alert" && mode === "practice" ? (
+              <AlertRuleWorkbench
+                engine={engine}
+                controls={controls}
+                onScene={play}
+              />
+            ) : null}
+            {grade ? (
+              <p
+                className="exp-panel text-sm leading-relaxed text-[color:var(--exp-fg)]"
+                role="status"
+              >
+                {grade.reason}
+                {grade.ok ? (
+                  <>
+                    {" "}
+                    Completion saved in this browser.{" "}
+                    <Link
+                      href="/sre-labs"
+                      className="underline underline-offset-4"
+                    >
+                      View your learning path →
+                    </Link>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
+          </>
+        }
+        rail={
+          <>
+            {mode === "guided" ? (
+              <div className="exp-panel">
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+                  Step {step + 1} of {guided.total}
+                </p>
+                <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
+                  {guided.title}
+                </h2>
+                <div className="mt-2 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                  {guided.body}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {guided.actions}
+                </div>
+                {step < guided.total - 1 ? (
+                  <button
+                    type="button"
+                    className="exp-btn exp-btn-solid mt-4"
+                    disabled={!guided.ready}
+                    onClick={() => setStep((value) => value + 1)}
+                  >
+                    Continue
+                  </button>
+                ) : lab !== "alert" ? (
+                  <button
+                    type="button"
+                    className="exp-btn exp-btn-solid mt-4"
+                    onClick={check}
+                  >
+                    Check this run
+                  </button>
+                ) : null}
+              </div>
+            ) : (
+              <PracticeRail
+                lab={lab}
+                mode={mode}
+                controls={controls}
+                setControls={setControls}
+                verdict={verdict}
+                setVerdict={setVerdict}
+                pageChoice={pageChoice}
+                setPageChoice={setPageChoice}
+                decision={decision}
+                setDecision={setDecision}
+                onRun={() => runCheckout(lab === "instrument" ? 4 : 20)}
+                onSpend={() =>
+                  runCheckout(20, { errorRate: 0.2, timeoutMs: 300, cpu: 0.35 })
+                }
+                onAnother={() => restart("challenge", seed + 1)}
+                onCheck={check}
+              />
+            )}
+          </>
+        }
+      />
+    </>
   );
 }
 
@@ -231,50 +297,91 @@ function PracticeRail({
   return (
     <div className="exp-panel space-y-4">
       <div>
-        <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">Your objective</p>
-        <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-fg)]">{objective(lab, mode)}</p>
+        <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+          Your objective
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-fg)]">
+          {objective(lab, mode)}
+        </p>
       </div>
       <div>
-        <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">Getting started</p>
-        <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{gettingStarted(lab, mode)}</p>
+        <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
+          Getting started
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+          {gettingStarted(lab, mode)}
+        </p>
       </div>
       {lab === "instrument" && mode === "practice" ? (
         <SignalToggles controls={controls} setControls={setControls} />
       ) : null}
       {lab === "slo" && mode === "practice" ? (
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="exp-btn exp-btn-ghost" onClick={onRun}>
+          <button
+            type="button"
+            className="exp-btn exp-btn-ghost"
+            onClick={onRun}
+          >
             Run checkout
           </button>
-          <button type="button" className="exp-btn exp-btn-primary" onClick={onSpend}>
+          <button
+            type="button"
+            className="exp-btn exp-btn-primary"
+            onClick={onSpend}
+          >
             Raise failures
           </button>
         </div>
       ) : null}
       {lab === "slo" && mode === "challenge" ? (
         <div className="flex flex-wrap gap-2">
-          <button type="button" className={choiceClass(verdict === "meet")} onClick={() => setVerdict("meet")}>
+          <button
+            type="button"
+            className={choiceClass(verdict === "meet")}
+            onClick={() => setVerdict("meet")}
+          >
             Meets the target
           </button>
-          <button type="button" className={choiceClass(verdict === "miss")} onClick={() => setVerdict("miss")}>
+          <button
+            type="button"
+            className={choiceClass(verdict === "miss")}
+            onClick={() => setVerdict("miss")}
+          >
             Misses the target
           </button>
         </div>
       ) : null}
       {lab === "alert" && mode === "practice" ? (
-        <AlertPicker controls={controls} setControls={setControls} pageChoice={pageChoice} setPageChoice={setPageChoice} />
+        <AlertPicker
+          controls={controls}
+          setControls={setControls}
+          pageChoice={pageChoice}
+          setPageChoice={setPageChoice}
+        />
       ) : null}
       {lab === "alert" && mode === "challenge" ? (
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
-            <button type="button" className={choiceClass(decision === "page")} onClick={() => setDecision("page")}>
+            <button
+              type="button"
+              className={choiceClass(decision === "page")}
+              onClick={() => setDecision("page")}
+            >
               Page someone
             </button>
-            <button type="button" className={choiceClass(decision === "hold")} onClick={() => setDecision("hold")}>
+            <button
+              type="button"
+              className={choiceClass(decision === "hold")}
+              onClick={() => setDecision("hold")}
+            >
               Do not page
             </button>
           </div>
-          <button type="button" className="exp-btn exp-btn-ghost" onClick={onAnother}>
+          <button
+            type="button"
+            className="exp-btn exp-btn-ghost"
+            onClick={onAnother}
+          >
             Another incident
           </button>
         </div>
@@ -301,15 +408,34 @@ function SignalToggles({
   const toggle = (key: keyof Controls["instrumentation"]) => {
     setControls({
       ...controls,
-      instrumentation: { ...controls.instrumentation, [key]: !controls.instrumentation[key] },
+      instrumentation: {
+        ...controls.instrumentation,
+        [key]: !controls.instrumentation[key],
+      },
     });
   };
   return (
     <div className="space-y-2">
-      <Toggle on={controls.instrumentation.httpMetrics} onClick={() => toggle("httpMetrics")} label="HTTP metrics" />
-      <Toggle on={controls.instrumentation.outboundSpan} onClick={() => toggle("outboundSpan")} label="Outbound span" />
-      <Toggle on={controls.instrumentation.traceContext} onClick={() => toggle("traceContext")} label="Trace context" />
-      <Toggle on={controls.instrumentation.structuredLogs} onClick={() => toggle("structuredLogs")} label="Structured logs" />
+      <Toggle
+        on={controls.instrumentation.httpMetrics}
+        onClick={() => toggle("httpMetrics")}
+        label="HTTP metrics"
+      />
+      <Toggle
+        on={controls.instrumentation.outboundSpan}
+        onClick={() => toggle("outboundSpan")}
+        label="Outbound span"
+      />
+      <Toggle
+        on={controls.instrumentation.traceContext}
+        onClick={() => toggle("traceContext")}
+        label="Trace context"
+      />
+      <Toggle
+        on={controls.instrumentation.structuredLogs}
+        onClick={() => toggle("structuredLogs")}
+        label="Structured logs"
+      />
     </div>
   );
 }
@@ -349,10 +475,17 @@ function AlertPicker({
           Burn rate
         </button>
       </div>
-      <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">Which situation deserves a page?</p>
+      <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">
+        Which situation deserves a page?
+      </p>
       <div className="flex flex-col gap-2">
         {rows.map(([id, label]) => (
-          <button key={id} type="button" className={choiceClass(pageChoice === id)} onClick={() => setPageChoice(id)}>
+          <button
+            key={id}
+            type="button"
+            className={choiceClass(pageChoice === id)}
+            onClick={() => setPageChoice(id)}
+          >
             {label}
           </button>
         ))}
@@ -361,9 +494,22 @@ function AlertPicker({
   );
 }
 
-function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
+function Toggle({
+  on,
+  onClick,
+  label,
+}: {
+  on: boolean;
+  onClick: () => void;
+  label: string;
+}) {
   return (
-    <button type="button" onClick={onClick} className={choiceClass(on)} aria-pressed={on}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={choiceClass(on)}
+      aria-pressed={on}
+    >
       {label}
       <span className="ml-2 font-mono text-[0.68rem]">{on ? "on" : "off"}</span>
     </button>
@@ -379,7 +525,12 @@ function initialControls(lab: SreLabId, mode: Mode): Controls {
     return defaultControls({
       instrumentation:
         mode === "challenge"
-          ? { httpMetrics: true, outboundSpan: false, traceContext: false, structuredLogs: false }
+          ? {
+              httpMetrics: true,
+              outboundSpan: false,
+              traceContext: false,
+              structuredLogs: false,
+            }
           : { ...EMPTY_INSTRUMENTATION },
       extraLatencyMs: mode === "guided" ? 0 : 400,
       timeoutMs: 2000,
@@ -402,7 +553,12 @@ function initialControls(lab: SreLabId, mode: Mode): Controls {
 
 function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
   if (lab === "slo" && mode === "challenge") {
-    return loadCheckoutWindow(seed, { total: 1000, bad: 17, checkoutMs: 80, badMs: 800 });
+    return loadCheckoutWindow(seed, {
+      total: 1000,
+      bad: 17,
+      checkoutMs: 80,
+      badMs: 800,
+    });
   }
   if (lab === "instrument" && mode !== "guided") {
     return runScene("slow-payment", seed, initialControls(lab, mode)).state;
@@ -423,7 +579,13 @@ function guidedStep(input: {
   play: (scene: Scene, patch?: Partial<Controls>) => void;
   runCheckout: (seconds: number, patch?: Partial<Controls>) => void;
   setControls: (value: Controls) => void;
-}): { total: number; title: string; body: ReactNode; actions: ReactNode; ready: boolean } {
+}): {
+  total: number;
+  title: string;
+  body: ReactNode;
+  actions: ReactNode;
+  ready: boolean;
+} {
   if (input.lab === "instrument") return instrumentGuided(input);
   if (input.lab === "slo") return sloGuided(input);
   return alertGuided(input);
@@ -439,11 +601,18 @@ function instrumentGuided(input: GuidedInput) {
       ready: true,
       body: (
         <p>
-          Checkout is calling payment, and none of that is recorded yet. Run it once. The chart, the trace, and the log stay empty because the service has no HTTP metrics, no outbound span, no trace context, and no structured log.
+          Checkout is calling payment, and none of that is recorded yet. Run it
+          once. The chart, the trace, and the log stay empty because the service
+          has no HTTP metrics, no outbound span, no trace context, and no
+          structured log.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.runCheckout(3)}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() => input.runCheckout(3)}
+        >
           Run checkout
         </button>
       ),
@@ -453,7 +622,9 @@ function instrumentGuided(input: GuidedInput) {
       ready: flags.httpMetrics && input.snapshot.window.total > 0,
       body: (
         <p>
-          HTTP metrics count the checkouts and how many of them failed. Turn them on and run again. The error line is the share of those calls that returned 500 or 504.
+          HTTP metrics count the checkouts and how many of them failed. Turn
+          them on and run again. The error line is the share of those calls that
+          returned 500 or 504.
         </p>
       ),
       actions: (
@@ -468,7 +639,11 @@ function instrumentGuided(input: GuidedInput) {
               })
             }
           />
-          <button type="button" className="exp-btn exp-btn-ghost" onClick={() => input.runCheckout(3)}>
+          <button
+            type="button"
+            className="exp-btn exp-btn-ghost"
+            onClick={() => input.runCheckout(3)}
+          >
             Run checkout
           </button>
         </>
@@ -476,10 +651,17 @@ function instrumentGuided(input: GuidedInput) {
     },
     {
       title: "Add the outbound span",
-      ready: flags.outboundSpan && input.snapshot.traces.some((trace) => trace.unlinked.length + trace.spans.length > 1),
+      ready:
+        flags.outboundSpan &&
+        input.snapshot.traces.some(
+          (trace) => trace.unlinked.length + trace.spans.length > 1,
+        ),
       body: (
         <p>
-          The checkout span only says the request took some time. An outbound span is the payment call inside it. Add that span and run again. Until trace context is on, the payment span will not share the checkout trace id.
+          The checkout span only says the request took some time. An outbound
+          span is the payment call inside it. Add that span and run again. Until
+          trace context is on, the payment span will not share the checkout
+          trace id.
         </p>
       ),
       actions: (
@@ -490,11 +672,18 @@ function instrumentGuided(input: GuidedInput) {
             onClick={() =>
               input.setControls({
                 ...input.controls,
-                instrumentation: { ...flags, outboundSpan: !flags.outboundSpan },
+                instrumentation: {
+                  ...flags,
+                  outboundSpan: !flags.outboundSpan,
+                },
               })
             }
           />
-          <button type="button" className="exp-btn exp-btn-ghost" onClick={() => input.runCheckout(3)}>
+          <button
+            type="button"
+            className="exp-btn exp-btn-ghost"
+            onClick={() => input.runCheckout(3)}
+          >
             Run checkout
           </button>
         </>
@@ -502,10 +691,16 @@ function instrumentGuided(input: GuidedInput) {
     },
     {
       title: "Carry the trace id",
-      ready: flags.traceContext && input.snapshot.traces.some((trace) => trace.spans.some((span) => span.name === "payment charge")),
+      ready:
+        flags.traceContext &&
+        input.snapshot.traces.some((trace) =>
+          trace.spans.some((span) => span.name === "payment charge"),
+        ),
       body: (
         <p>
-          Trace context puts the checkout trace id on the payment span. With it, the slow hop sits inside the request you opened. Without it, the payment span is a stranger.
+          Trace context puts the checkout trace id on the payment span. With it,
+          the slow hop sits inside the request you opened. Without it, the
+          payment span is a stranger.
         </p>
       ),
       actions: (
@@ -523,10 +718,14 @@ function instrumentGuided(input: GuidedInput) {
     },
     {
       title: "Write a structured log",
-      ready: flags.structuredLogs && input.snapshot.logs.some((log) => log.line.includes("trace_id")),
+      ready:
+        flags.structuredLogs &&
+        input.snapshot.logs.some((log) => log.line.includes("trace_id")),
       body: (
         <p>
-          A structured log keeps request id, status, latency, and the trace id as fields. Turn it on. The line should name the same trace you have open.
+          A structured log keeps request id, status, latency, and the trace id
+          as fields. Turn it on. The line should name the same trace you have
+          open.
         </p>
       ),
       actions: (
@@ -537,11 +736,18 @@ function instrumentGuided(input: GuidedInput) {
             onClick={() =>
               input.setControls({
                 ...input.controls,
-                instrumentation: { ...flags, structuredLogs: !flags.structuredLogs },
+                instrumentation: {
+                  ...flags,
+                  structuredLogs: !flags.structuredLogs,
+                },
               })
             }
           />
-          <button type="button" className="exp-btn exp-btn-ghost" onClick={() => input.runCheckout(2)}>
+          <button
+            type="button"
+            className="exp-btn exp-btn-ghost"
+            onClick={() => input.runCheckout(2)}
+          >
             Run checkout
           </button>
         </>
@@ -549,17 +755,28 @@ function instrumentGuided(input: GuidedInput) {
     },
     {
       title: "Add latency and read the trace",
-      ready: input.controls.extraLatencyMs >= 200 && input.snapshot.traces.some((trace) => trace.paymentMs > 200),
+      ready:
+        input.controls.extraLatencyMs >= 200 &&
+        input.snapshot.traces.some((trace) => trace.paymentMs > 200),
       body: (
         <p>
-          Add 400 ms on the payment call and run again. Open a trace. The checkout span is the whole request. The payment span is the part that grew. The log records that same payment time.
+          Add 400 ms on the payment call and run again. Open a trace. The
+          checkout span is the whole request. The payment span is the part that
+          grew. The log records that same payment time.
         </p>
       ),
       actions: (
         <button
           type="button"
           className="exp-btn exp-btn-primary"
-          onClick={() => input.runCheckout(4, { extraLatencyMs: 400, timeoutMs: 2000, arrivalRate: 4, errorRate: 0 })}
+          onClick={() =>
+            input.runCheckout(4, {
+              extraLatencyMs: 400,
+              timeoutMs: 2000,
+              arrivalRate: 4,
+              errorRate: 0,
+            })
+          }
         >
           Add payment latency
         </button>
@@ -578,9 +795,14 @@ function sloGuided(input: GuidedInput) {
       body: (
         <>
           <p>
-            An SLO is a promise about a journey, not about a host. Checkout is the journey. CPU is a measurement of the machine. If you aim the SLO at CPU, failed checkouts will not spend the budget.
+            An SLO is a promise about a journey, not about a host. Checkout is
+            the journey. CPU is a measurement of the machine. If you aim the SLO
+            at CPU, failed checkouts will not spend the budget.
           </p>
-          <JourneyButtons controls={input.controls} setControls={input.setControls} />
+          <JourneyButtons
+            controls={input.controls}
+            setControls={input.setControls}
+          />
         </>
       ),
       actions: null,
@@ -591,9 +813,14 @@ function sloGuided(input: GuidedInput) {
       body: (
         <>
           <p>
-            A 500 that returns quickly is not a good checkout. A 200 that takes 800 ms is not a good checkout either. Count the call as good only when it succeeds in under 300 ms.
+            A 500 that returns quickly is not a good checkout. A 200 that takes
+            800 ms is not a good checkout either. Count the call as good only
+            when it succeeds in under 300 ms.
           </p>
-          <GoodButtons controls={input.controls} setControls={input.setControls} />
+          <GoodButtons
+            controls={input.controls}
+            setControls={input.setControls}
+          />
         </>
       ),
       actions: null,
@@ -603,24 +830,42 @@ function sloGuided(input: GuidedInput) {
       ready: input.controls.target === DEFAULT_TARGET,
       body: (
         <p>
-          This SLO is 99.5%. In 1,000 checkouts the budget is 5 bad calls. 17 bad calls is 98.3% good. 98.3% does not meet 99.5%. The pass line is the number you wrote down, not a nearby number.
+          This SLO is 99.5%. In 1,000 checkouts the budget is 5 bad calls. 17
+          bad calls is 98.3% good. 98.3% does not meet 99.5%. The pass line is
+          the number you wrote down, not a nearby number.
         </p>
       ),
-      actions: <TargetButtons controls={input.controls} setControls={input.setControls} />,
+      actions: (
+        <TargetButtons
+          controls={input.controls}
+          setControls={input.setControls}
+        />
+      ),
     },
     {
       title: "Spend the budget",
-      ready: (input.snapshot.window.spent ?? 0) > 1 && input.snapshot.window.meets === false,
+      ready:
+        (input.snapshot.window.spent ?? 0) > 1 &&
+        input.snapshot.window.meets === false,
       body: (
         <p>
-          Raise the failure rate and run the checkout. The bad count, the allowed count, and the budget meter all move from those calls. When bad checkouts pass the allowance, the window has missed 99.5%.
+          Raise the failure rate and run the checkout. The bad count, the
+          allowed count, and the budget meter all move from those calls. When
+          bad checkouts pass the allowance, the window has missed 99.5%.
         </p>
       ),
       actions: (
         <button
           type="button"
           className="exp-btn exp-btn-primary"
-          onClick={() => input.runCheckout(20, { errorRate: 0.2, timeoutMs: 300, cpu: 0.35, arrivalRate: 10 })}
+          onClick={() =>
+            input.runCheckout(20, {
+              errorRate: 0.2,
+              timeoutMs: 300,
+              cpu: 0.35,
+              arrivalRate: 10,
+            })
+          }
         >
           Raise failures
         </button>
@@ -635,28 +880,45 @@ function alertGuided(input: GuidedInput) {
   const steps = [
     {
       title: "A CPU alert pages with no failed checkout",
-      ready: input.situation === "cpu-spike" && input.snapshot.cpuAlert.status === "paging" && input.snapshot.window.meets === true,
+      ready:
+        input.situation === "cpu-spike" &&
+        input.snapshot.cpuAlert.status === "paging" &&
+        input.snapshot.window.meets === true,
       body: (
         <p>
-          This rule pages when CPU stays over 80%. Run the spike. Checkout is still succeeding. The page fires because the host is busy, not because a customer is stuck.
+          This rule pages when CPU stays over 80%. Run the spike. Checkout is
+          still succeeding. The page fires because the host is busy, not because
+          a customer is stuck.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.play("cpu-spike", { alert: "cpu" })}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() => input.play("cpu-spike", { alert: "cpu" })}
+        >
           Run the CPU spike
         </button>
       ),
     },
     {
       title: "The same alert misses checkout timeouts",
-      ready: input.situation === "sustained" && input.snapshot.cpuAlert.status === "quiet" && input.snapshot.window.bad > 0,
+      ready:
+        input.situation === "sustained" &&
+        input.snapshot.cpuAlert.status === "quiet" &&
+        input.snapshot.window.bad > 0,
       body: (
         <p>
-          Now checkouts fail while CPU stays near 35%. The CPU alert is quiet. Customers are not. A threshold on the host cannot see this.
+          Now checkouts fail while CPU stays near 35%. The CPU alert is quiet.
+          Customers are not. A threshold on the host cannot see this.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.play("sustained", { alert: "cpu" })}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() => input.play("sustained", { alert: "cpu" })}
+        >
           Run checkout failures
         </button>
       ),
@@ -666,53 +928,88 @@ function alertGuided(input: GuidedInput) {
       ready: input.controls.alert === "burn",
       body: (
         <p>
-          A multiwindow burn-rate alert pages only when the short window and the long window both spend the 99.5% budget at 14.4 times the allowed rate or faster. The windows here are 12 seconds and 60 seconds, so you can watch the shape. A single spike lights the short window and then fades. Both have to agree before anyone is woken.
+          A multiwindow burn-rate alert pages only when the short window and the
+          long window both spend the 99.5% budget at 14.4 times the allowed rate
+          or faster. The windows here are 12 seconds and 60 seconds, so you can
+          watch the shape. A single spike lights the short window and then
+          fades. Both have to agree before anyone is woken.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.setControls({ ...input.controls, alert: "burn" })}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.setControls({ ...input.controls, alert: "burn" })
+          }
+        >
           Use the burn-rate alert
         </button>
       ),
     },
     {
       title: "A short spike does not page",
-      ready: input.situation === "short-spike" && input.snapshot.burnAlert.status === "quiet" && input.snapshot.shortBurn.hot,
+      ready:
+        input.situation === "short-spike" &&
+        input.snapshot.burnAlert.status === "quiet" &&
+        input.snapshot.shortBurn.hot,
       body: (
         <p>
-          Run a short burst of failures after a healthy hour. The short window burns. The long window still contains the healthy checkouts, so the alert stays quiet.
+          Run a short burst of failures after a healthy hour. The short window
+          burns. The long window still contains the healthy checkouts, so the
+          alert stays quiet.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.play("short-spike", { alert: "burn" })}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() => input.play("short-spike", { alert: "burn" })}
+        >
           Run a short spike
         </button>
       ),
     },
     {
       title: "A sustained failure pages",
-      ready: input.situation === "sustained" && input.snapshot.burnAlert.status === "paging" && input.snapshot.cpuAlert.status !== "paging",
+      ready:
+        input.situation === "sustained" &&
+        input.snapshot.burnAlert.status === "paging" &&
+        input.snapshot.cpuAlert.status !== "paging",
       body: (
         <p>
-          Keep the failures going. Both windows burn, CPU stays under 80%, and the burn-rate alert pages. This is the page that matches the customer.
+          Keep the failures going. Both windows burn, CPU stays under 80%, and
+          the burn-rate alert pages. This is the page that matches the customer.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.play("sustained", { alert: "burn" })}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() => input.play("sustained", { alert: "burn" })}
+        >
           Run a sustained failure
         </button>
       ),
     },
     {
       title: "Missing telemetry is not a quiet SLO",
-      ready: input.situation === "missing-telemetry" && input.snapshot.burnAlert.status === "no-data",
+      ready:
+        input.situation === "missing-telemetry" &&
+        input.snapshot.burnAlert.status === "no-data",
       body: (
         <p>
-          Stop the checkout metrics while failures continue. The burn alert has no samples. It does not draw a healthy 100%, and it does not page. You cannot explain a page from a chart that is not there.
+          Stop the checkout metrics while failures continue. The burn alert has
+          no samples. It does not draw a healthy 100%, and it does not page. You
+          cannot explain a page from a chart that is not there.
         </p>
       ),
       actions: (
-        <button type="button" className="exp-btn exp-btn-primary" onClick={() => input.play("missing-telemetry", { alert: "burn" })}>
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() => input.play("missing-telemetry", { alert: "burn" })}
+        >
           Stop checkout metrics
         </button>
       ),
@@ -722,38 +1019,78 @@ function alertGuided(input: GuidedInput) {
   return { total: steps.length, ...current };
 }
 
-function JourneyButtons({ controls, setControls }: { controls: Controls; setControls: (value: Controls) => void }) {
-  const setJourney = (journey: Journey) => setControls({ ...controls, journey });
+function JourneyButtons({
+  controls,
+  setControls,
+}: {
+  controls: Controls;
+  setControls: (value: Controls) => void;
+}) {
+  const setJourney = (journey: Journey) =>
+    setControls({ ...controls, journey });
   return (
     <div className="mt-3 flex flex-col gap-2">
-      <button type="button" className={choiceClass(controls.journey === "checkout")} onClick={() => setJourney("checkout")}>
+      <button
+        type="button"
+        className={choiceClass(controls.journey === "checkout")}
+        onClick={() => setJourney("checkout")}
+      >
         Checkout completes
       </button>
-      <button type="button" className={choiceClass(controls.journey === "cpu")} onClick={() => setJourney("cpu")}>
+      <button
+        type="button"
+        className={choiceClass(controls.journey === "cpu")}
+        onClick={() => setJourney("cpu")}
+      >
         CPU stays under 80%
       </button>
     </div>
   );
 }
 
-function GoodButtons({ controls, setControls }: { controls: Controls; setControls: (value: Controls) => void }) {
-  const setGood = (goodWhen: GoodWhen) => setControls({ ...controls, goodWhen });
+function GoodButtons({
+  controls,
+  setControls,
+}: {
+  controls: Controls;
+  setControls: (value: Controls) => void;
+}) {
+  const setGood = (goodWhen: GoodWhen) =>
+    setControls({ ...controls, goodWhen });
   return (
     <div className="mt-3 flex flex-col gap-2">
-      <button type="button" className={choiceClass(controls.goodWhen === "success")} onClick={() => setGood("success")}>
+      <button
+        type="button"
+        className={choiceClass(controls.goodWhen === "success")}
+        onClick={() => setGood("success")}
+      >
         Any HTTP 200
       </button>
-      <button type="button" className={choiceClass(controls.goodWhen === "fast")} onClick={() => setGood("fast")}>
+      <button
+        type="button"
+        className={choiceClass(controls.goodWhen === "fast")}
+        onClick={() => setGood("fast")}
+      >
         Under 300 ms, even if it failed
       </button>
-      <button type="button" className={choiceClass(controls.goodWhen === "both")} onClick={() => setGood("both")}>
+      <button
+        type="button"
+        className={choiceClass(controls.goodWhen === "both")}
+        onClick={() => setGood("both")}
+      >
         Succeeds in under 300 ms
       </button>
     </div>
   );
 }
 
-function TargetButtons({ controls, setControls }: { controls: Controls; setControls: (value: Controls) => void }) {
+function TargetButtons({
+  controls,
+  setControls,
+}: {
+  controls: Controls;
+  setControls: (value: Controls) => void;
+}) {
   return (
     <div className="flex flex-wrap gap-2">
       {[0.99, 0.995, 0.999].map((target) => (

@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { recordSreProgress } from "@/lib/sre/progress";
+import { CascadeTrends } from "@/components/sre/CascadeTrends";
 import { CascadePortrait } from "@/components/sre/CascadePortrait";
 import { LaboratoryShell } from "@/components/sre/LaboratoryShell";
-import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import {
   advanceEngine,
+  DEFAULT_TICK_SEC,
   createEngine,
   setSimFrozen,
   tick,
@@ -35,19 +37,24 @@ const MODES = [
   { id: "challenge" as const, label: "Challenge" },
 ];
 
-const LABS = [
-  { href: "/sre-labs/cascade", label: "Cascade" },
-  { href: "/sre-labs/instrument", label: "Instrument" },
-  { href: "/sre-labs/slo", label: "SLO" },
-  { href: "/sre-labs/alert", label: "Alert" },
-];
-
 const TABS: { id: Tab; label: string }[] = [
   { id: "metrics", label: "Metrics" },
   { id: "traces", label: "Traces" },
   { id: "logs", label: "Logs" },
   { id: "timeline", label: "Timeline" },
 ];
+
+const CONTROL_LABELS: Record<keyof CascadeControls, string> = {
+  arrivalRate: "Arrivals/s",
+  providerLatencyMs: "Provider work (ms)",
+  maxRetries: "Retry limit",
+  attemptTimeoutMs: "Attempt timeout (ms)",
+  clientDeadlineMs: "Client deadline (ms)",
+  backoffMs: "Backoff (ms)",
+  cancelInFlight: "Cancel abandoned work",
+  propagateDeadline: "Propagate deadline",
+  shedAtInflight: "Shed at open checkouts",
+};
 
 const SERVICES: { id: CascadeService; label: string }[] = [
   { id: "gateway", label: "Gateway" },
@@ -65,8 +72,8 @@ type Step = {
 
 const STEPS: Step[] = [
   {
-    look: "The gateway is quiet until the clock moves. A healthy minute is one provider call per checkout, and the call finishes well inside the attempt timeout.",
-    action: "Run a healthy minute",
+    look: "The gateway is quiet until the clock moves. A healthy window is one provider call per checkout, and the call finishes well inside the attempt timeout.",
+    action: "Run a healthy baseline",
     patch: healthyControls(),
     seconds: 6,
   },
@@ -114,27 +121,74 @@ const STEPS: Step[] = [
 export function CascadeLab() {
   const [mode, setMode] = useState<Mode>("guided");
   const [nonce, setNonce] = useState(0);
-  return <CascadeSession key={`${mode}-${nonce}`} mode={mode} setMode={setMode} onReplay={() => setNonce((value) => value + 1)} />;
+  return (
+    <CascadeSession
+      key={`${mode}-${nonce}`}
+      mode={mode}
+      setMode={setMode}
+      onReplay={() => setNonce((value) => value + 1)}
+    />
+  );
 }
 
-function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mode: Mode) => void; onReplay: () => void }) {
-  const reduced = usePrefersReducedMotion();
+function CascadeSession({
+  mode,
+  setMode,
+  onReplay,
+}: {
+  mode: Mode;
+  setMode: (mode: Mode) => void;
+  onReplay: () => void;
+}) {
   const [initialEngine] = useState(() => {
     const engine = createEngine(42);
-    attachCascade(engine, mode === "challenge" ? incidentControls() : healthyControls());
+    attachCascade(
+      engine,
+      mode === "challenge" ? incidentControls() : healthyControls(),
+    );
     if (mode === "challenge") advanceEngine(engine, 5);
     setSimFrozen(engine, true);
     return engine;
   });
   const engineRef = useRef<Engine | null>(initialEngine);
   const [step, setStep] = useState(0);
+  const [actions, setActions] = useState<
+    { t: number; label: string; patch: Partial<CascadeControls> }[]
+  >([]);
+  const [historyFull, setHistoryFull] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [speed, setSpeed] = useState(1);
+  const [logService, setLogService] = useState("all");
+  const [logKind, setLogKind] = useState("all");
+  const [logQuery, setLogQuery] = useState("");
+  useEffect(() => recordSreProgress("cascade"), []);
+  const remember = (
+    t: number,
+    partial: Partial<CascadeControls>,
+    label: string,
+  ) => {
+    if (actions.length >= 200) {
+      setHistoryFull(true);
+      return;
+    }
+    setActions((previous) => [
+      ...previous,
+      { t, patch: { ...partial }, label },
+    ]);
+  };
   const [playing, setPlaying] = useState(false);
-  const [controls, setControls] = useState<CascadeControls>(() => ({ ...initialEngine.cascade!.controls }));
-  const [view, setView] = useState<CascadeView | null>(() => cascadeView(initialEngine.cascade!, initialEngine.t));
+  const [controls, setControls] = useState<CascadeControls>(() => ({
+    ...initialEngine.cascade!.controls,
+  }));
+  const [view, setView] = useState<CascadeView | null>(() =>
+    cascadeView(initialEngine.cascade!, initialEngine.t),
+  );
   const [selected, setSelected] = useState<CascadeService>("gateway");
   const [traceId, setTraceId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("metrics");
-  const [grade, setGrade] = useState<{ ok: boolean; reason: string } | null>(null);
+  const [grade, setGrade] = useState<{ ok: boolean; reason: string } | null>(
+    null,
+  );
 
   const publish = useCallback(() => {
     const engine = engineRef.current;
@@ -147,23 +201,42 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
     if (!playing) return;
     let frame = 0;
     let last = performance.now();
+    let lastPublish = last;
+    let accumulator = 0;
     const loop = (now: number) => {
       const engine = engineRef.current;
       if (engine && !engine.frozen) {
         const real = Math.min(0.05, (now - last) / 1000);
         last = now;
-        tick(engine, Math.max(0.01, real * 2.5));
-        publish();
+        accumulator += real * speed;
+        while (accumulator >= DEFAULT_TICK_SEC) {
+          tick(engine, DEFAULT_TICK_SEC);
+          accumulator -= DEFAULT_TICK_SEC;
+        }
+        if (now - lastPublish >= 100) {
+          publish();
+          lastPublish = now;
+        }
       }
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
-  }, [playing, publish]);
+  }, [playing, publish, speed]);
 
   const patch = (partial: Partial<CascadeControls>) => {
     const engine = engineRef.current;
     if (!engine?.cascade) return;
+    remember(
+      engine.t,
+      partial,
+      Object.entries(partial)
+        .map(
+          ([key, value]) =>
+            `${CONTROL_LABELS[key as keyof CascadeControls]} → ${value === null ? "off" : value}`,
+        )
+        .join("; "),
+    );
     setCascadeControls(engine.cascade, partial);
     setControls({ ...engine.cascade.controls });
     setGrade(null);
@@ -173,6 +246,11 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
     const spec = STEPS[step];
     const engine = engineRef.current;
     if (!spec?.patch || !engine?.cascade) return;
+    remember(
+      engine.t,
+      spec.patch,
+      spec.action ?? "Guided configuration change",
+    );
     setCascadeControls(engine.cascade, spec.patch);
     setSimFrozen(engine, true);
     setPlaying(false);
@@ -189,8 +267,10 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
     if (playing) {
       setSimFrozen(engine, true);
       setPlaying(false);
+      publish();
       return;
     }
+    setGrade(null);
     setSimFrozen(engine, false);
     setPlaying(true);
   };
@@ -200,42 +280,83 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
     if (!engine) return;
     setPlaying(false);
     setSimFrozen(engine, true);
-    tick(engine, 0.5, { force: true });
+    advanceEngine(engine, 0.5);
+    setGrade(null);
     publish();
   };
 
   const check = () => {
     const engine = engineRef.current;
     if (!engine?.cascade || !view) return;
-    setGrade(
-      gradeCascade(view, {
-        mode,
-        demonstrated: engine.cascade.demonstratedAmplification,
-      }),
+    const currentView = cascadeView(engine.cascade, engine.t);
+    setView(currentView);
+    const result = gradeCascade(currentView, {
+      mode,
+      demonstrated: engine.cascade.demonstratedAmplification,
+    });
+    setSimFrozen(engine, true);
+    setPlaying(false);
+    setGrade(result);
+    if (result.ok) recordSreProgress("cascade", mode, result.reason);
+  };
+
+  const replay = () => {
+    if (historyFull) return;
+    const targetTime = engineRef.current?.t ?? 0;
+    const engine = createEngine(42);
+    attachCascade(
+      engine,
+      mode === "challenge" ? incidentControls() : healthyControls(),
     );
+    setSimFrozen(engine, true);
+    if (mode === "challenge") advanceEngine(engine, 5);
+    for (const action of actions) {
+      if (action.t - engine.t > DEFAULT_TICK_SEC / 2)
+        advanceEngine(engine, action.t - engine.t);
+      setCascadeControls(engine.cascade!, action.patch);
+    }
+    if (targetTime - engine.t > DEFAULT_TICK_SEC / 2)
+      advanceEngine(engine, targetTime - engine.t);
+    engineRef.current = engine;
+    setPlaying(false);
+    setGrade(null);
+    publish();
   };
 
   const current = STEPS[Math.min(step, STEPS.length - 1)]!;
-  const trace = view?.traces.find((item) => item.traceId === traceId) ?? view?.traces[0] ?? null;
+  const trace =
+    view?.traces.find((item) => item.traceId === traceId) ??
+    view?.traces[0] ??
+    null;
   const service = view?.services.find((item) => item.service === selected);
 
   return (
     <LaboratoryShell
       toolbar={
-        <nav className="cascade-siblings" aria-label="SRE labs">
-          {LABS.map((lab) => (
-            <Link key={lab.href} href={lab.href} aria-current={lab.href === "/sre-labs/cascade" ? "page" : undefined}>
-              {lab.label}
-            </Link>
-          ))}
-        </nav>
+        <p className="product-eyebrow">
+          Gateway / Checkout / Payment / Provider
+        </p>
       }
       mission={
         <div className="cascade-mast">
-          <p className="exp-kicker">SRE Lab</p>
+          <p className="exp-kicker">SRE Lab / Incident investigation</p>
           <h1 className="cascade-title">
-            {mode === "challenge" ? "Checkout success collapsed." : "Diagnose a cascading checkout failure"}
+            {mode === "challenge"
+              ? "Checkout success collapsed."
+              : "Diagnose a cascading checkout failure"}
           </h1>
+          <p className="laboratory-status">
+            {grade
+              ? grade.ok
+                ? "Assessment passed · paused"
+                : "Review needed · paused"
+              : playing
+                ? "Running"
+                : view?.t
+                  ? "Paused"
+                  : "Ready"}{" "}
+            · seed 42
+          </p>
           <div className="cascade-modes" role="group" aria-label="Mode">
             {MODES.map((item, index) => (
               <span key={item.id} className="cascade-mode">
@@ -244,12 +365,18 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
                     /
                   </span>
                 ) : null}
-                <button type="button" aria-pressed={mode === item.id} onClick={() => setMode(item.id)}>
+                <button
+                  type="button"
+                  aria-pressed={mode === item.id}
+                  onClick={() => setMode(item.id)}
+                >
                   {item.label}
                 </button>
               </span>
             ))}
-            <span className="cascade-clock">t {view ? view.t.toFixed(1) : "0.0"}s · seed 42</span>
+            <span className="cascade-clock">
+              t {view ? view.t.toFixed(1) : "0.0"}s · seed 42
+            </span>
           </div>
         </div>
       }
@@ -266,27 +393,55 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
             ) : null}
             {mode === "practice" ? (
               <p>
-                <strong>Your objective.</strong> Make the provider slow enough, and the attempt timeout short enough,
-                that retries multiply and checkout success falls. Then restore the last 5 seconds: success at or above
-                95%, at most 1.25 provider calls per checkout, provider slots under 90% full, and at least half of the
-                arrivals succeeding.
+                <strong>Your objective.</strong> Make the provider slow enough,
+                and the attempt timeout short enough, that retries multiply and
+                checkout success falls. Then restore the last 5 seconds: success
+                at or above 95%, at most 1.25 provider calls per checkout,
+                provider slots under 90% full, and at least half of the arrivals
+                succeeding.
               </p>
             ) : null}
             {mode === "challenge" ? (
               <p>
-                <strong>Your objective.</strong> In the last 5 seconds, checkout success reaches 95%, each finished
-                checkout starts at most 1.25 provider calls, provider slots stay under 90% full, and at least half of
-                the arrivals succeed.
+                <strong>Your objective.</strong> In the last 5 seconds, checkout
+                success reaches 95%, each finished checkout starts at most 1.25
+                provider calls, provider slots stay under 90% full, and at least
+                half of the arrivals succeed.
               </p>
             ) : null}
           </div>
+          <details className="laboratory-objectives">
+            <summary>What counts as recovery?</summary>
+            <ul>
+              <li>At least 8 completed checkouts in the last 5 seconds.</li>
+              <li>
+                Success ≥95%; provider calls ≤1.25 per completed checkout.
+              </li>
+              <li>
+                Provider slots under 90%; successful arrivals at least half the
+                offered rate.
+              </li>
+              <li>
+                Guided and practice modes must first demonstrate retry
+                amplification.
+              </li>
+            </ul>
+          </details>
           <div className="cascade-actions">
             {mode === "guided" && current.action ? (
-              <button type="button" className="exp-btn exp-btn-primary cascade-cta" onClick={runStep}>
+              <button
+                type="button"
+                className="exp-btn exp-btn-primary cascade-cta"
+                onClick={runStep}
+              >
                 {current.action}
               </button>
             ) : (
-              <button type="button" className="exp-btn exp-btn-primary cascade-cta" onClick={check}>
+              <button
+                type="button"
+                className="exp-btn exp-btn-primary cascade-cta"
+                onClick={check}
+              >
                 Check this run
               </button>
             )}
@@ -300,18 +455,53 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
               <button type="button" onClick={onReplay}>
                 Reset
               </button>
+              <button
+                type="button"
+                onClick={replay}
+                disabled={historyFull || !view?.t}
+              >
+                Replay experiment
+              </button>
+              <label className="lab-speed">
+                Speed{" "}
+                <select
+                  aria-label="Simulation speed"
+                  value={speed}
+                  onChange={(event) => setSpeed(Number(event.target.value))}
+                >
+                  <option value={1}>1×</option>
+                  <option value={2}>2×</option>
+                  <option value={4}>4×</option>
+                </select>
+              </label>
             </div>
           </div>
+          {historyFull ? (
+            <p role="status" className="text-sm">
+              Replay history reached its 200-action limit. Reset to record a new
+              experiment.
+            </p>
+          ) : null}
           {grade ? (
-            <p role="status" className={`cascade-result ${grade.ok ? "is-ok" : ""}`}>
+            <p
+              role="status"
+              className={`cascade-result ${grade.ok ? "is-ok" : ""}`}
+            >
               {grade.reason}
+              {grade.ok
+                ? " Completion saved in this browser."
+                : " Change a control, advance the clock, then check again."}
             </p>
           ) : null}
         </>
       }
       topology={
         view ? (
-          <CascadePortrait view={view} selected={selected} onSelect={setSelected} />
+          <CascadePortrait
+            view={view}
+            selected={selected}
+            onSelect={setSelected}
+          />
         ) : (
           <p className="cascade-waiting">The clock has not started.</p>
         )
@@ -319,17 +509,21 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
       preface={
         mode === "practice" ? (
           <p>
-            A timeout shorter than the provider work makes payment retry. If the timeout does not release the slot, the
-            provider keeps working after the caller has gone, and the next retry waits behind it. Raising the timeout
-            above the measured provider work lets the first call finish. Capping retries stops the extra calls even when
-            the timeout stays short, and the shopper still fails until the wait covers the work.
+            A timeout shorter than the provider work makes payment retry. If the
+            timeout does not release the slot, the provider keeps working after
+            the caller has gone, and the next retry waits behind it. Raising the
+            timeout above the measured provider work lets the first call finish.
+            Capping retries stops the extra calls even when the timeout stays
+            short, and the shopper still fails until the wait covers the work.
           </p>
         ) : mode === "challenge" ? (
           <p>
-            Play or step the clock. Select a service, then open a trace and the log for the same trace id. Provider
-            latency is measured from the spans. You can change the retry limit, the attempt timeout, the client
-            deadline, whether a timeout releases the provider slot, whether payment refuses work that cannot finish
-            before the deadline, and whether the gateway sheds load.
+            Play or step the clock. Select a service, then open a trace and the
+            log for the same trace id. Provider latency is measured from the
+            spans. You can change the retry limit, the attempt timeout, the
+            client deadline, whether a timeout releases the provider slot,
+            whether payment refuses work that cannot finish before the deadline,
+            and whether the gateway sheds load.
           </p>
         ) : null
       }
@@ -342,7 +536,9 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
             {service && view ? (
               <dl className="mt-3 space-y-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
                 <div className="flex justify-between gap-3">
-                  <dt>{selected === "gateway" ? "Open checkouts" : "Open spans"}</dt>
+                  <dt>
+                    {selected === "gateway" ? "Open checkouts" : "Open spans"}
+                  </dt>
                   <dd className="font-mono text-[color:var(--exp-fg)]">
                     {selected === "gateway" ? view.openJourneys : service.open}
                   </dd>
@@ -356,11 +552,20 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
                 <div className="flex justify-between gap-3">
                   <dt>{selected === "gateway" ? "Checkout p99" : "Hop p99"}</dt>
                   <dd className="font-mono text-[color:var(--exp-fg)]">
-                    {Math.round(selected === "gateway" ? view.gatewayP99Ms : service.p99Ms)} ms
+                    {Math.round(
+                      selected === "gateway"
+                        ? view.gatewayP99Ms
+                        : service.p99Ms,
+                    )}{" "}
+                    ms
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt>{selected === "gateway" ? "Checkout failed" : "Failed share"}</dt>
+                  <dt>
+                    {selected === "gateway"
+                      ? "Checkout failed"
+                      : "Failed share"}
+                  </dt>
                   <dd className="font-mono text-[color:var(--exp-fg)]">
                     {selected === "gateway"
                       ? view.successRate == null
@@ -381,32 +586,56 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
                     </div>
                     <div className="flex justify-between gap-3">
                       <dt>Queue</dt>
-                      <dd className="font-mono text-[color:var(--exp-fg)]">{view?.providerQueue ?? 0}</dd>
+                      <dd className="font-mono text-[color:var(--exp-fg)]">
+                        {view?.providerQueue ?? 0}
+                      </dd>
                     </div>
                     <div className="flex justify-between gap-3">
                       <dt>Measured work</dt>
                       <dd className="font-mono text-[color:var(--exp-fg)]">
-                        {view?.measuredProviderMs == null ? "no samples" : `${Math.round(view.measuredProviderMs)} ms`}
+                        {view?.measuredProviderMs == null
+                          ? "no samples"
+                          : `${Math.round(view.measuredProviderMs)} ms`}
                       </dd>
                     </div>
                   </>
                 ) : null}
               </dl>
             ) : (
-              <p className="mt-3 text-sm text-[color:var(--exp-muted)]">Select a service on the path.</p>
+              <p className="mt-3 text-sm text-[color:var(--exp-muted)]">
+                Select a service on the path.
+              </p>
             )}
             <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-              Checkout p99 is the slow end of the shopper&apos;s wait. Hop p99 is the span on the service you selected.
-              Slot use counts provider work that is still running, including work the caller already abandoned.
+              Checkout p99 is the slow end of the shopper&apos;s wait. Hop p99
+              is the span on the service you selected. Slot use counts provider
+              work that is still running, including work the caller already
+              abandoned.
             </p>
+          </div>
+          <div className="lab-notes">
+            <label htmlFor="incident-notes">Your hypothesis and evidence</label>
+            <textarea
+              id="incident-notes"
+              value={notes}
+              maxLength={3000}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Which dependency is slow? What evidence supports your next action?"
+            />
+            <small>
+              Notes are for reflection in this run. They are not automatically
+              graded or saved after reset.
+            </small>
           </div>
           <div className="cascade-card">
             <h2 className="cascade-card-title">Adjust the checkout</h2>
             {mode === "challenge" ? (
               <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">
                 Provider work in this window is{" "}
-                {view?.measuredProviderMs == null ? "still waiting for a sample" : `${Math.round(view.measuredProviderMs)} ms`}.
-                The next attempt uses that measured latency.
+                {view?.measuredProviderMs == null
+                  ? "still waiting for a sample"
+                  : `${Math.round(view.measuredProviderMs)} ms`}
+                . The next attempt uses that measured latency.
               </p>
             ) : (
               <Slider
@@ -452,12 +681,16 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
             />
             <Toggle
               on={controls.cancelInFlight}
-              onClick={() => patch({ cancelInFlight: !controls.cancelInFlight })}
+              onClick={() =>
+                patch({ cancelInFlight: !controls.cancelInFlight })
+              }
               label="Release the provider slot when the attempt times out"
             />
             <Toggle
               on={controls.propagateDeadline}
-              onClick={() => patch({ propagateDeadline: !controls.propagateDeadline })}
+              onClick={() =>
+                patch({ propagateDeadline: !controls.propagateDeadline })
+              }
               label="Refuse a provider call that cannot finish before the client deadline"
             />
             <Toggle
@@ -492,48 +725,276 @@ function CascadeSession({ mode, setMode, onReplay }: { mode: Mode; setMode: (mod
                 key={item.id}
                 type="button"
                 role="tab"
+                id={`telemetry-tab-${item.id}`}
+                aria-controls="telemetry-panel"
+                tabIndex={tab === item.id ? 0 : -1}
                 aria-selected={tab === item.id}
+                onKeyDown={(event) => {
+                  const index = TABS.findIndex((entry) => entry.id === tab);
+                  const next =
+                    event.key === "ArrowRight"
+                      ? (index + 1) % TABS.length
+                      : event.key === "ArrowLeft"
+                        ? (index + TABS.length - 1) % TABS.length
+                        : event.key === "Home"
+                          ? 0
+                          : event.key === "End"
+                            ? TABS.length - 1
+                            : null;
+                  if (next == null) return;
+                  event.preventDefault();
+                  setTab(TABS[next].id);
+                  document
+                    .getElementById(`telemetry-tab-${TABS[next].id}`)
+                    ?.focus();
+                }}
                 onClick={() => setTab(item.id)}
               >
                 {item.label}
               </button>
             ))}
           </div>
-          <div className="mt-4" role="tabpanel">
-            {view && tab === "metrics" ? <Metrics view={view} reduced={reduced} /> : null}
+          <div
+            className="mt-4"
+            role="tabpanel"
+            id="telemetry-panel"
+            aria-labelledby={`telemetry-tab-${tab}`}
+            tabIndex={0}
+          >
+            {view && tab === "metrics" ? <Metrics view={view} /> : null}
             {view && tab === "traces" ? (
-              <Traces view={view} traceId={trace?.traceId ?? null} onSelect={setTraceId} />
+              <Traces
+                view={view}
+                traceId={trace?.traceId ?? null}
+                onInspect={setSelected}
+                onSelect={(id) => {
+                  setTraceId(id);
+                  setPlaying(false);
+                  if (engineRef.current) setSimFrozen(engineRef.current, true);
+                }}
+              />
             ) : null}
-            {view && tab === "logs" ? <LogList rows={view.logs} empty="No log lines yet. Play the clock." /> : null}
+            {view && tab === "logs" ? (
+              <>
+                <div className="lab-log-filters">
+                  <label>
+                    Service
+                    <select
+                      value={logService}
+                      onChange={(event) => setLogService(event.target.value)}
+                    >
+                      <option value="all">All services</option>
+                      {SERVICES.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Event
+                    <select
+                      value={logKind}
+                      onChange={(event) => setLogKind(event.target.value)}
+                    >
+                      {[
+                        "all",
+                        "start",
+                        "end",
+                        "retry",
+                        "timeout",
+                        "reject",
+                        "cancel",
+                        "queue",
+                      ].map((kind) => (
+                        <option key={kind} value={kind}>
+                          {kind === "all" ? "All events" : kind}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Text or trace ID
+                    <input
+                      type="search"
+                      value={logQuery}
+                      onChange={(event) => setLogQuery(event.target.value)}
+                      placeholder="e.g. tr-1 or timeout"
+                    />
+                  </label>
+                </div>
+                <p className="mb-3 text-xs text-[color:var(--exp-muted)]">
+                  Plain, case-insensitive substring search. Up to 200 retained
+                  events from the last 20 simulation seconds.
+                </p>
+                <LogList
+                  rows={view.logs.filter(
+                    (row) =>
+                      (logService === "all" || row.service === logService) &&
+                      (logKind === "all" || row.kind === logKind) &&
+                      `${row.traceId} ${row.message}`
+                        .toLowerCase()
+                        .includes(logQuery.toLowerCase()),
+                  )}
+                  empty={
+                    view.logs.length
+                      ? "No events match these filters. Broaden the service, event or text filter."
+                      : "No log events yet. Play or step the clock."
+                  }
+                />
+              </>
+            ) : null}
             {view && tab === "timeline" ? (
-              <LogList rows={view.timeline} empty="The timeline fills from the same events as the log." />
+              <>
+                <div className="lab-action-history">
+                  <h3>Your operational decisions</h3>
+                  {actions.length ? (
+                    <ol>
+                      {actions.map((action, index) => (
+                        <li key={index}>
+                          <time>{action.t.toFixed(2)}s</time>
+                          <span>{action.label}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="text-sm">
+                      Configuration changes appear here at their simulation
+                      time.
+                    </p>
+                  )}
+                </div>
+                <h3 className="mb-3 text-sm font-medium">System events</h3>
+                <LogList
+                  rows={view.timeline}
+                  empty="The timeline fills from the same events as the log."
+                />
+              </>
             ) : null}
-            {!view ? <p className="text-sm text-[color:var(--exp-muted)]">The clock has not started.</p> : null}
+            {!view ? (
+              <p className="text-sm text-[color:var(--exp-muted)]">
+                The clock has not started.
+              </p>
+            ) : null}
           </div>
+          {grade && view ? (
+            <section className="lab-review" aria-label="Incident review">
+              <p className="exp-kicker">
+                {grade.ok ? "Recovered" : "Investigation in progress"}
+              </p>
+              <h3>Evidence at {view.t.toFixed(1)} seconds</h3>
+              <p>{grade.reason}</p>
+              <dl>
+                <div>
+                  <dt>Finished / successful in 5s</dt>
+                  <dd>
+                    {view.finished} / {view.successes}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Provider calls / checkout</dt>
+                  <dd>{view.attemptsPerCheckout.toFixed(2)}</dd>
+                </div>
+                <div>
+                  <dt>Checkout p99</dt>
+                  <dd>
+                    {view.finished
+                      ? `${Math.round(view.gatewayP99Ms)} ms`
+                      : "No samples"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Provider slots / queued</dt>
+                  <dd>
+                    {view.providerBusy} of {view.providerSlots} /{" "}
+                    {view.providerQueue}
+                  </dd>
+                </div>
+              </dl>
+              <p>
+                {actions.length} configuration changes. Last action:{" "}
+                {actions.at(-1)?.label ?? "No configuration changes"}. The
+                success population includes timeouts and rejected checkouts, so
+                shedding cannot silently improve availability.
+              </p>
+              {notes ? (
+                <p>
+                  <strong>Your hypothesis:</strong> {notes}
+                </p>
+              ) : null}
+              <p>
+                Compare another approach by resetting the same seed. Replay
+                experiment reconstructs this run from configuration timestamps;
+                elapsed clock time and resulting evidence are reproduced.
+              </p>
+              <Link href="/sre-labs" className="product-text-link">
+                Return to your learning path →
+              </Link>
+            </section>
+          ) : null}
         </div>
       }
     />
   );
 }
 
-function Metrics({ view, reduced }: { view: CascadeView; reduced: boolean }) {
-  const success = view.successRate == null ? "no finishes" : `${(view.successRate * 100).toFixed(1)}%`;
+function Metrics({ view }: { view: CascadeView }) {
+  const success =
+    view.successRate == null
+      ? "no finishes"
+      : `${(view.successRate * 100).toFixed(1)}%`;
   return (
     <div className="cascade-metrics">
-      <Trend samples={view.samples} reduced={reduced} />
+      <CascadeTrends samples={view.samples} />
       <dl>
-        <Metric name="Checkout success" value={success} about="Finished checkouts that returned in time, divided by every checkout that finished, including timeouts and sheds." />
-        <Metric name="Provider calls per checkout" value={view.attemptsPerCheckout.toFixed(2)} about="Provider spans on those finished checkouts, divided by the number of finished checkouts." />
-        <Metric name="Provider slot use" value={`${Math.round(view.providerUtilization * 100)}%`} about={`Slots running provider work, divided by ${view.providerSlots}. This stays at or under 100%. Extra attempts wait in the queue.`} />
-        <Metric name="Gateway p99" value={`${Math.round(view.gatewayP99Ms)} ms`} about="The slow end of checkout duration, from accept to the gateway result, over the same finished checkouts." />
-        <Metric name="Successful arrivals" value={`${view.okPerSec.toFixed(1)} /s`} about={`Checkouts that returned in time, per second. The arrival rate is ${view.controls.arrivalRate} per second.`} />
-        <Metric name="Measured provider work" value={view.measuredProviderMs == null ? "no samples" : `${Math.round(view.measuredProviderMs)} ms`} about="The middle of provider work durations started in this window." />
+        <Metric
+          name="Checkout success"
+          value={success}
+          about="Finished checkouts that returned in time, divided by every checkout that finished, including timeouts and sheds."
+        />
+        <Metric
+          name="Provider calls per checkout"
+          value={view.attemptsPerCheckout.toFixed(2)}
+          about="Provider spans on those finished checkouts, divided by the number of finished checkouts."
+        />
+        <Metric
+          name="Provider slot use"
+          value={`${Math.round(view.providerUtilization * 100)}%`}
+          about={`Slots running provider work, divided by ${view.providerSlots}. This stays at or under 100%. Extra attempts wait in the queue.`}
+        />
+        <Metric
+          name="Gateway p99"
+          value={`${Math.round(view.gatewayP99Ms)} ms`}
+          about="The slow end of checkout duration, from accept to the gateway result, over the same finished checkouts."
+        />
+        <Metric
+          name="Successful arrivals"
+          value={`${view.okPerSec.toFixed(1)} /s`}
+          about={`Checkouts that returned in time, per second. The arrival rate is ${view.controls.arrivalRate} per second.`}
+        />
+        <Metric
+          name="Measured provider work"
+          value={
+            view.measuredProviderMs == null
+              ? "no samples"
+              : `${Math.round(view.measuredProviderMs)} ms`
+          }
+          about="The middle of provider work durations started in this window."
+        />
       </dl>
     </div>
   );
 }
 
-function Metric({ name, value, about }: { name: string; value: string; about: string }) {
+function Metric({
+  name,
+  value,
+  about,
+}: {
+  name: string;
+  value: string;
+  about: string;
+}) {
   return (
     <div>
       <dt>
@@ -545,62 +1006,30 @@ function Metric({ name, value, about }: { name: string; value: string; about: st
   );
 }
 
-function Trend({
-  samples,
-  reduced,
-}: {
-  samples: CascadeView["samples"];
-  reduced: boolean;
-}) {
-  if (samples.length < 2) {
-    return <p className="text-sm text-[color:var(--exp-muted)]">The chart fills after the clock moves.</p>;
-  }
-  const width = 640;
-  const height = 168;
-  const pad = 22;
-  const xs = samples.map((_, index) => pad + (index / (samples.length - 1)) * (width - pad * 2));
-  const line = (pick: (sample: CascadeView["samples"][number]) => number) =>
-    samples
-      .map((sample, index) => {
-        const value = pick(sample);
-        const y = height - pad - Math.max(0, Math.min(1, value)) * (height - pad * 2);
-        return `${index === 0 ? "M" : "L"}${xs[index]!.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(" ");
-  const yOf = (value: number) => height - pad - Math.max(0, Math.min(1, value)) * (height - pad * 2);
-  return (
-    <figure className="cascade-trend">
-      <figcaption>
-        <span><i data-ink="success" /> Success</span>
-        <span><i data-ink="slots" /> Provider slots</span>
-      </figcaption>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Success and provider slot use over time">
-        {[0, 0.5, 1].map((mark) => (
-          <g key={mark}>
-            <line x1={pad} x2={width - pad} y1={yOf(mark)} y2={yOf(mark)} />
-            <text x={0} y={yOf(mark) + 3}>{Math.round(mark * 100)}</text>
-          </g>
-        ))}
-        <path d={line((sample) => sample.successRate ?? 0)} fill="none" stroke="#1f5f64" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" style={{ transition: reduced ? "none" : undefined }} />
-        <path d={line((sample) => sample.providerUtilization)} fill="none" stroke="#ad4f36" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
-      </svg>
-    </figure>
-  );
-}
-
 function Traces({
   view,
   traceId,
   onSelect,
+  onInspect,
 }: {
   view: CascadeView;
   traceId: string | null;
   onSelect: (id: string) => void;
+  onInspect: (service: CascadeService) => void;
 }) {
-  const trace = view.traces.find((item) => item.traceId === traceId) ?? view.traces[0];
-  if (!trace) return <p className="text-sm text-[color:var(--exp-muted)]">No checkout has been accepted yet.</p>;
+  const trace =
+    view.traces.find((item) => item.traceId === traceId) ?? view.traces[0];
+  if (!trace)
+    return (
+      <p className="text-sm text-[color:var(--exp-muted)]">
+        No checkout has been accepted yet.
+      </p>
+    );
   const start = Math.min(...trace.spans.map((span) => span.start));
-  const end = Math.max(...trace.spans.map((span) => span.end ?? view.t), start + 0.05);
+  const end = Math.max(
+    ...trace.spans.map((span) => span.end ?? view.t),
+    start + 0.05,
+  );
   const spanWindow = Math.max(0.05, end - start);
   return (
     <div className="cascade-traces">
@@ -620,28 +1049,51 @@ function Traces({
           </li>
         ))}
       </ul>
-      <ol className="cascade-waterfall" aria-label={`Spans for ${trace.traceId}`}>
+      <ol
+        className="cascade-waterfall"
+        aria-label={`Spans for ${trace.traceId}`}
+      >
         {trace.spans.map((span) => {
           const spanEnd = span.end ?? view.t;
           const left = ((span.start - start) / spanWindow) * 100;
-          const width = Math.max(1.5, ((spanEnd - span.start) / spanWindow) * 100);
+          const width = Math.max(
+            1.5,
+            ((spanEnd - span.start) / spanWindow) * 100,
+          );
           return (
             <li key={span.id}>
               <p>
-                {span.service}
-                <span>attempt {span.attempt}</span>
+                <button
+                  type="button"
+                  onClick={() => onInspect(span.service)}
+                  title={`Inspect ${span.service}`}
+                >
+                  {span.service}
+                </button>
+                <span>
+                  attempt {span.attempt} ·{" "}
+                  {span.parentId ? `parent ${span.parentId}` : "root span"}
+                </span>
               </p>
               <div className="cascade-track">
                 <i
                   data-service={span.service}
                   data-status={span.status}
-                  style={{ left: `${left}%`, width: `${Math.min(100 - left, width)}%` }}
+                  style={{
+                    left: `${left}%`,
+                    width: `${Math.min(100 - left, width)}%`,
+                  }}
                 />
               </div>
               <small>
-                {span.status}
-                {span.workMs == null ? "" : ` · ${Math.round(span.workMs)} ms`}
-                {span.queueMs > 1 ? ` · queued ${Math.round(span.queueMs)}` : ""}
+                {span.status} · {Math.round((spanEnd - span.start) * 1000)} ms
+                elapsed
+                {span.workMs == null
+                  ? ""
+                  : ` · work ${Math.round(span.workMs)} ms`}
+                {span.queueMs > 1
+                  ? ` · queued ${Math.round(span.queueMs)} ms`
+                  : ""}
               </small>
             </li>
           );
@@ -652,14 +1104,20 @@ function Traces({
 }
 
 function LogList({ rows, empty }: { rows: CascadeLog[]; empty: string }) {
-  if (rows.length === 0) return <p className="text-sm text-[color:var(--exp-muted)]">{empty}</p>;
+  if (rows.length === 0)
+    return <p className="text-sm text-[color:var(--exp-muted)]">{empty}</p>;
   return (
-    <ol className="cascade-log">
+    <ol className="cascade-log" tabIndex={0} aria-label="Retained system events">
       {rows.map((row, index) => (
-        <li key={`${row.t}-${row.spanId}-${row.kind}-${index}`} data-service={row.service}>
+        <li
+          key={`${row.t}-${row.spanId}-${row.kind}-${index}`}
+          data-service={row.service}
+        >
           <time>{row.t.toFixed(2)}s</time>
           <div>
-            <b>{row.traceId} · {row.service}</b>
+            <b>
+              {row.traceId} · {row.service}
+            </b>
             <p>{row.message}</p>
           </div>
         </li>
@@ -708,9 +1166,22 @@ function Slider({
   );
 }
 
-function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
+function Toggle({
+  on,
+  onClick,
+  label,
+}: {
+  on: boolean;
+  onClick: () => void;
+  label: string;
+}) {
   return (
-    <button type="button" className="cascade-switch" aria-pressed={on} onClick={onClick}>
+    <button
+      type="button"
+      className="cascade-switch"
+      aria-pressed={on}
+      onClick={onClick}
+    >
       <span>{label}</span>
       <i data-on={on ? "true" : "false"} />
     </button>

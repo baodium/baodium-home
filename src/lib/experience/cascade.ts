@@ -231,7 +231,7 @@ export function advanceCascade(state: CascadeState, rng: Rng, t: number, dt: num
   while (state.scheduled.length > 0 && state.scheduled[0]!.t <= end + 1e-12) {
     if (++guard > 100000) break;
     const ev = state.scheduled.shift()!;
-    if (state.cancelled.has(ev.seq)) continue;
+    if (state.cancelled.delete(ev.seq)) continue;
     dispatch(state, rng, ev);
   }
   sample(state, end);
@@ -277,8 +277,8 @@ export function cascadeView(state: CascadeState, t: number): CascadeView {
     openByService,
     services: serviceStats(state, t),
     traces: recentTraces(state),
-    logs: state.log.slice(-14),
-    timeline: state.log.slice(-24),
+    logs: state.log.slice(-200),
+    timeline: state.log.slice(-200),
     samples: state.samples.slice(-80),
     demonstratedAmplification: state.demonstratedAmplification,
   };
@@ -288,7 +288,7 @@ export function gradeCascade(
   view: CascadeView,
   opts: { mode: "guided" | "practice" | "challenge"; demonstrated: boolean },
 ): { ok: boolean; reason: string } {
-  if (opts.mode === "practice" && !opts.demonstrated) {
+  if (opts.mode !== "challenge" && !opts.demonstrated) {
     return {
       ok: false,
       reason:
@@ -317,7 +317,7 @@ export function gradeCascade(
     };
   }
   const utilPct = Math.round(view.providerUtilization * 100);
-  if (view.providerUtilization > 0.9) {
+  if (view.providerUtilization >= 0.9) {
     return {
       ok: false,
       reason: `Provider slots are ${utilPct}% full. At this arrival rate a single attempt should sit under 90%.`,
@@ -631,6 +631,8 @@ function prune(state: CascadeState, t: number) {
   state.journeys = state.journeys.filter((journey) => keep.has(journey.traceId));
   state.log = state.log.filter((entry) => entry.t > t - 20);
   if (state.log.length > 300) state.log.splice(0, state.log.length - 300);
+  const pending = new Set(state.scheduled.map((event) => event.seq));
+  for (const seq of state.cancelled) if (!pending.has(seq)) state.cancelled.delete(seq);
 }
 
 function schedule(state: CascadeState, ev: Omit<Scheduled, "seq">): number {

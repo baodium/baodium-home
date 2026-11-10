@@ -1,0 +1,77 @@
+{
+  "note": "Local Chromium lab measurements, not field Core Web Vitals or field INP. Mobile uses 4x CPU slowdown, 150ms network latency and 1.6Mbps download. Fresh context per run; one preview-button interaction.",
+  "summary": [
+    {
+      "profile": "desktop-local",
+      "runs": 4,
+      "lcpMsP75": 40,
+      "clsP75": 0,
+      "observedInteractionMsP75": 40
+    },
+    {
+      "profile": "mobile-throttled",
+      "runs": 4,
+      "lcpMsP75": 1440,
+      "clsP75": 0,
+      "observedInteractionMsP75": 96
+    }
+  ],
+  "rows": [
+    {
+      "profile": "desktop-local",
+      "run": 1,
+      "lcp": 88,
+      "cls": 0,
+      "interaction": 40
+    },
+    {
+      "profile": "desktop-local",
+      "run": 2,
+      "lcp": 36,
+      "cls": 0,
+      "interaction": 40
+    },
+    {
+      "profile": "desktop-local",
+      "run": 3,
+      "lcp": 36,
+      "cls": 0,
+      "interaction": 32
+    },
+    {
+      "profile": "desktop-local",
+      "run": 4,
+      "lcp": 40,
+      "cls": 0,
+      "interaction": 40
+    },
+    {
+      "profile": "mobile-throttled",
+      "run": 1,
+      "lcp": 1452,
+      "cls": 0,
+      "interaction": 96
+    },
+    {
+      "profile": "mobile-throttled",
+      "run": 2,
+      "lcp": 1432,
+      "cls": 0,
+      "interaction": 64
+    },
+    {
+      "profile": "mobile-throttled",
+      "run": 3,
+      "lcp": 1432,
+      "cls": 0,
+      "interaction": 80
+    },
+    {
+      "profile": "mobile-throttled",
+      "run": 4,
+      "lcp": 1440,
+      "cls": 0,
+      "interaction": 96
+    }
+  ]
+}

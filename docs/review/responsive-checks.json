@@ -1,0 +1,152 @@
+[
+  {
+    "route": "/",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/cascade",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/capacity",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/deployment",
+    "width": 375,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/cascade",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/capacity",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/deployment",
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/cascade",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/capacity",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/deployment",
+    "width": 768,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/cascade",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/capacity",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/deployment",
+    "width": 1024,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/cascade",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/capacity",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/deployment",
+    "width": 1440,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/",
+    "width": 1920,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs",
+    "width": 1920,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/cascade",
+    "width": 1920,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/capacity",
+    "width": 1920,
+    "horizontalOverflow": false
+  },
+  {
+    "route": "/sre-labs/deployment",
+    "width": 1920,
+    "horizontalOverflow": false
+  }
+]

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import chapter from "../../../../content/experience/ch01/chapter.json";
 import scenes from "../../../../content/experience/ch01/story/scenes.json";
 import { Chapter1Experience } from "@/components/experience/Chapter1Experience";
@@ -45,51 +45,41 @@ function firstCursor(actId: string) {
   return index < 0 ? 0 : index;
 }
 
-export function ChapterExperience({
-  killercodaUrl,
-  runnerUrl,
-  labUrl,
-}: {
-  killercodaUrl: string;
-  runnerUrl: string;
-  labUrl: string;
-}) {
+type ChapterProps = { killercodaUrl: string; runnerUrl: string; labUrl: string };
+function subscribeMounted() { return () => {}; }
+export function ChapterExperience(props: ChapterProps) {
+  const mounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
+  return mounted ? <ChapterSession {...props} /> : <article className="bg-[#f6f1ea] p-12 text-[#241c18]"><h1 className="font-serif text-3xl">{chapter.headline}</h1></article>;
+}
+function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
   const reduced = usePrefersReducedMotion();
-  const engineRef = useRef<ChapterSimEngine | null>(null);
-  if (!engineRef.current) engineRef.current = new ChapterSimEngine();
-  const engine = engineRef.current;
-  const [cursor, setCursor] = useState(0);
-  const [prediction, setPrediction] = useState<PredictionId | null>(null);
-  const [view, setView] = useState<"customer" | "xray">("customer");
+  const [engine] = useState(() => new ChapterSimEngine());
+  const [saved] = useState(loadActProgress);
+  const [cursor, setCursor] = useState(() => Math.min(saved?.cursor ?? 0, PATH.length - 1));
+  const [prediction, setPrediction] = useState<PredictionId | null>(saved?.prediction ?? null);
+  const [viewOverride, setViewOverride] = useState<{ cursor: number; value: "customer" | "xray" } | null>(null);
+  const activeStep = PATH[cursor];
+  const activeBeat = activeStep?.kind === "beat" ? scenes.beats[activeStep.index] : null;
+  const view = viewOverride?.cursor === cursor ? viewOverride.value : activeBeat?.view === "xray" ? "xray" : "customer";
+  const setView = (value: "customer" | "xray") => setViewOverride({ cursor, value });
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState(0.3);
   const [tick, setTick] = useState(0);
   const [mix, setMix] = useState(0);
-  const [ready, setReady] = useState(false);
   const labDone = useChapter1LabDone(Boolean(runnerUrl || labUrl));
 
   const playingRef = useRef(true);
   const speedRef = useRef(0.3);
   const viewRef = useRef(view);
   const reducedRef = useRef(reduced);
-  playingRef.current = playing;
-  speedRef.current = speed;
-  viewRef.current = view;
-  reducedRef.current = reduced;
-
   useEffect(() => {
-    const saved = loadActProgress();
-    if (saved) {
-      setCursor(Math.min(saved.cursor, PATH.length - 1));
-      setPrediction(saved.prediction);
-    }
-    setReady(true);
-  }, []);
+    playingRef.current = playing;
+    speedRef.current = speed;
+    viewRef.current = view;
+    reducedRef.current = reduced;
+  }, [playing, speed, view, reduced]);
 
-  useEffect(() => {
-    if (!ready) return;
-    saveActProgress({ cursor, prediction });
-  }, [cursor, prediction, ready]);
+  useEffect(() => { saveActProgress({ cursor, prediction }); }, [cursor, prediction]);
 
   useEffect(() => {
     const step = PATH[cursor];
@@ -102,9 +92,8 @@ export function ChapterExperience({
       engine.setTarget(beat.target);
     }
     if (beat.maya && (!engine.maya || (engine.maya.state === "done" && engine.t - engine.maya.end > 4))) {
-      engine.mayaWanted = true;
+      engine.requestMaya();
     }
-    setView(beat.view === "xray" ? "xray" : "customer");
   }, [cursor, engine]);
 
   useEffect(() => {

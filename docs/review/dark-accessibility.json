@@ -1,0 +1,18 @@
+[
+  {
+    "tab": "Metrics",
+    "violations": []
+  },
+  {
+    "tab": "Traces",
+    "violations": []
+  },
+  {
+    "tab": "Logs",
+    "violations": []
+  },
+  {
+    "tab": "Timeline",
+    "violations": []
+  }
+]

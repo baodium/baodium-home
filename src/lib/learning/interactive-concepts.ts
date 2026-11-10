@@ -41,7 +41,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch2-payload",
     chapterSlug: "chapter-2",
-    afterSectionId: "shortening-the-time-on-the-scarce-resource",
+    afterSectionId: "reducing-connection-occupancy",
     concept: "Build, then acquire",
     lead: "The two listings differ by whether build_payload runs while the connection is already assigned.",
     targets: [
@@ -56,7 +56,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch2-tail",
     chapterSlug: "chapter-2",
-    afterSectionId: "concurrency-and-resource-occupancy",
+    afterSectionId: "concurrency-and-connection-occupancy",
     concept: "Acquire time",
     lead: "Occupancy is the time a connection is held. The tail that moves under load is the wait to acquire one.",
     targets: [
@@ -71,7 +71,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch2-admission",
     chapterSlug: "chapter-2",
-    afterSectionId: "load-test-saturation-and-admission",
+    afterSectionId: "testing-sustainable-admission-rates",
     concept: "The passing stage",
     lead: "400 a second passes. 480 a second rejects about 2 percent even though acquire p95 is still 25 ms.",
     targets: [
@@ -86,7 +86,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch3-timeout",
     chapterSlug: "chapter-3",
-    afterSectionId: "timeouts-and-uncertain-remote-outcomes",
+    afterSectionId: "timeouts-and-uncertain-payment-outcomes",
     concept: "One charge",
     lead: "The provider can still settle the authorization after the client has stopped waiting. The retry has to carry the same operation.",
     targets: [
@@ -101,7 +101,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch4-deadline",
     chapterSlug: "chapter-4",
-    afterSectionId: "deadlines-between-services",
+    afterSectionId: "passing-deadlines-between-services",
     concept: "The fraud deadline",
     lead: "reserve_fraud_call cuts a child deadline from the time checkout has left and takes an outbound permit before the provider is called.",
     targets: [
@@ -116,7 +116,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch4-cancel",
     chapterSlug: "chapter-4",
-    afterSectionId: "cross-service-failure-propagation",
+    afterSectionId: "cancellation-and-work-that-continues",
     concept: "Work that continues",
     lead: "A provider that does not see cancellation keeps running after checkout has returned.",
     targets: [
@@ -131,7 +131,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch5-aside",
     chapterSlug: "chapter-5",
-    afterSectionId: "the-cache-aside-read-path",
+    afterSectionId: "reading-through-a-cache",
     concept: "product-metadata",
     lead: "get_product_metadata reads product-metadata:v1 with a 300 second TTL, and misses fall through to Catalog.",
     targets: [
@@ -146,7 +146,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch5-miss",
     chapterSlug: "chapter-5",
-    afterSectionId: "concurrent-misses-and-refresh-work",
+    afterSectionId: "concurrent-cache-misses",
     concept: "One loader",
     lead: "Concurrent misses on the same key share one loader. That loader still has to acquire a source permit.",
     targets: [
@@ -176,7 +176,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch12-claim",
     chapterSlug: "chapter-12",
-    afterSectionId: "idempotent-consumers",
+    afterSectionId: "creating-each-notification-task-once",
     concept: "One notification task",
     lead: "process_order_event claims the message_id, creates the task on the first delivery, and commits the offset after that transaction.",
     targets: [
@@ -191,7 +191,7 @@ export const INTERACTIVE_CONCEPTS: InteractiveConceptDef[] = [
   {
     id: "ch14-pools",
     chapterSlug: "chapter-14",
-    afterSectionId: "connection-pool-sizing",
+    afterSectionId: "estimating-regional-database-capacity",
     concept: "European Catalog",
     lead: "1,440 reads a second at 12 ms is about 17.3 connections across the region. The pools you open are a different number.",
     targets: [

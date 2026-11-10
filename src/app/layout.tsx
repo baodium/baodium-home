@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { site } from "@/data/site";
 import "lenis/dist/lenis.css";
 import "./globals.css";
+import "./product.css";
 
 const geist = Geist({
   subsets: ["latin"],

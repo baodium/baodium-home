@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "convert-book": "node scripts/convert-manuscript.mjs",
     "enhance-book": "node scripts/enhance-book-html.mjs",
+    "verify:sre-product": "npx --yes tsx scripts/verify-sre-product.ts",
     "verify:client": "npx --yes tsx scripts/verify-client-resilience.ts",
     "verify:concepts": "npx --yes tsx scripts/verify-interactive-concepts.ts",
     "verify:play": "npx --yes tsx scripts/verify-play-engines.ts",

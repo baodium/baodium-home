@@ -1,0 +1,150 @@
+/* Refinement: warm editorial surfaces, forest policy panels, copper interventions. */
+.ops-controls {
+  background: #213b30;
+  border-color: #345747;
+  color: #eef4ec;
+  box-shadow: 0 8px 24px #1b302314;
+}
+.ops-controls .product-eyebrow {
+  color: #b8ccb8;
+}
+.ops-controls p:not(.product-eyebrow) {
+  color: #c0d0c1;
+}
+.ops-controls label {
+  border-color: #486552;
+}
+.ops-controls output {
+  color: #e7d4ae;
+}
+.ops-controls .ops-toggle {
+  border-color: #67816b;
+  background: #2b483a;
+}
+.ops-controls .ops-toggle strong {
+  color: #cfdfbd;
+}
+.ops-controls input {
+  accent-color: #c8d5a7;
+}
+.ops-mission {
+  background: #f2efe6;
+  border-color: #dcd7c7;
+}
+.ops-transport .signal-label {
+  font-size: 12px;
+}
+.catalog-lesson-top .signal-label {
+  font-weight: 500;
+}
+.catalog-lesson h3 {
+  max-width: 25ch;
+}
+.catalog-preview .system-preview {
+  box-shadow:
+    12px 14px 0 #dfe6dc,
+    0 15px 40px #22382c10;
+}
+.catalog-progress progress {
+  border-radius: 5px;
+  overflow: hidden;
+  height: 5px;
+}
+.catalog-progress progress::-webkit-progress-bar {
+  background: #d9e0d8;
+}
+.catalog-progress progress::-webkit-progress-value {
+  background: #39735b;
+}
+.curriculum-path a > span {
+  background: #edf2e9;
+  color: #325e48;
+  border-color: #c4d2c0;
+}
+.sre-catalog .catalog-clear:hover {
+  color: var(--exp-signal);
+}
+.sre-catalog .catalog-lesson:hover {
+  border-color: var(--exp-line-strong);
+}
+.laboratory-shell .cascade-result.is-ok {
+  background: color-mix(in srgb, var(--exp-signal) 8%, var(--exp-panel-raise));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .destination,
+  .catalog-lesson,
+  .ops-transport button,
+  .topology-controls button {
+    transition:
+      background-color 150ms,
+      border-color 150ms;
+  }
+}
+.laboratory-shell .cascade-figure dd {
+  flex-wrap: wrap;
+  gap: 0 0.2rem;
+}
+.laboratory-shell .cascade-figure dd p {
+  flex-basis: 100%;
+  margin-top: 0.4rem;
+}
+.laboratory-shell .cascade-modes button[aria-pressed="true"] {
+  color: var(--exp-signal);
+}
+.laboratory-shell[data-lab-theme="dark"] .cascade-cta {
+  color: #19281f;
+  background: #dc9677;
+}
+.ops-mobile-tabs {
+  display: none;
+}
+.ops-transport .product-button {
+  color: white;
+  background: #99452f;
+  font-size: 12px;
+}
+.ops-transport .ops-assess {
+  width: auto;
+  margin: 0;
+}
+.operations-lab > .ops-verdict {
+  font-size: 14px;
+  padding: 1rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  background: #f3efe5;
+}
+@media (max-width: 700px) {
+  .ops-mobile-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0 0 1rem;
+  }
+  .ops-mobile-tabs button {
+    flex: 1;
+    min-height: 42px;
+    border: 1px solid #cbd8cf;
+    border-radius: 5px;
+    font-size: 12px;
+    text-transform: capitalize;
+  }
+  .ops-mobile-tabs button[aria-pressed="true"] {
+    background: #213b30;
+    border-color: #213b30;
+    color: #fff;
+  }
+  .operations-lab[data-mobile-view="system"] .ops-mission,
+  .operations-lab[data-mobile-view="system"] .ops-controls {
+    display: none;
+  }
+  .operations-lab[data-mobile-view="mission"] .ops-environment,
+  .operations-lab[data-mobile-view="mission"] .ops-controls {
+    display: none;
+  }
+  .operations-lab[data-mobile-view="policy"] .ops-environment,
+  .operations-lab[data-mobile-view="policy"] .ops-mission {
+    display: none;
+  }
+}
+.ops-transport .product-button:hover { background:#7d3827; }
+.laboratory-shell .cascade-figure dd p { max-width:none; width:100%; }

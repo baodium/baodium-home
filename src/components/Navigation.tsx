@@ -24,7 +24,6 @@ function HomePill() {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLElement>(null);
   const [tucked, setTucked] = useState(false);
-  const [entered, setEntered] = useState(false);
   const active = sectionActive ?? "home";
   const barHidden = !reduce && tucked && !open;
 
@@ -102,16 +101,9 @@ function HomePill() {
     <motion.header
       id="top"
       onFocusCapture={() => setTucked(false)}
-      initial={reduce ? false : { y: -24, opacity: 0 }}
+      initial={false}
       animate={barHidden ? { y: -96, opacity: 0 } : { y: 0, opacity: 1 }}
-      transition={
-        reduce
-          ? { duration: 0 }
-          : entered
-            ? { duration: 0.45, ease }
-            : { duration: 0.9, delay: 1.4, ease }
-      }
-      onAnimationComplete={() => setEntered(true)}
+      transition={{ duration: reduce ? 0 : 0.25, ease }}
       className="fixed inset-x-0 top-3 z-50 px-3 md:top-5"
     >
       <div className="mx-auto flex max-w-[62rem] items-center justify-between gap-2 rounded-full border border-white/[0.09] bg-[#2a211c]/[0.92] p-1.5 pl-4 shadow-[0_12px_40px_-14px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">

@@ -8,6 +8,7 @@ test.describe("Chapter 1 guided lab", () => {
 
   test("guided progress, pause, step, reset", async ({ page }) => {
     await page.goto("/system-design/experience/chapter-1");
+    await page.getByRole("navigation", { name: "Acts" }).getByRole("button", { name: /The pool/ }).click();
     await expect(page.getByText(/Step 1 of 8/i).first()).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Guided", exact: true }),

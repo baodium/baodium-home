@@ -1,0 +1,914 @@
+/* Laboratory: evidence and configuration stay in the same workspace. */
+.laboratory-shell {
+  --exp-fg: #243137;
+  --exp-muted: #4c5c62;
+  --exp-faint: #4f6268;
+  --exp-panel: #f3f6f5;
+  --exp-panel-raise: #fff;
+  --exp-line: #dce3df;
+  --exp-line-strong: #b6c7c0;
+  --exp-signal: #246366;
+  --exp-kicker: #246366;
+  --exp-accent: #99452f;
+  --exp-accent-text: #99452f;
+  --exp-amber-text: #246366;
+  background: var(--exp-panel);
+  color: var(--exp-fg);
+  color-scheme: light;
+  border: 1px solid var(--exp-line);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.laboratory-shell[data-lab-theme="dark"] {
+  --exp-fg: #e5eee9;
+  --exp-muted: #b2c4bd;
+  --exp-faint: #afc4bc;
+  --exp-panel: #151e1b;
+  --exp-panel-raise: #1d2924;
+  --exp-line: #34483f;
+  --exp-line-strong: #658376;
+  --exp-signal: #8ac8b8;
+  --exp-kicker: #8ac8b8;
+  --exp-accent: #dc9677;
+  --exp-accent-text: #efb199;
+  --exp-amber-text: #8ac8b8;
+  color-scheme: dark;
+}
+.laboratory-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  padding: 0 0 1rem;
+  border-bottom: 1px solid var(--exp-line);
+  margin-bottom: 1rem;
+  font-size: 12px;
+}
+.laboratory-bar > a {
+  font-weight: 600;
+  color: var(--exp-signal);
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.laboratory-bar > span {
+  color: var(--exp-muted);
+  font: 10px/1.6 var(--font-mono);
+}
+.laboratory-bar > div {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.laboratory-bar button {
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 5px;
+  padding: 0.4rem 0.6rem;
+  min-height: 36px;
+  cursor: pointer;
+}
+.laboratory-bar button:hover {
+  background: var(--exp-panel-raise);
+}
+.laboratory-shell .cascade-hero {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  grid-template-columns: minmax(16rem, var(--lab-rail-width)) minmax(0, 1fr);
+  grid-template-areas: "rail stage";
+  gap: 1.5rem;
+  align-items: start;
+}
+.laboratory-shell .cascade-rail {
+  grid-area: rail;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  min-height: 0;
+  padding: 0.4rem;
+}
+.laboratory-shell .cascade-title {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 550;
+  max-width: 16em;
+}
+.laboratory-shell .cascade-copy,
+.laboratory-shell .cascade-brief {
+  grid-area: auto;
+}
+.laboratory-shell .cascade-stage {
+  --cascade-paper: var(--exp-panel-raise);
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--exp-line);
+  border-radius: 8px;
+  background: var(--exp-panel-raise);
+}
+.laboratory-shell .cascade-portrait {
+  --cascade-paper: var(--exp-panel-raise);
+  border: 0;
+  padding: 1.3rem;
+  gap: 0.5rem;
+  background: var(--exp-panel-raise);
+}
+.laboratory-shell .cascade-path {
+  margin: 0.7rem 0;
+  gap: 0.25rem;
+}
+.laboratory-shell .cascade-path li {
+  min-height: 4.1rem;
+}
+.laboratory-shell .cascade-hop {
+  padding: 0.7rem 0.5rem;
+  border-radius: 6px;
+}
+.laboratory-shell .cascade-hop[data-selected="true"] {
+  background: color-mix(in srgb, var(--exp-signal) 8%, transparent);
+  box-shadow: inset 2px 0 var(--exp-signal);
+}
+.laboratory-shell .cascade-hop .service-mark {
+  background: var(--exp-panel-raise);
+  color: var(--exp-signal);
+}
+.laboratory-shell .cascade-hop-name {
+  font-family: var(--font-sans);
+  font-size: 19px;
+  font-weight: 550;
+  font-style: normal !important;
+}
+.laboratory-shell .cascade-hop-stat b {
+  font-size: 1.8rem;
+  color: var(--exp-fg);
+}
+.laboratory-shell .cascade-hop-stat[data-tone="bad"] b {
+  color: var(--exp-accent-text);
+}
+.laboratory-shell .cascade-hop-detail {
+  font-size: 12px;
+}
+.laboratory-shell .cascade-hop-meter {
+  height: 4px;
+  margin-top: 0.3rem;
+}
+.laboratory-shell .cascade-path::before {
+  left: 39px;
+}
+.laboratory-shell .cascade-figures {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+.laboratory-shell .cascade-figure b {
+  font: 500 clamp(1.5rem, 2.5vw, 2.4rem)/1.2 var(--font-mono);
+}
+.laboratory-shell .cascade-figure dt {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+.laboratory-shell .cascade-figure p {
+  font-size: 11px;
+}
+.laboratory-shell .cascade-rack {
+  margin: 0.3rem -1.3rem -1.3rem;
+  padding: 1rem 1.3rem;
+}
+.laboratory-shell .cascade-rack li {
+  height: 34px;
+}
+.laboratory-shell .cascade-lower {
+  grid-template-columns: minmax(16rem, var(--lab-rail-width)) minmax(0, 1fr);
+  padding-top: 1.4rem;
+  gap: 1.5rem;
+}
+.laboratory-shell .cascade-preface {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.laboratory-shell .cascade-card {
+  border-radius: 6px;
+  background: var(--exp-panel-raise);
+}
+.laboratory-shell .cascade-slider small {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.laboratory-shell .cascade-siblings {
+  font-size: 10px;
+}
+.laboratory-shell .cascade-siblings a {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+}
+.laboratory-shell .cascade-siblings a[aria-current] {
+  color: var(--exp-signal);
+}
+.laboratory-shell .cascade-modes button {
+  min-height: 36px;
+  padding: 0.3rem 0.2rem;
+}
+.laboratory-shell .cascade-clock {
+  font-size: 11px;
+}
+.laboratory-shell .cascade-lede {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.laboratory-shell .cascade-subactions {
+  gap: 0.5rem;
+}
+.laboratory-shell .cascade-subactions button {
+  min-height: 40px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 5px;
+  font-size: 12px;
+}
+.laboratory-resize {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 11px;
+  color: var(--exp-muted);
+  margin-top: 1rem;
+  max-width: 24rem;
+}
+.laboratory-resize input {
+  flex: 1;
+}
+.laboratory-shell[data-focus="true"] .cascade-lede,
+.laboratory-shell[data-focus="true"] .cascade-preface {
+  display: none;
+}
+.laboratory-shell[data-focus="true"] .cascade-hero {
+  grid-template-columns: minmax(14rem, 22%) minmax(0, 1fr);
+}
+.laboratory-shell[data-focus="true"] .cascade-rail {
+  gap: 1rem;
+}
+.laboratory-shell .exp-btn {
+  border-radius: 6px;
+}
+.laboratory-shell .cascade-result {
+  border-color: var(--exp-line-strong);
+  font-size: 13px;
+}
+.laboratory-status {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.7rem;
+  font: 11px/1.5 var(--font-mono);
+  color: var(--exp-signal);
+}
+.laboratory-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.laboratory-objectives {
+  margin-top: 1rem;
+  border-top: 1px solid var(--exp-line);
+  padding-top: 0.8rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--exp-muted);
+}
+.laboratory-objectives summary {
+  color: var(--exp-fg);
+  cursor: pointer;
+  font-weight: 550;
+}
+.laboratory-objectives ul {
+  padding-left: 1.2rem;
+  list-style: disc;
+  margin-top: 0.5rem;
+}
+.telemetry-trends {
+  border: 1px solid var(--exp-line);
+  border-radius: 7px;
+  background: var(--exp-panel-raise);
+  padding: 1rem;
+}
+.trend-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.trend-toolbar h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.trend-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 11px;
+}
+.trend-toolbar select {
+  min-height: 34px;
+  border: 1px solid var(--exp-line-strong);
+  padding: 0.3rem;
+  border-radius: 4px;
+}
+.trend-summary {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--exp-muted);
+  margin-top: 0.8rem;
+}
+.evidence-chart {
+  margin-top: 1rem;
+}
+.evidence-chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 11px;
+  align-items: center;
+}
+.evidence-chart figcaption span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.evidence-chart figcaption small {
+  margin-left: auto;
+  color: var(--exp-muted);
+  font-size: 10px;
+}
+.evidence-chart i {
+  width: 8px;
+  height: 3px;
+  display: inline-block;
+}
+.ink-success {
+  background: var(--exp-signal);
+}
+.ink-slots {
+  background: var(--exp-accent);
+}
+.evidence-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 0.5rem;
+}
+.evidence-chart svg line {
+  stroke: var(--exp-line);
+}
+.evidence-chart svg text {
+  fill: var(--exp-muted);
+  font: 10px var(--font-mono);
+}
+.evidence-chart svg path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.evidence-chart .chart-success {
+  stroke: var(--exp-signal);
+}
+.evidence-chart .chart-slots {
+  stroke: var(--exp-accent);
+}
+.evidence-chart .chart-latency {
+  stroke: var(--exp-signal);
+}
+.evidence-chart .chart-threshold {
+  stroke: var(--exp-muted);
+  stroke-dasharray: 3 4;
+}
+.evidence-chart .chart-point {
+  fill: var(--exp-signal);
+}
+.chart-note {
+  font-size: 10px;
+  color: var(--exp-muted);
+}
+.chart-data {
+  margin-top: 1rem;
+  font-size: 11px;
+}
+.chart-data summary {
+  min-height: 36px;
+  cursor: pointer;
+}
+.chart-table-scroll {
+  max-width: 100%;
+  overflow: auto;
+}
+.chart-data table {
+  border-collapse: collapse;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-mono);
+}
+.chart-data th,
+.chart-data td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--exp-line);
+  white-space: nowrap;
+}
+.chart-data caption {
+  padding: 0.5rem;
+  text-align: left;
+  color: var(--exp-muted);
+}
+.lab-action-history {
+  border-top: 1px solid var(--exp-line);
+  padding-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+.lab-action-history h3 {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 0.8rem;
+}
+.lab-action-history li {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  font-size: 12px;
+  border-bottom: 1px solid var(--exp-line);
+}
+.lab-action-history time {
+  font-family: var(--font-mono);
+  color: var(--exp-muted);
+}
+.lab-log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+.lab-log-filters label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 11px;
+}
+.lab-log-filters input,
+.lab-log-filters select {
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 4px;
+  min-height: 40px;
+  padding: 0.5rem;
+  background: var(--exp-panel-raise);
+  color: var(--exp-fg);
+  width: 100%;
+}
+.lab-review {
+  margin-top: 1rem;
+  border: 1px solid var(--exp-line-strong);
+  background: var(--exp-panel-raise);
+  padding: 1.1rem;
+  border-radius: 7px;
+}
+.lab-review h3 {
+  font-size: 17px;
+  font-weight: 550;
+}
+.lab-review p {
+  margin-top: 0.8rem;
+  font-size: 13px;
+  color: var(--exp-muted);
+  line-height: 1.8;
+}
+.lab-review dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  font-size: 12px;
+}
+.lab-review dt {
+  color: var(--exp-muted);
+}
+.lab-review dd {
+  font-family: var(--font-mono);
+  margin-top: 0.4rem;
+}
+.lab-notes {
+  margin-top: 1rem;
+}
+.lab-notes label {
+  display: block;
+  font-size: 12px;
+  font-weight: 550;
+}
+.lab-notes textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.7rem;
+  margin-top: 0.6rem;
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 5px;
+  font-size: 13px;
+  background: var(--exp-panel-raise);
+  color: var(--exp-fg);
+}
+.lab-notes small {
+  display: block;
+  font-size: 10px;
+  color: var(--exp-muted);
+  line-height: 1.7;
+}
+@media (max-width: 900px) {
+  .laboratory-shell .cascade-hero {
+    grid-template-columns: 1fr;
+    grid-template-areas: "rail" "stage";
+    gap: 1rem;
+  }
+  .laboratory-shell .cascade-rail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .laboratory-shell .cascade-lower {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .laboratory-resize {
+    display: none;
+  }
+  .laboratory-shell[data-focus="true"] .cascade-hero {
+    grid-template-columns: 1fr;
+  }
+  .laboratory-shell[data-focus="true"] .cascade-rail {
+    display: block;
+  }
+  .laboratory-bar > span {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .laboratory-shell {
+    padding: 0.7rem;
+    margin-inline: -0.4rem;
+  }
+  .laboratory-shell .cascade-rail {
+    display: flex;
+  }
+  .laboratory-shell .cascade-portrait {
+    padding: 1rem;
+  }
+  .laboratory-shell .cascade-figures {
+    grid-template-columns: 1fr 1fr;
+  }
+  .laboratory-shell .cascade-rack {
+    margin: 0.3rem -1rem -1rem;
+    padding: 1rem;
+  }
+  .laboratory-shell .cascade-stage {
+    min-height: 0;
+  }
+  .laboratory-bar > div {
+    margin-left: 0;
+  }
+  .laboratory-bar button {
+    font-size: 11px;
+    min-height: 40px;
+  }
+  .laboratory-shell .cascade-traces {
+    grid-template-columns: 1fr;
+  }
+  .laboratory-shell .cascade-traces > ul {
+    display: flex;
+    overflow: auto;
+    gap: 0.5rem;
+  }
+  .laboratory-shell .cascade-traces > ul li {
+    min-width: 120px;
+  }
+  .laboratory-shell .cascade-metrics > dl {
+    grid-template-columns: 1fr;
+  }
+}
+.topology-description {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--exp-muted);
+  margin-top: 0.3rem;
+}
+.lab-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 11px;
+}
+.lab-speed select {
+  min-height: 36px;
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 4px;
+  padding: 0.3rem;
+}
+.laboratory-shell .cascade-subactions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.laboratory-shell .cascade-waterfall button {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 28px;
+}
+.laboratory-shell .cascade-hop[data-hot="true"] .service-mark {
+  color: var(--exp-accent-text);
+}
+.laboratory-shell .cascade-hop[data-tone="bad"] .cascade-hop-name::after {
+  content: " · degraded";
+  font: 10px var(--font-mono);
+  color: var(--exp-accent-text);
+}
+.laboratory-shell[data-lab-theme="dark"] .cascade-figure[data-tone="good"] b {
+  color: var(--exp-signal);
+}
+.laboratory-shell[data-lab-theme="dark"] .cascade-figure[data-tone="bad"] b {
+  color: var(--exp-accent-text);
+}
+.sre-workspace-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--exp-line);
+  background: var(--exp-panel-raise);
+}
+.sre-workspace-header > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  max-width: 88rem;
+  padding: 0.55rem 1.5rem;
+  margin: auto;
+  font-size: 12px;
+}
+.sre-workspace-header a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+}
+.sre-workspace-header .sre-wordmark {
+  font: 11px var(--font-mono);
+  letter-spacing: 0.18em;
+}
+.sre-workspace-header nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+.sre-workspace-header nav a {
+  padding: 0.4rem 0.75rem;
+  color: var(--exp-muted);
+  border-radius: 5px;
+}
+.sre-workspace-header nav a[aria-current] {
+  background: color-mix(in srgb, var(--exp-signal) 10%, transparent);
+  color: var(--exp-fg);
+  box-shadow: inset 0 -2px var(--exp-signal);
+}
+.sre-lesson-mast {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+.sre-lesson-mast h1 {
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  margin-top: 0.7rem;
+}
+.sre-lesson-mast p:not(.exp-kicker) {
+  color: var(--exp-muted);
+  max-width: 45rem;
+  margin-top: 0.8rem;
+  line-height: 1.8;
+  font-size: 15px;
+}
+.sre-lesson-mast .seg {
+  flex-shrink: 0;
+  margin-top: 0.8rem;
+}
+@media (max-width: 700px) {
+  .sre-workspace-header > div {
+    padding: 0.4rem 1rem;
+    gap: 0.6rem;
+  }
+  .sre-workspace-header nav {
+    width: 100%;
+    justify-content: space-between;
+    margin: 0;
+    border-top: 1px solid var(--exp-line);
+    padding-top: 0.2rem;
+  }
+  .sre-workspace-header nav a {
+    padding: 0.4rem 0.6rem;
+  }
+  .sre-lesson-mast {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sre-lesson-mast .seg {
+    margin-top: 0.5rem;
+  }
+}
+.topology-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 11px;
+}
+.topology-controls > span {
+  margin-right: auto;
+  font-weight: 550;
+}
+.topology-controls button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.topology-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.topology-controls output {
+  min-width: 36px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+.topology-viewport {
+  width: 100%;
+  max-height: 22rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.laboratory-shell .topology-viewport .cascade-path {
+  min-height: 17rem;
+}
+.laboratory-shell .cascade-path li[data-related="true"] .service-mark {
+  box-shadow: 0 0 0 1px var(--exp-line-strong);
+  border-radius: 50%;
+}
+@media (max-width: 600px) {
+  .topology-controls > span {
+    font-size: 10px;
+  }
+}
+.laboratory-shell .cascade-card {
+  padding: 1rem;
+}
+.laboratory-shell .cascade-card-title {
+  font: 550 17px/1.4 var(--font-sans);
+  letter-spacing: -0.02em;
+}
+.laboratory-shell .cascade-tabs button {
+  min-height: 42px;
+  font: 500 13px/1.4 var(--font-sans);
+}
+.laboratory-shell .cascade-traces > ul button {
+  min-height: 40px;
+}
+.laboratory-shell .cascade-waterfall small {
+  font-size: 11px;
+}
+.mobile-workspace-tabs {
+  display: none;
+}
+@media (max-width: 900px) {
+  .mobile-workspace-tabs {
+    display: flex;
+    gap: 0.3rem;
+    padding-bottom: 1rem;
+  }
+  .mobile-workspace-tabs button {
+    flex: 1;
+    border: 1px solid var(--exp-line-strong);
+    min-height: 42px;
+    border-radius: 5px;
+    text-transform: capitalize;
+    font-size: 12px;
+  }
+  .mobile-workspace-tabs button[aria-pressed="true"] {
+    background: var(--exp-fg);
+    color: var(--exp-panel-raise);
+  }
+  .laboratory-shell[data-mobile-panel="overview"] .cascade-lower {
+    display: none;
+  }
+  .laboratory-shell[data-mobile-panel="controls"] .cascade-telemetry,
+  .laboratory-shell[data-mobile-panel="evidence"] .cascade-side {
+    display: none;
+  }
+  .laboratory-shell:not([data-mobile-panel="overview"]) .cascade-stage,
+  .laboratory-shell:not([data-mobile-panel="overview"]) .cascade-preface,
+  .laboratory-shell:not([data-mobile-panel="overview"]) .cascade-lede {
+    display: none;
+  }
+  .laboratory-shell:not([data-mobile-panel="overview"]) .cascade-rail {
+    display: block;
+  }
+  .laboratory-shell:not([data-mobile-panel="overview"]) .cascade-brief {
+    margin-top: 1rem;
+  }
+  .laboratory-shell:not([data-mobile-panel="overview"]) .laboratory-objectives {
+    display: none;
+  }
+}
+.alert-rule-workbench h2 {
+  font-size: 1.5rem;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  margin-top: 0.6rem;
+}
+.alert-rule-workbench > p {
+  margin-top: 0.8rem;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--exp-muted);
+}
+.rule-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.3rem;
+}
+.rule-fields label {
+  display: flex;
+  flex: 1;
+  min-width: 140px;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 12px;
+}
+.rule-fields input,
+.rule-fields select {
+  min-height: 42px;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 5px;
+  background: var(--exp-panel-raise);
+  color: var(--exp-fg);
+}
+.rule-config-label {
+  display: block;
+  font-size: 12px;
+  margin-top: 1.3rem;
+}
+.alert-rule-workbench textarea {
+  width: 100%;
+  min-height: 150px;
+  margin-top: 0.5rem;
+  border: 1px solid var(--exp-line-strong);
+  border-radius: 5px;
+  background: var(--exp-panel-raise);
+  color: var(--exp-fg);
+  padding: 0.8rem;
+  font: 12px/1.8 var(--font-mono);
+}
+.alert-rule-workbench [role="alert"] {
+  color: var(--exp-accent-text);
+}
+.rule-scenarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.rule-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--exp-line);
+  border-radius: 5px;
+  font-size: 13px;
+}
+.rule-result p {
+  margin-top: 0.5rem;
+  line-height: 1.7;
+  color: var(--exp-muted);
+}
+.alert-rule-workbench details {
+  font: 11px/1.8 var(--font-mono);
+  margin-top: 1rem;
+}
+.alert-rule-workbench summary {
+  cursor: pointer;
+  min-height: 36px;
+}
