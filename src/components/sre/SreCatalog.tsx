@@ -118,6 +118,13 @@ export function SreCatalog() {
           </a>
         </aside>
       </header>
+      <section className="course-objective" aria-label="SRE coding practice">
+        <p className="product-eyebrow">Build the automation</p>
+        <h2>24 practical Python exercises for SREs</h2>
+        <p>Implement, complete and debug fleet checks, log analysis, retries, rate limits and safe delivery policies. Run real tests in your browser.</p>
+        <Link href="/sre-labs/coding" className="product-button">Open the coding roadmap <ArrowRight size={16}/></Link>
+        <Link href="/labs" className="product-text-link">All learning paths</Link>
+      </section>
       <section
         className="course-catalog-outline"
         aria-labelledby="course-outline-title"

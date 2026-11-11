@@ -12,6 +12,7 @@ import type { ReactNode } from "react";
 import { Navigation } from "@/components/Navigation";
 
 const labs = [
+  { href: "/sre-labs/coding", label: "Coding practice" },
   { href: "/sre-labs/observability", label: "Hands-on course" },
   { href: "/sre-labs/cascade", label: "Cascade" },
   { href: "/sre-labs/instrument", label: "Instrument" },
@@ -37,7 +38,7 @@ export function SreChrome({
       {inLab ? (
         <header className="sre-workspace-header">
           <div>
-            <Link href="/" aria-label="Baodium home" className="sre-wordmark">
+            <Link href="/labs" aria-label="Baodium Labs home" className="sre-wordmark">
               BAODIUM
             </Link>
             <span aria-hidden="true">/</span>

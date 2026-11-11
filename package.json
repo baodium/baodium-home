@@ -23,7 +23,8 @@
     "verify:ch3": "npx --yes tsx scripts/verify-ch3-engine.ts",
     "verify:labs": "npx --yes tsx scripts/verify-short-labs.ts",
     "verify:sre": "npx --yes tsx scripts/verify-sre-lab.ts",
-    "verify:cascade": "npx --yes tsx scripts/verify-cascade.ts"
+    "verify:cascade": "npx --yes tsx scripts/verify-cascade.ts",
+    "verify:sre-coding": "python3 scripts/verify-sre-coding.py"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",

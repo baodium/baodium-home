@@ -1,0 +1,3568 @@
+[
+  {
+    "id": "unhealthy-instances-v1",
+    "title": "Unhealthy instances \u00b7 implement",
+    "category": "Fleet health",
+    "difficulty": "Foundation",
+    "minutes": 20,
+    "format": "implementation",
+    "prompt": "You are given heartbeat records from production instances. Return the unique instance ids that are unhealthy, in the order they first appear. An instance is unhealthy if any of its records has healthy=False, cpu at or above the threshold, or last_heartbeat_seconds greater than 120. Missing optional fields are not enough to mark it unhealthy. Ignore unknown keys.",
+    "signature": "get_unhealthy_instances(records, cpu_threshold=85.0) -> list[str]",
+    "entrypoint": "get_unhealthy_instances",
+    "starter": "from typing import Any\n\n\ndef get_unhealthy_instances(\n    records: list[dict[str, Any]],\n    cpu_threshold: float = 85.0,\n) -> list[str]:\n    \"\"\"Return unique unhealthy instance ids in first-seen order.\"\"\"\n    return []\n",
+    "constraints": [
+      "Return unique instance ids in the order they first appear.",
+      "An instance is unhealthy if any record has healthy=False, CPU at or above the threshold, or last_heartbeat_seconds greater than 120.",
+      "Missing optional fields are not enough to mark it unhealthy.",
+      "Ignore unknown keys.",
+      "Do not modify the input. All records have valid identifiers and numeric metrics when present."
+    ],
+    "hints": [
+      "Separate the conditions from the order of the output.",
+      "Use a set for membership and preserve the original iteration order.",
+      "Missing fields must follow the explicit defaults in the acceptance criteria."
+    ],
+    "explanation": "Evaluate each policy independently. Preserve the original ordering and build a fresh output rather than changing records. In the instance task, first appearance means first appearance in the full input, even if the first observation was healthy.",
+    "complexity": "O(n) time and O(n) output/auxiliary space.",
+    "followUp": "How would this change if records arrived as a stream?",
+    "solution": "def get_unhealthy_instances(records, cpu_threshold=85.0):\n    order = dict.fromkeys(row[\"instance_id\"] for row in records)\n    unhealthy = set()\n    for row in records:\n        if row.get(\"healthy\") is False or row.get(\"cpu\", -1) >= cpu_threshold or row.get(\"last_heartbeat_seconds\", 0) > 120:\n            unhealthy.add(row[\"instance_id\"])\n    return [key for key in order if key in unhealthy]\n",
+    "cases": [
+      {
+        "id": "basic_filtering",
+        "title": "High CPU is unhealthy",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-ok",
+              "cpu": 12,
+              "healthy": true,
+              "last_heartbeat_seconds": 4
+            },
+            {
+              "instance_id": "i-hot",
+              "cpu": 91,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            }
+          ]
+        },
+        "expected": [
+          "i-hot"
+        ],
+        "example": true
+      },
+      {
+        "id": "empty_input",
+        "title": "Empty input",
+        "kwargs": {
+          "records": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "stale_heartbeat",
+        "title": "Stale heartbeat",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-quiet",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 180
+            }
+          ]
+        },
+        "expected": [
+          "i-quiet"
+        ],
+        "example": true
+      },
+      {
+        "id": "missing_optional_metric",
+        "title": "Missing CPU does not mark unhealthy",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-partial",
+              "healthy": true,
+              "last_heartbeat_seconds": 8
+            }
+          ]
+        },
+        "expected": [],
+        "example": false
+      },
+      {
+        "id": "threshold_boundary",
+        "title": "Threshold boundary",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-edge",
+              "cpu": 85.0,
+              "healthy": true,
+              "last_heartbeat_seconds": 2
+            },
+            {
+              "instance_id": "i-under",
+              "cpu": 84.9,
+              "healthy": true,
+              "last_heartbeat_seconds": 2
+            }
+          ]
+        },
+        "expected": [
+          "i-edge"
+        ],
+        "example": false
+      },
+      {
+        "id": "duplicate_instance",
+        "title": "Duplicates keep first-seen order",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-a",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            },
+            {
+              "instance_id": "i-b",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            },
+            {
+              "instance_id": "i-a",
+              "cpu": 99,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            }
+          ]
+        },
+        "expected": [
+          "i-a"
+        ],
+        "example": false
+      },
+      {
+        "id": "failed_flag",
+        "title": "healthy=False is enough",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-down",
+              "cpu": 4,
+              "healthy": false,
+              "last_heartbeat_seconds": 1
+            }
+          ]
+        },
+        "expected": [
+          "i-down"
+        ],
+        "example": false
+      },
+      {
+        "id": "custom_threshold",
+        "title": "Custom CPU threshold",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-warm",
+              "cpu": 70,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            }
+          ],
+          "cpu_threshold": 60
+        },
+        "expected": [
+          "i-warm"
+        ],
+        "example": false
+      },
+      {
+        "id": "large_input",
+        "title": "Larger batch keeps first-seen order",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-0",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-1",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-2",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-3",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-4",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-5",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-6",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-7",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-8",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-9",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-10",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-11",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-12",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-13",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-14",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-15",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-16",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-17",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-18",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-19",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-20",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-21",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-22",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-23",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-24",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-25",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-26",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-27",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-28",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-29",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-30",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-31",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-32",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-33",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-34",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-35",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-36",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-37",
+              "cpu": 96,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-38",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-39",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            }
+          ]
+        },
+        "expected": [
+          "i-37"
+        ],
+        "example": false
+      },
+      {
+        "id": "first_appearance",
+        "title": "A later failure preserves first appearance",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "a",
+              "healthy": true
+            },
+            {
+              "instance_id": "b",
+              "healthy": false
+            },
+            {
+              "instance_id": "a",
+              "healthy": false
+            }
+          ]
+        },
+        "expected": [
+          "a",
+          "b"
+        ],
+        "example": false
+      }
+    ],
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "unhealthy-instances-complete-v1",
+    "title": "Unhealthy instances \u00b7 complete",
+    "category": "Fleet health",
+    "difficulty": "Foundation",
+    "minutes": 20,
+    "format": "complete",
+    "prompt": "You are given heartbeat records from production instances. Return the unique instance ids that are unhealthy, in the order they first appear. An instance is unhealthy if any of its records has healthy=False, cpu at or above the threshold, or last_heartbeat_seconds greater than 120. Missing optional fields are not enough to mark it unhealthy. Ignore unknown keys.",
+    "signature": "get_unhealthy_instances(records, cpu_threshold=85.0) -> list[str]",
+    "entrypoint": "get_unhealthy_instances",
+    "starter": "def get_unhealthy_instances(records, cpu_threshold=85.0):\n    \"\"\"Complete the two TODOs. Keep the first-seen order of instance ids.\"\"\"\n    order, seen, unhealthy = [], set(), set()\n    for row in records:\n        instance_id = row[\"instance_id\"]\n        if instance_id not in seen:\n            seen.add(instance_id)\n            order.append(instance_id)\n        # TODO 1: set this from the health, CPU, and heartbeat rules.\n        is_unhealthy = False\n        # TODO 2: remember unhealthy ids, including later records for an existing id.\n        pass\n    return [instance_id for instance_id in order if instance_id in unhealthy]\n",
+    "constraints": [
+      "Return unique instance ids in the order they first appear.",
+      "An instance is unhealthy if any record has healthy=False, CPU at or above the threshold, or last_heartbeat_seconds greater than 120.",
+      "Missing optional fields are not enough to mark it unhealthy.",
+      "Ignore unknown keys.",
+      "Do not modify the input. All records have valid identifiers and numeric metrics when present."
+    ],
+    "hints": [
+      "Separate the conditions from the order of the output.",
+      "Use a set for membership and preserve the original iteration order.",
+      "Missing fields must follow the explicit defaults in the acceptance criteria."
+    ],
+    "explanation": "Evaluate each policy independently. Preserve the original ordering and build a fresh output rather than changing records. In the instance task, first appearance means first appearance in the full input, even if the first observation was healthy.",
+    "complexity": "O(n) time and O(n) output/auxiliary space.",
+    "followUp": "How would this change if records arrived as a stream?",
+    "solution": "def get_unhealthy_instances(records, cpu_threshold=85.0):\n    order = dict.fromkeys(row[\"instance_id\"] for row in records)\n    unhealthy = set()\n    for row in records:\n        if row.get(\"healthy\") is False or row.get(\"cpu\", -1) >= cpu_threshold or row.get(\"last_heartbeat_seconds\", 0) > 120:\n            unhealthy.add(row[\"instance_id\"])\n    return [key for key in order if key in unhealthy]\n",
+    "cases": [
+      {
+        "id": "basic_filtering",
+        "title": "High CPU is unhealthy",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-ok",
+              "cpu": 12,
+              "healthy": true,
+              "last_heartbeat_seconds": 4
+            },
+            {
+              "instance_id": "i-hot",
+              "cpu": 91,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            }
+          ]
+        },
+        "expected": [
+          "i-hot"
+        ],
+        "example": true
+      },
+      {
+        "id": "empty_input",
+        "title": "Empty input",
+        "kwargs": {
+          "records": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "stale_heartbeat",
+        "title": "Stale heartbeat",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-quiet",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 180
+            }
+          ]
+        },
+        "expected": [
+          "i-quiet"
+        ],
+        "example": true
+      },
+      {
+        "id": "missing_optional_metric",
+        "title": "Missing CPU does not mark unhealthy",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-partial",
+              "healthy": true,
+              "last_heartbeat_seconds": 8
+            }
+          ]
+        },
+        "expected": [],
+        "example": false
+      },
+      {
+        "id": "threshold_boundary",
+        "title": "Threshold boundary",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-edge",
+              "cpu": 85.0,
+              "healthy": true,
+              "last_heartbeat_seconds": 2
+            },
+            {
+              "instance_id": "i-under",
+              "cpu": 84.9,
+              "healthy": true,
+              "last_heartbeat_seconds": 2
+            }
+          ]
+        },
+        "expected": [
+          "i-edge"
+        ],
+        "example": false
+      },
+      {
+        "id": "duplicate_instance",
+        "title": "Duplicates keep first-seen order",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-a",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            },
+            {
+              "instance_id": "i-b",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            },
+            {
+              "instance_id": "i-a",
+              "cpu": 99,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            }
+          ]
+        },
+        "expected": [
+          "i-a"
+        ],
+        "example": false
+      },
+      {
+        "id": "failed_flag",
+        "title": "healthy=False is enough",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-down",
+              "cpu": 4,
+              "healthy": false,
+              "last_heartbeat_seconds": 1
+            }
+          ]
+        },
+        "expected": [
+          "i-down"
+        ],
+        "example": false
+      },
+      {
+        "id": "custom_threshold",
+        "title": "Custom CPU threshold",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-warm",
+              "cpu": 70,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            }
+          ],
+          "cpu_threshold": 60
+        },
+        "expected": [
+          "i-warm"
+        ],
+        "example": false
+      },
+      {
+        "id": "large_input",
+        "title": "Larger batch keeps first-seen order",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-0",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-1",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-2",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-3",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-4",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-5",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-6",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-7",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-8",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-9",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-10",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-11",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-12",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-13",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-14",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-15",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-16",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-17",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-18",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-19",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-20",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-21",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-22",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-23",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-24",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-25",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-26",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-27",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-28",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-29",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-30",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-31",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-32",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-33",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-34",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-35",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-36",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-37",
+              "cpu": 96,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-38",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-39",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            }
+          ]
+        },
+        "expected": [
+          "i-37"
+        ],
+        "example": false
+      },
+      {
+        "id": "first_appearance",
+        "title": "A later failure preserves first appearance",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "a",
+              "healthy": true
+            },
+            {
+              "instance_id": "b",
+              "healthy": false
+            },
+            {
+              "instance_id": "a",
+              "healthy": false
+            }
+          ]
+        },
+        "expected": [
+          "a",
+          "b"
+        ],
+        "example": false
+      }
+    ],
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "unhealthy-instances-debug-v1",
+    "title": "Unhealthy instances \u00b7 debug",
+    "category": "Fleet health",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "debug",
+    "prompt": "You are given heartbeat records from production instances. Return the unique instance ids that are unhealthy, in the order they first appear. An instance is unhealthy if any of its records has healthy=False, cpu at or above the threshold, or last_heartbeat_seconds greater than 120. Missing optional fields are not enough to mark it unhealthy. Ignore unknown keys.",
+    "signature": "get_unhealthy_instances(records, cpu_threshold=85.0) -> list[str]",
+    "entrypoint": "get_unhealthy_instances",
+    "starter": "def get_unhealthy_instances(records, cpu_threshold=85.0):\n    \"\"\"Existing implementation: tests report missed alerts and duplicate ids.\"\"\"\n    result = []\n    for row in records:\n        if (row.get(\"healthy\") is False\n                or row.get(\"cpu\", 0) > cpu_threshold\n                or row.get(\"last_heartbeat_seconds\", 0) >= 120):\n            result.append(row[\"instance_id\"])\n    return result\n",
+    "constraints": [
+      "Return unique instance ids in the order they first appear.",
+      "An instance is unhealthy if any record has healthy=False, CPU at or above the threshold, or last_heartbeat_seconds greater than 120.",
+      "Missing optional fields are not enough to mark it unhealthy.",
+      "Ignore unknown keys.",
+      "Do not modify the input. All records have valid identifiers and numeric metrics when present."
+    ],
+    "hints": [
+      "Separate the conditions from the order of the output.",
+      "Use a set for membership and preserve the original iteration order.",
+      "Missing fields must follow the explicit defaults in the acceptance criteria."
+    ],
+    "explanation": "Evaluate each policy independently. Preserve the original ordering and build a fresh output rather than changing records. In the instance task, first appearance means first appearance in the full input, even if the first observation was healthy.",
+    "complexity": "O(n) time and O(n) output/auxiliary space.",
+    "followUp": "How would this change if records arrived as a stream?",
+    "solution": "def get_unhealthy_instances(records, cpu_threshold=85.0):\n    order = dict.fromkeys(row[\"instance_id\"] for row in records)\n    unhealthy = set()\n    for row in records:\n        if row.get(\"healthy\") is False or row.get(\"cpu\", -1) >= cpu_threshold or row.get(\"last_heartbeat_seconds\", 0) > 120:\n            unhealthy.add(row[\"instance_id\"])\n    return [key for key in order if key in unhealthy]\n",
+    "cases": [
+      {
+        "id": "basic_filtering",
+        "title": "High CPU is unhealthy",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-ok",
+              "cpu": 12,
+              "healthy": true,
+              "last_heartbeat_seconds": 4
+            },
+            {
+              "instance_id": "i-hot",
+              "cpu": 91,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            }
+          ]
+        },
+        "expected": [
+          "i-hot"
+        ],
+        "example": true
+      },
+      {
+        "id": "empty_input",
+        "title": "Empty input",
+        "kwargs": {
+          "records": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "stale_heartbeat",
+        "title": "Stale heartbeat",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-quiet",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 180
+            }
+          ]
+        },
+        "expected": [
+          "i-quiet"
+        ],
+        "example": true
+      },
+      {
+        "id": "missing_optional_metric",
+        "title": "Missing CPU does not mark unhealthy",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-partial",
+              "healthy": true,
+              "last_heartbeat_seconds": 8
+            }
+          ]
+        },
+        "expected": [],
+        "example": false
+      },
+      {
+        "id": "threshold_boundary",
+        "title": "Threshold boundary",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-edge",
+              "cpu": 85.0,
+              "healthy": true,
+              "last_heartbeat_seconds": 2
+            },
+            {
+              "instance_id": "i-under",
+              "cpu": 84.9,
+              "healthy": true,
+              "last_heartbeat_seconds": 2
+            }
+          ]
+        },
+        "expected": [
+          "i-edge"
+        ],
+        "example": false
+      },
+      {
+        "id": "duplicate_instance",
+        "title": "Duplicates keep first-seen order",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-a",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            },
+            {
+              "instance_id": "i-b",
+              "cpu": 10,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            },
+            {
+              "instance_id": "i-a",
+              "cpu": 99,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            }
+          ]
+        },
+        "expected": [
+          "i-a"
+        ],
+        "example": false
+      },
+      {
+        "id": "failed_flag",
+        "title": "healthy=False is enough",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-down",
+              "cpu": 4,
+              "healthy": false,
+              "last_heartbeat_seconds": 1
+            }
+          ]
+        },
+        "expected": [
+          "i-down"
+        ],
+        "example": false
+      },
+      {
+        "id": "custom_threshold",
+        "title": "Custom CPU threshold",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-warm",
+              "cpu": 70,
+              "healthy": true,
+              "last_heartbeat_seconds": 1
+            }
+          ],
+          "cpu_threshold": 60
+        },
+        "expected": [
+          "i-warm"
+        ],
+        "example": false
+      },
+      {
+        "id": "large_input",
+        "title": "Larger batch keeps first-seen order",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "i-0",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-1",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-2",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-3",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-4",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-5",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-6",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-7",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-8",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-9",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-10",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-11",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-12",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-13",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-14",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-15",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-16",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-17",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-18",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-19",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-20",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-21",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-22",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-23",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-24",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-25",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-26",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-27",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-28",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-29",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-30",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-31",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-32",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-33",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-34",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-35",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-36",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-37",
+              "cpu": 96,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-38",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            },
+            {
+              "instance_id": "i-39",
+              "cpu": 8,
+              "healthy": true,
+              "last_heartbeat_seconds": 3
+            }
+          ]
+        },
+        "expected": [
+          "i-37"
+        ],
+        "example": false
+      },
+      {
+        "id": "first_appearance",
+        "title": "A later failure preserves first appearance",
+        "kwargs": {
+          "records": [
+            {
+              "instance_id": "a",
+              "healthy": true
+            },
+            {
+              "instance_id": "b",
+              "healthy": false
+            },
+            {
+              "instance_id": "a",
+              "healthy": false
+            }
+          ]
+        },
+        "expected": [
+          "a",
+          "b"
+        ],
+        "example": false
+      }
+    ],
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "deployment-audit-implementation-v1",
+    "title": "Deployment safety audit \u00b7 implement",
+    "category": "Safe delivery",
+    "difficulty": "Foundation",
+    "minutes": 20,
+    "format": "implementation",
+    "prompt": "Your platform team runs an offline check before a batch rollout. Work on the Python checker using normalized deployment records. Report unsafe defaults without changing the input. This exercise runs against fixtures, not a live cluster.",
+    "signature": "audit_deployments(deployments) -> list[dict]",
+    "entrypoint": "audit_deployments",
+    "starter": "def audit_deployments(deployments):\n    \"\"\"Return deployment names and missing safeguards; do not modify the input.\"\"\"\n    return []\n",
+    "constraints": [
+      "Each record has a unique name. Other fields may be missing; numeric fields contain numbers when present.",
+      "Report no_replicas when replicas is missing or at most zero.",
+      "Report no_readiness_probe unless readiness_probe is True.",
+      "Report no_memory_limit when memory_limit_mib is missing or at most zero.",
+      "Return {name, issues} for unsafe deployments only. Keep input order and issue order: replicas, readiness, memory.",
+      "Do not mutate the input or contact a cluster.",
+      "Do not modify the input. All records have valid identifiers and numeric metrics when present."
+    ],
+    "hints": [
+      "Separate the conditions from the order of the output.",
+      "Use a set for membership and preserve the original iteration order.",
+      "Missing fields must follow the explicit defaults in the acceptance criteria."
+    ],
+    "explanation": "Evaluate each policy independently. Preserve the original ordering and build a fresh output rather than changing records. In the instance task, first appearance means first appearance in the full input, even if the first observation was healthy.",
+    "complexity": "O(n) time and O(n) output/auxiliary space.",
+    "followUp": "How would you verify a change before a fleet-wide rollout?",
+    "solution": "def audit_deployments(deployments):\n    findings = []\n    for row in deployments:\n        issues = []\n        if row.get(\"replicas\", 0) <= 0:\n            issues.append(\"no_replicas\")\n        if row.get(\"readiness_probe\") is not True:\n            issues.append(\"no_readiness_probe\")\n        if row.get(\"memory_limit_mib\", 0) <= 0:\n            issues.append(\"no_memory_limit\")\n        if issues:\n            findings.append({\"name\": row[\"name\"], \"issues\": issues})\n    return findings\n",
+    "cases": [
+      {
+        "id": "safe",
+        "title": "A ready deployment",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "api",
+              "replicas": 2,
+              "readiness_probe": true,
+              "memory_limit_mib": 512
+            }
+          ]
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "gaps",
+        "title": "Missing safeguards",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "worker",
+              "replicas": 0,
+              "readiness_probe": false
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "worker",
+            "issues": [
+              "no_replicas",
+              "no_readiness_probe",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": true
+      },
+      {
+        "id": "empty",
+        "title": "No deployments",
+        "kwargs": {
+          "deployments": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "mixed",
+        "title": "Mixed deployment batch",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "api",
+              "replicas": 2,
+              "readiness_probe": true,
+              "memory_limit_mib": 256
+            },
+            {
+              "name": "jobs",
+              "replicas": 1,
+              "readiness_probe": true,
+              "memory_limit_mib": 0
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "jobs",
+            "issues": [
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "defaults",
+        "title": "Missing optional values",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "new"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "new",
+            "issues": [
+              "no_replicas",
+              "no_readiness_probe",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "negative",
+        "title": "Negative values are invalid",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "canary",
+              "replicas": -1,
+              "readiness_probe": true,
+              "memory_limit_mib": -64
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "canary",
+            "issues": [
+              "no_replicas",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "order",
+        "title": "Preserve batch order",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "z",
+              "replicas": 1,
+              "readiness_probe": false,
+              "memory_limit_mib": 64
+            },
+            {
+              "name": "a",
+              "replicas": 1,
+              "readiness_probe": true
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "z",
+            "issues": [
+              "no_readiness_probe"
+            ]
+          },
+          {
+            "name": "a",
+            "issues": [
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      }
+    ],
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "deployment-audit-complete-v1",
+    "title": "Deployment safety audit \u00b7 complete",
+    "category": "Safe delivery",
+    "difficulty": "Foundation",
+    "minutes": 20,
+    "format": "complete",
+    "prompt": "Your platform team runs an offline check before a batch rollout. Work on the Python checker using normalized deployment records. Report unsafe defaults without changing the input. This exercise runs against fixtures, not a live cluster.",
+    "signature": "audit_deployments(deployments) -> list[dict]",
+    "entrypoint": "audit_deployments",
+    "starter": "def audit_deployments(deployments):\n    \"\"\"Finish this offline pre-deployment check. No cluster connection is needed.\"\"\"\n    findings = []\n    for deployment in deployments:\n        issues = []\n        # TODO 1: check replicas, readiness_probe, and memory_limit_mib.\n        # Append issue codes in the order listed in the task.\n        pass\n        # TODO 2: append a finding only when there are issues.\n        # Keep input order and leave the input unchanged.\n        pass\n    return findings\n",
+    "constraints": [
+      "Each record has a unique name. Other fields may be missing; numeric fields contain numbers when present.",
+      "Report no_replicas when replicas is missing or at most zero.",
+      "Report no_readiness_probe unless readiness_probe is True.",
+      "Report no_memory_limit when memory_limit_mib is missing or at most zero.",
+      "Return {name, issues} for unsafe deployments only. Keep input order and issue order: replicas, readiness, memory.",
+      "Do not mutate the input or contact a cluster.",
+      "Do not modify the input. All records have valid identifiers and numeric metrics when present."
+    ],
+    "hints": [
+      "Separate the conditions from the order of the output.",
+      "Use a set for membership and preserve the original iteration order.",
+      "Missing fields must follow the explicit defaults in the acceptance criteria."
+    ],
+    "explanation": "Evaluate each policy independently. Preserve the original ordering and build a fresh output rather than changing records. In the instance task, first appearance means first appearance in the full input, even if the first observation was healthy.",
+    "complexity": "O(n) time and O(n) output/auxiliary space.",
+    "followUp": "How would you verify a change before a fleet-wide rollout?",
+    "solution": "def audit_deployments(deployments):\n    findings = []\n    for row in deployments:\n        issues = []\n        if row.get(\"replicas\", 0) <= 0:\n            issues.append(\"no_replicas\")\n        if row.get(\"readiness_probe\") is not True:\n            issues.append(\"no_readiness_probe\")\n        if row.get(\"memory_limit_mib\", 0) <= 0:\n            issues.append(\"no_memory_limit\")\n        if issues:\n            findings.append({\"name\": row[\"name\"], \"issues\": issues})\n    return findings\n",
+    "cases": [
+      {
+        "id": "safe",
+        "title": "A ready deployment",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "api",
+              "replicas": 2,
+              "readiness_probe": true,
+              "memory_limit_mib": 512
+            }
+          ]
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "gaps",
+        "title": "Missing safeguards",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "worker",
+              "replicas": 0,
+              "readiness_probe": false
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "worker",
+            "issues": [
+              "no_replicas",
+              "no_readiness_probe",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": true
+      },
+      {
+        "id": "empty",
+        "title": "No deployments",
+        "kwargs": {
+          "deployments": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "mixed",
+        "title": "Mixed deployment batch",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "api",
+              "replicas": 2,
+              "readiness_probe": true,
+              "memory_limit_mib": 256
+            },
+            {
+              "name": "jobs",
+              "replicas": 1,
+              "readiness_probe": true,
+              "memory_limit_mib": 0
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "jobs",
+            "issues": [
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "defaults",
+        "title": "Missing optional values",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "new"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "new",
+            "issues": [
+              "no_replicas",
+              "no_readiness_probe",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "negative",
+        "title": "Negative values are invalid",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "canary",
+              "replicas": -1,
+              "readiness_probe": true,
+              "memory_limit_mib": -64
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "canary",
+            "issues": [
+              "no_replicas",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "order",
+        "title": "Preserve batch order",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "z",
+              "replicas": 1,
+              "readiness_probe": false,
+              "memory_limit_mib": 64
+            },
+            {
+              "name": "a",
+              "replicas": 1,
+              "readiness_probe": true
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "z",
+            "issues": [
+              "no_readiness_probe"
+            ]
+          },
+          {
+            "name": "a",
+            "issues": [
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      }
+    ],
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "deployment-audit-debug-v1",
+    "title": "Deployment safety audit \u00b7 debug",
+    "category": "Safe delivery",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "debug",
+    "prompt": "Your platform team runs an offline check before a batch rollout. Work on the Python checker using normalized deployment records. Report unsafe defaults without changing the input. This exercise runs against fixtures, not a live cluster.",
+    "signature": "audit_deployments(deployments) -> list[dict]",
+    "entrypoint": "audit_deployments",
+    "starter": "def audit_deployments(deployments):\n    \"\"\"The existing check reports healthy services and misses unsafe defaults.\"\"\"\n    findings = []\n    for deployment in deployments:\n        issues = []\n        if deployment.get(\"replicas\", 1) < 0:\n            issues.append(\"no_replicas\")\n        if deployment.get(\"readiness_probe\", True):\n            issues.append(\"no_readiness_probe\")\n        if deployment.get(\"memory_limit_mib\", 512) < 0:\n            issues.append(\"no_memory_limit\")\n        findings.append({\"name\": deployment[\"name\"], \"issues\": issues})\n    return findings\n",
+    "constraints": [
+      "Each record has a unique name. Other fields may be missing; numeric fields contain numbers when present.",
+      "Report no_replicas when replicas is missing or at most zero.",
+      "Report no_readiness_probe unless readiness_probe is True.",
+      "Report no_memory_limit when memory_limit_mib is missing or at most zero.",
+      "Return {name, issues} for unsafe deployments only. Keep input order and issue order: replicas, readiness, memory.",
+      "Do not mutate the input or contact a cluster.",
+      "Do not modify the input. All records have valid identifiers and numeric metrics when present."
+    ],
+    "hints": [
+      "Separate the conditions from the order of the output.",
+      "Use a set for membership and preserve the original iteration order.",
+      "Missing fields must follow the explicit defaults in the acceptance criteria."
+    ],
+    "explanation": "Evaluate each policy independently. Preserve the original ordering and build a fresh output rather than changing records. In the instance task, first appearance means first appearance in the full input, even if the first observation was healthy.",
+    "complexity": "O(n) time and O(n) output/auxiliary space.",
+    "followUp": "How would you verify a change before a fleet-wide rollout?",
+    "solution": "def audit_deployments(deployments):\n    findings = []\n    for row in deployments:\n        issues = []\n        if row.get(\"replicas\", 0) <= 0:\n            issues.append(\"no_replicas\")\n        if row.get(\"readiness_probe\") is not True:\n            issues.append(\"no_readiness_probe\")\n        if row.get(\"memory_limit_mib\", 0) <= 0:\n            issues.append(\"no_memory_limit\")\n        if issues:\n            findings.append({\"name\": row[\"name\"], \"issues\": issues})\n    return findings\n",
+    "cases": [
+      {
+        "id": "safe",
+        "title": "A ready deployment",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "api",
+              "replicas": 2,
+              "readiness_probe": true,
+              "memory_limit_mib": 512
+            }
+          ]
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "gaps",
+        "title": "Missing safeguards",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "worker",
+              "replicas": 0,
+              "readiness_probe": false
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "worker",
+            "issues": [
+              "no_replicas",
+              "no_readiness_probe",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": true
+      },
+      {
+        "id": "empty",
+        "title": "No deployments",
+        "kwargs": {
+          "deployments": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "mixed",
+        "title": "Mixed deployment batch",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "api",
+              "replicas": 2,
+              "readiness_probe": true,
+              "memory_limit_mib": 256
+            },
+            {
+              "name": "jobs",
+              "replicas": 1,
+              "readiness_probe": true,
+              "memory_limit_mib": 0
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "jobs",
+            "issues": [
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "defaults",
+        "title": "Missing optional values",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "new"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "new",
+            "issues": [
+              "no_replicas",
+              "no_readiness_probe",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "negative",
+        "title": "Negative values are invalid",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "canary",
+              "replicas": -1,
+              "readiness_probe": true,
+              "memory_limit_mib": -64
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "canary",
+            "issues": [
+              "no_replicas",
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      },
+      {
+        "id": "order",
+        "title": "Preserve batch order",
+        "kwargs": {
+          "deployments": [
+            {
+              "name": "z",
+              "replicas": 1,
+              "readiness_probe": false,
+              "memory_limit_mib": 64
+            },
+            {
+              "name": "a",
+              "replicas": 1,
+              "readiness_probe": true
+            }
+          ]
+        },
+        "expected": [
+          {
+            "name": "z",
+            "issues": [
+              "no_readiness_probe"
+            ]
+          },
+          {
+            "name": "a",
+            "issues": [
+              "no_memory_limit"
+            ]
+          }
+        ],
+        "example": false
+      }
+    ],
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "status-counts",
+    "title": "Count HTTP outcomes",
+    "category": "Signals",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Summarize normalized access-log records for an incident report. Count records in each HTTP status class.",
+    "signature": "count_statuses(records)",
+    "entrypoint": "count_statuses",
+    "starter": "def count_statuses(records):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Each record has integer status from 100 to 599. Return only observed classes as string keys such as \"2xx\".",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Integer division maps a status to its class.",
+      "A dictionary can count each class in one pass."
+    ],
+    "explanation": "Aggregate by status // 100. Empty input produces an empty mapping; missing traffic is not a healthy percentage.",
+    "complexity": "O(n) time; at most five counters.",
+    "followUp": "What additional information would distinguish no traffic from missing telemetry?",
+    "solution": "def count_statuses(records):\n    counts = {}\n    for row in records:\n        key = str(row[\"status\"] // 100) + \"xx\"\n        counts[key] = counts.get(key, 0) + 1\n    return counts\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Mixed responses",
+        "kwargs": {
+          "records": [
+            {
+              "status": 200
+            },
+            {
+              "status": 204
+            },
+            {
+              "status": 503
+            }
+          ]
+        },
+        "expected": {
+          "2xx": 2,
+          "5xx": 1
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No traffic",
+        "kwargs": {
+          "records": []
+        },
+        "expected": {},
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Every class",
+        "kwargs": {
+          "records": [
+            {
+              "status": 101
+            },
+            {
+              "status": 302
+            },
+            {
+              "status": 404
+            },
+            {
+              "status": 599
+            }
+          ]
+        },
+        "expected": {
+          "1xx": 1,
+          "3xx": 1,
+          "4xx": 1,
+          "5xx": 1
+        },
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "error-services",
+    "title": "Rank services by failures",
+    "category": "Signals",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Prioritize an incident by counting server errors per service. Rank the services with errors.",
+    "signature": "rank_errors(records)",
+    "entrypoint": "rank_errors",
+    "starter": "def rank_errors(records):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Records have service (string) and status (integer). Count statuses 500\u2013599 only. Return service names by count descending, then name ascending for ties.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Filter before counting.",
+      "Use a tuple sort key: negative count, then name."
+    ],
+    "explanation": "Count customer-visible server errors and sort the aggregated keys. This ranks volume, not error ratio.",
+    "complexity": "O(n + s log s) time, O(s) space.",
+    "followUp": "Why might a low-traffic service with 100% failures rank below a healthier busy service?",
+    "solution": "def rank_errors(records):\n    counts = {}\n    for row in records:\n        if 500 <= row[\"status\"] <= 599:\n            name = row[\"service\"]\n            counts[name] = counts.get(name, 0) + 1\n    return sorted(counts, key=lambda name: (-counts[name], name))\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Prioritize volume",
+        "kwargs": {
+          "records": [
+            {
+              "service": "api",
+              "status": 500
+            },
+            {
+              "service": "jobs",
+              "status": 503
+            },
+            {
+              "service": "api",
+              "status": 502
+            }
+          ]
+        },
+        "expected": [
+          "api",
+          "jobs"
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No errors",
+        "kwargs": {
+          "records": [
+            {
+              "service": "api",
+              "status": 404
+            }
+          ]
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Stable ties",
+        "kwargs": {
+          "records": [
+            {
+              "service": "z",
+              "status": 500
+            },
+            {
+              "service": "a",
+              "status": 599
+            }
+          ]
+        },
+        "expected": [
+          "a",
+          "z"
+        ],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "latency-percentile",
+    "title": "Compute a nearest-rank percentile",
+    "category": "Signals",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Calculate a tail-latency statistic from a bounded batch of raw millisecond measurements.",
+    "signature": "percentile(values, p)",
+    "entrypoint": "percentile",
+    "starter": "def percentile(values, p):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Values are nonnegative numbers; 0 < p <= 100. Return sorted[ceil(p*n/100)-1]. Return None for no samples.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Sort a copy, not the input list.",
+      "Nearest rank uses ceiling, then a zero-based index."
+    ],
+    "explanation": "The explicit nearest-rank convention matters: different percentile definitions produce different answers for small samples.",
+    "complexity": "O(n log n) time and O(n) space.",
+    "followUp": "Why does a histogram-derived p95 differ from an exact percentile of raw samples?",
+    "solution": "import math\n\ndef percentile(values, p):\n    if not values:\n        return None\n    return sorted(values)[math.ceil(p * len(values) / 100) - 1]\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Median convention",
+        "kwargs": {
+          "values": [
+            30,
+            10,
+            20,
+            40
+          ],
+          "p": 50
+        },
+        "expected": 20,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No samples",
+        "kwargs": {
+          "values": [],
+          "p": 95
+        },
+        "expected": null,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Upper boundary",
+        "kwargs": {
+          "values": [
+            9,
+            1,
+            2
+          ],
+          "p": 100
+        },
+        "expected": 9,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Small percentile",
+        "kwargs": {
+          "values": [
+            7,
+            2,
+            5
+          ],
+          "p": 1
+        },
+        "expected": 2,
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "rolling-errors",
+    "title": "Count failures in a rolling window",
+    "category": "Signals",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Implement the event selection behind a rolling error counter.",
+    "signature": "window_errors(events, now, window)",
+    "entrypoint": "window_errors",
+    "starter": "def window_errors(events, now, window):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Events contain timestamp (integer seconds) and status. Count 500\u2013599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Write both window boundaries before the loop.",
+      "Exclude future events as well as old events."
+    ],
+    "explanation": "A half-open boundary avoids counting an event twice at adjoining interval edges. Future telemetry must not enter the current window.",
+    "complexity": "O(n) time and O(1) extra space.",
+    "followUp": "How would you update this efficiently for a timestamp-sorted continuous stream?",
+    "solution": "def window_errors(events, now, window):\n    return sum(1 for event in events if now - window < event[\"timestamp\"] <= now and 500 <= event[\"status\"] <= 599)\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Boundary and future",
+        "kwargs": {
+          "events": [
+            {
+              "timestamp": 90,
+              "status": 500
+            },
+            {
+              "timestamp": 91,
+              "status": 500
+            },
+            {
+              "timestamp": 100,
+              "status": 503
+            },
+            {
+              "timestamp": 101,
+              "status": 500
+            }
+          ],
+          "now": 100,
+          "window": 10
+        },
+        "expected": 2,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Empty window",
+        "kwargs": {
+          "events": [],
+          "now": 100,
+          "window": 10
+        },
+        "expected": 0,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Unsorted and success",
+        "kwargs": {
+          "events": [
+            {
+              "timestamp": 9,
+              "status": 200
+            },
+            {
+              "timestamp": 8,
+              "status": 599
+            },
+            {
+              "timestamp": 5,
+              "status": 502
+            }
+          ],
+          "now": 10,
+          "window": 5
+        },
+        "expected": 1,
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "error-budget",
+    "title": "Calculate remaining error budget",
+    "category": "Signals",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Report how many additional failed requests fit into a request-based error budget.",
+    "signature": "remaining_budget(total, failures, slo_bps)",
+    "entrypoint": "remaining_budget",
+    "starter": "def remaining_budget(total, failures, slo_bps):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0\u201310000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Keep the computation in integers to avoid floating point drift.",
+      "Negative budget is useful evidence; do not clamp it."
+    ],
+    "explanation": "Basis points make the contract exact. Integer floor prevents promising a fractional failed request.",
+    "complexity": "O(1) time and space.",
+    "followUp": "Why does a request-based budget differ from a time-based availability budget?",
+    "solution": "def remaining_budget(total, failures, slo_bps):\n    return total * (10000 - slo_bps) // 10000 - failures\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Budget remains",
+        "kwargs": {
+          "total": 10000,
+          "failures": 5,
+          "slo_bps": 9990
+        },
+        "expected": 5,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Budget exhausted",
+        "kwargs": {
+          "total": 10000,
+          "failures": 12,
+          "slo_bps": 9990
+        },
+        "expected": -2,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Rounding matters",
+        "kwargs": {
+          "total": 99,
+          "failures": 0,
+          "slo_bps": 9900
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "No traffic",
+        "kwargs": {
+          "total": 0,
+          "failures": 0,
+          "slo_bps": 9999
+        },
+        "expected": 0,
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "heartbeat-gaps",
+    "title": "Find missing heartbeat intervals",
+    "category": "Signals",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Find gaps in scheduled heartbeat timestamps so an operator can inspect missing telemetry.",
+    "signature": "heartbeat_gaps(timestamps, start, end, interval)",
+    "entrypoint": "heartbeat_gaps",
+    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "start <= end; interval > 0; all values are integer seconds. Return missing scheduled times start, start+interval, ... <= end. Duplicate or off-schedule timestamps do not create extra slots.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Build a set of received timestamps.",
+      "Generate the schedule independently of observed values."
+    ],
+    "explanation": "Comparing with an expected schedule detects absence. Only looking at received events cannot identify all missing data.",
+    "complexity": "O(n + k) time, O(n + k) space for n events and k slots.",
+    "followUp": "How would clock skew change the definition of a missed heartbeat?",
+    "solution": "def heartbeat_gaps(timestamps, start, end, interval):\n    received = set(timestamps)\n    return [t for t in range(start, end + 1, interval) if t not in received]\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Missing slots",
+        "kwargs": {
+          "timestamps": [
+            0,
+            20,
+            20,
+            31
+          ],
+          "start": 0,
+          "end": 40,
+          "interval": 10
+        },
+        "expected": [
+          10,
+          30,
+          40
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No received events",
+        "kwargs": {
+          "timestamps": [],
+          "start": 5,
+          "end": 15,
+          "interval": 5
+        },
+        "expected": [
+          5,
+          10,
+          15
+        ],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Complete schedule",
+        "kwargs": {
+          "timestamps": [
+            2,
+            4,
+            6
+          ],
+          "start": 2,
+          "end": 6,
+          "interval": 2
+        },
+        "expected": [],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "retry-backoff",
+    "title": "Generate capped retry delays",
+    "category": "Reliability algorithms",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Prepare a deterministic exponential-backoff schedule. This function computes delays; it does not sleep or send requests.",
+    "signature": "retry_delays(attempts, base_ms, cap_ms)",
+    "entrypoint": "retry_delays",
+    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "attempts, base_ms and cap_ms are nonnegative integers. Attempt zero waits min(base_ms, cap_ms); each later delay doubles until capped. Return one delay per retry.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Carry the capped delay forward.",
+      "Zero attempts produces no retry."
+    ],
+    "explanation": "Capping before the next iteration avoids ever-growing integers. Production clients also need jitter, a retry budget and an overall deadline.",
+    "complexity": "O(attempts) time and output space.",
+    "followUp": "When would retrying a failed request be unsafe even with backoff?",
+    "solution": "def retry_delays(attempts, base_ms, cap_ms):\n    delays = []\n    delay = min(base_ms, cap_ms)\n    for _ in range(attempts):\n        delays.append(delay)\n        delay = min(delay * 2, cap_ms)\n    return delays\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Cap reached",
+        "kwargs": {
+          "attempts": 5,
+          "base_ms": 100,
+          "cap_ms": 500
+        },
+        "expected": [
+          100,
+          200,
+          400,
+          500,
+          500
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No retries",
+        "kwargs": {
+          "attempts": 0,
+          "base_ms": 100,
+          "cap_ms": 500
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Base above cap",
+        "kwargs": {
+          "attempts": 3,
+          "base_ms": 900,
+          "cap_ms": 200
+        },
+        "expected": [
+          200,
+          200,
+          200
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Zero delay",
+        "kwargs": {
+          "attempts": 2,
+          "base_ms": 0,
+          "cap_ms": 500
+        },
+        "expected": [
+          0,
+          0
+        ],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "token-bucket",
+    "title": "Implement a token bucket",
+    "category": "Reliability algorithms",
+    "difficulty": "Advanced",
+    "minutes": 35,
+    "format": "implementation",
+    "prompt": "Decide whether each timestamped request is admitted by a per-process token bucket.",
+    "signature": "admit_requests(timestamps, capacity, refill_per_second)",
+    "entrypoint": "admit_requests",
+    "starter": "def admit_requests(timestamps, capacity, refill_per_second):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Timestamps are nonnegative seconds in nondecreasing order. capacity is a positive integer; refill_per_second is nonnegative. Start full at time 0. Refill to capacity before each request; admitting consumes one token. Return booleans.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Track both tokens and last observed time.",
+      "Rejected requests do not consume tokens; simultaneous requests do not refill."
+    ],
+    "explanation": "A bucket permits a burst up to capacity while limiting long-run rate. Refill is based on elapsed time, even after a rejected request.",
+    "complexity": "O(n) time; O(1) state excluding output.",
+    "followUp": "How would you coordinate this policy across multiple API replicas?",
+    "solution": "def admit_requests(timestamps, capacity, refill_per_second):\n    tokens, previous = capacity, 0\n    result = []\n    for timestamp in timestamps:\n        tokens = min(capacity, tokens + (timestamp - previous) * refill_per_second)\n        allowed = tokens >= 1\n        result.append(allowed)\n        if allowed:\n            tokens -= 1\n        previous = timestamp\n    return result\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Burst and refill",
+        "kwargs": {
+          "timestamps": [
+            0,
+            0,
+            0,
+            1,
+            1
+          ],
+          "capacity": 2,
+          "refill_per_second": 1
+        },
+        "expected": [
+          true,
+          true,
+          false,
+          true,
+          false
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No refill",
+        "kwargs": {
+          "timestamps": [
+            0,
+            10,
+            20
+          ],
+          "capacity": 1,
+          "refill_per_second": 0
+        },
+        "expected": [
+          true,
+          false,
+          false
+        ],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Fractional refill",
+        "kwargs": {
+          "timestamps": [
+            0,
+            0.5,
+            1,
+            5
+          ],
+          "capacity": 1,
+          "refill_per_second": 1
+        },
+        "expected": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Empty",
+        "kwargs": {
+          "timestamps": [],
+          "capacity": 2,
+          "refill_per_second": 1
+        },
+        "expected": [],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "failure-streak",
+    "title": "Find the circuit-opening event",
+    "category": "Reliability algorithms",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Locate the first point at which consecutive failures would open a simplified circuit breaker.",
+    "signature": "opening_index(outcomes, threshold)",
+    "entrypoint": "opening_index",
+    "starter": "def opening_index(outcomes, threshold):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "outcomes contains booleans: True is success, False is failure. threshold is a positive integer. Return the zero-based index of the first threshold-length failure streak, or None. Success resets the streak.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "A total failure count is not a consecutive streak.",
+      "Reset state on each success."
+    ],
+    "explanation": "A consecutive-failure policy is a simplified breaker trigger. A real breaker also needs an open duration and half-open probes.",
+    "complexity": "O(n) time and O(1) space.",
+    "followUp": "When might a rolling error ratio be a better trigger than consecutive failures?",
+    "solution": "def opening_index(outcomes, threshold):\n    streak = 0\n    for index, success in enumerate(outcomes):\n        streak = 0 if success else streak + 1\n        if streak >= threshold:\n            return index\n    return None\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Consecutive failures",
+        "kwargs": {
+          "outcomes": [
+            false,
+            true,
+            false,
+            false
+          ],
+          "threshold": 2
+        },
+        "expected": 3,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No opening",
+        "kwargs": {
+          "outcomes": [
+            false,
+            true,
+            false
+          ],
+          "threshold": 2
+        },
+        "expected": null,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Immediate",
+        "kwargs": {
+          "outcomes": [
+            false
+          ],
+          "threshold": 1
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Empty",
+        "kwargs": {
+          "outcomes": [],
+          "threshold": 3
+        },
+        "expected": null,
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "maintenance-windows",
+    "title": "Merge maintenance windows",
+    "category": "Reliability algorithms",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Combine overlapping or touching maintenance windows into a minimal list for a status page.",
+    "signature": "merge_windows(windows)",
+    "entrypoint": "merge_windows",
+    "starter": "def merge_windows(windows):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Each window is [start, end] with start <= end. Input may be unsorted. Touching windows merge. Return merged windows in ascending start order.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Sort a copy by start.",
+      "Compare each interval to the end of the current merged interval."
+    ],
+    "explanation": "The invariant is that finished intervals cannot overlap any remaining interval. Copy interval values so extending a result does not mutate input.",
+    "complexity": "O(n log n) time, O(n) space.",
+    "followUp": "Would touching windows still merge if they belonged to different services?",
+    "solution": "def merge_windows(windows):\n    result = []\n    for start, end in sorted(windows):\n        if result and start <= result[-1][1]:\n            result[-1][1] = max(result[-1][1], end)\n        else:\n            result.append([start, end])\n    return result\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Overlap and touch",
+        "kwargs": {
+          "windows": [
+            [
+              5,
+              8
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              10,
+              12
+            ]
+          ]
+        },
+        "expected": [
+          [
+            1,
+            8
+          ],
+          [
+            10,
+            12
+          ]
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Empty",
+        "kwargs": {
+          "windows": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Nested and duplicate",
+        "kwargs": {
+          "windows": [
+            [
+              1,
+              10
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              1,
+              10
+            ]
+          ]
+        },
+        "expected": [
+          [
+            1,
+            10
+          ]
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Disjoint",
+        "kwargs": {
+          "windows": [
+            [
+              4,
+              5
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        },
+        "expected": [
+          [
+            0,
+            1
+          ],
+          [
+            4,
+            5
+          ]
+        ],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "dependency-order",
+    "title": "Order service startup safely",
+    "category": "Reliability algorithms",
+    "difficulty": "Advanced",
+    "minutes": 35,
+    "format": "implementation",
+    "prompt": "Plan startup for services whose dependencies must be ready first. Detect cycles rather than waiting forever.",
+    "signature": "startup_order(dependencies)",
+    "entrypoint": "startup_order",
+    "starter": "def startup_order(dependencies):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Input maps every service name to a list of dependency names; every dependency is also a key. Lists have no duplicates. Choose the lexicographically smallest currently ready service at each step. Return None if there is a cycle.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Track outstanding dependency counts and reverse edges.",
+      "A min-heap makes the ready-service tie-break explicit.",
+      "If fewer than all services are emitted, a cycle remains."
+    ],
+    "explanation": "Kahn\u2019s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
+    "complexity": "O((V + E) log V) time, O(V + E) space.",
+    "followUp": "How would you distinguish a dependency cycle from a service that is merely slow to become ready?",
+    "solution": "import heapq\n\ndef startup_order(dependencies):\n    counts = {name: len(items) for name, items in dependencies.items()}\n    dependents = {name: [] for name in dependencies}\n    for name, items in dependencies.items():\n        for dependency in items:\n            dependents[dependency].append(name)\n    ready = [name for name, count in counts.items() if count == 0]\n    heapq.heapify(ready)\n    result = []\n    while ready:\n        name = heapq.heappop(ready)\n        result.append(name)\n        for dependent in dependents[name]:\n            counts[dependent] -= 1\n            if counts[dependent] == 0:\n                heapq.heappush(ready, dependent)\n    return result if len(result) == len(dependencies) else None\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Dependency chain",
+        "kwargs": {
+          "dependencies": {
+            "api": [
+              "db"
+            ],
+            "worker": [
+              "db"
+            ],
+            "db": []
+          }
+        },
+        "expected": [
+          "db",
+          "api",
+          "worker"
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Cycle",
+        "kwargs": {
+          "dependencies": {
+            "a": [
+              "b"
+            ],
+            "b": [
+              "a"
+            ]
+          }
+        },
+        "expected": null,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Ready-set tie break",
+        "kwargs": {
+          "dependencies": {
+            "z": [],
+            "b": [],
+            "a": [
+              "b"
+            ]
+          }
+        },
+        "expected": [
+          "b",
+          "a",
+          "z"
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Empty graph",
+        "kwargs": {
+          "dependencies": {}
+        },
+        "expected": [],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "peak-concurrency",
+    "title": "Measure peak in-flight work",
+    "category": "Reliability algorithms",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Estimate the maximum simultaneously active requests from completed request intervals.",
+    "signature": "peak_concurrency(intervals)",
+    "entrypoint": "peak_concurrency",
+    "starter": "def peak_concurrency(intervals):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Each interval is [start, end) with start <= end. Zero-length intervals count as no work. An end at time t is processed before a start at t. Return the maximum active count.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Convert intervals into start and end events.",
+      "Sort end events before starts at equal timestamps."
+    ],
+    "explanation": "The half-open convention matters at ties. Ignoring zero-length work prevents negative counts from isolated equal-time events.",
+    "complexity": "O(n log n) time and O(n) space.",
+    "followUp": "Why is peak concurrency insufficient to determine a sustainable worker-pool size?",
+    "solution": "def peak_concurrency(intervals):\n    events = []\n    for start, end in intervals:\n        if start < end:\n            events.extend([(start, 1), (end, -1)])\n    current = peak = 0\n    for _, delta in sorted(events):\n        current += delta\n        peak = max(peak, current)\n    return peak\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Overlap",
+        "kwargs": {
+          "intervals": [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              5
+            ]
+          ]
+        },
+        "expected": 3,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Touching only",
+        "kwargs": {
+          "intervals": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        "expected": 1,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Zero length",
+        "kwargs": {
+          "intervals": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Empty",
+        "kwargs": {
+          "intervals": []
+        },
+        "expected": 0,
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "config-drift",
+    "title": "Detect configuration drift",
+    "category": "Automation",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Compare two flat configuration maps before reconciling a service.",
+    "signature": "config_drift(desired, actual)",
+    "entrypoint": "config_drift",
+    "starter": "def config_drift(desired, actual):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Return sorted keys that are missing on either side or have unequal JSON scalar values. Missing is different from a present None. Values have consistent types when a key exists in both maps.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Inspect the union of keys.",
+      "Use membership checks before comparing values."
+    ],
+    "explanation": "A default of None conflates absence with an explicit null. Membership captures the operational distinction.",
+    "complexity": "O(k log k) time, O(k) space.",
+    "followUp": "Which configuration fields should be ignored because a controller owns them?",
+    "solution": "def config_drift(desired, actual):\n    return sorted(key for key in desired.keys() | actual.keys() if key not in desired or key not in actual or desired[key] != actual[key])\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Changed and extra",
+        "kwargs": {
+          "desired": {
+            "replicas": 3,
+            "region": "us"
+          },
+          "actual": {
+            "replicas": 2,
+            "region": "us",
+            "debug": true
+          }
+        },
+        "expected": [
+          "debug",
+          "replicas"
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Null versus missing",
+        "kwargs": {
+          "desired": {
+            "token": null
+          },
+          "actual": {}
+        },
+        "expected": [
+          "token"
+        ],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Identical",
+        "kwargs": {
+          "desired": {
+            "a": 1
+          },
+          "actual": {
+            "a": 1
+          }
+        },
+        "expected": [],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Both empty",
+        "kwargs": {
+          "desired": {},
+          "actual": {}
+        },
+        "expected": [],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "deduplicate-events",
+    "title": "Deduplicate webhook deliveries",
+    "category": "Automation",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Keep the first delivery of each incident event so repeated webhook delivery does not duplicate notifications.",
+    "signature": "unique_events(events)",
+    "entrypoint": "unique_events",
+    "starter": "def unique_events(events):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Each event has a string id and arbitrary JSON fields. Return complete first-seen records in input order. Later copies of an id are ignored even if their payload differs.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Track IDs separately from output records.",
+      "Do not sort: first delivery determines output order."
+    ],
+    "explanation": "An idempotency key defines duplicate identity. This in-memory implementation is a batch exercise; production needs durable state and retention.",
+    "complexity": "O(n) time and O(n) space.",
+    "followUp": "What happens if a process crashes after sending a notification but before saving the idempotency key?",
+    "solution": "def unique_events(events):\n    seen, result = set(), []\n    for event in events:\n        if event[\"id\"] not in seen:\n            seen.add(event[\"id\"])\n            result.append(event.copy())\n    return result\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Repeated delivery",
+        "kwargs": {
+          "events": [
+            {
+              "id": "a",
+              "state": "open"
+            },
+            {
+              "id": "a",
+              "state": "closed"
+            },
+            {
+              "id": "b",
+              "state": "open"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "id": "a",
+            "state": "open"
+          },
+          {
+            "id": "b",
+            "state": "open"
+          }
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No events",
+        "kwargs": {
+          "events": []
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Input order",
+        "kwargs": {
+          "events": [
+            {
+              "id": "z"
+            },
+            {
+              "id": "a"
+            },
+            {
+              "id": "z"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "id": "z"
+          },
+          {
+            "id": "a"
+          }
+        ],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "shard-routing",
+    "title": "Route integer keys to shards",
+    "category": "Automation",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Build a deterministic modulo router for a batch of integer tenant IDs.",
+    "signature": "route_keys(keys, shard_count)",
+    "entrypoint": "route_keys",
+    "starter": "def route_keys(keys, shard_count):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "shard_count is positive; keys are nonnegative integers. Return a mapping with string shard indexes for nonempty shards only. Assign key % shard_count and preserve key order within each shard. Keep duplicates.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Modulo gives an index in the target range.",
+      "Do not use process-randomized hash values for an integer ID."
+    ],
+    "explanation": "Modulo routing is simple and deterministic. Changing the shard count moves many keys; this is deliberately not consistent hashing.",
+    "complexity": "O(n) time and O(n) output space.",
+    "followUp": "How would rendezvous hashing reduce movement when a shard is added?",
+    "solution": "def route_keys(keys, shard_count):\n    result = {}\n    for key in keys:\n        shard = str(key % shard_count)\n        result.setdefault(shard, []).append(key)\n    return result\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Multiple shards",
+        "kwargs": {
+          "keys": [
+            0,
+            1,
+            4,
+            2,
+            4
+          ],
+          "shard_count": 3
+        },
+        "expected": {
+          "0": [
+            0
+          ],
+          "1": [
+            1,
+            4,
+            4
+          ],
+          "2": [
+            2
+          ]
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No keys",
+        "kwargs": {
+          "keys": [],
+          "shard_count": 3
+        },
+        "expected": {},
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "One shard",
+        "kwargs": {
+          "keys": [
+            9,
+            2,
+            9
+          ],
+          "shard_count": 1
+        },
+        "expected": {
+          "0": [
+            9,
+            2,
+            9
+          ]
+        },
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "rollout-batches",
+    "title": "Plan bounded rollout batches",
+    "category": "Automation",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "implementation",
+    "prompt": "Split an ordered host list into rollout waves without exceeding the specified batch size.",
+    "signature": "rollout_batches(hosts, batch_size)",
+    "entrypoint": "rollout_batches",
+    "starter": "def rollout_batches(hosts, batch_size):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "batch_size is a positive integer. Preserve order and duplicates. Every batch except the last must contain batch_size hosts. Empty input returns an empty list.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Advance the index by batch_size.",
+      "A slice naturally handles the final partial batch."
+    ],
+    "explanation": "Batching bounds simultaneous changes, but healthy gates between waves are still required before this becomes a safe deployment workflow.",
+    "complexity": "O(n) time and O(n) output space.",
+    "followUp": "What evidence would make you pause before starting the next batch?",
+    "solution": "def rollout_batches(hosts, batch_size):\n    return [hosts[index:index + batch_size] for index in range(0, len(hosts), batch_size)]\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Partial final batch",
+        "kwargs": {
+          "hosts": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "batch_size": 2
+        },
+        "expected": [
+          [
+            "a",
+            "b"
+          ],
+          [
+            "c",
+            "d"
+          ],
+          [
+            "e"
+          ]
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Empty",
+        "kwargs": {
+          "hosts": [],
+          "batch_size": 3
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Oversized batch",
+        "kwargs": {
+          "hosts": [
+            "a",
+            "b"
+          ],
+          "batch_size": 5
+        },
+        "expected": [
+          [
+            "a",
+            "b"
+          ]
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Preserve duplicates",
+        "kwargs": {
+          "hosts": [
+            "a",
+            "a"
+          ],
+          "batch_size": 1
+        },
+        "expected": [
+          [
+            "a"
+          ],
+          [
+            "a"
+          ]
+        ],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "disk-pressure",
+    "title": "Identify disk-pressure candidates",
+    "category": "Automation",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Evaluate normalized disk usage without dividing by an unknown capacity.",
+    "signature": "pressured_disks(disks, threshold_percent)",
+    "entrypoint": "pressured_disks",
+    "starter": "def pressured_disks(disks, threshold_percent):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0\u2013100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Check capacity before comparing utilization.",
+      "Cross multiplication avoids division and rounding."
+    ],
+    "explanation": "An exact integer comparison treats the boundary correctly. Unknown capacity requires a separate telemetry check rather than a fabricated utilization.",
+    "complexity": "O(n) time and O(n) output space.",
+    "followUp": "Which other signals would distinguish nearly full storage from an imminent outage?",
+    "solution": "def pressured_disks(disks, threshold_percent):\n    return [disk[\"name\"] for disk in disks if disk[\"capacity\"] > 0 and disk[\"used\"] * 100 >= threshold_percent * disk[\"capacity\"]]\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "At threshold",
+        "kwargs": {
+          "disks": [
+            {
+              "name": "a",
+              "used": 80,
+              "capacity": 100
+            },
+            {
+              "name": "b",
+              "used": 79,
+              "capacity": 100
+            }
+          ],
+          "threshold_percent": 80
+        },
+        "expected": [
+          "a"
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Unknown capacity",
+        "kwargs": {
+          "disks": [
+            {
+              "name": "unknown",
+              "used": 0,
+              "capacity": 0
+            }
+          ],
+          "threshold_percent": 0
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Empty and overfull",
+        "kwargs": {
+          "disks": [
+            {
+              "name": "full",
+              "used": 120,
+              "capacity": 100
+            },
+            {
+              "name": "empty",
+              "used": 0,
+              "capacity": 100
+            }
+          ],
+          "threshold_percent": 100
+        },
+        "expected": [
+          "full"
+        ],
+        "example": false
+      }
+    ]
+  },
+  {
+    "id": "redact-secrets",
+    "title": "Redact structured log secrets",
+    "category": "Automation",
+    "difficulty": "Intermediate",
+    "minutes": 25,
+    "format": "implementation",
+    "prompt": "Remove sensitive values from nested JSON logs before exporting them to an observability backend.",
+    "signature": "redact(value)",
+    "entrypoint": "redact",
+    "starter": "def redact(value):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "constraints": [
+      "Recursively handle dictionaries, lists and JSON scalars. Replace values of case-insensitive keys password, token and authorization with \"[REDACTED]\". Preserve key spelling and all other values. Input keys are strings.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Handle mappings, sequences and scalar values separately.",
+      "Redact a sensitive key before recursing into its value."
+    ],
+    "explanation": "Build new containers recursively. This policy is intentionally explicit; it does not detect secrets embedded in arbitrary free text.",
+    "complexity": "O(n) time and space for all visited values; O(depth) recursion stack.",
+    "followUp": "How would you test this policy against newly introduced credential fields without logging the credentials?",
+    "solution": "def redact(value):\n    if isinstance(value, dict):\n        return {key: \"[REDACTED]\" if key.lower() in {\"password\", \"token\", \"authorization\"} else redact(item) for key, item in value.items()}\n    if isinstance(value, list):\n        return [redact(item) for item in value]\n    return value\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Nested fields",
+        "kwargs": {
+          "value": {
+            "user": "a",
+            "Password": "secret",
+            "nested": [
+              {
+                "token": "x",
+                "ok": true
+              }
+            ]
+          }
+        },
+        "expected": {
+          "user": "a",
+          "Password": "[REDACTED]",
+          "nested": [
+            {
+              "token": "[REDACTED]",
+              "ok": true
+            }
+          ]
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Scalar",
+        "kwargs": {
+          "value": "unchanged"
+        },
+        "expected": "unchanged",
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Whole sensitive object",
+        "kwargs": {
+          "value": {
+            "AUTHORIZATION": {
+              "value": "x"
+            },
+            "tokens": [
+              "public"
+            ]
+          }
+        },
+        "expected": {
+          "AUTHORIZATION": "[REDACTED]",
+          "tokens": [
+            "public"
+          ]
+        },
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Null",
+        "kwargs": {
+          "value": null
+        },
+        "expected": null,
+        "example": false
+      }
+    ]
+  }
+]

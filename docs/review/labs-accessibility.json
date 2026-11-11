@@ -1,0 +1,32 @@
+[
+  {
+    "route": "/labs",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/coding",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/coding/status-counts",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "route": "/labs",
+    "width": 1440,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/coding",
+    "width": 1440,
+    "violations": []
+  },
+  {
+    "route": "/sre-labs/coding/status-counts",
+    "width": 1440,
+    "violations": []
+  }
+]
