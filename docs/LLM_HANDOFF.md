@@ -2,6 +2,10 @@
 
 Updated: 10 November 2026. Read this document before making further changes.
 
+**Release state:** implementation commits `c94bc02` (guided workspace/pedagogy) and `fd6195b` (labs hub + coding curriculum) are pushed to main. Vercel production deployment `https://baodium-home-pezstivdw-baodiumgmailcoms-projects.vercel.app` reached Ready and was verified through the actual custom domains. Subsequent documentation-only commits record this evidence; use `git log -1` for the latest main revision.
+
+**Live entry points:** https://labs.baodium.com/ · https://labs.baodium.com/sre-labs/coding · https://labs.baodium.com/sre-labs/observability. A real production browser journey verified the hub, all 24 roadmap entries, a passing Python exercise, main-to-labs SRE redirects and the preserved portrait homepage. See `docs/review/production-labs-smoke.json`.
+
 ## User intent and working constraints
 
 The user wants a professional, pedagogically strong technical learning product at **labs.baodium.com**. SRE is the first track; cybersecurity, platform engineering and other disciplines should follow. They want real environment startup, actionable exercises, and a structured coding practice experience comparable in usability to a coding interview roadmap. They explicitly asked to reuse their interview-prep code where useful, push the latest work to main, and provide this handoff.
@@ -122,7 +126,8 @@ Vercel account/scope: `baodiumgmailcoms-projects`. Existing project: `baodium-ho
 6. **Environment orchestration:** for truly managed one-click labs without a GitHub account, provision a dedicated execution service with isolation, quotas, teardown, lifecycle monitoring and cost controls. Vercel alone should not run long-lived learner Docker stacks.
 7. **Assessment depth:** arbitrary PromQL and learner-created Grafana panels still require manual interpretation. Existing checks prove infrastructure/data availability and real incidents, not full semantic correctness of arbitrary learner queries or explanations.
 8. **Further quality work:** test Firefox/Safari and lower-memory devices, consider self-hosting the pinned Python runtime if CDN dependency is undesirable, add durable curriculum versioning/progress migrations, improve SEO/sitemaps for multiple learning domains, and centralize displayed curriculum counts before expanding the catalog.
-9. **UI refinement:** keep the lab design cohesive across the new hub, coding pages and older simulation workspaces. Do not restart a homepage redesign. Confirm keyboard workflows and short-screen/mobile layouts after changes.
+9. **Dependency review:** GitHub currently reports two pre-existing dependency alerts: minimatch (medium, globparts amplification denial of service) and KaTeX (low, trust bypass if prototype pollution already exists). They were read but not remediated in this milestone. Check current advisory and patched versions before updating; run the relevant regression checks.
+10. **UI refinement:** keep the lab design cohesive across the new hub, coding pages and older simulation workspaces. Do not restart a homepage redesign. Confirm keyboard workflows and short-screen/mobile layouts after changes.
 
 ## Suggested next-agent prompt
 

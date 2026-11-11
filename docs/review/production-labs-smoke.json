@@ -1,0 +1,14 @@
+{
+  "verifiedAt": "2026-11-11T04:17:04.106Z",
+  "sourceCodeCommit": "fd6195b",
+  "deployment": "https://baodium-home-pezstivdw-baodiumgmailcoms-projects.vercel.app",
+  "passed": true,
+  "checks": [
+    "labs.baodium.com root serves the dedicated hub",
+    "Coding navigation reaches 24-exercise roadmap",
+    "Actual production Python run passes all three HTTP-count fixtures",
+    "Main-domain SRE path redirects to the labs domain",
+    "Portrait homepage and free-book link retained",
+    "No page errors during the production journey"
+  ]
+}
