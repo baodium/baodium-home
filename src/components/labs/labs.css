@@ -115,6 +115,7 @@
 }
 .labs-hero h1,
 .coding-roadmap-hero h1 {
+  font-family: var(--font-book), Georgia, serif;
   font-size: clamp(42px, 4.6vw, 68px);
   font-weight: 500;
   line-height: 1.06;

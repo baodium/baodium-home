@@ -12,15 +12,16 @@ export default function LabsPage() {
     <LabsShell>
       <section className="labs-hero">
         <div>
-          <p className="labs-kicker">Your engineering practice ground</p>
+          <p className="labs-kicker">Labs</p>
           <h1>
-            Learn the systems.
+            Instrument the checkout.
             <br />
-            <em>Build the instincts.</em>
+            <em>Then read the evidence.</em>
           </h1>
           <p className="labs-intro">
-            Real tools, deliberate practice, and problems that feel like the
-            job. Turn concepts into code. Turn an incident into evidence.
+            Add the missing signals, spend a 99.5% error budget, and page only
+            when customers are affected. Coding practice and the book labs sit
+            on the same path.
           </p>
           <div className="labs-actions">
             <Link className="labs-button" href="/sre-labs">

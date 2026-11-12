@@ -11,7 +11,7 @@ import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 const links = [
   { id: "home", label: "Home", href: "/" },
   { id: "book", label: "Book", href: "/system-design" },
-  { id: "sre", label: "SRE Labs", href: "/sre-labs" },
+  { id: "labs", label: "Labs", href: "/labs" },
   { id: "projects", label: "Projects", href: "/projects" },
 ];
 

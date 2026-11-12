@@ -4,6 +4,7 @@ import { site } from "@/data/site";
 const links = [
   { label: "Home", href: "/", external: false },
   { label: "Book", href: "/system-design", external: false },
+  { label: "Labs", href: "/labs", external: false },
   { label: "Projects", href: "/projects", external: false },
   { label: site.emailLabel, href: site.email, external: true },
 ];

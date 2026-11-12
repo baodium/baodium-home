@@ -129,6 +129,7 @@ export function BookToolbar({
                 {[
                   { href: "/", label: "Home" },
                   { href: "/system-design", label: "Book" },
+                  { href: "/labs", label: "Labs" },
                   { href: "/projects", label: "Projects" },
                 ].map((link) => (
                   <Link

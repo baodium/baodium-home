@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { projects } from "@/data/projects";
 
 export function SideProjectsView() {
@@ -5,11 +6,11 @@ export function SideProjectsView() {
     <div className="min-h-[100dvh] bg-[#f4efe8] px-6 pb-24 pt-28 text-[#1c1612] md:px-10 md:pt-32">
       <div className="mx-auto max-w-5xl">
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">Projects</p>
-        <h1 className="mt-4 max-w-[14ch] font-serif text-[clamp(2.75rem,6vw,4.4rem)] leading-[0.98] tracking-[-0.035em]">
-          Interview Coach and UpTo
+        <h1 className="mt-4 max-w-[16ch] font-serif text-[clamp(2.75rem,6vw,4.4rem)] leading-[0.98] tracking-[-0.035em]">
+          Projects and Labs
         </h1>
         <p className="mt-6 max-w-xl text-xl leading-relaxed text-[#5c4a40]">
-          Interview practice that follows your answers, and one status you update once.
+          Interview practice, one status you update once, and the checkout labs.
         </p>
         <ul className="mt-16 grid items-stretch gap-6 md:grid-cols-2">
           {projects.map((project) => (
@@ -35,6 +36,24 @@ export function SideProjectsView() {
               </a>
             </li>
           ))}
+          <li>
+            <Link
+              href="/labs"
+              className="flex h-full flex-col rounded-2xl border border-[#e4d5c4] bg-[#fbf7f1] px-8 py-10 transition-colors hover:border-[#b4532a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b4532a] sm:px-10 sm:py-12"
+            >
+              <span className="text-base font-medium text-[#b4532a]">In the browser</span>
+              <span className="mt-5 font-serif text-[2.35rem] leading-none tracking-[-0.03em]">
+                Labs
+              </span>
+              <span className="mt-5 max-w-[34ch] text-lg leading-relaxed text-[#3d322c]">
+                Instrument a checkout, spend a 99.5% error budget, and page only when customers are affected.
+              </span>
+              <span className="mt-10 inline-flex w-fit items-center gap-2 border border-[#b4532a] px-4 py-2.5 text-base font-medium text-[#b4532a]">
+                Open Labs
+                <span aria-hidden="true">→</span>
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

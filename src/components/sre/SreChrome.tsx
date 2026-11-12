@@ -9,7 +9,7 @@ import "./refinements.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Navigation } from "@/components/Navigation";
+import { SiteHeader } from "@/components/SiteHeader";
 
 const labs = [
   { href: "/sre-labs/coding", label: "Coding practice" },
@@ -35,35 +35,12 @@ export function SreChrome({
 
   return (
     <div className="learn-root exp-root relative min-h-[100dvh]">
-      {inLab ? (
-        <header className="sre-workspace-header">
-          <div>
-            <Link href="/labs" aria-label="Baodium Labs home" className="sre-wordmark">
-              BAODIUM
-            </Link>
-            <span aria-hidden="true">/</span>
-            <Link href="/sre-labs">SRE curriculum</Link>
-            <nav aria-label="SRE labs">
-              {labs.map((lab) => (
-                <Link
-                  key={lab.href}
-                  href={lab.href}
-                  aria-current={pathname === lab.href ? "page" : undefined}
-                >
-                  {lab.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </header>
-      ) : (
-        <Navigation />
-      )}
+      <SiteHeader />
       <main
         id="main"
-        className={`relative z-[1] mx-auto w-full max-w-[88rem] px-4 pb-16 sm:px-6 ${inLab ? "pt-5 md:pt-7" : "pt-24 md:pt-28"}`}
+        className="relative z-[1] mx-auto w-full max-w-[88rem] px-4 pb-16 pt-6 sm:px-6 md:pt-8"
       >
-        {showSections && !inLab ? (
+        {inLab || showSections ? (
           <nav className="sre-sections" aria-label="SRE labs">
             {labs.map((lab) => (
               <Link

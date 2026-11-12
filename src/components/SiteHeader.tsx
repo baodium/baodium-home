@@ -6,13 +6,20 @@ import { usePathname } from "next/navigation";
 const links = [
   { label: "Home", href: "/" },
   { label: "Book", href: "/system-design" },
-  { label: "SRE Labs", href: "/sre-labs" },
+  { label: "Labs", href: "/labs" },
   { label: "Projects", href: "/projects" },
 ];
 
 function currentHref(pathname: string) {
   if (pathname === "/") return "/";
-  if (pathname === "/sre-labs" || pathname.startsWith("/sre-labs/")) return "/sre-labs";
+  if (
+    pathname === "/labs" ||
+    pathname.startsWith("/labs/") ||
+    pathname === "/sre-labs" ||
+    pathname.startsWith("/sre-labs/")
+  ) {
+    return "/labs";
+  }
   if (pathname === "/projects" || pathname.startsWith("/projects/")) return "/projects";
   if (pathname === "/system-design" || (pathname.startsWith("/system-design/") && !pathname.startsWith("/system-design/experience"))) {
     return "/system-design";

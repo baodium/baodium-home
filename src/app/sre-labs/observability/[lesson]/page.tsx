@@ -152,7 +152,7 @@ export default async function LessonPage({
             <p>{teaching.misconception}</p>
           </details>
           <section className="course-challenge" aria-labelledby="debrief-title">
-            <p className="product-eyebrow">Debrief rubric</p>
+            <p className="product-eyebrow">How to review your notes</p>
             <h2 id="debrief-title">Turn observations into an explanation</h2>
             <dl className="course-rubric">
               <div><dt>Evidence</dt><dd>{teaching.evidence}</dd></div>
