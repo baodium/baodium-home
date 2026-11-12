@@ -6,7 +6,7 @@ import { codingSummaries, CODING_CATEGORIES } from "@/lib/labs/coding";
 export const metadata: Metadata = {
   title: "SRE coding roadmap",
   description:
-    "24 practical Python exercises for SREs: log analysis, retries, rate limits, deployment checks and automation. Run real tests in your browser.",
+    "Twenty-four SRE exercises in Go, TypeScript, or Python. The same checks run in the browser, and a stage moves only when the full suite passes.",
   alternates: { canonical: "https://labs.baodium.com/sre-labs/coding" },
 };
 export default function CodingPage() {
@@ -17,21 +17,17 @@ export default function CodingPage() {
           ← All learning paths
         </Link>
         <p className="labs-kicker">SRE path / Coding practice</p>
-        <h1>
-          Code for the work
-          <br />
-          <em>you’ll actually do.</em>
-        </h1>
+        <h1>Twenty-four exercises for on-call code.</h1>
         <p>
-          Build, complete and debug practical Python automation. Start with
-          fleet health, build confidence with signals and policies, then tackle
-          stateful reliability algorithms.
+          The set covers fleet health, signals, automation, and delivery. Write
+          each function in Go, TypeScript, or Python. The checks are the same
+          in every language, and a stage moves only when the full suite passes.
         </p>
         <div className="coding-path-note">
           <strong>How to practice</strong>
           <span>
-            Read the contract → predict an edge case → implement → run all
-            checks → explain your tradeoffs.
+            Read the contract, predict one edge case, then run the full suite
+            and write down the tradeoff you accepted.
           </span>
         </div>
       </header>

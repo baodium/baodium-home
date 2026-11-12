@@ -1,9 +1,9 @@
 .labs-root {
-  --lab-ink: #172d38;
-  --lab-muted: #50636b;
-  --lab-line: #d6e1e1;
-  --lab-accent: #146a68;
-  --lab-paper: #f5f8f7;
+  --lab-ink: #241c18;
+  --lab-muted: #6f625a;
+  --lab-line: #e6ddd2;
+  --lab-accent: #8d3d2c;
+  --lab-paper: #fbf7f1;
   min-height: 100dvh;
   background: var(--lab-paper);
   color: var(--lab-ink);
@@ -20,7 +20,7 @@
   touch-action: manipulation;
 }
 .labs-root :focus-visible {
-  outline: 3px solid #218d8a;
+  outline: 3px solid #8d3d2c;
   outline-offset: 4px;
 }
 .labs-root button {
@@ -287,8 +287,8 @@
   background: #edf6f2;
 }
 .labs-track.active:hover {
-  border-color: #146a68;
-  box-shadow: 0 8px 25px -15px #146a6866;
+  border-color: #8d3d2c;
+  box-shadow: 0 8px 25px -18px rgba(36, 28, 24, 0.35);
 }
 .labs-badge {
   align-self: flex-start;
@@ -774,6 +774,64 @@
 .coding-pass {
   color: #146344;
   font-weight: 550;
+}
+.coding-languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.8rem;
+}
+.coding-languages button {
+  min-height: 2.25rem;
+  padding: 0.2rem 0.85rem;
+  border: 1px solid var(--lab-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--lab-muted);
+  font-size: 0.92rem;
+}
+.coding-languages button[aria-pressed="true"] {
+  border-color: var(--lab-ink);
+  background: var(--lab-ink);
+  color: #fbf7f1;
+}
+.coding-stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  list-style: none;
+}
+.coding-stages li {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--lab-line);
+  border-radius: 8px;
+  background: #fffdf9;
+}
+.coding-stages li[data-current="true"] {
+  box-shadow: inset 0 -2px 0 var(--lab-accent);
+}
+.coding-stages li[data-done="true"] {
+  border-color: #246366;
+}
+.coding-stages span {
+  display: block;
+  font-size: 0.92rem;
+}
+.coding-stages small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--lab-muted);
+  font-size: 0.75rem;
+}
+.coding-story {
+  margin-top: 0.4rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--lab-accent);
+}
+.coding-stage {
+  padding: 0 18px 8px;
 }
 .coding-error {
   color: #a1392e;

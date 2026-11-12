@@ -4,9 +4,15 @@ import { useState, useSyncExternalStore } from "react";
 import type { ProblemSummary } from "@/lib/labs/coding";
 import {
   codingServerSnapshot,
+  languageServerSnapshot,
   loadCodingProgress,
+  loadPracticeLanguage,
+  progressKey,
+  storePracticeLanguage,
   subscribeCodingProgress,
+  subscribePracticeLanguage,
 } from "@/lib/labs/coding-progress";
+import { languageLabel, PRACTICE_LANGUAGES } from "@/lib/labs/languages";
 export function CodingRoadmap({
   problems,
   categories,
@@ -19,16 +25,22 @@ export function CodingRoadmap({
     loadCodingProgress,
     codingServerSnapshot,
   );
+  const language = useSyncExternalStore(
+    subscribePracticeLanguage,
+    loadPracticeLanguage,
+    languageServerSnapshot,
+  );
+  const passedIn = (id: string) =>
+    progress[progressKey(id, language)]?.status === "passed";
+  const attemptedIn = (id: string) =>
+    progress[progressKey(id, language)]?.status === "attempted";
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All topics");
   const [difficulty, setDifficulty] = useState("All levels");
   const [status, setStatus] = useState("All exercises");
-  const complete = problems.filter(
-    (problem) => progress[problem.id]?.status === "passed",
-  ).length;
+  const complete = problems.filter((problem) => passedIn(problem.id)).length;
   const next =
-    problems.find((problem) => progress[problem.id]?.status !== "passed") ??
-    problems[0];
+    problems.find((problem) => !passedIn(problem.id)) ?? problems[0];
   const filtered = problems.filter(
     (problem) =>
       `${problem.title} ${problem.category}`
@@ -38,8 +50,8 @@ export function CodingRoadmap({
       (difficulty === "All levels" || difficulty === problem.difficulty) &&
       (status === "All exercises" ||
         (status === "Passed"
-          ? progress[problem.id]?.status === "passed"
-          : progress[problem.id]?.status !== "passed")),
+          ? passedIn(problem.id)
+          : !passedIn(problem.id))),
   );
   return (
     <>
@@ -56,13 +68,57 @@ export function CodingRoadmap({
           value={complete}
           max={problems.length}
         />
-        <Link className="labs-button" href={`/sre-labs/coding/${next.id}`}>
+        <Link
+          className="labs-button"
+          href={`/sre-labs/coding/${next.id}?lang=${language}`}
+        >
           {complete === problems.length
             ? "Review an exercise"
             : "Continue practice"}{" "}
           →
         </Link>
       </div>
+      <div className="coding-languages" role="group" aria-label="Practice language">
+        {PRACTICE_LANGUAGES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-pressed={language === item.id}
+            onClick={() => storePracticeLanguage(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <ol className="coding-stages" aria-label="Stages in this language">
+        {categories.map((group, index) => {
+          const rows = problems.filter((problem) => problem.category === group);
+          const done = rows.filter((problem) => passedIn(problem.id)).length;
+          const current =
+            done < rows.length &&
+            categories
+              .slice(0, index)
+              .every(
+                (earlier) =>
+                  problems.filter((problem) => problem.category === earlier)
+                    .every((problem) => passedIn(problem.id)),
+              );
+          return (
+            <li
+              key={group}
+              data-done={done === rows.length && rows.length > 0 ? "true" : "false"}
+              data-current={current ? "true" : "false"}
+            >
+              <span>
+                {index + 1}. {group}
+              </span>
+              <small>
+                {done} of {rows.length} passed in {languageLabel(language)}
+              </small>
+            </li>
+          );
+        })}
+      </ol>
       <div className="coding-filters">
         <label>
           Find an exercise
@@ -145,7 +201,7 @@ export function CodingRoadmap({
                       problems.filter(
                         (problem) =>
                           problem.category === group &&
-                          progress[problem.id]?.status === "passed",
+                          passedIn(problem.id),
                       ).length
                     }{" "}
                     /{" "}
@@ -160,20 +216,20 @@ export function CodingRoadmap({
               <ol>
                 {rows.map((problem) => (
                   <li key={problem.id}>
-                    <Link href={`/sre-labs/coding/${problem.id}`}>
+                    <Link href={`/sre-labs/coding/${problem.id}?lang=${language}`}>
                       <span
-                        className={`coding-status ${progress[problem.id]?.status === "passed" ? "passed" : ""}`}
+                        className={`coding-status ${passedIn(problem.id) ? "passed" : ""}`}
                         aria-label={
-                          progress[problem.id]?.status === "passed"
+                          passedIn(problem.id)
                             ? "Full suite passed"
-                            : progress[problem.id]?.status === "attempted"
+                            : attemptedIn(problem.id)
                               ? "Attempted"
                               : "Not started"
                         }
                       >
-                        {progress[problem.id]?.status === "passed"
+                        {passedIn(problem.id)
                           ? "✓"
-                          : progress[problem.id]?.status === "attempted"
+                          : attemptedIn(problem.id)
                             ? "◐"
                             : "○"}
                       </span>

@@ -1,8 +1,8 @@
 /* Operations labs share an explicit hierarchy: mission, environment, policy. */
 .operations-lab {
-  --ops-line: #d3ddd7;
-  --ops-ink: #24342f;
-  --ops-muted: #52675d;
+  --ops-line: #e6ddd2;
+  --ops-ink: #241c18;
+  --ops-muted: #5c514a;
   color: var(--ops-ink);
 }
 .ops-mast {
@@ -16,12 +16,13 @@
   color: #526e5e;
 }
 .ops-mast h1 {
-  max-width: 23ch;
+  max-width: 18em;
   margin-top: 1rem;
-  font-size: clamp(2rem, 3.4vw, 3.5rem);
-  line-height: 1.08;
-  letter-spacing: -0.045em;
-  font-weight: 550;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  font-weight: 500;
 }
 .ops-mast p:not(.product-eyebrow) {
   max-width: 48rem;

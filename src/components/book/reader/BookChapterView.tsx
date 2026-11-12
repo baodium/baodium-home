@@ -172,10 +172,8 @@ export function BookChapterView({
       const y = el.scrollTop;
       const delta = y - last;
       if (Math.abs(delta) < 8) return;
-      if (settingsOpen || sidebarOpen || exploreOpen) {
+      if (y < 48 || delta < 0 || settingsOpen || sidebarOpen || exploreOpen) {
         setChromeVisible(true);
-      } else {
-        setChromeVisible(delta < 0 || y < 48);
       }
       last = y;
     };

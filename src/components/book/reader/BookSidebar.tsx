@@ -122,6 +122,9 @@ export function BookSidebar({ chapters }: { chapters: BookChapterMeta[] }) {
           <Link href="/system-design" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
             Book
           </Link>
+          <Link href="/labs" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
+            Labs
+          </Link>
           <Link href="/projects" className="text-[var(--reader-muted)] hover:text-[var(--reader-fg)]" onClick={() => setSidebarOpen(false)}>
             Projects
           </Link>

@@ -148,3 +148,89 @@
 }
 .ops-transport .product-button:hover { background:#7d3827; }
 .laboratory-shell .cascade-figure dd p { max-width:none; width:100%; }
+
+.mode-track {
+  margin-top: 0.9rem;
+}
+.mode-track-count {
+  margin: 0 0 0.45rem;
+  font: 500 0.68rem/1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--exp-faint, #6f625a);
+}
+.mode-track ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mode-track li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--exp-line, #e6ddd2);
+  border-radius: 999px;
+  background: var(--exp-panel-raise, #fff);
+  font-size: 0.82rem;
+  color: var(--exp-muted, #5c514a);
+}
+.mode-track li[data-current="true"] {
+  color: var(--exp-fg, #241c18);
+  box-shadow: inset 0 -2px 0 var(--exp-accent, #8d3d2c);
+}
+.mode-track li[data-done="true"] {
+  color: var(--exp-fg, #241c18);
+}
+.mode-track-mark {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  border: 1px solid var(--exp-line-strong, #d4c8ba);
+  background: transparent;
+}
+.mode-track li[data-done="true"] .mode-track-mark {
+  border-color: var(--exp-signal, #246366);
+  background: var(--exp-signal, #246366);
+}
+.step-meter {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.7rem;
+}
+.step-meter span {
+  height: 3px;
+  flex: 1;
+  border-radius: 999px;
+  background: var(--exp-line, #e6ddd2);
+  transition: background 0.2s ease;
+}
+.step-meter span[data-on="true"] {
+  background: var(--exp-accent, #8d3d2c);
+}
+.lab-grade {
+  margin-top: 0.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--exp-line, #e6ddd2);
+  border-radius: 8px;
+  background: var(--exp-panel-raise, #fff);
+  color: var(--exp-fg, #241c18);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.lab-grade-pass {
+  border-color: color-mix(in srgb, var(--exp-signal, #246366) 45%, var(--exp-line, #e6ddd2));
+}
+.lab-grade a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .step-meter span {
+    transition: none;
+  }
+}

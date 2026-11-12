@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { recordSreProgress } from "@/lib/sre/progress";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { ModeTrack } from "@/components/sre/ModeTrack";
+import {
+  loadSreProgress,
+  recordSreProgress,
+  sreServerSnapshot,
+  subscribeSreProgress,
+} from "@/lib/sre/progress";
 import Link from "next/link";
 import { AlertRuleWorkbench } from "@/components/sre/AlertRuleWorkbench";
 import { Segmented } from "@/components/ui/Segmented";
@@ -47,6 +54,13 @@ const MODES = [
 ];
 
 export function SreExperience({ lab }: { lab: SreLabId }) {
+  const reduce = useReducedMotion();
+  const progress = useSyncExternalStore(
+    subscribeSreProgress,
+    loadSreProgress,
+    sreServerSnapshot,
+  );
+  const completed = progress[lab]?.completedModes ?? [];
   useEffect(() => recordSreProgress(lab), [lab]);
   const [mode, setMode] = useState<Mode>("guided");
   const [step, setStep] = useState(0);
@@ -151,6 +165,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
           <p className="exp-kicker">{labTitle(lab)} · Browser simulation</p>
           <h1>{labChallenge(lab)}</h1>
           <p>{objective(lab, mode)}</p>
+          <ModeTrack completed={completed} current={mode} />
         </div>
         <Segmented
           value={mode}
@@ -180,24 +195,22 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
               />
             ) : null}
             {grade ? (
-              <p
-                className="exp-panel text-sm leading-relaxed text-[color:var(--exp-fg)]"
+              <motion.p
+                className={`lab-grade${grade.ok ? " lab-grade-pass" : ""}`}
                 role="status"
+                initial={reduce ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduce ? 0 : 0.22 }}
               >
                 {grade.reason}
                 {grade.ok ? (
                   <>
                     {" "}
                     Completion saved in this browser.{" "}
-                    <Link
-                      href="/sre-labs"
-                      className="underline underline-offset-4"
-                    >
-                      View your learning path →
-                    </Link>
+                    <Link href="/sre-labs">View your learning path →</Link>
                   </>
                 ) : null}
-              </p>
+              </motion.p>
             ) : null}
           </>
         }
@@ -208,6 +221,14 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                 <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
                   Step {step + 1} of {guided.total}
                 </p>
+                <div className="step-meter" aria-hidden="true">
+                  {Array.from({ length: guided.total }, (_, index) => (
+                    <span
+                      key={index}
+                      data-on={index <= step ? "true" : "false"}
+                    />
+                  ))}
+                </div>
                 <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
                   {guided.title}
                 </h2>

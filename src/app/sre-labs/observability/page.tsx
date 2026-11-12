@@ -14,14 +14,8 @@ export default function CourseOverview() {
     <SreChrome showSections={false}>
       <section className="course-overview">
         <header>
-          <p className="product-eyebrow">
-            Baodium SRE / Real tools, your own workspace
-          </p>
-          <h1>
-            Build an observable checkout.
-            <br />
-            <em>Prove what happened.</em>
-          </h1>
+          <p className="product-eyebrow">Hands-on course</p>
+          <h1>Build an observable checkout and show what the signals recorded.</h1>
           <p>
             Eight exercises around the same two services. Generate requests,
             inspect the signals, introduce a fault, then verify recovery with

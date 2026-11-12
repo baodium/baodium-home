@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { recordSreProgress } from "@/lib/sre/progress";
+import { ModeTrack } from "@/components/sre/ModeTrack";
+import {
+  loadSreProgress,
+  recordSreProgress,
+  sreServerSnapshot,
+  subscribeSreProgress,
+} from "@/lib/sre/progress";
 import { CascadeTrends } from "@/components/sre/CascadeTrends";
 import { CascadePortrait } from "@/components/sre/CascadePortrait";
 import { LaboratoryShell } from "@/components/sre/LaboratoryShell";
@@ -161,6 +167,11 @@ function CascadeSession({
   const [logService, setLogService] = useState("all");
   const [logKind, setLogKind] = useState("all");
   const [logQuery, setLogQuery] = useState("");
+  const progress = useSyncExternalStore(
+    subscribeSreProgress,
+    loadSreProgress,
+    sreServerSnapshot,
+  );
   useEffect(() => recordSreProgress("cascade"), []);
   const remember = (
     t: number,
@@ -378,6 +389,10 @@ function CascadeSession({
               t {view ? view.t.toFixed(1) : "0.0"}s · seed 42
             </span>
           </div>
+          <ModeTrack
+            completed={progress.cascade?.completedModes ?? []}
+            current={mode}
+          />
         </div>
       }
       brief={

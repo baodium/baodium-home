@@ -10,6 +10,7 @@ import {
   subscribeSreProgress,
 } from "@/lib/sre/progress";
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
+import { ModeTrack } from "@/components/sre/ModeTrack";
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -52,18 +53,13 @@ export function SreCatalog() {
     <div className="sre-catalog">
       <header className="catalog-hero">
         <div className="catalog-heading">
-          <p className="product-eyebrow">
-            Baodium SRE Lab / Learn by operating
-          </p>
-          <h1>
-            Run the tools.
-            <br />
-            <em>Investigate the evidence.</em>
-          </h1>
+          <p className="product-eyebrow">SRE labs</p>
+          <h1>Measure a checkout, then decide what the signals mean.</h1>
           <p>
-            Build an observable checkout with Express, FastAPI, Prometheus,
-            Grafana, OpenTelemetry and Jaeger. Eight local exercises take you
-            from a working environment to a verified incident recovery.
+            One path runs Express and FastAPI with Prometheus, Grafana,
+            OpenTelemetry, and Jaeger. Eight local exercises go from a working
+            environment to a recovery you can verify. A second path stays in
+            the browser.
           </p>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
@@ -76,9 +72,7 @@ export function SreCatalog() {
           </p>
         </div>
         <aside className="course-toolchain">
-          <p className="product-eyebrow">
-            One system. Several kinds of evidence.
-          </p>
+          <p className="product-eyebrow">Same checkout, four records</p>
           <div className="course-service-pair">
             <span>
               <strong>Express</strong>Checkout service
@@ -119,9 +113,13 @@ export function SreCatalog() {
         </aside>
       </header>
       <section className="course-objective" aria-label="SRE coding practice">
-        <p className="product-eyebrow">Build the automation</p>
-        <h2>24 practical Python exercises for SREs</h2>
-        <p>Implement, complete and debug fleet checks, log analysis, retries, rate limits and safe delivery policies. Run real tests in your browser.</p>
+        <p className="product-eyebrow">Coding practice</p>
+        <h2>Twenty-four exercises, in the language you want to write.</h2>
+        <p>
+          Fleet checks, log analysis, retries, rate limits, and delivery
+          policies. Go, TypeScript, and Python share the same checks, and they
+          run in the browser.
+        </p>
         <Link href="/sre-labs/coding" className="product-button">Open the coding roadmap <ArrowRight size={16}/></Link>
         <Link href="/labs" className="product-text-link">All learning paths</Link>
       </section>
@@ -133,7 +131,7 @@ export function SreCatalog() {
           <div>
             <p className="product-eyebrow">The hands-on path</p>
             <h2 id="course-outline-title">
-              Set up. Measure. Investigate. Recover.
+              Eight exercises, from a working environment to a verified recovery.
             </h2>
           </div>
           <span>8 exercises · local execution</span>
@@ -159,7 +157,7 @@ export function SreCatalog() {
         <p className="product-eyebrow">
           A separate practice path / Browser simulations
         </p>
-        <h2>Build intuition before opening a terminal.</h2>
+        <h2>Six simulations you can run without installing anything.</h2>
         <p>
           Six guided simulations for exploring reliability decisions without
           installing tools. Completion below records assessed browser practice,
@@ -281,20 +279,21 @@ export function SreCatalog() {
                 <span className="product-eyebrow">{lab.topic}</span>
                 <span className="signal-label">
                   {progress[lab.id]?.completedModes.length
-                    ? "Completed"
+                    ? "Passed"
                     : progress[lab.id]?.opened
                       ? "In progress"
-                      : "Ready to explore"}
+                      : "Not started"}
                 </span>
               </div>
               <h3>
                 <Link href={`/sre-labs/${lab.id}`}>{lab.title}</Link>
               </h3>
               <p>{lab.summary}</p>
-              <p className="catalog-outcome">
-                <strong>You’ll learn to</strong>{" "}
-                {lab.outcome.charAt(0).toLowerCase() + lab.outcome.slice(1)}
-              </p>
+              <p className="catalog-outcome">{lab.outcome}</p>
+              <ModeTrack
+                compact
+                completed={progress[lab.id]?.completedModes ?? []}
+              />
               <p className="lesson-meta">
                 {lab.difficulty} · About {lab.minutes} min · Browser simulation
               </p>
@@ -307,7 +306,7 @@ export function SreCatalog() {
                           SRE_LESSONS.find((item) => item.id === id)!.topic,
                       )
                       .join(", ")
-                  : "None — start here"}
+                  : "None. Start here."}
               </p>
               <Link href={`/sre-labs/${lab.id}`} className="product-text-link">
                 {progress[lab.id]?.completedModes.length

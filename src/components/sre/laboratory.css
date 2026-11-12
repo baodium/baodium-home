@@ -1,17 +1,17 @@
 /* Laboratory: evidence and configuration stay in the same workspace. */
 .laboratory-shell {
-  --exp-fg: #243137;
-  --exp-muted: #4c5c62;
-  --exp-faint: #4f6268;
-  --exp-panel: #f3f6f5;
-  --exp-panel-raise: #fff;
-  --exp-line: #dce3df;
-  --exp-line-strong: #b6c7c0;
+  --exp-fg: #241c18;
+  --exp-muted: #5c514a;
+  --exp-faint: #6f625a;
+  --exp-panel: #fbf7f1;
+  --exp-panel-raise: #fffdf9;
+  --exp-line: #e6ddd2;
+  --exp-line-strong: #d4c8ba;
   --exp-signal: #246366;
-  --exp-kicker: #246366;
-  --exp-accent: #99452f;
-  --exp-accent-text: #99452f;
-  --exp-amber-text: #246366;
+  --exp-kicker: #8d3d2c;
+  --exp-accent: #8d3d2c;
+  --exp-accent-text: #8d3d2c;
+  --exp-amber-text: #6d4a32;
   background: var(--exp-panel);
   color: var(--exp-fg);
   color-scheme: light;
@@ -42,7 +42,7 @@
   padding: 0 0 1rem;
   border-bottom: 1px solid var(--exp-line);
   margin-bottom: 1rem;
-  font-size: 12px;
+  font-size: 0.95rem;
 }
 .laboratory-bar > a {
   font-weight: 600;
@@ -53,7 +53,7 @@
 }
 .laboratory-bar > span {
   color: var(--exp-muted);
-  font: 10px/1.6 var(--font-mono);
+  font: 0.75rem/1.6 var(--font-mono);
 }
 .laboratory-bar > div {
   display: flex;
@@ -90,11 +90,13 @@
   padding: 0.4rem;
 }
 .laboratory-shell .cascade-title {
-  font-family: var(--font-sans);
+  font-family: var(--font-book), Georgia, serif;
   font-style: normal;
-  font-size: clamp(1.5rem, 2vw, 2rem);
-  font-weight: 550;
-  max-width: 16em;
+  font-size: clamp(1.7rem, 2.2vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  max-width: 18em;
 }
 .laboratory-shell .cascade-copy,
 .laboratory-shell .cascade-brief {
@@ -686,9 +688,11 @@
   padding: 1rem 0;
 }
 .sre-lesson-mast h1 {
-  font-size: clamp(1.8rem, 3vw, 2.8rem);
-  line-height: 1.2;
-  letter-spacing: -0.035em;
+  font-family: var(--font-book), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
   margin-top: 0.7rem;
 }
 .sre-lesson-mast p:not(.exp-kicker) {

@@ -127,8 +127,8 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           </p>
           <h1>
             {capacity
-              ? "Keep the queue from becoming the outage."
-              : "A release is a hypothesis. Test it."}
+              ? "Hold checkout latency while the queue grows."
+              : "Send a share of traffic to a faulty release and decide when to stop."}
           </h1>
           <p>
             {capacity

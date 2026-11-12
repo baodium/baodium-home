@@ -4,7 +4,7 @@ import { LabsShell } from "@/components/labs/LabsShell";
 export const metadata: Metadata = {
   title: "Labs · Learn by building and operating",
   description:
-    "Practical engineering paths: real SRE environments, Python coding practice and incident simulations. Build skills through evidence.",
+    "SRE labs for a checkout you can instrument, budget, and page. Coding practice runs in the browser in Go, TypeScript, or Python.",
   alternates: { canonical: "https://labs.baodium.com/" },
 };
 export default function LabsPage() {
@@ -13,11 +13,7 @@ export default function LabsPage() {
       <section className="labs-hero">
         <div>
           <p className="labs-kicker">Labs</p>
-          <h1>
-            Instrument the checkout.
-            <br />
-            <em>Then read the evidence.</em>
-          </h1>
+          <h1>A checkout you can instrument, budget, and page.</h1>
           <p className="labs-intro">
             Add the missing signals, spend a 99.5% error budget, and page only
             when customers are affected. Coding practice and the book labs sit
@@ -48,7 +44,7 @@ export default function LabsPage() {
         </div>
         <aside className="labs-hero-panel">
           <div className="labs-panel-top">
-            <span>THE SRE LEARNING LOOP</span>
+            <span>How the SRE path is organized</span>
             <span aria-hidden="true">↗</span>
           </div>
           <ol>
@@ -57,8 +53,8 @@ export default function LabsPage() {
               <div>
                 <strong>Build the automation</strong>
                 <p>
-                  Parse signals, enforce policies, and test edge cases in
-                  Python.
+                  Parse signals, enforce policies, and test edge cases in Go,
+                  TypeScript, or Python.
                 </p>
               </div>
             </li>
@@ -87,10 +83,13 @@ export default function LabsPage() {
       <section className="labs-paths" aria-labelledby="paths-title">
         <div className="labs-section-heading">
           <div>
-            <p className="labs-kicker">Choose your discipline</p>
-            <h2 id="paths-title">One hub. Deeper skills.</h2>
+            <p className="labs-kicker">Paths</p>
+            <h2 id="paths-title">What you can practice now, and what is still being written.</h2>
           </div>
-          <p>Start with a guided path, then return to focused practice.</p>
+          <p>
+            Site reliability is the path with labs today. Cybersecurity and
+            platform engineering are listed so the map stays honest.
+          </p>
         </div>
         <div className="labs-track-grid">
           <Link className="labs-track active" href="/sre-labs">
@@ -144,15 +143,15 @@ export default function LabsPage() {
       </section>
       <section className="labs-practice-options">
         <div>
-          <p className="labs-kicker">Three ways to learn</p>
-          <h2>Choose the kind of work you want to do today.</h2>
+          <p className="labs-kicker">Practice</p>
+          <h2>Pick the kind of work you have time for.</h2>
         </div>
         <Link href="/sre-labs/coding">
           <span>WRITE CODE / 15–35 MIN</span>
           <h3>Practice an SRE coding problem ↗</h3>
           <p>
-            A Python editor, real tests, progressive hints and an explanation of
-            the tradeoffs.
+            An editor for Go, TypeScript, or Python, with the same checks, hints,
+            and a reference you can compare after you have tried.
           </p>
         </Link>
         <Link href="/sre-labs/observability">
@@ -174,8 +173,8 @@ export default function LabsPage() {
       </section>
       <section className="labs-book-bridge">
         <div>
-          <p className="labs-kicker">Connect theory to practice</p>
-          <h2>Keep learning with the book labs.</h2>
+          <p className="labs-kicker">From the book</p>
+          <h2>The same ideas show up in the book labs.</h2>
           <p>
             Explore the existing system-design experiments and quick reliability
             drills.

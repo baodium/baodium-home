@@ -707,7 +707,7 @@ html[data-reader-theme="dark"] .book-reader-atmosphere {
 
 .book-prose {
   font-family: var(--font-book), "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, serif;
-  line-height: 1.7;
+  line-height: 1.78;
   color: var(--reader-fg);
 }
 
@@ -1436,15 +1436,15 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 /* ——— Shared learning tokens (editorial + engineering console) ——— */
 .learn-root {
-  --learn-fg: #1a2330;
-  --learn-muted: #3a4656;
-  --learn-faint: #3e4c5e;
-  --learn-line: color-mix(in srgb, #1a2330 10%, transparent);
-  --learn-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
-  --learn-panel: color-mix(in srgb, #ffffff 92%, #eef3f7 8%);
+  --learn-fg: #241c18;
+  --learn-muted: #5c514a;
+  --learn-faint: #6f625a;
+  --learn-line: #e6ddd2;
+  --learn-line-strong: #d4c8ba;
+  --learn-panel: #fffdf9;
   --learn-panel-raise: #ffffff;
-  --learn-accent: #ad4f36;
-  --learn-signal: #2f7a7e;
+  --learn-accent: #8d3d2c;
+  --learn-signal: #246366;
   --learn-console: #0f1419;
   --learn-console-fg: #d7e0ea;
   --learn-console-muted: #8a97a8;
@@ -1901,12 +1901,12 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 
 /* ——— System Design experience lab (light airy — not brown desk) ——— */
 .exp-root {
-  --exp-fg: var(--learn-fg, #1a2330);
-  --exp-muted: var(--learn-muted, #3a4656);
-  --exp-faint: var(--learn-faint, #3e4c5e);
-  --exp-kicker: #1f5f64;
-  --exp-amber-text: #1f5f64;
-  --exp-on-fg: #f4f7fa;
+  --exp-fg: var(--learn-fg, #241c18);
+  --exp-muted: var(--learn-muted, #5c514a);
+  --exp-faint: var(--learn-faint, #6f625a);
+  --exp-kicker: #8d3d2c;
+  --exp-amber-text: #6d4a32;
+  --exp-on-fg: #fbf7f1;
   --exp-chip: color-mix(in srgb, var(--exp-fg) 6%, var(--exp-panel-raise));
   --exp-line: var(--learn-line, color-mix(in srgb, #1a2330 10%, transparent));
   --exp-line-strong: var(
@@ -1918,12 +1918,12 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   --exp-slot-free: color-mix(in srgb, #1a2330 6%, #f4f7fa);
   --exp-slot-base: #5ea8a8;
   --exp-slot-recs: #ad4f36;
-  --exp-accent: var(--learn-accent, #ad4f36);
-  --exp-accent-text: #8d3e2b;
-  --exp-amber: var(--learn-signal, #2f7a7e);
-  --exp-signal: var(--learn-signal, #2f7a7e);
+  --exp-accent: var(--learn-accent, #8d3d2c);
+  --exp-accent-text: #8d3d2c;
+  --exp-amber: var(--learn-signal, #246366);
+  --exp-signal: var(--learn-signal, #246366);
   color-scheme: light;
-  background: #f4f7fa;
+  background: #fbf7f1;
   color: var(--exp-fg);
 }
 
