@@ -110,7 +110,7 @@
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: 70px;
-  padding: 85px 0 70px;
+  padding: 2.5rem 0 4.5rem;
   align-items: center;
 }
 .labs-hero h1,

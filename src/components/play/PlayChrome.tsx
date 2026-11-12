@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Footer } from "@/components/Footer";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SitePill } from "@/components/Navigation";
 export function PlayChrome({
   children,
 }: {
@@ -9,10 +9,10 @@ export function PlayChrome({
 }) {
   return (
     <>
-      <SiteHeader />
+      <SitePill />
       <main
         id="main"
-        className="bg-[#f4f7fa] pb-16 pt-10 text-ink md:pb-24 md:pt-14"
+        className="bg-[#f4f7fa] pb-16 pt-28 text-ink md:pb-24"
       >
         {children}
       </main>

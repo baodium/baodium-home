@@ -9,7 +9,7 @@ import "./refinements.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SitePill } from "@/components/Navigation";
 
 const labs = [
   { href: "/sre-labs/coding", label: "Coding practice" },
@@ -34,11 +34,11 @@ export function SreChrome({
   const inLab = pathname !== "/sre-labs";
 
   return (
-    <div className="learn-root exp-root relative min-h-[100dvh]">
-      <SiteHeader />
+    <div className="learn-root exp-root relative min-h-[100dvh] pt-[5.5rem]">
+      <SitePill />
       <main
         id="main"
-        className="relative z-[1] mx-auto w-full max-w-[88rem] px-4 pb-16 pt-6 sm:px-6 md:pt-8"
+        className="relative z-[1] mx-auto w-full max-w-[88rem] px-4 pb-16 pt-2 sm:px-6"
       >
         {inLab || showSections ? (
           <nav className="sre-sections" aria-label="SRE labs">

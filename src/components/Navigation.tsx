@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { SiteHeader } from "@/components/SiteHeader";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
 /** Shared destinations in the homepage navigation. */
@@ -17,19 +16,36 @@ const links = [
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-/** The dark floating pill. Homepage only. */
-function HomePill() {
+function routeId(pathname: string) {
+  if (pathname === "/") return "home";
+  if (pathname === "/system-design" || pathname.startsWith("/system-design/")) return "book";
+  if (
+    pathname === "/labs" ||
+    pathname.startsWith("/labs/") ||
+    pathname === "/sre-labs" ||
+    pathname.startsWith("/sre-labs/")
+  ) {
+    return "labs";
+  }
+  if (pathname === "/projects" || pathname.startsWith("/projects/")) return "projects";
+  return null;
+}
+
+/** Dark floating pill. Same bar on every page. */
+export function SitePill() {
+  const pathname = usePathname() ?? "/";
+  const onHome = pathname === "/";
   const reduce = usePrefersReducedMotion();
   const [sectionActive, setSectionActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLElement>(null);
   const [tucked, setTucked] = useState(false);
-  const active = sectionActive ?? "home";
-  const barHidden = !reduce && tucked && !open;
+  const active = onHome ? (sectionActive ?? "home") : routeId(pathname);
+  const barHidden = onHome && !reduce && tucked && !open;
 
   useEffect(() => {
-    if (reduce) return;
+    if (!onHome || reduce) return;
     let last = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
@@ -40,9 +56,10 @@ function HomePill() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [reduce]);
+  }, [onHome, reduce]);
 
   useEffect(() => {
+    if (!onHome) return;
     const sectionIds = ["book", "play", "projects"];
     const sections = sectionIds
       .map((id) => document.getElementById(id))
@@ -66,7 +83,7 @@ function HomePill() {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [onHome]);
 
   useEffect(() => {
     if (!open) return;
@@ -207,9 +224,7 @@ function HomePill() {
   );
 }
 
-/** Homepage keeps the dark pill. Every other page uses the book bar. */
+/** Site navigation. The dark pill is the only header. */
 export function Navigation() {
-  const pathname = usePathname();
-  if (pathname === "/") return <HomePill />;
-  return <SiteHeader fixed />;
+  return <SitePill />;
 }

@@ -150,7 +150,7 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
 
   return (
     <article className="bg-[#f6f1ea] text-[#241c18]" onKeyDown={onKeyDown}>
-      <header className="mx-auto max-w-[1240px] px-6 pb-8 pt-16 sm:px-10 sm:pt-20">
+      <header className="mx-auto max-w-[1240px] px-6 pb-8 pt-8 sm:px-10 sm:pt-10">
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">
           Chapter {chapter.number} · {chapter.title}
         </p>

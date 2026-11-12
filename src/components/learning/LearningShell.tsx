@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SitePill } from "@/components/Navigation";
 import { ReturnToReading } from "@/components/learning/ReturnToReading";
 
 export type LearningSurface = "lab" | "drill" | "book";
@@ -24,12 +24,12 @@ export function LearningShell({
   return (
     <div className="learn-root exp-root relative min-h-[100dvh]" data-surface={surface}>
       <div aria-hidden="true" className="exp-atmosphere" />
-      <SiteHeader />
+      <SitePill />
       <p className="sr-only">{title ? `${kicker}. ${title}` : kicker}</p>
       <Suspense fallback={null}>
         <ReturnToReading />
       </Suspense>
-      <main id="main" className="relative z-[1]">
+      <main id="main" className="relative z-[1] pt-[5.5rem]">
         {children}
       </main>
     </div>

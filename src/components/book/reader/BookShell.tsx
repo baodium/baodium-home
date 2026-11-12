@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import type { BookChapterMeta } from "@/lib/book/types";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SitePill } from "@/components/Navigation";
 import { ReaderProvider, useReader } from "@/components/book/reader/ReaderProvider";
 import { BookSidebar } from "@/components/book/reader/BookSidebar";
 import { BookToolbar } from "@/components/book/reader/BookToolbar";
@@ -67,13 +67,11 @@ function ShellBody({
   }, [setChromeVisible]);
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#fbf7f1]">
-      <div className="book-site-header relative z-[80] shrink-0" data-no-flip>
-        <SiteHeader />
-      </div>
+    <div className="flex h-[100dvh] flex-col bg-[#f6f1ea] pt-[5.5rem]">
+      <SitePill />
+      <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="book-reader relative min-h-0 flex-1 text-[var(--reader-fg)]">
       <div aria-hidden="true" className="book-reader-atmosphere" />
-      <BookSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="reader-sheet relative z-[1] mx-auto flex h-full w-full max-w-[calc(var(--reader-measure)+24rem)]">
         <BookSidebar chapters={chapters} />
         <div className="book-reader-stage relative z-0 flex min-w-0 flex-1 flex-col">
