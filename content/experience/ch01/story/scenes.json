@@ -41,7 +41,7 @@
     {
       "act": "xray",
       "label": "The recommendation call",
-      "title": "Same moment, seen from the inside.",
+      "title": "The same moment, from the recommendation call.",
       "body_md": "Each figure is now a request. Product Page asks Catalog (fast), then calls Recommendation Service, which must **borrow one of 40 database connections** before its query can run.\n\nAll 40 are busy. Everyone else waits in line. That amber line is the incident.",
       "view": "xray",
       "target": 1.0,

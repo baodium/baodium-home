@@ -159,19 +159,21 @@
   gap: 0.75rem;
 }
 .catalog-lesson h3 {
-  font-size: 1.65rem;
-  line-height: 1.25;
+  font-family: var(--font-book), Georgia, serif;
+  font-weight: 500;
+  font-size: 1.7rem;
+  line-height: 1.22;
   letter-spacing: -0.03em;
-  margin-top: 1rem;
+  margin-top: 0.85rem;
 }
 .catalog-lesson h3 a:hover {
   text-decoration: underline;
   text-underline-offset: 5px;
 }
 .catalog-lesson > p {
-  font-size: 14px;
-  line-height: 1.8;
-  margin-top: 0.9rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-top: 0.75rem;
   color: var(--exp-muted);
 }
 .catalog-outcome strong {
@@ -181,7 +183,8 @@
 }
 .catalog-lesson > .lesson-meta,
 .catalog-prerequisites {
-  font-size: 11px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.6;
 }
 .catalog-lesson .product-text-link {
   color: var(--exp-signal);

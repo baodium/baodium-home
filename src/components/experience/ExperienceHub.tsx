@@ -40,8 +40,8 @@ export function ExperienceHub() {
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <header className="max-w-2xl">
         <p className="exp-kicker">Practical System Design</p>
-        <h1 className="mt-3 text-balance font-serif text-[clamp(2.1rem,5vw,3.25rem)] leading-[1.05] tracking-[-0.03em] text-[color:var(--exp-fg)]">
-          Operate the chapter
+        <h1 className="lab-title mt-3 max-w-[16em] text-balance text-[clamp(2.1rem,5vw,3.15rem)] leading-[1.12] tracking-[-0.03em] text-[color:var(--exp-fg)]">
+          A production scenario for every chapter that has a lab.
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-[color:var(--exp-muted)]">
           {CHAPTERS.length} chapters. {full} full incidents, {short} short labs, and {book} still

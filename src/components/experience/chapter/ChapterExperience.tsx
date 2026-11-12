@@ -154,7 +154,7 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">
           Chapter {chapter.number} · {chapter.title}
         </p>
-        <h1 className="mt-4 max-w-[22ch] font-serif text-[clamp(2.15rem,3.4vw,3.15rem)] leading-[1.05] tracking-[-0.03em]">
+        <h1 className="lab-title mt-4 max-w-[18em] text-[clamp(2.15rem,3.4vw,3.05rem)] leading-[1.15] tracking-[-0.03em]">
           {chapter.headline}
         </h1>
       </header>

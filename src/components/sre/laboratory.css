@@ -137,9 +137,9 @@
   color: var(--exp-signal);
 }
 .laboratory-shell .cascade-hop-name {
-  font-family: var(--font-sans);
-  font-size: 19px;
-  font-weight: 550;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 500;
   font-style: normal !important;
 }
 .laboratory-shell .cascade-hop-stat b {
@@ -150,7 +150,8 @@
   color: var(--exp-accent-text);
 }
 .laboratory-shell .cascade-hop-detail {
-  font-size: 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 .laboratory-shell .cascade-hop-meter {
   height: 4px;

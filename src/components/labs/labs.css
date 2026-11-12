@@ -160,10 +160,10 @@
 .labs-button.secondary {
   background: transparent;
   color: var(--lab-ink);
-  border-color: #a8bdbb;
+  border-color: #d4c8ba;
 }
 .labs-button.secondary:hover {
-  background: #e5efec;
+  background: #f3ebe3;
 }
 .labs-text-link {
   font-size: 14px;
@@ -189,22 +189,22 @@
   color: var(--lab-muted);
 }
 .labs-hero-panel {
-  border: 1px solid #2e4c54;
+  border: 1px solid var(--lab-line);
   border-radius: 12px;
-  background: #19313b;
-  color: #ecf4f3;
-  box-shadow: 0 22px 50px -32px #153a3b66;
+  background: #fffdf9;
+  color: var(--lab-ink);
+  box-shadow: 0 18px 40px -32px rgba(36, 28, 24, 0.45);
   overflow: hidden;
 }
 .labs-panel-top {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 10px;
-  letter-spacing: 0.13em;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   display: flex;
   justify-content: space-between;
-  padding: 20px 25px;
-  border-bottom: 1px solid #3c535b;
-  color: #b7d3d1;
+  padding: 1.15rem 1.4rem;
+  border-bottom: 1px solid var(--lab-line);
+  color: var(--lab-muted);
 }
 .labs-hero-panel ol {
   list-style: none;
@@ -214,35 +214,37 @@
 .labs-hero-panel li {
   display: flex;
   gap: 18px;
-  padding: 22px 0;
-  border-bottom: 1px solid #354f57;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--lab-line);
 }
 .labs-hero-panel li:last-child {
   border: 0;
 }
 .labs-hero-panel li > span {
-  font-family: var(--font-geist-mono);
-  font-size: 11px;
-  color: #96c9bf;
-  padding-top: 4px;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--lab-accent);
+  padding-top: 2px;
 }
 .labs-hero-panel strong {
-  font-size: 17px;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: 1.2rem;
   font-weight: 500;
 }
 .labs-hero-panel p {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #bed0d3;
-  margin: 7px 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--lab-muted);
+  margin: 0.4rem 0 0;
 }
 .labs-hero-panel > a {
   display: flex;
   justify-content: space-between;
-  padding: 22px 25px;
-  background: #243e47;
-  font-size: 13px;
-  color: #dcece6;
+  padding: 1.15rem 1.4rem;
+  border-top: 1px solid var(--lab-line);
+  background: #fbf7f1;
+  font-size: 1rem;
+  color: var(--lab-ink);
 }
 .labs-section-heading {
   display: flex;
@@ -254,11 +256,13 @@
 .labs-section-heading h2,
 .labs-practice-options h2,
 .labs-book-bridge h2 {
-  font-size: 32px;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: clamp(1.7rem, 2.4vw, 2.15rem);
   font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -0.04em;
+  line-height: 1.22;
+  letter-spacing: -0.03em;
   margin: 0;
+  max-width: 18em;
 }
 .labs-section-heading p:last-child {
   max-width: 330px;
@@ -283,8 +287,8 @@
   background: #fff;
 }
 .labs-track.active {
-  border-color: #69a19a;
-  background: #edf6f2;
+  border-color: #c4a090;
+  background: #fffdf9;
 }
 .labs-track.active:hover {
   border-color: #8d3d2c;
@@ -292,14 +296,14 @@
 }
 .labs-badge {
   align-self: flex-start;
-  padding: 5px 8px;
-  border: 1px solid #afc7c0;
-  color: #245e51;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #e0cfc4;
+  color: var(--lab-accent);
   border-radius: 4px;
   font-family: var(--font-geist-mono);
   text-transform: uppercase;
-  font-size: 9px;
-  letter-spacing: 0.07em;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
 }
 .labs-track.planned .labs-badge {
   border-color: #cbd6d7;
@@ -312,17 +316,18 @@
   color: var(--lab-accent);
 }
 .labs-track h3 {
-  font-size: 24px;
-  letter-spacing: -0.035em;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: 1.65rem;
+  letter-spacing: -0.03em;
   line-height: 1.2;
   font-weight: 500;
-  margin: 0 0 15px;
+  margin: 0 0 0.8rem;
 }
 .labs-track p {
-  font-size: 14px;
+  font-size: 1.05rem;
   color: var(--lab-muted);
-  line-height: 1.8;
-  margin: 0 0 22px;
+  line-height: 1.7;
+  margin: 0 0 1.2rem;
   flex: 1;
 }
 .labs-track-topics {
@@ -588,17 +593,19 @@
   padding: 0 0 30px;
 }
 .coding-prompt h1 {
-  font-size: 34px;
-  line-height: 1.12;
-  letter-spacing: -0.045em;
-  font-weight: 550;
-  margin: 0 0 22px;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: clamp(1.8rem, 2.4vw, 2.2rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+  margin: 0 0 1.1rem;
 }
 .coding-prompt h2 {
-  font-size: 18px;
-  font-weight: 600;
+  font-family: var(--font-book), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 500;
   letter-spacing: -0.02em;
-  margin: 28px 0 13px;
+  margin: 1.6rem 0 0.7rem;
 }
 .coding-prompt h3 {
   font-size: 13px;

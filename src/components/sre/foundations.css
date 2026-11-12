@@ -4,8 +4,8 @@
   --product-critical: #a63d2c;
 }
 .product-eyebrow {
-  font: 500 11px/1.6 var(--font-mono);
-  letter-spacing: 0.12em;
+  font: 500 0.78rem/1.5 var(--font-mono);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .product-button {
