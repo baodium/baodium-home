@@ -15,7 +15,7 @@ export default function CourseOverview() {
       <section className="course-overview">
         <header>
           <p className="product-eyebrow">Hands-on course</p>
-          <h1>Build an observable checkout and show what the signals recorded.</h1>
+          <h1>Eight exercises on one checkout, and a record of what the signals showed.</h1>
           <p>
             Eight exercises around the same two services. Generate requests,
             inspect the signals, introduce a fault, then verify recovery with
@@ -38,7 +38,7 @@ export default function CourseOverview() {
           </div>
         </header>
         <section className="course-objective" aria-labelledby="workspace-title">
-          <p className="product-eyebrow">Recommended · browser workspace</p>
+          <p className="product-eyebrow">Recommended, in the browser</p>
           <h2 id="workspace-title">Launch the tools in GitHub Codespaces</h2>
           <p>Create your own workspace from the repository. Its startup task builds the five-service lab and verifies real telemetry. Wait for “Workspace ready” in the creation log, then use the Ports tab to open Grafana, Prometheus and Jaeger. Run exercise commands in labs/observability.</p>
           <a className="product-button" href="https://codespaces.new/baodium/baodium-home?ref=main" target="_blank" rel="noopener noreferrer">Create SRE workspace ↗<span className="sr-only"> (opens in a new tab)</span></a>

@@ -243,7 +243,7 @@ export function selectPedagogyLesson(
         title: "Deploy the flag before anyone calls Recommendation",
         seeing:
           "Product Page can call Recommendation only when the flag exposes the user. The shared pool lives in Recommendation, not on Product Page.",
-        why: "Feature flags separate deploy from enable so you can stop new demand without rolling back code.",
+        why: "A feature flag lets you stop new demand without rolling the code back.",
         next: "Deploy at 0% exposure.",
         tone: "calm",
       };
@@ -286,7 +286,7 @@ export function selectPedagogyLesson(
         title: "Read the pool before you change the flag",
         seeing: `p50 ≈ ${(snap.latencyP50 * 1000).toFixed(0)} ms · p99 ≈ ${(snap.latencyP99 * 1000).toFixed(0)} ms · acquire.wait.p99 ≈ ${(snap.acquireWaitP99 * 1000).toFixed(0)} ms.`,
         why: "Saturation shows in the tail and in pending first. Form a hypothesis from Ops metrics before you mitigate.",
-        next: "Continue when you can name what you would change and why.",
+        next: "Name the change you would make, and why, before you continue.",
         tone: "insight",
       };
     case "mitigate":
@@ -321,7 +321,7 @@ export function selectPedagogyLesson(
             : "Watch the 40-connection pool fill",
         seeing:
           "Change exposure, the flag, and the acquire timeout. Busy stays at or under 40. Overflow waits.",
-        why: "If you can explain pending acquisitions, the 40-connection pool, and what the flag does to new calls versus holds already taken, the chapter landed.",
+        why: "Pending acquisitions, the 40-connection pool, and the difference between new calls and holds already taken are what this chapter was about.",
         prod: "Treat this panel like a runbook rehearsal: change one lever, read pool.* and path latency, then decide.",
         tone: "calm",
       };

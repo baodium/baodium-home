@@ -3,7 +3,7 @@ import chapter from "../../../../content/experience/ch01/chapter.json";
 export function Recap({ onOperate, onLiveLab }: { onOperate: () => void; onLiveLab: () => void }) {
   return (
     <section className="mt-4 rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-6 text-[#241c18] sm:p-7">
-      <h2 className="font-serif text-[1.45rem] leading-snug">What you carry forward</h2>
+      <h2 className="font-serif text-[1.65rem] leading-snug tracking-[-0.02em]">What this chapter established</h2>
       <ol className="mt-3 list-decimal space-y-3 pl-5 text-[1.02rem] leading-relaxed">
         {chapter.takeaways.map((item) => (
           <li key={item}>{item}</li>

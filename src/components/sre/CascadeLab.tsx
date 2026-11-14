@@ -350,11 +350,11 @@ function CascadeSession({
       }
       mission={
         <div className="cascade-mast">
-          <p className="exp-kicker">SRE Lab / Incident investigation</p>
+          <p className="exp-kicker">SRE lab, incident investigation</p>
           <h1 className="cascade-title">
             {mode === "challenge"
               ? "Checkout success collapsed."
-              : "Diagnose a cascading checkout failure"}
+              : "A checkout is failing, and the failure is spreading."}
           </h1>
           <p className="laboratory-status">
             {grade

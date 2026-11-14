@@ -16,8 +16,8 @@ export default function CodingPage() {
         <Link href="/labs" className="labs-back">
           ← All learning paths
         </Link>
-        <p className="labs-kicker">SRE path / Coding practice</p>
-        <h1>Twenty-four exercises for on-call code.</h1>
+        <p className="labs-kicker">SRE path, coding practice</p>
+        <h1>Twenty-four exercises on fleet health, signals, and delivery.</h1>
         <p>
           The set covers fleet health, signals, automation, and delivery. Write
           each function in Go, TypeScript, or Python. The checks are the same

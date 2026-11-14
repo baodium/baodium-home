@@ -712,7 +712,7 @@ export function Chapter1Experience() {
               embedded
               challenge="Can you clear pending acquisitions when all 40 connections are assigned?"
               situation={`${scenario.brief} Product Page still talks to Catalog for the core page. When too many users hit the long path, waiting appears beside the pool even though every query is correct.`}
-              objective="Finish the guided incident so you can name the shared resource, explain why waiting showed up, and say what disabling the flag does to new versus in-flight work."
+              objective="By the end of the guided incident, name the shared resource, explain why waiting showed up, and say what disabling the flag does to new calls versus holds already taken."
               terms="Acquire wait is the time spent waiting for a free connection before the database hold starts. The query stays near its baseline. Busy connections never exceed 40. Overflow waits."
               explore="The recommendation call, the feature flag, and the 40-connection pool."
               gettingStarted="Use Guided for the eight stages. Pause, step, or reset the shared clock anytime. Practice unlocks the levers after your first decision. Challenge starts mid-incident with exact pass and fail numbers, and the intro does not name the fix."

@@ -18,7 +18,7 @@
 .ops-mast h1 {
   max-width: 18em;
   margin-top: 1rem;
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: clamp(1.8rem, 3vw, 2.6rem);
   line-height: 1.18;
   letter-spacing: -0.03em;

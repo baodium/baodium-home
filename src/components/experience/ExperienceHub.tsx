@@ -37,15 +37,15 @@ export function ExperienceHub() {
   const finished = Object.values(marks).filter((mark) => mark.finished).length;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <header className="max-w-2xl">
         <p className="exp-kicker">Practical System Design</p>
-        <h1 className="lab-title mt-3 max-w-[16em] text-balance text-[clamp(2.1rem,5vw,3.15rem)] leading-[1.12] tracking-[-0.03em] text-[color:var(--exp-fg)]">
-          A production scenario for every chapter that has a lab.
+        <h1 className="lab-title mt-3 max-w-[18em] text-balance text-[clamp(2.15rem,4vw,3.15rem)] leading-[1.16] tracking-[-0.02em] text-[color:var(--exp-fg)]">
+          Every chapter with a lab has a production scenario.
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-[color:var(--exp-muted)]">
-          {CHAPTERS.length} chapters. {full} full incidents, {short} short labs, and {book} still
-          only in the book. A short lab is a smaller run. A chapter with no lab stays on the page.
+        <p className="mt-5 max-w-[40rem] text-[1.125rem] leading-[1.7] text-[color:var(--exp-muted)]">
+          The book has {CHAPTERS.length} chapters. {full} of them are full incidents, {short} are
+          shorter labs, and {book} are still only on the page.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-faint)]">
           Progress stays in this browser. No sign-in.

@@ -122,13 +122,14 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
       <header className="ops-mast">
         <div>
           <p className="product-eyebrow">
-            SRE Lab /{" "}
-            {capacity ? "Kubernetes autoscaling concepts" : "Deployment safety"}
+            {capacity
+              ? "SRE lab, Kubernetes autoscaling"
+              : "SRE lab, deployment safety"}
           </p>
           <h1>
             {capacity
-              ? "Hold checkout latency while the queue grows."
-              : "Send a share of traffic to a faulty release and decide when to stop."}
+              ? "Checkout latency has to hold while the queue grows."
+              : "A share of traffic is going to a faulty release. Decide when to stop."}
           </h1>
           <p>
             {capacity

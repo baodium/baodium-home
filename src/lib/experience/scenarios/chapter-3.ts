@@ -81,7 +81,7 @@ export const chapter3Copy = {
   situation:
     "A customer gave up on checkout before the card provider answered. The charge may have landed. A second try with a new identity took the money again, and the receipt never left because the client had not seen success.",
   objective:
-    "Finish the guided path so you can say what the client knew after the timeout, which retry created a second charge, and where the notification has to be written.",
+    "By the end of the guided path, say what the client knew after the timeout, which retry created a second charge, and where the notification has to be written.",
   terms:
     "Unresolved is a checkout whose client timed out and never received the result for the original operation. Duplicate charges are extra settlements on that checkout. Lost notifications are charges created with no receipt stored beside them. Unique charges count every settlement.",
   explore:

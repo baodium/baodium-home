@@ -44,7 +44,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "alert",
-    title: "Build an alert that deserves a page",
+    title: "When a page is warranted",
     summary:
       "Compare a busy host, a short spike, a sustained checkout failure and missing telemetry.",
     outcome:
@@ -56,7 +56,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "cascade",
-    title: "Diagnose a cascading checkout failure",
+    title: "A checkout is failing, and the failure is spreading.",
     summary:
       "A slow external provider fills its slots. Follow checkout through retries, queues and deadlines, then recover it.",
     outcome: "Use traces and measured outcomes to contain retry amplification.",

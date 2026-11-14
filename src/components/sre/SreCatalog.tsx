@@ -54,12 +54,12 @@ export function SreCatalog() {
       <header className="catalog-hero">
         <div className="catalog-heading">
           <p className="product-eyebrow">SRE labs</p>
-          <h1>Measure a checkout, then decide what the signals mean.</h1>
+          <h1>The signals are already on the checkout. The lab is deciding what they mean.</h1>
           <p>
             One path runs Express and FastAPI with Prometheus, Grafana,
-            OpenTelemetry, and Jaeger. Eight local exercises go from a working
-            environment to a recovery you can verify. A second path stays in
-            the browser.
+            OpenTelemetry, and Jaeger. Eight local exercises start from a
+            working environment and finish when the service has recovered.
+            A second path stays in the browser.
           </p>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
@@ -68,11 +68,11 @@ export function SreCatalog() {
             Or practice immediately in your browser ↓
           </Link>
           <p className="catalog-disclosure">
-            Real stack course: Docker + Node.js 20+. Browser practice: no setup.
+            The local course needs Docker and Node.js 20 or newer. The browser labs need nothing installed.
           </p>
         </div>
         <aside className="course-toolchain">
-          <p className="product-eyebrow">Same checkout, four records</p>
+          <p className="product-eyebrow">What this checkout records</p>
           <div className="course-service-pair">
             <span>
               <strong>Express</strong>Checkout service
@@ -131,7 +131,7 @@ export function SreCatalog() {
           <div>
             <p className="product-eyebrow">The hands-on path</p>
             <h2 id="course-outline-title">
-              Eight exercises, from a working environment to a verified recovery.
+              Eight exercises. You start with a working environment and finish by showing the service recovered.
             </h2>
           </div>
           <span>8 exercises · local execution</span>
@@ -154,14 +154,11 @@ export function SreCatalog() {
         </ol>
       </section>
       <section className="practice-introduction" id="practice-labs">
-        <p className="product-eyebrow">
-          A separate practice path / Browser simulations
-        </p>
-        <h2>Six simulations you can run without installing anything.</h2>
+        <p className="product-eyebrow">Browser simulations</p>
+        <h2>Six simulations run in the browser. Nothing to install.</h2>
         <p>
-          Six guided simulations for exploring reliability decisions without
-          installing tools. Completion below records assessed browser practice,
-          not execution of the local course.
+          Completion below records assessed browser practice, not a run of the
+          local course.
         </p>
         <Link href={`/sre-labs/${next.id}`} className="product-text-link">
           {completed ? "Continue browser practice" : "Start browser practice"}
@@ -208,7 +205,7 @@ export function SreCatalog() {
         <div className="section-heading">
           <div>
             <p className="product-eyebrow">The working curriculum</p>
-            <h2 id="catalog-title">Choose your next investigation.</h2>
+            <h2 id="catalog-title">The browser labs</h2>
           </div>
           <span className="catalog-count" role="status">
             {filtered.length} {filtered.length === 1 ? "lab" : "labs"}
@@ -330,7 +327,7 @@ export function SreCatalog() {
       <aside className="curriculum-next">
         <div>
           <p className="product-eyebrow">Keep practicing</p>
-          <h2>Five focused reliability drills.</h2>
+          <h2>Five shorter reliability drills.</h2>
           <p>
             Explore admission limits, connection pools, caching, tail latency
             and dependency deadlines in shorter experiments.

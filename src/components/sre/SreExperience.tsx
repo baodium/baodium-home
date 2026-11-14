@@ -951,8 +951,8 @@ function alertGuided(input: GuidedInput) {
         <p>
           A multiwindow burn-rate alert pages only when the short window and the
           long window both spend the 99.5% budget at 14.4 times the allowed rate
-          or faster. The windows here are 12 seconds and 60 seconds, so you can
-          watch the shape. A single spike lights the short window and then
+          or faster. The windows here are 12 seconds and 60 seconds, long enough
+          to watch the shape. A single spike lights the short window and then
           fades. Both have to agree before anyone is woken.
         </p>
       ),
@@ -1131,7 +1131,7 @@ function TargetButtons({
 function labTitle(lab: SreLabId): string {
   if (lab === "instrument") return "Instrument a service";
   if (lab === "slo") return "Error budget";
-  return "An alert that deserves a page";
+  return "Paging on customer impact";
 }
 
 function labChallenge(lab: SreLabId): string {

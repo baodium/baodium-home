@@ -106,7 +106,7 @@ export default async function LessonPage({
             </p>
           </section>
           <section className="course-objective" aria-labelledby="prediction-title">
-            <p className="product-eyebrow">Predict · experiment · explain</p>
+            <p className="product-eyebrow">Before the experiment</p>
             <h2 id="prediction-title">Make a prediction first</h2>
             <p>{teaching.prediction}</p>
             <p>Write your prediction in your lab notes. After the experiment, compare it with what actually happened.</p>
@@ -134,7 +134,7 @@ export default async function LessonPage({
             aria-labelledby="checkpoint-title"
           >
             <p className="product-eyebrow">Evidence checkpoint</p>
-            <h2 id="checkpoint-title">Check the system, not the checkbox.</h2>
+            <h2 id="checkpoint-title">The checkpoint reads the running system.</h2>
             <CourseCommand command={item.checkpoint} />
             <p>{item.checkpointMeaning}</p>
             <p>

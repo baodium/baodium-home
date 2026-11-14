@@ -7,7 +7,7 @@
   min-height: 100dvh;
   background: var(--lab-paper);
   color: var(--lab-ink);
-  font-family: var(--font-geist), sans-serif;
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
 }
 .labs-root * {
   box-sizing: border-box;
@@ -43,7 +43,7 @@
   background: #fff;
 }
 .labs-brand {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   letter-spacing: 0.11em;
   font-size: 14px;
   display: flex;
@@ -82,7 +82,7 @@
 .labs-main {
   max-width: 1256px;
   margin: auto;
-  padding: 0 40px 90px;
+  padding: 0 40px 7.5rem;
 }
 .labs-wide {
   max-width: 1600px;
@@ -98,29 +98,30 @@
   font-size: 12px;
 }
 .labs-kicker {
-  font-family: var(--font-geist-mono), monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-  font-size: 11px;
-  line-height: 1.8;
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+  line-height: 1.4;
   color: var(--lab-accent);
-  margin: 0 0 20px;
+  margin: 0 0 0.85rem;
 }
 .labs-hero {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
-  gap: 70px;
-  padding: 2.5rem 0 4.5rem;
+  gap: 5.5rem;
+  padding: 3.75rem 0 5.25rem;
   align-items: center;
 }
 .labs-hero h1,
 .coding-roadmap-hero h1 {
-  font-family: var(--font-book), Georgia, serif;
-  font-size: clamp(42px, 4.6vw, 68px);
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: clamp(2.5rem, 4vw, 3.75rem);
   font-weight: 500;
-  line-height: 1.06;
-  letter-spacing: -0.055em;
-  margin: 0 0 26px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.35rem;
 }
 .labs-root h1 em {
   font-family: var(--font-instrument), serif;
@@ -128,10 +129,10 @@
   color: var(--lab-accent);
 }
 .labs-intro {
-  font-size: 18px;
-  line-height: 1.8;
-  max-width: 540px;
-  color: var(--lab-muted);
+  font-size: 1.2rem;
+  line-height: 1.7;
+  max-width: 38rem;
+  color: #5c514a;
 }
 .labs-actions {
   display: flex;
@@ -180,12 +181,14 @@
   gap: 6px;
 }
 .labs-stats strong {
-  font-size: 25px;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.85rem;
   font-weight: 500;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 .labs-stats span {
-  font-size: 11px;
+  font-size: 0.9rem;
+  line-height: 1.4;
   color: var(--lab-muted);
 }
 .labs-hero-panel {
@@ -197,7 +200,7 @@
   overflow: hidden;
 }
 .labs-panel-top {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   display: flex;
@@ -221,13 +224,13 @@
   border: 0;
 }
 .labs-hero-panel li > span {
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: 1.05rem;
   color: var(--lab-accent);
   padding-top: 2px;
 }
 .labs-hero-panel strong {
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: 1.2rem;
   font-weight: 500;
 }
@@ -256,7 +259,7 @@
 .labs-section-heading h2,
 .labs-practice-options h2,
 .labs-book-bridge h2 {
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: clamp(1.7rem, 2.4vw, 2.15rem);
   font-weight: 500;
   line-height: 1.22;
@@ -300,7 +303,7 @@
   border: 1px solid #e0cfc4;
   color: var(--lab-accent);
   border-radius: 4px;
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   text-transform: uppercase;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
@@ -316,7 +319,7 @@
   color: var(--lab-accent);
 }
 .labs-track h3 {
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: 1.65rem;
   letter-spacing: -0.03em;
   line-height: 1.2;
@@ -350,8 +353,8 @@
 .labs-practice-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 50px;
-  margin-top: 75px;
+  gap: 0 4rem;
+  margin-top: 6.5rem;
   border-top: 1px solid var(--lab-line);
 }
 .labs-practice-options > div {
@@ -366,16 +369,18 @@
   text-decoration: underline;
 }
 .labs-practice-options > a > span {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
   color: var(--lab-accent);
-  font-family: var(--font-geist-mono);
+  font-weight: 600;
 }
 .labs-practice-options h3 {
-  font-size: 20px;
-  letter-spacing: -0.03em;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
   font-weight: 500;
-  margin: 10px 0;
+  line-height: 1.25;
+  margin: 0.45rem 0 0.35rem;
 }
 .labs-practice-options p,
 .labs-book-bridge p {
@@ -522,7 +527,7 @@
   display: grid;
   place-items: center;
   color: var(--lab-accent);
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   font-size: 12px;
 }
 .coding-roadmap-group h2 {
@@ -593,7 +598,7 @@
   padding: 0 0 30px;
 }
 .coding-prompt h1 {
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: clamp(1.8rem, 2.4vw, 2.2rem);
   line-height: 1.18;
   letter-spacing: -0.03em;
@@ -601,7 +606,7 @@
   margin: 0 0 1.1rem;
 }
 .coding-prompt h2 {
-  font-family: var(--font-book), Georgia, serif;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
   font-size: 1.25rem;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -652,7 +657,7 @@
   letter-spacing: 0.1em;
 }
 .coding-workspace pre {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   font-size: 12px;
   line-height: 1.7;
   overflow: auto;
@@ -694,14 +699,14 @@
   justify-content: space-between;
   align-items: center;
   gap: 15px;
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   font-size: 12px;
 }
 .coding-editor-bar .coding-note {
   color: #b7ccce;
 }
 .coding-editor-bar button {
-  font-family: var(--font-geist);
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
   color: #d4e3df;
   font-size: 11px;
   text-decoration: underline;
@@ -721,7 +726,7 @@
   padding: 18px;
   background: #282c34;
   color: #e1e8ef;
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
   font-size: 13px;
   line-height: 1.7;
   tab-size: 4;
@@ -885,7 +890,7 @@
   font-size: 13px;
 }
 .coding-console .cm-scroller {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
 }
 @media (max-width: 1050px) {
   .labs-header {
