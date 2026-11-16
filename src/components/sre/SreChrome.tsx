@@ -14,12 +14,12 @@ import { SitePill } from "@/components/Navigation";
 const labs = [
   { href: "/sre-labs/coding", label: "Coding practice" },
   { href: "/sre-labs/observability", label: "Hands-on course" },
-  { href: "/sre-labs/cascade", label: "Cascade" },
-  { href: "/sre-labs/instrument", label: "Instrument" },
-  { href: "/sre-labs/slo", label: "SLO" },
-  { href: "/sre-labs/alert", label: "Alert" },
-  { href: "/sre-labs/capacity", label: "Capacity" },
-  { href: "/sre-labs/deployment", label: "Deploy" },
+  { href: "/sre-labs/cascade", label: "Slow provider" },
+  { href: "/sre-labs/instrument", label: "Slow hop" },
+  { href: "/sre-labs/slo", label: "99.5% budget" },
+  { href: "/sre-labs/alert", label: "When to page" },
+  { href: "/sre-labs/capacity", label: "Queue" },
+  { href: "/sre-labs/deployment", label: "Bad release" },
 ];
 
 export function SreChrome({

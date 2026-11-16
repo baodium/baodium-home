@@ -26,10 +26,10 @@ export default function NewsPage() {
         <div className="mx-auto max-w-5xl">
           <p className="text-base font-medium text-[#8d3d2c]">News</p>
           <h1 className="mt-4 max-w-[16ch] font-[family-name:var(--font-lab-serif)] text-[clamp(2.8rem,6vw,4.6rem)] font-medium leading-[1.05] tracking-[-0.03em]">
-            From the public record
+            Read the published coverage.
           </h1>
           <p className="mt-6 max-w-xl text-xl leading-relaxed text-[#5c514a]">
-            Scholarship, the book, research, an award, and a song. Each note links out to the publisher.
+            The OAU scholarship, Practical System Design, the dissertation, and Queen Tonight.
           </p>
 
           <Featured story={lead} banner />

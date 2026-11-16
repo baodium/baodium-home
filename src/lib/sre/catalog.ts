@@ -20,7 +20,7 @@ export type SreLesson = {
 export const SRE_LESSONS: SreLesson[] = [
   {
     id: "instrument",
-    title: "Instrument a service",
+    title: "Name the slow hop in a checkout",
     summary:
       "Checkout is slow, and the outbound call is invisible. Add the signals and name the hop.",
     outcome:
@@ -32,9 +32,9 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "slo",
-    title: "Define and spend an error budget",
+    title: "Check a window against a 99.5% budget",
     summary:
-      "Decide what counts as a good checkout, set a target, and observe the failures that consume the budget.",
+      "Decide what counts as a good checkout, set 99.5 percent, and watch the misses spend the budget.",
     outcome:
       "Count a slow success as a miss when the line includes latency.",
     topic: "Service levels",
@@ -44,7 +44,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "alert",
-    title: "When a page is warranted",
+    title: "Decide when a checkout failure should page",
     summary:
       "Compare a busy host, a short spike, a sustained checkout failure and missing telemetry.",
     outcome:
@@ -56,7 +56,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "cascade",
-    title: "A checkout is failing, and the failure is spreading.",
+    title: "Follow a slow provider until checkout fails",
     summary:
       "A slow external provider fills its slots. Follow checkout through retries, queues and deadlines, then recover it.",
     outcome: "Use traces and measured outcomes to contain retry amplification.",
@@ -67,7 +67,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "capacity",
-    title: "Recover a queue with replicas and autoscaling",
+    title: "Hold latency while the checkout queue fills",
     summary:
       "A surge overwhelms a bounded worker queue. Compare manual capacity and a utilization-based scaling controller.",
     outcome: "Recover request success without reducing the offered load.",
@@ -78,10 +78,10 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "deployment",
-    title: "Contain a faulty canary release",
+    title: "Take traffic off a bad release",
     summary:
-      "Release to a fraction of traffic, observe failures and recover by rollback or a repaired release.",
-    outcome: "Treat exposure as an experiment and assess the customer impact.",
+      "Send a fraction of traffic to a bad release, watch the failures, and take the share back.",
+    outcome: "Read how customer failures scale with the share on the bad release.",
     topic: "Deployments",
     difficulty: "Intermediate",
     minutes: 12,

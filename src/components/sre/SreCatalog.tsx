@@ -16,7 +16,7 @@ import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { ModeTrack } from "@/components/sre/ModeTrack";
 
 const BROWSER_HINTS: Record<SreLabKey, string> = {
-  instrument: "About ten minutes. You add a metric, a span, and a log, then name the hop that held the time.",
+  instrument: "About ten minutes. You add a metric, a span, and a log, then name the hop holding the time.",
   slo: "About twelve minutes. You judge the window against 99.5 percent. Seventeen misses in a thousand is 98.3 percent.",
   alert: "About fifteen minutes. You compare four scenes and page only when both windows agree.",
   cascade: "About twenty minutes. You follow one checkout and change one limit, then rerun the same seed.",
@@ -67,21 +67,18 @@ export function SreCatalog() {
       <header className="catalog-hero">
         <div className="catalog-heading">
           <p className="product-eyebrow">SRE labs</p>
-          <h1>You decide what the checkout signals mean.</h1>
+          <h1>Practice hands-on SRE labs.</h1>
           <p>
             Eight exercises run Express and FastAPI with Prometheus, Grafana,
-            OpenTelemetry, and Jaeger. You need Docker and Node.js 20 or newer
-            for those. The six lessons below stay in the browser.
+            OpenTelemetry, and Jaeger. Those need Docker and Node.js 20 or
+            newer. The six lessons below run in the browser.
           </p>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
           </Link>
           <Link className="catalog-secondary" href="#practice-labs">
-            Or practice immediately in your browser ↓
+            Or start in the browser ↓
           </Link>
-          <p className="catalog-disclosure">
-            The local course needs Docker and Node.js 20 or newer. The browser labs need nothing installed.
-          </p>
         </div>
         <aside className="course-toolchain">
           <p className="product-eyebrow">What this checkout records</p>
@@ -126,7 +123,7 @@ export function SreCatalog() {
       </header>
       <section className="course-objective" aria-label="SRE coding practice">
         <p className="product-eyebrow">Coding practice</p>
-        <h2>Twenty-four exercises, in the language you want to write.</h2>
+        <h2>Practice twenty-four functions in Go, TypeScript, or Python.</h2>
         <p>
           Fleet checks, log analysis, retries, rate limits, and delivery
           policies. Go, TypeScript, and Python share the same checks, and they
@@ -143,7 +140,7 @@ export function SreCatalog() {
           <div>
             <p className="product-eyebrow">The hands-on path</p>
             <h2 id="course-outline-title">
-              Eight exercises. You start with a working environment and finish by showing the service recovered.
+              Eight exercises on a running checkout.
             </h2>
           </div>
           <span>8 exercises · local execution</span>
@@ -169,10 +166,8 @@ export function SreCatalog() {
         <header className="browser-course-head">
           <div>
             <p className="product-eyebrow">In the browser</p>
-            <h2 id="browser-course-title">Six lessons on one checkout.</h2>
-            <p>
-              Nothing to install. Start with the slow hop, then the budget, the page, and the failure as it spreads.
-            </p>
+            <h2 id="browser-course-title">Six lessons in the browser.</h2>
+            <p>Nothing to install. You start by naming the slow hop.</p>
           </div>
           <Link href={`/sre-labs/${next.id}`} className="product-button">
             {completed ? "Continue" : "Start lesson 1"} <ArrowRight size={16} />
@@ -225,8 +220,8 @@ export function SreCatalog() {
       <section aria-labelledby="catalog-title">
         <div className="section-heading">
           <div>
-            <p className="product-eyebrow">The working curriculum</p>
-            <h2 id="catalog-title">The browser labs</h2>
+            <p className="product-eyebrow">Filter</p>
+            <h2 id="catalog-title">Find a lesson by topic, level, or time.</h2>
           </div>
           <span className="catalog-count" role="status">
             {filtered.length} {filtered.length === 1 ? "lab" : "labs"}
@@ -348,7 +343,7 @@ export function SreCatalog() {
       <aside className="curriculum-next">
         <div>
           <p className="product-eyebrow">Keep practicing</p>
-          <h2>Five shorter reliability drills.</h2>
+          <h2>Practice five shorter drills from the book.</h2>
           <p>
             Explore admission limits, connection pools, caching, tail latency
             and dependency deadlines in shorter experiments.

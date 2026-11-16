@@ -10,7 +10,7 @@ export function SideProjectsView() {
       <div className="mx-auto max-w-5xl">
         <p className="text-base font-medium text-[#8d3d2c]">Projects</p>
         <h1 className="mt-4 max-w-[14ch] font-[family-name:var(--font-lab-serif)] text-[clamp(2.8rem,6vw,4.6rem)] font-medium leading-[1.05] tracking-[-0.03em]">
-          Interview Coach, UpTo, and the labs
+          Open Interview Coach, UpTo, or the labs
         </h1>
         <p className="mt-6 max-w-xl text-xl leading-relaxed text-[#5c514a]">
           Interview practice, one status written once, and the checkout labs.
@@ -71,7 +71,7 @@ export function SideProjectsView() {
                 Labs
               </span>
               <span className="mt-3 block max-w-md text-base leading-relaxed text-[#5c514a]">
-                Open the checkout labs. You name the slow hop, spend a 99.5 percent budget, and decide when a page is warranted.
+                Open the checkout labs. You name the slow hop, spend a 99.5 percent budget, and decide when a failure should page.
               </span>
               <span className="mt-6 inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">
                 Open Labs

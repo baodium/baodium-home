@@ -146,7 +146,7 @@ with pool.acquire() as conn:
       { id: "cancel", kind: "toggle", label: "Pass cancellation with the deadline", explain: "On, evaluate_risk passes request.cancellation, and the provider stops when the child deadline is spent. Off, the provider keeps working." },
     ],
     stages: [
-      { id: "fit", letter: "A", title: "A call that fits", body: "With the starting times, the provider should finish inside the child deadline and leave nothing running.", gate: "inside" },
+      { id: "fit", letter: "A", title: "The provider finishes inside the deadline", body: "With the starting times, the provider should finish inside the child deadline and leave nothing running.", gate: "inside" },
       { id: "slow", letter: "B", title: "Slow the provider", body: "Raise provider work until checkout has returned and the provider is still running.", gate: "overrun" },
       { id: "stop", letter: "C", title: "Stop the provider with the caller", body: "Pass cancellation with the deadline. Leftover provider work should fall to zero.", gate: "stopped" },
       { id: "defer", letter: "D", title: "Refuse the permit", body: "Turn the permit off. The provider should not be called, and nothing should be left running.", gate: "deferred" },

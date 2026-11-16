@@ -14,6 +14,7 @@ import { book } from "@/data/writing";
 import { useReader } from "@/components/book/reader/ReaderProvider";
 import { BookSettings } from "@/components/book/reader/BookSettings";
 import { amazonReviewUrl, buildCorrectionMailto } from "@/lib/book/feedback";
+import "@/components/learning/lesson-craft.css";
 
 export function BookToolbar({
   onOpenSearch,
@@ -76,11 +77,14 @@ export function BookToolbar({
       >
             <button
               type="button"
-              className="icon-btn lg:hidden"
+              className="icon-btn hint hint-plain lg:hidden"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open table of contents"
             >
               <List className="h-4 w-4" aria-hidden="true" />
+              <span className="hint-bubble" role="tooltip">
+                Open the chapter list.
+              </span>
             </button>
             <p className="min-w-0 flex-1 truncate font-serif text-base italic text-[var(--reader-muted)]">
               {chapterTitle ?? book.title}
@@ -89,57 +93,70 @@ export function BookToolbar({
               <button
                 type="button"
                 onClick={onOpenSearch}
-                className="icon-btn"
+                className="icon-btn hint hint-plain"
                 aria-label="Search book"
-                title="Search · ⌘/Ctrl K"
               >
                 <Search className="h-4 w-4" aria-hidden="true" />
+                <span className="hint-bubble" role="tooltip">
+                  Search the chapter text. The shortcut is Command K, or Control K.
+                </span>
               </button>
               <button
                 ref={settingsBtnRef}
                 type="button"
                 data-reader-settings-trigger
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="icon-btn"
+                className="icon-btn hint hint-plain"
                 data-open={settingsOpen ? "true" : "false"}
                 aria-label="Reading settings"
                 aria-expanded={settingsOpen}
               >
                 <Type className="h-4 w-4" aria-hidden="true" />
+                <span className="hint-bubble" role="tooltip">
+                  Change the type size, the measure, and the page color.
+                </span>
               </button>
               <button
                 type="button"
                 onClick={shareChapter}
-                className="icon-btn"
+                className="icon-btn hint hint-plain"
                 aria-label={copied ? "Chapter link copied" : "Share chapter"}
-                title={copied ? "Copied" : "Share"}
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-cinnabar" aria-hidden="true" />
                 ) : (
                   <Share2 className="h-4 w-4" aria-hidden="true" />
                 )}
+                <span className="hint-bubble" role="tooltip">
+                  {copied
+                    ? "The chapter link is on the clipboard."
+                    : "Copy a link to this chapter, or pass it to the share sheet."}
+                </span>
               </button>
               {problemHref ? (
                 <a
                   href={problemHref}
-                  className="icon-btn"
+                  className="icon-btn hint hint-plain"
                   aria-label={`Report a problem in ${chapterTitle}`}
-                  title="Report a problem"
                 >
                   <Flag className="h-4 w-4" aria-hidden="true" />
+                  <span className="hint-bubble" role="tooltip">
+                    Email a correction for this chapter.
+                  </span>
                 </a>
               ) : null}
               <a
                 href={reviewHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="icon-btn"
+                className="icon-btn hint hint-plain"
                 data-tone="cinnabar"
                 aria-label="Rate Practical System Design on Amazon"
-                title="Rate on Amazon"
               >
                 <MessageCircleHeart className="h-4 w-4" aria-hidden="true" />
+                <span className="hint-bubble" role="tooltip">
+                  Leave a rating for Practical System Design on Amazon.
+                </span>
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </div>

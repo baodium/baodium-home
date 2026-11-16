@@ -858,6 +858,21 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   letter-spacing: -0.015em;
 }
 
+.book-reader-hud .hint {
+  border-bottom: 0;
+}
+.book-reader-hud .hint-bubble {
+  top: calc(100% + 0.45rem);
+  bottom: auto;
+  left: auto;
+  right: 0;
+  width: min(16rem, 70vw);
+}
+.book-reader-hud .icon-btn:first-child .hint-bubble {
+  left: 0;
+  right: auto;
+}
+
 .book-prose h2,
 .book-prose h3,
 .book-prose h4 {
@@ -2791,7 +2806,16 @@ select.run-token {
   color: var(--exp-fg);
 }
 
-.sre-sections,
+.sre-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  color: var(--exp-faint);
+}
+
 .cascade-siblings {
   display: flex;
   flex-wrap: wrap;

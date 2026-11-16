@@ -24,12 +24,11 @@ export default function CodingPage() {
           ← All learning paths
         </Link>
         <LessonPlace course="SRE coding" total={24} minutes={15} />
-        <h1>Twenty-four exercises on fleet health, signals, and delivery.</h1>
+        <h1>Practice twenty-four SRE functions.</h1>
         <p>
-          Five stages, one checkout’s worth of on-call code. You write each
-          function in Go, TypeScript, or Python. The checks are the same in
-          every language, and a stage moves only when the full suite passes.
-          Fifteen minutes is a typical exercise. Some take longer.
+          You write each function in Go, TypeScript, or Python. The checks
+          match in every language, and a stage moves only when the full suite
+          passes. Fifteen minutes is a typical exercise. Some take longer.
         </p>
         <LessonOutcomes
           items={[
@@ -40,7 +39,7 @@ export default function CodingPage() {
         />
         <LessonTeaching
           paragraphs={[
-            "The roadmap is the course. Fleet health comes first because a bad instance list poisons everything you would alert on. Signals turn those records into numbers. Automation and the reliability algorithms are the policies you would run unattended. Safe delivery is who sees a release, and when that stops.",
+            "Fleet health comes first because a bad instance list poisons everything you would alert on. Signals turn those records into numbers. Automation is the policy you would run unattended. Safe delivery is who sees a release, and when you take it back.",
             "Progress is stored in this browser, separately for each language. Python keeps the keys that were already saved. Go and TypeScript start their own.",
           ]}
           concepts={[

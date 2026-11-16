@@ -4,7 +4,7 @@ import { SreChrome } from "@/components/sre/SreChrome";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Cascading checkout failure",
+  title: "Follow a slow provider until checkout fails",
   description:
     "A gateway, checkout, payment, and an external provider on one clock. Provider work, retries, and mitigations change the same spans.",
   alternates: { canonical: `${site.url}/sre-labs/cascade` },
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function CascadeLabPage() {
   return (
-    <SreChrome crumb="Cascading checkout" showSections={false}>
+    <SreChrome crumb="Slow provider" showSections={false}>
       <CascadeLab />
     </SreChrome>
   );

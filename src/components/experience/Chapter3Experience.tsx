@@ -425,7 +425,7 @@ export function Chapter3Experience() {
           href: "/sre-labs/instrument",
           label: "SRE lesson 1, instrument a service",
           bridge:
-            "Chapter 3 is the last full lab in the book. On the SRE path you name the hop, spend a 99.5 percent budget, and decide when a page is warranted.",
+            "Chapter 3 is the last full lab in the book. On the SRE path you name the hop, spend a 99.5 percent budget, and decide when a failure should page.",
         }}
       />
     </div>

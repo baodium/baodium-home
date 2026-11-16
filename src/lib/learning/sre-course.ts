@@ -24,10 +24,10 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "instrument",
     index: 1,
     minutes: 10,
-    title: "Instrument a service",
+    title: "Name the slow hop in a checkout",
     outcomes: [
       "Tell a metric, a span, and a log apart on one checkout.",
-      "Turn on the record that was missing, then name the hop that holds the extra time.",
+      "Turn on the missing record, then name the hop holding the extra time.",
       "Say what you still could not see if you had only one of those three records.",
     ],
     paragraphs: [
@@ -48,7 +48,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "A structured log is an event with fields. You join those fields to the trace, and you connect a timeout or a retry to the span that was open at the time.",
       },
     ],
-    goal: "Turn on HTTP metrics, the outbound span, trace context, and a structured log, then name the hop that holds the extra time.",
+    goal: "Turn on HTTP metrics, the outbound span, trace context, and a structured log, then name the hop holding the extra time.",
     steps: [
       "Run a checkout before the four signals are on, and notice what you cannot name.",
       "Turn on HTTP metrics, the outbound span, trace context, and a structured log.",
@@ -76,11 +76,11 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "slo",
     index: 2,
     minutes: 12,
-    title: "Spend an error budget",
+    title: "Check a window against a 99.5% budget",
     outcomes: [
       "Write the checkout promise as a fraction of requests that both succeed and return in time.",
       "Count a slow success as a miss when the target includes a latency line.",
-      "Tell a window that meets 99.5% from one that does not.",
+      "Say whether a window meets 99.5 percent.",
     ],
     paragraphs: [
       "An SLO is the promise you are willing to be held to. On this checkout the promise is 99.5 percent of requests succeeding in under 300 milliseconds. The error budget is the half a percent you are allowed to miss. Spending the budget means those misses happened in the window you are looking at.",
@@ -119,7 +119,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     next: {
       href: "/sre-labs/alert",
-      label: "Lesson 3, when a page is warranted",
+      label: "Lesson 3, when to page",
       bridge:
         "A spent budget is not yet a page. The next lesson is the decision to wake someone. A busy host and a short spike are on the same checkout as a failure that keeps spending the budget.",
     },
@@ -128,11 +128,11 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "alert",
     index: 3,
     minutes: 15,
-    title: "When a page is warranted",
+    title: "Decide when a checkout failure should page",
     outcomes: [
-      "Separate a busy host from a checkout that is failing for customers.",
+      "Separate a busy host from a checkout failing for customers.",
       "Explain why a burn-rate page waits for both the short window and the long window.",
-      "Choose the situation that should wake someone, and say why the others should not.",
+      "Choose which situation should wake someone, and say why the others should not.",
     ],
     paragraphs: [
       "You interrupt a person only when the customer symptom is still true in more than one window. The host can be busy while customers are fine, and one slow checkout can light a chart without starting an incident.",
@@ -171,7 +171,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     next: {
       href: "/sre-labs/cascade",
-      label: "Lesson 4, a failure that spreads",
+      label: "Lesson 4, a slow provider",
       bridge:
         "You know when to wake someone. Next, you watch the shape of the failure: a slow dependency holds its slots, retries request another slot, and checkout fails for people who never called that dependency.",
     },
@@ -180,7 +180,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "cascade",
     index: 4,
     minutes: 20,
-    title: "A checkout is failing, and the failure is spreading.",
+    title: "Follow a slow provider until checkout fails",
     outcomes: [
       "Follow one checkout across the gateway, checkout, payment, and the provider.",
       "Explain how a full set of slots plus a retry turns a slow dependency into failed checkouts.",
@@ -232,7 +232,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "capacity",
     index: 5,
     minutes: 15,
-    title: "Checkout latency has to hold while the queue grows.",
+    title: "Hold latency while the checkout queue fills",
     outcomes: [
       "Read queue depth and latency as two views of the same shortage of workers.",
       "Compare a fixed replica count with a utilization rule on the same surge.",
@@ -275,7 +275,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     next: {
       href: "/sre-labs/deployment",
-      label: "Lesson 6, a faulty release",
+      label: "Lesson 6, a bad release",
       bridge:
         "Capacity was about work you meant to serve. The last lesson is work you did not mean to break. A share of traffic goes to a bad release, and you decide when that share has to stop.",
     },
@@ -284,7 +284,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "deployment",
     index: 6,
     minutes: 12,
-    title: "A share of traffic is going to a faulty release.",
+    title: "Take traffic off a bad release",
     outcomes: [
       "Read customer failures as a function of how much traffic the bad release is allowed to see.",
       "Stop or shrink that share when the impact is no longer acceptable.",

@@ -15,11 +15,10 @@ export default function CourseOverview() {
       <section className="course-overview">
         <header>
           <p className="product-eyebrow">Hands-on course</p>
-          <h1>Eight exercises on one checkout, and a record of what the signals showed.</h1>
+          <h1>Eight exercises on a running checkout.</h1>
           <p>
-            Eight exercises around the same two services. Generate requests,
-            inspect the signals, introduce a fault, then verify recovery with
-            measured evidence.
+            Generate requests, inspect the signals, introduce a fault, then
+            confirm recovery in the numbers.
           </p>
           <div className="product-actions">
             <Link
@@ -62,7 +61,7 @@ export default function CourseOverview() {
             </p>
           </div>
           <div>
-            <strong>How you prove it</strong>
+            <strong>What the checkpoint checks</strong>
             <p>
               Each exercise states the expected artifact and a checkpoint
               command. Verifiers query the actual services and tools; they fail
@@ -88,11 +87,9 @@ export default function CourseOverview() {
           ))}
         </ol>
         <aside className="course-boundary">
-          <h2>Two different kinds of practice</h2>
+          <h2>The six browser lessons need nothing installed.</h2>
           <p>
-            This course runs real tools in Codespaces or your local Docker environment.
-            Baodium’s browser exercises remain available when you want a quick,
-            guided simulation without setup.
+            These eight exercises need Codespaces or Docker.
           </p>
           <Link href="/sre-labs#practice-labs" className="product-text-link">
             Explore the six browser exercises <ArrowRight size={16} />

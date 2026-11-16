@@ -107,13 +107,9 @@ export function BookSettings({
           className="book-settings-panel fixed z-[80] w-[min(100vw-1.5rem,18.5rem)] overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--reader-fg)_12%,transparent)] bg-[var(--reader-page)] p-3 text-[var(--reader-fg)] shadow-[0_24px_50px_-28px_rgba(40,24,12,0.55)]"
           style={{ top: pos.top, right: pos.right }}
         >
-          <p className="px-1 pb-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--reader-muted)]">
-            Reading
-          </p>
-
           <div className="space-y-3">
             <fieldset>
-              <legend className="mb-1.5 px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+              <legend className="mb-1.5 px-1 text-sm font-medium text-[var(--reader-muted)]">
                 Theme
               </legend>
               <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Color theme">
@@ -141,7 +137,7 @@ export function BookSettings({
             </fieldset>
 
             <fieldset>
-              <legend className="mb-1.5 px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+              <legend className="mb-1.5 px-1 text-sm font-medium text-[var(--reader-muted)]">
                 Size
               </legend>
               <div className="flex gap-1" role="group" aria-label="Font size">
@@ -164,7 +160,7 @@ export function BookSettings({
             </fieldset>
 
             <fieldset>
-              <legend className="mb-1.5 px-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--reader-muted)]">
+              <legend className="mb-1.5 px-1 text-sm font-medium text-[var(--reader-muted)]">
                 Measure
               </legend>
               <div className="flex gap-1" role="group" aria-label="Line length">

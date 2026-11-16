@@ -1,7 +1,7 @@
 [
   {
     "id": "unhealthy-instances-v1",
-    "title": "Unhealthy instances \u00b7 implement",
+    "title": "List the unhealthy instances",
     "category": "Fleet health",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -466,7 +466,7 @@
   },
   {
     "id": "unhealthy-instances-complete-v1",
-    "title": "Unhealthy instances \u00b7 complete",
+    "title": "Finish the unhealthy-instance list",
     "category": "Fleet health",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -931,7 +931,7 @@
   },
   {
     "id": "unhealthy-instances-debug-v1",
-    "title": "Unhealthy instances \u00b7 debug",
+    "title": "Fix the unhealthy-instance list",
     "category": "Fleet health",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -1396,7 +1396,7 @@
   },
   {
     "id": "deployment-audit-implementation-v1",
-    "title": "Deployment safety audit \u00b7 implement",
+    "title": "Check a deploy before it continues",
     "category": "Safe delivery",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -1587,7 +1587,7 @@
   },
   {
     "id": "deployment-audit-complete-v1",
-    "title": "Deployment safety audit \u00b7 complete",
+    "title": "Finish the deploy check",
     "category": "Safe delivery",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -1778,7 +1778,7 @@
   },
   {
     "id": "deployment-audit-debug-v1",
-    "title": "Deployment safety audit \u00b7 debug",
+    "title": "Fix the deploy check",
     "category": "Safe delivery",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -2063,7 +2063,7 @@
     "entrypoint": "rank_errors",
     "starter": "def rank_errors(records):\n    # Implement the operational policy described on the left.\n    pass\n",
     "constraints": [
-      "Records have service (string) and status (integer). Count statuses 500\u2013599 only. Return service names by count descending, then name ascending for ties.",
+      "Records have service (string) and status (integer). Count statuses 500–599 only. Return service names by count descending, then name ascending for ties.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2139,7 +2139,7 @@
   },
   {
     "id": "latency-percentile",
-    "title": "Compute a nearest-rank percentile",
+    "title": "Compute a latency percentile",
     "category": "Signals",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2228,7 +2228,7 @@
     "entrypoint": "window_errors",
     "starter": "def window_errors(events, now, window):\n    # Implement the operational policy described on the left.\n    pass\n",
     "constraints": [
-      "Events contain timestamp (integer seconds) and status. Count 500\u2013599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
+      "Events contain timestamp (integer seconds) and status. Count 500–599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2317,7 +2317,7 @@
     "entrypoint": "remaining_budget",
     "starter": "def remaining_budget(total, failures, slo_bps):\n    # Implement the operational policy described on the left.\n    pass\n",
     "constraints": [
-      "total and failures are nonnegative integers; failures <= total. slo_bps is 0\u201310000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2639,7 +2639,7 @@
   },
   {
     "id": "failure-streak",
-    "title": "Find the circuit-opening event",
+    "title": "Find when the circuit opens",
     "category": "Reliability algorithms",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2840,7 +2840,7 @@
   },
   {
     "id": "dependency-order",
-    "title": "Order service startup safely",
+    "title": "Start each service after its dependencies",
     "category": "Reliability algorithms",
     "difficulty": "Advanced",
     "minutes": 35,
@@ -2858,7 +2858,7 @@
       "A min-heap makes the ready-service tie-break explicit.",
       "If fewer than all services are emitted, a cycle remains."
     ],
-    "explanation": "Kahn\u2019s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
+    "explanation": "Kahn’s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
     "complexity": "O((V + E) log V) time, O(V + E) space.",
     "followUp": "How would you distinguish a dependency cycle from a service that is merely slow to become ready?",
     "solution": "import heapq\n\ndef startup_order(dependencies):\n    counts = {name: len(items) for name, items in dependencies.items()}\n    dependents = {name: [] for name in dependencies}\n    for name, items in dependencies.items():\n        for dependency in items:\n            dependents[dependency].append(name)\n    ready = [name for name, count in counts.items() if count == 0]\n    heapq.heapify(ready)\n    result = []\n    while ready:\n        name = heapq.heappop(ready)\n        result.append(name)\n        for dependent in dependents[name]:\n            counts[dependent] -= 1\n            if counts[dependent] == 0:\n                heapq.heappush(ready, dependent)\n    return result if len(result) == len(dependencies) else None\n",
@@ -3285,7 +3285,7 @@
   },
   {
     "id": "rollout-batches",
-    "title": "Plan bounded rollout batches",
+    "title": "Split a rollout into small batches",
     "category": "Automation",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -3387,7 +3387,7 @@
   },
   {
     "id": "disk-pressure",
-    "title": "Identify disk-pressure candidates",
+    "title": "Find hosts low on disk",
     "category": "Automation",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -3397,7 +3397,7 @@
     "entrypoint": "pressured_disks",
     "starter": "def pressured_disks(disks, threshold_percent):\n    # Implement the operational policy described on the left.\n    pass\n",
     "constraints": [
-      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0\u2013100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
+      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0–100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [

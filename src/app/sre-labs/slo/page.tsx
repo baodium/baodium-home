@@ -4,14 +4,14 @@ import { SreExperience } from "@/components/sre/SreExperience";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Spend an error budget",
-  description: "Set a 99.5% checkout SLO and watch traffic and failures spend exactly that budget.",
+  title: "Check a window against a 99.5% budget",
+  description: "Set a 99.5% checkout SLO and judge the window in front of you.",
   alternates: { canonical: `${site.url}/sre-labs/slo` },
 };
 
 export default function SloPage() {
   return (
-    <SreChrome crumb="Spend an error budget">
+    <SreChrome crumb="99.5% budget">
       <SreExperience lab="slo" />
     </SreChrome>
   );

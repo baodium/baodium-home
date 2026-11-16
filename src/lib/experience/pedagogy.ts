@@ -97,7 +97,7 @@ export function selectPedagogyLesson(
     return {
       id: "acquire-timeouts",
       eyebrow: "What’s happening",
-      title: "A timeout ends a wait that already started",
+      title: "This timeout ended a wait already in progress",
       seeing: `${snap.timeoutCount} request${snap.timeoutCount === 1 ? "" : "s"} exceeded the ${(controls.acquireTimeoutSec * 1000).toFixed(0)}ms connectionTimeout while waiting for a free slot.`,
       why: "A timeout ends a wait. It does not stop new recommendation calls. Turning the flag off does.",
       next: "Compare a timeout with the flag. One ends a wait already in progress. The other stops new calls.",

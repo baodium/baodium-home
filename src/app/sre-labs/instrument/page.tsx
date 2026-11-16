@@ -4,14 +4,14 @@ import { SreExperience } from "@/components/sre/SreExperience";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Instrument a service",
+  title: "Name the slow hop in a checkout",
   description: "Add HTTP metrics, an outbound span, trace context, and structured logs on a checkout call.",
   alternates: { canonical: `${site.url}/sre-labs/instrument` },
 };
 
 export default function InstrumentPage() {
   return (
-    <SreChrome crumb="Instrument a service">
+    <SreChrome crumb="Name the slow hop">
       <SreExperience lab="instrument" />
     </SreChrome>
   );

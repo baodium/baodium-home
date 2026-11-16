@@ -62,7 +62,7 @@ test("mobile lesson syllabus, copy command, hints and next exercise work", async
   });
   await toggle.click();
   await expect(
-    page.getByRole("link", { name: /05 Follow a checkout/ }),
+    page.getByRole("link", { name: /05 Follow one checkout/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Hide course contents", exact: true })
@@ -78,7 +78,7 @@ test("mobile lesson syllabus, copy command, hints and next exercise work", async
     .getByText("Need a hint or a troubleshooting path?", { exact: true })
     .click();
   await expect(page.locator(".course-hint").first()).toHaveAttribute("open", "");
-  await page.getByRole("link", { name: /Next: Instrument requests/ }).click();
+  await page.getByRole("link", { name: /Next: Add a counter/ }).click();
   await expect(page).toHaveURL(/observability\/metrics$/);
   expect(
     await page.evaluate(

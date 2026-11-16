@@ -7,7 +7,7 @@ import { SRE_LESSONS, type SreLabKey } from "@/lib/sre/catalog";
 export const metadata: Metadata = {
   title: "Labs",
   description:
-    "One checkout, from the first signal to the page. Six browser lessons, twenty-four functions, and the book labs.",
+    "Hands-on SRE labs. Six browser lessons, twenty-four functions, and eight exercises on a running checkout.",
   alternates: { canonical: "https://labs.baodium.com/" },
 };
 
@@ -44,11 +44,10 @@ export default function LabsPage() {
     <LabsShell>
       <section className="labs-hero">
         <p className="labs-kicker">Labs</p>
-        <h1>One checkout, from the first signal to the page.</h1>
+        <h1>Practice hands-on SRE labs.</h1>
         <p className="labs-intro">
           You add the signals, spend a 99.5 percent budget, and page only when
-          customers are still failing. Six lessons stay in the browser. The
-          functions and the book use the same checkout.
+          customers are still failing. Six lessons run in the browser.
         </p>
         <div className="labs-actions">
           <Link className="labs-button" href="/sre-labs/instrument">
@@ -100,7 +99,7 @@ export default function LabsPage() {
         <header className="labs-course-head">
           <div>
             <p className="labs-kicker">The course</p>
-            <h2 id="course-title">Six lessons. You begin with a slow checkout.</h2>
+            <h2 id="course-title">What you will practice first</h2>
           </div>
           <p>
             Lesson 1 takes about ten minutes. You turn on a metric, a span, and a log, then name the hop. In Challenge, the prompt does not name the hop.
@@ -149,18 +148,12 @@ export default function LabsPage() {
         <div className="labs-section-heading">
           <div>
             <p className="labs-kicker">Paths</p>
-            <h2 id="paths-title">Site reliability is published. Cybersecurity and platform engineering are not.</h2>
+            <h2 id="paths-title">Open the SRE path.</h2>
           </div>
-          <p>They stay on the map so the unfinished work is visible.</p>
         </div>
         <div className="labs-path-board">
           <Link className="labs-path-lead" href="/sre-labs">
-            <span className="labs-time hint hint-plain">
-              <span className="hint-label">Open now</span>
-              <span className="hint-bubble" role="tooltip">
-                The six lessons, the coding exercises, and the book labs all open from this row.
-              </span>
-            </span>
+            <span className="labs-time">Open now</span>
             <h3>Site reliability engineering</h3>
             <p>
               Six browser lessons and twenty-four functions are published. You name the slow hop, spend the 99.5 percent budget, and decide when to page.
@@ -169,28 +162,14 @@ export default function LabsPage() {
           </Link>
           <div className="labs-path-later">
             <article>
-              <span className="labs-time hint hint-plain" tabIndex={0}>
-                <span className="hint-label">On paper</span>
-                <span className="hint-bubble" role="tooltip">
-                  No exercise is published. The row stays so the map does not pretend the work exists.
-                </span>
-              </span>
+              <span className="labs-time">No lesson yet</span>
               <h3>Cybersecurity</h3>
-              <p>
-                Defensive analysis, secure configuration, and investigation belong on this track. There is no lesson to start.
-              </p>
+              <p>Defensive analysis, secure configuration, and investigation.</p>
             </article>
             <article>
-              <span className="labs-time hint hint-plain" tabIndex={0}>
-                <span className="hint-label">On paper</span>
-                <span className="hint-bubble" role="tooltip">
-                  Pipelines and infrastructure have no browser lab yet.
-                </span>
-              </span>
+              <span className="labs-time">No lesson yet</span>
               <h3>Platform engineering</h3>
-              <p>
-                Delivery pipelines and infrastructure automation are not written yet.
-              </p>
+              <p>Delivery pipelines and infrastructure automation.</p>
             </article>
           </div>
         </div>
@@ -200,9 +179,8 @@ export default function LabsPage() {
         <header className="labs-course-head">
           <div>
             <p className="labs-kicker">Practice</p>
-            <h2 id="practice-title">Choose by the time you have.</h2>
+            <h2 id="practice-title">Pick a practice by how long you have.</h2>
           </div>
-          <p>The browser lessons are the short sitting. The functions take a bit longer. The running stack is an afternoon.</p>
         </header>
         <div className="labs-practice-board">
           <Link className="labs-practice-lead" href="/sre-labs#practice-labs">
@@ -212,10 +190,8 @@ export default function LabsPage() {
                 Each lesson is about ten to twenty minutes. Nothing to install.
               </span>
             </span>
-            <h3>Work an incident</h3>
-            <p>
-              Cascades, capacity, budgets, and bad releases. Each one is a lesson in the browser.
-            </p>
+            <h3>Work a checkout incident</h3>
+            <p>Slow hops, budgets, pages, cascades, queues, and bad releases.</p>
             <span className="labs-path-go">Open the six lessons</span>
           </Link>
           <div className="labs-practice-rest">
@@ -252,8 +228,7 @@ export default function LabsPage() {
       <section className="labs-book" aria-labelledby="book-title">
         <div>
           <p className="labs-kicker">From the book</p>
-          <h2 id="book-title">The book uses this checkout too.</h2>
-          <p>Chapter labs and the short drills are still here.</p>
+          <h2 id="book-title">Practice the same checkout in the book.</h2>
         </div>
         <div className="labs-book-links">
           <Link className="labs-button secondary" href="/system-design/experience">

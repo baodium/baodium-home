@@ -152,8 +152,8 @@ export default async function LessonPage({
             <p>{teaching.misconception}</p>
           </details>
           <section className="course-challenge" aria-labelledby="debrief-title">
-            <p className="product-eyebrow">How to review your notes</p>
-            <h2 id="debrief-title">Turn observations into an explanation</h2>
+            <p className="product-eyebrow">After the exercise</p>
+            <h2 id="debrief-title">Check your notes against these three.</h2>
             <dl className="course-rubric">
               <div><dt>Evidence</dt><dd>{teaching.evidence}</dd></div>
               <div><dt>Reasoning</dt><dd>{teaching.explanation}</dd></div>
@@ -162,11 +162,11 @@ export default async function LessonPage({
             <p>Use these criteria to review your notes. Automated system checks do not assess your explanation.</p>
           </section>
           <section className="course-challenge">
-            <h2>Explain what you found</h2>
+            <h2>Write what you found</h2>
             <p>{item.challenge}</p>
           </section>
           <section className="course-cleanup">
-            <h2>Leave the environment in a known state</h2>
+            <h2>Stop the stack when you finish</h2>
             <p>
               Continue to the next exercise with the stack running. When
               finished, stop and remove only this lab’s Compose services and

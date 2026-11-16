@@ -41,7 +41,7 @@ test("SRE catalog filters intersect and an empty result can be cleared", async (
     .selectOption("No prerequisites");
   await expect(page.locator(".catalog-lesson")).toHaveCount(1);
   await expect(page.locator(".catalog-lesson")).toContainText(
-    "Instrument a service",
+    "Name the slow hop in a checkout",
   );
 });
 
@@ -209,7 +209,7 @@ test("beginner instruments a trace, assesses it, then completes an SLO experimen
   await expect(page.getByRole("status")).toContainText("Completion saved");
   await page
     .getByRole("navigation", { name: "SRE labs" })
-    .getByRole("link", { name: "SLO", exact: true })
+    .getByRole("link", { name: "99.5% budget", exact: true })
     .click();
   await expect(page).toHaveURL(/sre-labs\/slo$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("budget");

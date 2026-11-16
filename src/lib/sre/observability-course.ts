@@ -21,7 +21,7 @@ export type CourseLesson = {
 export const OBSERVABILITY_COURSE: CourseLesson[] = [
   {
     slug: "setup",
-    title: "Run an observable checkout",
+    title: "Start the checkout stack",
     minutes: 12,
     tool: "Docker Compose",
     outcome:
@@ -44,7 +44,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "Five services start, then real traffic proves metrics, Grafana connectivity and a connected cross-service trace. reports/session.json records tool addresses and payment settings.",
       },
       {
-        title: "Find your tools",
+        title: "Open Prometheus, Grafana, and Jaeger",
         instruction:
           "In Codespaces, open the labeled services in the Ports tab. Locally, open checkout at localhost:4319/health, Prometheus at localhost:9097, Grafana at localhost:3007 and Jaeger at localhost:16697. The two applications communicate over the Compose network.",
         expect:
@@ -62,7 +62,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "metrics",
-    title: "Instrument requests, work and latency",
+    title: "Add a counter, a gauge, and a latency histogram",
     minutes: 15,
     tool: "Prometheus metrics",
     outcome:
@@ -84,7 +84,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "The counter is cumulative, the gauge can return to zero, and histogram buckets count observed durations in seconds.",
       },
       {
-        title: "Read the instrumentation",
+        title: "Read the counter, the gauge, and the histogram in code",
         instruction:
           "Open checkout/app.mjs in the downloaded kit. Locate requests.inc, active.inc/dec and latency.startTimer. HTTP status is a bounded metric label; trace IDs appear in logs rather than metric labels.",
         expect:
@@ -102,7 +102,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "promql",
-    title: "Ask a precise operational question",
+    title: "Compute rate, errors, and tail latency",
     minutes: 18,
     tool: "PromQL",
     outcome:
@@ -126,7 +126,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "A mix of successful and failed real HTTP responses. This changes telemetry, not a chart fixture.",
       },
       {
-        title: "Measure impact",
+        title: "Divide failed requests by all requests",
         instruction:
           "Divide failed request rate by total request rate. Both sides use the same 30-second range and completed checkout population.",
         command:
@@ -146,7 +146,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "dashboards",
-    title: "Build a dashboard around decisions",
+    title: "Read the Grafana board and add a panel",
     minutes: 15,
     tool: "Grafana",
     outcome:
@@ -160,7 +160,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "Request rate, error ratio, p95 latency in seconds, and active checkouts. Empty panels need traffic; they are not proof of health.",
       },
       {
-        title: "Create evidence worth reading",
+        title: "Generate a healthy window after the failure",
         instruction:
           "Recover the payment service, generate traffic, then compare a healthy window with the preceding injected failure. Adjust the time range if you see a mixture of both.",
         command: "node lab.mjs recover\nnode lab.mjs traffic 15",
@@ -187,7 +187,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "traces",
-    title: "Follow a checkout across two frameworks",
+    title: "Follow one checkout from Express into FastAPI",
     minutes: 18,
     tool: "OpenTelemetry + Jaeger",
     outcome:
@@ -209,7 +209,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "One trace contains both baodium-checkout and baodium-payment services. The outbound payment call contains most of the elapsed time.",
       },
       {
-        title: "Inspect propagation",
+        title: "Read how the trace id reaches payment",
         instruction:
           "Read checkout/app.mjs and payment/app.py. The client injects W3C trace context and the Python service extracts it before creating its server span.",
         expect:
@@ -227,7 +227,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "logs",
-    title: "Use logs as evidence for a trace",
+    title: "Match a log line to its trace",
     minutes: 12,
     tool: "Structured JSON logs",
     outcome:
@@ -242,7 +242,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "Checkout records HTTP 502 when the payment service returns its injected HTTP 500.",
       },
       {
-        title: "Read both sides",
+        title: "Read the checkout log and the payment log",
         instruction:
           "Read the bounded recent logs. Find checkout.finished and charge.finished records, including service, status, trace_id and span_id.",
         command: "node lab.mjs logs",
@@ -250,7 +250,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "The two services share a trace ID for the same request and use different span IDs. Status codes describe each service’s own response.",
       },
       {
-        title: "Correlate, do not guess",
+        title: "Match the failed trace to the log",
         instruction:
           "Open a failed trace in Jaeger and find the matching records in the log output. Explain what evidence identifies the origin of the failure.",
         expect:
@@ -259,7 +259,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
     ],
     checkpoint: "node lab.mjs verify traces",
     checkpointMeaning:
-      "Checks cross-service tracing and shared trace IDs in real container logs. This kit uses stdout JSON; it does not pretend to include a centralized log-search backend.",
+      "Checks cross-service tracing and shared trace IDs in real container logs. This kit uses stdout JSON. It does not include a centralized log-search backend.",
     hint: "Not every line is an application event: startup and exporter diagnostics may be plain text. The verifier parses JSON event records and ignores other lines.",
     challenge:
       "Explain why searching only for the string 500 would miss checkout’s 502 response and lose the relationship between the two events.",
@@ -268,7 +268,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "alerts",
-    title: "Make an alert earn its page",
+    title: "Watch a checkout alert fire, then change the rule",
     minutes: 20,
     tool: "Prometheus alert rules",
     outcome:
@@ -282,7 +282,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "The rule describes a measured customer symptom and a low-traffic guard. A separate rule handles an unavailable scrape target.",
       },
       {
-        title: "Keep the fault present",
+        title: "Hold the errors until the alert fires",
         instruction:
           "Inject errors and generate traffic long enough for scrapes, the 30-second rate calculation and the sustained condition.",
         command: "node lab.mjs fault errors\nnode lab.mjs traffic 30",
@@ -310,7 +310,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "incident",
-    title: "Investigate, recover and prove it",
+    title: "Find the timeout, recover checkout, and check the window",
     minutes: 20,
     tool: "Incident response",
     outcome:
@@ -325,14 +325,14 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "Checkout returns HTTP 504. Traces and logs show which operation exceeded the caller’s wait; payment work may continue after that wait ends.",
       },
       {
-        title: "Write a diagnosis",
+        title: "Record the symptom, the trace, and the change you will try",
         instruction:
           "Record the symptom, the slow service, one trace ID, the relevant metric query, and the mitigation you intend to test. Keep customer impact separate from the root cause.",
         expect:
           "An explanation backed by a metric, a cross-service trace and a correlated log record, rather than a guess based on one graph.",
       },
       {
-        title: "Recover and validate",
+        title: "Restore payment and check the healthy window",
         instruction:
           "Restore payment to 40 ms with no injected failures. The recovery verifier generates 40 seconds of healthy traffic so the 30-second alert window can genuinely recover.",
         command: "node lab.mjs recover\nnode lab.mjs verify recovery",

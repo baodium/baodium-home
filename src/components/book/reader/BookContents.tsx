@@ -171,7 +171,7 @@ const CHAPTER_DESCRIPTIONS = [
   "Make deployment artifacts reproducible and understand the boundaries containers provide.",
   "Choose replication, partitioning and sharding strategies around ownership and failure behavior.",
   "Use metrics, logs and traces to explain the health of a request path.",
-  "Design operational guardrails that bound failure and protect shared capacity.",
+  "Set admission limits so one failure cannot take the shared pool.",
   "Treat rollouts as controlled experiments with observable evidence and a recovery path.",
   "Find service boundaries by examining state, ownership and the cost of coordination.",
   "Reason about asynchronous processing, delivery semantics, lag and backpressure.",
