@@ -6,6 +6,7 @@ const links = [
   { label: "Book", href: "/system-design", external: false },
   { label: "Labs", href: "/labs", external: false },
   { label: "Projects", href: "/projects", external: false },
+  { label: "News", href: "/news", external: false },
   { label: site.emailLabel, href: site.email, external: true },
 ];
 
