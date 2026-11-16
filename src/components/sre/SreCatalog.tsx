@@ -11,6 +11,7 @@ import {
 } from "@/lib/sre/progress";
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { ModeTrack } from "@/components/sre/ModeTrack";
+import { LessonOutcomes } from "@/components/learning/LessonCraft";
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -154,12 +155,22 @@ export function SreCatalog() {
         </ol>
       </section>
       <section className="practice-introduction" id="practice-labs">
-        <p className="product-eyebrow">Browser simulations</p>
-        <h2>Six simulations run in the browser. Nothing to install.</h2>
+        <p className="product-eyebrow">Browser course</p>
+        <h2>Six lessons, in order, on this checkout.</h2>
         <p>
-          Completion below records assessed browser practice, not a run of the
-          local course.
+          Start with the hop that holds the time. Then spend a 99.5 percent
+          error budget, decide when a page is warranted, and watch a slow
+          dependency spread. Capacity and a faulty release close the course.
+          Nothing here installs. Completion records the browser lessons, not a
+          run of the local Docker course.
         </p>
+        <LessonOutcomes
+          items={[
+            "Name the hop that holds time, using a metric, a span, and a log from the same checkout.",
+            "Tell a 99.5 percent window from a window that only looks close, including 17 misses in 1,000.",
+            "Page on customer burn across two windows, then stop a slow dependency or a bad release from spreading.",
+          ]}
+        />
         <Link href={`/sre-labs/${next.id}`} className="product-text-link">
           {completed ? "Continue browser practice" : "Start browser practice"}
           <ArrowRight size={15} />

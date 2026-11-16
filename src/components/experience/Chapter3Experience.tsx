@@ -24,6 +24,12 @@ import {
 } from "@/lib/experience/idempotency/engine";
 import { readIdempotency, type IdempotencyReadout } from "@/lib/experience/idempotency/readout";
 import { chapter3Copy, chapter3Steps, type Chapter3StepId } from "@/lib/experience/scenarios/chapter-3";
+import {
+  LessonClose,
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
 import { markChapterFinished, markChapterOpened } from "@/lib/learning/directory-progress";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -117,13 +123,40 @@ export function Chapter3Experience() {
     <div className="mx-auto w-full max-w-[88rem] px-4 py-8 sm:px-6 sm:py-10">
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div className="min-w-0 max-w-3xl flex-1">
-          <p className="exp-kicker">Chapter 3 · State, identity, uncertainty</p>
-          <h1 className="mt-3 font-serif text-[clamp(1.8rem,4vw,2.7rem)] leading-[1.08] tracking-[-0.03em] text-[color:var(--exp-fg)]">
+          <LessonPlace course="Book labs" index={2} total={2} minutes={15} />
+          <p className="mt-1 text-[1.05rem] leading-relaxed text-[color:var(--exp-muted)]">
+            Chapter 3, a late charge.
+          </p>
+          <h1 className="mt-3 font-serif text-[clamp(1.8rem,4vw,2.7rem)] leading-[1.16] tracking-[-0.02em] text-[color:var(--exp-fg)]">
             {chapter3Copy.h1}
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[color:var(--exp-muted)]">
-            {chapter3Copy.situation}
-          </p>
+          <LessonOutcomes
+            items={[
+              "Say what the client knew after its timeout, and what the provider may already have done.",
+              "Show which retry created a second charge, and which retry received the stored one.",
+              "Put the receipt with the charge at settlement, not after the client has already left.",
+            ]}
+          />
+          <LessonTeaching
+            paragraphs={[
+              chapter3Copy.situation,
+              "The client’s timeout is not the provider’s outcome. The charge may already have landed. A retry that invents a new operation id starts a second charge. A retry that repeats the original id is asking for the charge that was stored. The receipt has to be written with that charge, or it is a payment nobody can prove.",
+            ]}
+            concepts={[
+              {
+                name: "Unresolved",
+                body: "Unresolved means the client stopped waiting and never received the result of the original operation. It does not mean the provider stopped.",
+              },
+              {
+                name: "Operation id",
+                body: "The operation id is the name of one attempt to charge. Reusing it asks for the stored result. A new id is a new charge, even when the customer thinks it is the same checkout.",
+              },
+              {
+                name: "Receipt",
+                body: "The receipt is the record written with the charge. If it is written later, a charge can exist with no proof the customer was told. This lab writes it at settlement or not at all.",
+              },
+            ]}
+          />
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-faint)]">
             {chapter3Copy.approximation}
           </p>
@@ -372,6 +405,20 @@ export function Chapter3Experience() {
             )}
           </>
         }
+      />
+      <LessonClose
+        takeaways={chapter3Copy.review}
+        reflection={[
+          "What did the client know at the timeout, and what did the provider still do after that?",
+          "Which retry created the second charge, and what was different about its operation id?",
+          "Where did the receipt have to be written for it to survive a client that had already left?",
+        ]}
+        next={{
+          href: "/sre-labs/instrument",
+          label: "SRE lesson 1, instrument a service",
+          bridge:
+            "Chapter 3 is the last full lab in the book. The SRE path starts from the same kind of checkout and asks you to name the hop, spend a 99.5 percent budget, and decide when a page is warranted.",
+        }}
       />
     </div>
   );

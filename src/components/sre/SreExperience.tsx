@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } fr
 import { motion, useReducedMotion } from "motion/react";
 import { ModeTrack } from "@/components/sre/ModeTrack";
 import {
+  LessonClose,
+  LessonExercise,
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
+import { SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import {
   loadSreProgress,
   recordSreProgress,
   sreServerSnapshot,
@@ -158,13 +166,24 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
     setControls,
   });
 
+  const lesson = sreLesson(lab);
   return (
     <>
       <header className="sre-lesson-mast">
         <div>
-          <p className="exp-kicker">{labTitle(lab)} · Browser simulation</p>
-          <h1>{labChallenge(lab)}</h1>
-          <p>{objective(lab, mode)}</p>
+          <LessonPlace
+            course="SRE path"
+            index={lesson.index}
+            total={SRE_COURSE_TOTAL}
+            minutes={lesson.minutes}
+          />
+          <h1>{lesson.title}</h1>
+          <LessonOutcomes items={lesson.outcomes} />
+          <LessonTeaching
+            paragraphs={lesson.paragraphs}
+            concepts={lesson.concepts}
+          />
+          <LessonExercise goal={lesson.goal} steps={lesson.steps} />
           <ModeTrack completed={completed} current={mode} />
         </div>
         <Segmented
@@ -279,6 +298,11 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
             )}
           </>
         }
+      />
+      <LessonClose
+        takeaways={lesson.takeaways}
+        reflection={lesson.reflection}
+        next={lesson.next}
       />
     </>
   );
@@ -1126,18 +1150,6 @@ function TargetButtons({
       ))}
     </div>
   );
-}
-
-function labTitle(lab: SreLabId): string {
-  if (lab === "instrument") return "Instrument a service";
-  if (lab === "slo") return "Error budget";
-  return "Paging on customer impact";
-}
-
-function labChallenge(lab: SreLabId): string {
-  if (lab === "instrument") return "Can you see which hop made checkout slow?";
-  if (lab === "slo") return "Can you spend the budget you actually wrote down?";
-  return "Can you tell why the pager fired?";
 }
 
 function objective(lab: SreLabId, mode: Mode): string {

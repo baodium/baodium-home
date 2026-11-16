@@ -1,0 +1,120 @@
+.lesson-place {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--lab-accent, var(--exp-accent-text, #8d3d2c));
+}
+
+.lesson-outcomes,
+.lesson-teaching,
+.lesson-exercise,
+.lesson-close {
+  max-width: 44rem;
+}
+
+.lesson-outcomes,
+.lesson-teaching,
+.lesson-exercise {
+  margin-top: 1.35rem;
+}
+
+.lesson-outcomes h2,
+.lesson-teaching h2,
+.lesson-exercise h2,
+.lesson-close h2 {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--lab-ink, var(--exp-fg, #241c18));
+}
+
+.lesson-outcomes ul,
+.lesson-exercise ol,
+.lesson-close ul,
+.lesson-close ol {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.lesson-teaching > p + p {
+  margin-top: 0.9rem;
+}
+
+.lesson-outcomes li,
+.lesson-teaching > p,
+.lesson-exercise li,
+.lesson-exercise > p,
+.lesson-close li,
+.lesson-concept p,
+.lesson-next p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--lab-muted, var(--exp-muted, #5c514a));
+}
+
+.lesson-concepts {
+  display: grid;
+  gap: 1.1rem;
+  margin: 1.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lesson-concept h3 {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--lab-ink, var(--exp-fg, #241c18));
+}
+
+.lesson-close {
+  margin-top: 2.75rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--lab-line, var(--exp-line, #e6ddd2));
+}
+
+.lesson-close h2 + h2,
+.lesson-close ul + h2,
+.lesson-close ol + h2 {
+  margin-top: 1.6rem;
+}
+
+.lesson-next {
+  margin-top: 1.5rem;
+  padding: 1.15rem 1.25rem 1.2rem;
+  border: 1px solid var(--lab-line, var(--exp-line, #e6ddd2));
+  border-radius: 12px;
+  background: #fffdf9;
+}
+
+.lesson-next a {
+  display: inline-flex;
+  margin-top: 0.7rem;
+  font-weight: 600;
+  color: var(--lab-accent, var(--exp-accent-text, #8d3d2c));
+}
+
+.lesson-band {
+  margin: 0 0 4.5rem;
+  padding: 2.25rem 0 0;
+  border-top: 1px solid var(--lab-line, var(--exp-line, #e6ddd2));
+}
+
+.lesson-band > h2 {
+  margin: 0 0 0.4rem;
+  max-width: 18em;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: clamp(1.7rem, 2.4vw, 2.15rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}

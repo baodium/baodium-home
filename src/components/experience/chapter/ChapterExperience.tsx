@@ -8,6 +8,11 @@ import { LabPanel, useChapter1LabDone } from "@/components/experience/chapter/La
 import { Recap } from "@/components/experience/chapter/Recap";
 import { Stage } from "@/components/experience/chapter/Stage";
 import { StoryPanel, type PredictionId } from "@/components/experience/chapter/StoryPanel";
+import {
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
 import { ChapterSimEngine } from "@/lib/experience/ch01/sim";
 import { loadActProgress, saveActProgress } from "@/lib/experience/ch01/progress";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
@@ -151,12 +156,40 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
   return (
     <article className="bg-[#f6f1ea] text-[#241c18]" onKeyDown={onKeyDown}>
       <header className="mx-auto max-w-[1240px] px-6 pb-8 pt-8 sm:px-10 sm:pt-10">
-        <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">
-          Chapter {chapter.number} · {chapter.title}
+        <LessonPlace course="Book labs" index={1} total={2} minutes={20} />
+        <p className="mt-1 text-[1.05rem] leading-relaxed text-[#5c514a]">
+          Chapter {chapter.number}, {chapter.title}.
         </p>
-        <h1 className="lab-title mt-4 max-w-[18em] text-[clamp(2.15rem,3.4vw,3.05rem)] leading-[1.15] tracking-[-0.03em]">
+        <h1 className="lab-title mt-4 max-w-[18em] text-[clamp(2.15rem,3.4vw,3.05rem)] leading-[1.15] tracking-[-0.02em]">
           {chapter.headline}
         </h1>
+        <LessonOutcomes
+          items={[
+            "Show that requests waited for a connection while the SQL stayed fast.",
+            "Explain why a small share of customers can fill one pool of 40.",
+            "Say what disabling the flag does to new calls, and what it leaves alone.",
+          ]}
+        />
+        <LessonTeaching
+          paragraphs={[
+            "The recommendation row is a small change on the product page. The cost is an extra lookup that takes a connection from a pool of 40 and holds it until the query returns. When too many lookups arrive, the next request waits before any SQL runs. The page is slow. The query is not.",
+            "The walkthrough is about twenty minutes. You see the row as a customer, then the call, then the pool. Guided mode names each stage. Challenge starts with the pool already full and does not name the fix. The store at the end is the same page on real services, when a runner is configured. This page does not invent one.",
+          ]}
+          concepts={[
+            {
+              name: "Acquisition",
+              body: "Acquisition is getting a connection from the pool. The wait you feel is often this wait. Execution is the SQL that runs after a connection is in hand, and in this incident that part stays near its usual time.",
+            },
+            {
+              name: "Exposure",
+              body: "Exposure is the share of customers the flag sends to Recommendation. One percent of customers can still be a large number of lookups, and every lookup asks the same pool.",
+            },
+            {
+              name: "Optional work",
+              body: "The recommendation is optional. It needs a bound, a deadline, and a fallback so a slow lookup cannot hold the product page. The flag is how you stop new lookups without pretending the holds already taken have finished.",
+            },
+          ]}
+        />
       </header>
       <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2.5 px-6 sm:px-10" aria-label="Acts">
         {chapter.acts.map((act, index) => {

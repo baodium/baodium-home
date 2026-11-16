@@ -13,6 +13,14 @@ import { CascadeTrends } from "@/components/sre/CascadeTrends";
 import { CascadePortrait } from "@/components/sre/CascadePortrait";
 import { LaboratoryShell } from "@/components/sre/LaboratoryShell";
 import {
+  LessonClose,
+  LessonExercise,
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
+import { SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import {
   advanceEngine,
   DEFAULT_TICK_SEC,
   createEngine,
@@ -341,7 +349,9 @@ function CascadeSession({
     null;
   const service = view?.services.find((item) => item.service === selected);
 
+  const lesson = sreLesson("cascade");
   return (
+    <>
     <LaboratoryShell
       toolbar={
         <p className="product-eyebrow">
@@ -350,12 +360,20 @@ function CascadeSession({
       }
       mission={
         <div className="cascade-mast">
-          <p className="exp-kicker">SRE lab, incident investigation</p>
+          <LessonPlace
+            course="SRE path"
+            index={lesson.index}
+            total={SRE_COURSE_TOTAL}
+            minutes={lesson.minutes}
+          />
           <h1 className="cascade-title">
             {mode === "challenge"
               ? "Checkout success collapsed."
-              : "A checkout is failing, and the failure is spreading."}
+              : lesson.title}
           </h1>
+          <LessonOutcomes items={lesson.outcomes} />
+          <LessonTeaching paragraphs={lesson.paragraphs} concepts={lesson.concepts} />
+          <LessonExercise goal={lesson.goal} steps={lesson.steps} />
           <p className="laboratory-status">
             {grade
               ? grade.ok
@@ -950,6 +968,12 @@ function CascadeSession({
         </div>
       }
     />
+    <LessonClose
+      takeaways={lesson.takeaways}
+      reflection={lesson.reflection}
+      next={lesson.next}
+    />
+    </>
   );
 }
 

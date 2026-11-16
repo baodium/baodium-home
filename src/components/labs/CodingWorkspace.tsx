@@ -5,6 +5,14 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { CodingProblem } from "@/lib/labs/coding";
 import { codingSummaries, CODING_CATEGORIES } from "@/lib/labs/coding";
+import { codingLesson } from "@/lib/learning/coding-course";
+import {
+  LessonClose,
+  LessonExercise,
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
 import {
   draftKey,
   loadCodingProgress,
@@ -217,16 +225,23 @@ export function CodingWorkspace({
           ? "The examples passed. Run the full suite if you want this exercise to count."
           : `${passed} of ${result.results.length} checks passed. ${firstMiss?.title ?? "One check"} still does not match.`
       : "";
+  const craft = codingLesson(problem, next?.title);
   return (
     <div className="coding-workspace">
       <section className="coding-prompt" aria-label="Problem description">
         <Link href="/sre-labs/coding" className="labs-back">
           ← Coding roadmap
         </Link>
-        <div className="labs-kicker">
-          {problem.category} / {problem.difficulty} / {problem.minutes} min
-        </div>
+        <LessonPlace
+          course="SRE coding"
+          index={craft.index}
+          total={craft.total}
+          minutes={craft.minutes}
+        />
+        <p className="labs-kicker">{craft.stageLabel}</p>
         <h1>{problem.title}</h1>
+        <LessonOutcomes items={craft.outcomes} />
+        <LessonTeaching paragraphs={craft.paragraphs} concepts={craft.concepts} />
         <p className="coding-lead">{problem.prompt}</p>
         <code className="coding-signature">
           {languageSignature(problem, language)}
@@ -255,11 +270,10 @@ export function CodingWorkspace({
               <pre tabIndex={0}>{JSON.stringify(test.expected, null, 2)}</pre>
             </div>
           ))}
-        <h2>Before you run</h2>
-        <p>
-          Name one input the examples do not show. After the full suite passes,
-          write down the time cost and one case you would add.
-        </p>
+        <LessonExercise
+          goal="The suite is the exercise. Examples are the first look, not the pass."
+          steps={craft.steps}
+        />
         {problem.hints.map((hint, index) => (
           <details className="coding-detail" key={hint}>
             <summary>Hint {index + 1}</summary>
@@ -285,8 +299,7 @@ export function CodingWorkspace({
             </>
           ) : null}
         </details>
-        <h2>Take it into production</h2>
-        <p>{problem.followUp}</p>
+        <LessonClose takeaways={craft.takeaways} reflection={craft.reflection} />
         {problem.origin ? (
           <p className="coding-note">{problem.origin}.</p>
         ) : null}
@@ -472,18 +485,18 @@ export function CodingWorkspace({
           These checks run in the browser. They are practice, not a sealed exam.{" "}
           {runtimeNote(language)}
         </p>
-        {next ? (
-          <Link
-            className="coding-next"
-            href={`/sre-labs/coding/${next.id}?lang=${language}`}
-          >
-            Next exercise: {next.title} →
-          </Link>
-        ) : (
-          <Link className="coding-next" href="/sre-labs/observability">
-            Apply your skills in the real observability stack →
-          </Link>
-        )}
+        <div className="lesson-next">
+          <p>{craft.next.bridge}</p>
+          {next ? (
+            <Link href={`/sre-labs/coding/${next.id}?lang=${language}`}>
+              Next exercise: {craft.next.label}
+            </Link>
+          ) : (
+            <Link href={craft.next.href ?? "/sre-labs/observability"}>
+              {craft.next.label}
+            </Link>
+          )}
+        </div>
       </section>
     </div>
   );

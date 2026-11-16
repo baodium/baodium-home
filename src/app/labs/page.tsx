@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LabsShell } from "@/components/labs/LabsShell";
+import {
+  LessonClose,
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
 export const metadata: Metadata = {
   title: "Labs",
   description:
@@ -83,6 +89,54 @@ export default function LabsPage() {
             Open the hands-on course <span>→</span>
           </Link>
         </aside>
+      </section>
+      <section className="lesson-band" aria-labelledby="path-title">
+        <LessonPlace course="Baodium labs" />
+        <h2 id="path-title">The SRE path is the course that is open.</h2>
+        <LessonTeaching
+          paragraphs={[
+            "Everything on this page uses one checkout. You learn to see which hop held the time, to count only the checkouts that were actually good, and to wake someone only when customers are still failing. The browser lessons do that without installing anything. The coding exercises are the same decisions as functions. The book labs are the chapters those decisions come from.",
+            "Cybersecurity and platform engineering are listed below so the map is honest. They are not lessons yet. If you have an hour, start with the first SRE lesson. If you have twenty minutes, start with a coding exercise and finish its suite.",
+          ]}
+          concepts={[
+            {
+              name: "Signal",
+              body: "A signal is a metric, a span, or a log from the checkout. The first lesson is about telling them apart and joining them to the same request.",
+            },
+            {
+              name: "Error budget",
+              body: "The budget is the half a percent of checkouts the 99.5 percent SLO allows you to miss. A slow success spends it. Seventeen misses in a thousand is 98.3 percent, which does not meet the line.",
+            },
+            {
+              name: "Page",
+              body: "A page is the decision to wake a person. It waits until the short window and the long window both say customers are failing.",
+            },
+          ]}
+        />
+        <LessonOutcomes
+          items={[
+            "Name the hop that holds time on a slow checkout.",
+            "Judge a window against a 99.5 percent SLO that counts only timely successes.",
+            "Pass a coding suite in Go, TypeScript, or Python, and know why the stage did not move before that.",
+          ]}
+        />
+        <LessonClose
+          takeaways={[
+            "The open course is the checkout: see the hop, spend the 99.5 percent budget, and page only when customers are still affected.",
+            "A coding exercise is finished when the full suite passes, not when the examples do.",
+            "The other two tracks are on the map because they are not ready, not because they are hidden.",
+          ]}
+          reflection={[
+            "Do you have an hour for the first SRE lesson, or twenty minutes for one function?",
+            "Which of signal, budget, and page is the one you could not explain to someone else yet?",
+          ]}
+          next={{
+            href: "/sre-labs/instrument",
+            label: "Start with lesson 1, instrument a service",
+            bridge:
+              "The first lesson is the slow checkout. You turn on a metric, a span, and a log, then name the hop that holds the time. The prompt in challenge mode does not name it for you.",
+          }}
+        />
       </section>
       <section className="labs-paths" aria-labelledby="paths-title">
         <div className="labs-section-heading">

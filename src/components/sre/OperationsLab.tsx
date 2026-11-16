@@ -21,6 +21,14 @@ import {
   type OperationsState,
 } from "@/lib/sre/operations";
 import { recordSreProgress } from "@/lib/sre/progress";
+import {
+  LessonClose,
+  LessonExercise,
+  LessonOutcomes,
+  LessonPlace,
+  LessonTeaching,
+} from "@/components/learning/LessonCraft";
+import { SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
 import { seriesPath } from "@/lib/sre/chart";
 
 type Command =
@@ -117,25 +125,21 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
   const y = (value: number) => 140 - value * 110;
   const change = (key: keyof OperationsControls, value: number) =>
     patch({ [key]: value });
+  const lesson = sreLesson(capacity ? "capacity" : "deployment");
   return (
     <div className="operations-lab" data-mobile-view={mobileView}>
       <header className="ops-mast">
         <div>
-          <p className="product-eyebrow">
-            {capacity
-              ? "SRE lab, Kubernetes autoscaling"
-              : "SRE lab, deployment safety"}
-          </p>
-          <h1>
-            {capacity
-              ? "Checkout latency has to hold while the queue grows."
-              : "A share of traffic is going to a faulty release. Decide when to stop."}
-          </h1>
-          <p>
-            {capacity
-              ? "A traffic surge exceeds the worker capacity. Compare manual replicas with a utilization-based autoscaler, and recover without reducing demand."
-              : "Send a controlled share of traffic to a faulty release. Read the customer impact, contain it, and decide when the rollout should stop."}
-          </p>
+          <LessonPlace
+            course="SRE path"
+            index={lesson.index}
+            total={SRE_COURSE_TOTAL}
+            minutes={lesson.minutes}
+          />
+          <h1>{lesson.title}</h1>
+          <LessonOutcomes items={lesson.outcomes} />
+          <LessonTeaching paragraphs={lesson.paragraphs} concepts={lesson.concepts} />
+          <LessonExercise goal={lesson.goal} steps={lesson.steps} />
         </div>
         <div className="ops-mode" role="group" aria-label="Learning mode">
           {(["guided", "practice", "challenge"] as const).map((item) => (
@@ -543,6 +547,11 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           )}
         </aside>
       </div>
+      <LessonClose
+        takeaways={lesson.takeaways}
+        reflection={lesson.reflection}
+        next={lesson.next}
+      />
     </div>
   );
 }
