@@ -1,54 +1,79 @@
 import Link from "next/link";
 import { projects } from "@/data/projects";
 
+const featured = projects.find((project) => project.featured) ?? projects[0];
+const rest = projects.filter((project) => project.slug !== featured.slug);
+
 export function SideProjectsView() {
   return (
-    <div className="min-h-[100dvh] bg-[#f4efe8] px-6 pb-24 pt-28 text-[#1c1612] md:px-10 md:pt-32">
+    <div className="min-h-[100dvh] bg-[#fbf7f1] px-6 pb-28 pt-28 text-[#241c18] md:px-10 md:pt-32">
       <div className="mx-auto max-w-5xl">
-        <p className="font-mono text-sm uppercase tracking-[0.16em] text-[#b4532a]">Projects</p>
-        <h1 className="mt-4 max-w-[16ch] font-serif text-[clamp(2.75rem,6vw,4.4rem)] leading-[0.98] tracking-[-0.035em]">
-          Projects and Labs
+        <p className="text-base font-medium text-[#8d3d2c]">Projects</p>
+        <h1 className="mt-4 max-w-[14ch] font-[family-name:var(--font-lab-serif)] text-[clamp(2.8rem,6vw,4.6rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+          Interview Coach, UpTo, and the labs
         </h1>
-        <p className="mt-6 max-w-xl text-xl leading-relaxed text-[#5c4a40]">
-          Interview practice, one status you update once, and the checkout labs.
+        <p className="mt-6 max-w-xl text-xl leading-relaxed text-[#5c514a]">
+          Interview practice, one status written once, and the checkout labs.
         </p>
-        <ul className="mt-16 grid items-stretch gap-6 md:grid-cols-2">
-          {projects.map((project) => (
-            <li key={project.slug}>
+        <ul className="mt-16 border-t border-[#e6ddd2]">
+          <li>
+            <a
+              href={featured.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group grid gap-8 border-b border-[#e6ddd2] py-10 transition-colors duration-200 hover:bg-[#fffdf9] md:grid-cols-[minmax(0,1.4fr)_auto] md:items-end md:py-14"
+            >
+              <span>
+                <span className="text-base font-medium text-[#8d3d2c]">{featured.status}</span>
+                <span className="mt-4 block font-[family-name:var(--font-lab-serif)] text-[clamp(2.4rem,4vw,3.4rem)] font-medium leading-[1.1] tracking-[-0.03em]">
+                  {featured.name}
+                </span>
+                <span className="mt-4 block max-w-xl text-lg leading-relaxed text-[#3d322c]">
+                  {featured.description}
+                </span>
+              </span>
+              <span className="inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">
+                Open {featured.name}
+                <span aria-hidden="true">→</span>
+                <span className="sr-only"> (opens in a new tab)</span>
+              </span>
+            </a>
+          </li>
+          <li className="grid md:grid-cols-2">
+            {rest.map((project) => (
               <a
+                key={project.slug}
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-full flex-col rounded-2xl border border-[#e4d5c4] bg-[#fbf7f1] px-8 py-10 transition-colors hover:border-[#b4532a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b4532a] sm:px-10 sm:py-12"
+                className="group border-b border-[#e6ddd2] py-8 pr-6 transition-colors duration-200 hover:bg-[#fffdf9] md:py-10"
               >
-                <span className="text-base font-medium text-[#b4532a]">{project.status}</span>
-                <span className="mt-5 font-serif text-[2.35rem] leading-none tracking-[-0.03em]">
+                <span className="text-base font-medium text-[#8d3d2c]">{project.status}</span>
+                <span className="mt-3 block font-[family-name:var(--font-lab-serif)] text-[1.85rem] font-medium leading-tight tracking-[-0.02em]">
                   {project.name}
                 </span>
-                <span className="mt-5 max-w-[34ch] text-lg leading-relaxed text-[#3d322c]">
+                <span className="mt-3 block max-w-md text-base leading-relaxed text-[#5c514a]">
                   {project.description}
                 </span>
-                <span className="mt-10 inline-flex w-fit items-center gap-2 border border-[#b4532a] px-4 py-2.5 text-base font-medium text-[#b4532a]">
+                <span className="mt-6 inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">
                   Open {project.name}
                   <span aria-hidden="true">→</span>
                   <span className="sr-only"> (opens in a new tab)</span>
                 </span>
               </a>
-            </li>
-          ))}
-          <li>
+            ))}
             <Link
               href="/labs"
-              className="flex h-full flex-col rounded-2xl border border-[#e4d5c4] bg-[#fbf7f1] px-8 py-10 transition-colors hover:border-[#b4532a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#b4532a] sm:px-10 sm:py-12"
+              className="group border-b border-[#e6ddd2] py-8 transition-colors duration-200 hover:bg-[#fffdf9] md:border-l md:border-[#e6ddd2] md:py-10 md:pl-8"
             >
-              <span className="text-base font-medium text-[#b4532a]">In the browser</span>
-              <span className="mt-5 font-serif text-[2.35rem] leading-none tracking-[-0.03em]">
+              <span className="text-base font-medium text-[#8d3d2c]">In the browser</span>
+              <span className="mt-3 block font-[family-name:var(--font-lab-serif)] text-[1.85rem] font-medium leading-tight tracking-[-0.02em]">
                 Labs
               </span>
-              <span className="mt-5 max-w-[34ch] text-lg leading-relaxed text-[#3d322c]">
-                Instrument a checkout, spend a 99.5% error budget, and page only when customers are affected.
+              <span className="mt-3 block max-w-md text-base leading-relaxed text-[#5c514a]">
+                Open the checkout labs. You name the slow hop, spend a 99.5 percent budget, and decide when a page is warranted.
               </span>
-              <span className="mt-10 inline-flex w-fit items-center gap-2 border border-[#b4532a] px-4 py-2.5 text-base font-medium text-[#b4532a]">
+              <span className="mt-6 inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">
                 Open Labs
                 <span aria-hidden="true">→</span>
               </span>

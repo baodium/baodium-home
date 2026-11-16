@@ -6,10 +6,26 @@ export const PRACTICE_LANGUAGES: {
   id: PracticeLanguage;
   label: string;
   filename: string;
+  note: string;
 }[] = [
-  { id: "go", label: "Go", filename: "solution.go" },
-  { id: "typescript", label: "TypeScript", filename: "solution.ts" },
-  { id: "python", label: "Python", filename: "solution.py" },
+  {
+    id: "go",
+    label: "Go",
+    filename: "solution.go",
+    note: "Go runs in the browser as package solution, with no imports. Numbers are float64. Progress stays with Go.",
+  },
+  {
+    id: "typescript",
+    label: "TypeScript",
+    filename: "solution.ts",
+    note: "TypeScript runs in the browser from jsDelivr. Progress stays with TypeScript.",
+  },
+  {
+    id: "python",
+    label: "Python",
+    filename: "solution.py",
+    note: "Python runs in the browser with Pyodide. It is the default when the address has no language. Progress stays with Python.",
+  },
 ];
 
 export type SignatureParam = {

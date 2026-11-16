@@ -450,7 +450,7 @@ def get_metadata(key, request):
     },
     chart: {
       title: "Backlog age",
-      caption: "Age is how late the oldest message is. The guide is 2 seconds, the steady state this lab asks you to hold.",
+      caption: "Age is how late the oldest message is. Hold the oldest message under 2 seconds.",
       yUnit: "s",
       series: [{ key: "ageSec", label: "Age", swatch: accent }],
       guide: { value: 2, label: "2 s" },

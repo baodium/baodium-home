@@ -318,6 +318,9 @@ export function CodingWorkspace({
               onClick={() => chooseLanguage(item.id)}
             >
               {item.label}
+              <span className="hint-bubble" role="tooltip">
+                {item.note}
+              </span>
             </button>
           ))}
         </div>

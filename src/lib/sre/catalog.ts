@@ -22,9 +22,9 @@ export const SRE_LESSONS: SreLesson[] = [
     id: "instrument",
     title: "Instrument a service",
     summary:
-      "Checkout is slow, but the outbound call is invisible. Add the signals that let you locate the delay.",
+      "Checkout is slow, and the outbound call is invisible. Add the signals and name the hop.",
     outcome:
-      "Identify the slow hop using metrics, trace context and structured logs.",
+      "Name the slow hop from the metric, the trace, and the log.",
     topic: "Observability",
     difficulty: "Beginner",
     minutes: 10,
@@ -36,7 +36,7 @@ export const SRE_LESSONS: SreLesson[] = [
     summary:
       "Decide what counts as a good checkout, set a target, and observe the failures that consume the budget.",
     outcome:
-      "Distinguish request success from an SLI that also requires timely responses.",
+      "Count a slow success as a miss when the line includes latency.",
     topic: "Service levels",
     difficulty: "Beginner",
     minutes: 12,

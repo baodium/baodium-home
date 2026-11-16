@@ -195,10 +195,24 @@ function ServiceCard({ label, detail }: { label: string; detail: string }) {
   );
 }
 
+const STAT_NOTES: Record<string, string> = {
+  CPU: "CPU is how busy the host is. A high reading does not, by itself, mean customers are failing.",
+  "Short burn": "Short burn is the 12-second window against the 99.5 percent budget.",
+  "Long burn": "Long burn is the 60-second window. A page waits until it agrees with the short window.",
+  Clock: "Clock is simulation seconds, not wall time.",
+};
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-[color:var(--exp-line)] px-2.5 py-2">
-      <dt className="text-[color:var(--exp-faint)]">{label}</dt>
+      <dt className="text-[color:var(--exp-faint)]">
+        <span className="hint hint-plain" tabIndex={0}>
+          {label}
+          <span className="hint-bubble" role="tooltip">
+            {STAT_NOTES[label]}
+          </span>
+        </span>
+      </dt>
       <dd className="mt-1 tabular-nums text-[color:var(--exp-fg)]">{value}</dd>
     </div>
   );

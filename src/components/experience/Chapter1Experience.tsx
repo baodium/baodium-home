@@ -659,15 +659,19 @@ export function Chapter1Experience() {
               else enterChallenge();
             }}
             options={[
-              { id: "guided", label: "Guided" },
+              {
+                id: "guided",
+                label: "Guided",
+                title: "In Guided, you finish the step in front of you before the next one opens.",
+              },
               {
                 id: "practice",
                 label: "Practice",
                 disabled: !decision && mode === "guided",
                 title:
                   !decision && mode === "guided"
-                    ? "Finish the guided decision first"
-                    : undefined,
+                    ? "Finish the guided decision first."
+                    : "In Practice, the controls stay open after you have seen the incident once.",
               },
               {
                 id: "challenge",
@@ -675,8 +679,8 @@ export function Chapter1Experience() {
                 disabled: !decision && mode === "guided",
                 title:
                   !decision && mode === "guided"
-                    ? "Finish the guided path first"
-                    : undefined,
+                    ? "Finish the guided path first."
+                    : "Challenge starts mid-incident. The prompt does not name the fix. A pass comes from the numbers.",
               },
             ]}
           />

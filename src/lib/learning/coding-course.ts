@@ -16,7 +16,7 @@ const STAGES: Record<string, Stage> = {
     concepts: [
       {
         name: "Policy",
-        body: "A policy is a rule you can apply to one record without looking at the others. CPU, a failed heartbeat, and an explicit unhealthy flag are separate policies. Any one of them is enough.",
+        body: "You apply a policy to one record without looking at the others. CPU, a failed heartbeat, and an explicit unhealthy flag are separate policies. Any one of them is enough.",
       },
       {
         name: "First seen",
@@ -26,13 +26,13 @@ const STAGES: Record<string, Stage> = {
   },
   Signals: {
     paragraphs: [
-      "A signal is a number or an event you can compare with the last one. The exercises turn raw lines, counters, and windows into something you could put on a chart or a page. The hard part is usually the edge the examples do not show: an empty window, a repeated key, a line that is almost the format you expected.",
+      "You compare a number or an event with the last one. The exercises turn raw lines, counters, and windows into something you could put on a chart or a page. The hard part is usually the edge the examples skip: an empty window, a repeated key, a line almost in the expected format.",
       "Write the function so the full suite passes. Then look at the reference and name the cost you accepted. Opening the reference does not record a pass.",
     ],
     concepts: [
       {
         name: "Window",
-        body: "A window is the slice of events you are willing to judge. A rate without a window is a mood. The exercises will tell you which events belong in the slice.",
+        body: "A window is the slice of events you are willing to judge. A rate with no window is not a measurement. The exercise names which events belong in the slice.",
       },
       {
         name: "Edge",
@@ -42,7 +42,7 @@ const STAGES: Record<string, Stage> = {
   },
   Automation: {
     paragraphs: [
-      "Automation here is a function that would run when you are not watching. It has to decide, leave a result you can check, and refuse to do the dangerous thing when the input is not the shape you required.",
+      "These functions run when you are not watching. Each one leaves a result you check later, and it returns a refusal when the input is not the shape you required.",
       "Read the contract before you write the loop. If the suite fails, the failing check is the input you did not picture. Name it, then change the code.",
     ],
     concepts: [

@@ -22,8 +22,18 @@ export function DrillModeBar({
       value={mode}
       onChange={onChange}
       options={[
-        { id: "practice", label: "Practice", disabled },
-        { id: "challenge", label: "Challenge", disabled },
+        {
+          id: "practice",
+          label: "Practice",
+          disabled,
+          title: "In Practice, the metrics are explained and the levers stay open.",
+        },
+        {
+          id: "challenge",
+          label: "Challenge",
+          disabled,
+          title: "In Challenge, you get the metrics and no recommended fix.",
+        },
       ]}
     />
   );

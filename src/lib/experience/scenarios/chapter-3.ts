@@ -87,7 +87,7 @@ export const chapter3Copy = {
   explore:
     "The provider time, the client timeout, the operation id on the retry, and the notification written with the charge.",
   gettingStarted:
-    "Guided walks one incident. Pause holds the clock, and the next event stays next. Step runs that one event. Reset rebuilds this seed. Practice and the challenge open after you choose the identity on the retry.",
+    "In Guided, you follow one incident. Pause holds the clock, and the next event stays next. Step runs that one event. Reset rebuilds this seed. Practice and the challenge open after you choose the identity on the retry.",
   approximation: `This is a simulation of one retry. It does not call a payment provider. The guided slowdown and the challenge use a ${slowSec} second provider and a ${timeoutSec} second client timeout. The retry goes out ${gapSec} seconds after the timeout, and it is still waiting when a ${slowSec} second charge settles. A repeated operation id returns that stored charge. A new operation id starts another provider call.`,
   review: [
     "The client timeout left the outcome unknown. The provider still settled the first charge.",

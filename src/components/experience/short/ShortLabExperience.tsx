@@ -123,9 +123,21 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
             value={mode}
             onChange={applyMode}
             options={[
-              { id: "guided", label: "Guided" },
-              { id: "practice", label: "Practice" },
-              { id: "challenge", label: "Challenge" },
+              {
+                id: "guided",
+                label: "Guided",
+                title: "In Guided, you finish the step in front of you before the next one opens.",
+              },
+              {
+                id: "practice",
+                label: "Practice",
+                title: "In Practice, the controls stay open after you have seen the incident once.",
+              },
+              {
+                id: "challenge",
+                label: "Challenge",
+                title: "Challenge starts mid-incident. The prompt does not name the fix. A pass comes from the numbers.",
+              },
             ]}
           />
         </div>

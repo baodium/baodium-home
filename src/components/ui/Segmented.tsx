@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import "@/components/learning/lesson-craft.css";
 
 export type SegmentOption<T extends string> = {
   id: T;
@@ -46,8 +47,8 @@ export function Segmented<T extends string>({
             key={option.id}
             type="button"
             disabled={option.disabled}
-            title={option.title}
             aria-pressed={active}
+            aria-describedby={option.title ? `${layoutId}-${option.id}-tip` : undefined}
             onClick={() => {
               if (option.disabled) return;
               onChange(option.id);
@@ -67,6 +68,11 @@ export function Segmented<T extends string>({
               />
             ) : null}
             <span className={`seg-label ${active ? "is-active" : ""}`}>{option.label}</span>
+            {option.title ? (
+              <span className="hint-bubble" role="tooltip" id={`${layoutId}-${option.id}-tip`}>
+                {option.title}
+              </span>
+            ) : null}
           </button>
         );
       })}

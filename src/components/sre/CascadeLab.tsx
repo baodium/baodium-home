@@ -46,9 +46,21 @@ type Mode = "guided" | "practice" | "challenge";
 type Tab = "metrics" | "traces" | "logs" | "timeline";
 
 const MODES = [
-  { id: "guided" as const, label: "Guided" },
-  { id: "practice" as const, label: "Practice" },
-  { id: "challenge" as const, label: "Challenge" },
+  {
+    id: "guided" as const,
+    label: "Guided",
+    title: "In Guided, you finish the step in front of you before the next one opens.",
+  },
+  {
+    id: "practice" as const,
+    label: "Practice",
+    title: "In Practice, the controls stay open after you have seen the incident once.",
+  },
+  {
+    id: "challenge" as const,
+    label: "Challenge",
+    title: "Challenge starts mid-incident. The prompt does not name the fix. A pass comes from the numbers.",
+  },
 ];
 
 const TABS: { id: Tab; label: string }[] = [

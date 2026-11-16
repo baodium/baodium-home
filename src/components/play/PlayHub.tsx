@@ -55,8 +55,8 @@ export function PlayHub() {
             <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
               Short SRE drills from{" "}
               <em className="text-ink">Practical System Design</em>. Each one
-              opens with a clear challenge, explains the metrics in plain
-              English, then lets you operate the levers yourself. The{" "}
+              opens with a clear challenge and explains the metrics in plain
+              English. Then you operate the levers yourself. The{" "}
               <Link href="/system-design/experience" className="text-ink underline decoration-ink/20 underline-offset-4 hover:decoration-ink/50">
                 chapter labs
               </Link>{" "}

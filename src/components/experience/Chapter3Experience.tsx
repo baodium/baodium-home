@@ -199,18 +199,26 @@ export function Chapter3Experience() {
               rebuild(id);
             }}
             options={[
-              { id: "guided", label: "Guided" },
+              {
+                id: "guided",
+                label: "Guided",
+                title: "In Guided, you finish the step in front of you before the next one opens.",
+              },
               {
                 id: "practice",
                 label: "Practice",
                 disabled: !openModes && mode === "guided",
-                title: openModes ? undefined : "Choose the identity on the retry first",
+                title: openModes
+                  ? "In Practice, the controls stay open after you have seen the incident once."
+                  : "Choose the identity on the retry first.",
               },
               {
                 id: "challenge",
                 label: "Challenge",
                 disabled: !openModes && mode === "guided",
-                title: openModes ? undefined : "Choose the identity on the retry first",
+                title: openModes
+                  ? "Challenge starts mid-incident. The prompt does not name the fix. A pass comes from the numbers."
+                  : "Choose the identity on the retry first.",
               },
             ]}
           />
@@ -417,7 +425,7 @@ export function Chapter3Experience() {
           href: "/sre-labs/instrument",
           label: "SRE lesson 1, instrument a service",
           bridge:
-            "Chapter 3 is the last full lab in the book. The SRE path starts from the same kind of checkout and asks you to name the hop, spend a 99.5 percent budget, and decide when a page is warranted.",
+            "Chapter 3 is the last full lab in the book. On the SRE path you name the hop, spend a 99.5 percent budget, and decide when a page is warranted.",
         }}
       />
     </div>

@@ -40,6 +40,7 @@
   border-radius: 7px;
 }
 .ops-mode button {
+  position: relative;
   min-height: 36px;
   padding: 0.4rem 0.7rem;
   font-size: 12px;

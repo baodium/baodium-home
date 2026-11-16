@@ -3,10 +3,22 @@
 import { motion, useReducedMotion } from "motion/react";
 import type { SreMode } from "@/lib/sre/catalog";
 
-const MODES: { id: SreMode; label: string }[] = [
-  { id: "guided", label: "Guided" },
-  { id: "practice", label: "Practice" },
-  { id: "challenge", label: "Challenge" },
+const MODES: { id: SreMode; label: string; note: string }[] = [
+  {
+    id: "guided",
+    label: "Guided",
+    note: "In Guided, you finish the step in front of you before the next one opens.",
+  },
+  {
+    id: "practice",
+    label: "Practice",
+    note: "In Practice, the controls stay open after you have seen the incident once.",
+  },
+  {
+    id: "challenge",
+    label: "Challenge",
+    note: "Challenge starts mid-incident. The prompt does not name the fix. A pass comes from the numbers.",
+  },
 ];
 
 /** Three modes, marked only after a passing run is stored on this device. */
@@ -46,7 +58,12 @@ export function ModeTrack({
                 animate={{ scale: done && !reduce ? 1 : 0.72 }}
                 transition={{ duration: reduce ? 0 : 0.22 }}
               />
-              {mode.label}
+              <span className="hint hint-plain" tabIndex={0}>
+                {mode.label}
+                <span className="hint-bubble" role="tooltip">
+                  {mode.note}
+                </span>
+              </span>
               {done ? <span className="sr-only">, passed</span> : null}
               {now && !done ? <span className="sr-only">, current</span> : null}
             </li>

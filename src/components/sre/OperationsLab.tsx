@@ -149,6 +149,13 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
               onClick={() => reset(item)}
             >
               {item}
+              <span className="hint-bubble" role="tooltip">
+                {item === "guided"
+                  ? "In Guided, you finish the step in front of you before the next one opens."
+                  : item === "practice"
+                    ? "In Practice, the controls stay open after you have seen the incident once."
+                    : "Challenge starts mid-incident. The prompt does not name the fix. A pass comes from the numbers."}
+              </span>
             </button>
           ))}
         </div>

@@ -46,7 +46,7 @@ export default function CodingPage() {
           concepts={[
             {
               name: "Stage",
-              body: "A stage is a group of exercises on one kind of work. It moves when every exercise in it has a passing full suite in the language you selected.",
+              body: "A stage groups the exercises on one kind of work. It moves when every exercise in it has a passing full suite in the language you selected.",
             },
             {
               name: "Full suite",

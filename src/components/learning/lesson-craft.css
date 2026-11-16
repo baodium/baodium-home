@@ -109,6 +109,55 @@
   border-top: 1px solid var(--lab-line, var(--exp-line, #e6ddd2));
 }
 
+.hint {
+  position: relative;
+  display: inline-flex;
+  cursor: help;
+  border-bottom: 1px dotted currentColor;
+}
+.hint-bubble {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  bottom: calc(100% + 0.55rem);
+  width: min(18rem, 70vw);
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.75rem;
+  background: #2a211c;
+  color: #f6f1ea;
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: 0 16px 40px -24px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.hint-plain {
+  border-bottom: 0;
+  cursor: help;
+}
+.hint:hover .hint-bubble,
+.hint:focus .hint-bubble,
+.hint:focus-within .hint-bubble,
+.seg-btn:hover .hint-bubble,
+.seg-btn:focus-visible .hint-bubble,
+.coding-languages button:hover .hint-bubble,
+.coding-languages button:focus-visible .hint-bubble,
+.ops-mode button:hover .hint-bubble,
+.ops-mode button:focus-visible .hint-bubble {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hint-bubble {
+    transition: none;
+  }
+}
+
 .lesson-band > h2 {
   margin: 0 0 0.4rem;
   max-width: 18em;

@@ -243,7 +243,7 @@ export function selectPedagogyLesson(
         title: "Deploy the flag before anyone calls Recommendation",
         seeing:
           "Product Page can call Recommendation only when the flag exposes the user. The shared pool lives in Recommendation, not on Product Page.",
-        why: "A feature flag lets you stop new demand without rolling the code back.",
+        why: "With a feature flag, you stop new demand without rolling the code back.",
         next: "Deploy at 0% exposure.",
         tone: "calm",
       };

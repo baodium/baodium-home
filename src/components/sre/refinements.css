@@ -168,6 +168,7 @@
   list-style: none;
 }
 .mode-track li {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;

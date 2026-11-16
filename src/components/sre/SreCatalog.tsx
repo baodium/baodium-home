@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
-import { ArrowRight, Check, SlidersHorizontal } from "lucide-react";
-import { SRE_LESSONS } from "@/lib/sre/catalog";
+import { ArrowRight, SlidersHorizontal } from "lucide-react";
+import { motion } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/motion-prefs";
+import "@/components/learning/lesson-craft.css";
+import { SRE_LESSONS, type SreLabKey } from "@/lib/sre/catalog";
 import {
   loadSreProgress,
   sreServerSnapshot,
@@ -11,7 +14,15 @@ import {
 } from "@/lib/sre/progress";
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { ModeTrack } from "@/components/sre/ModeTrack";
-import { LessonOutcomes } from "@/components/learning/LessonCraft";
+
+const BROWSER_HINTS: Record<SreLabKey, string> = {
+  instrument: "About ten minutes. You add a metric, a span, and a log, then name the hop that held the time.",
+  slo: "About twelve minutes. You judge the window against 99.5 percent. Seventeen misses in a thousand is 98.3 percent.",
+  alert: "About fifteen minutes. You compare four scenes and page only when both windows agree.",
+  cascade: "About twenty minutes. You follow one checkout and change one limit, then rerun the same seed.",
+  capacity: "About fifteen minutes. You hold latency through the surge without turning traffic away.",
+  deployment: "About twelve minutes. You choose the share on the bad release, then take it back.",
+};
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -44,6 +55,7 @@ export function SreCatalog() {
               (id) => progress[id]?.completedModes.length,
             ))),
   );
+  const reduce = usePrefersReducedMotion();
   const clear = () => {
     setTopic("All topics");
     setDifficulty("All levels");
@@ -55,12 +67,11 @@ export function SreCatalog() {
       <header className="catalog-hero">
         <div className="catalog-heading">
           <p className="product-eyebrow">SRE labs</p>
-          <h1>The signals are already on the checkout. The lab is deciding what they mean.</h1>
+          <h1>You decide what the checkout signals mean.</h1>
           <p>
-            One path runs Express and FastAPI with Prometheus, Grafana,
-            OpenTelemetry, and Jaeger. Eight local exercises start from a
-            working environment and finish when the service has recovered.
-            A second path stays in the browser.
+            Eight exercises run Express and FastAPI with Prometheus, Grafana,
+            OpenTelemetry, and Jaeger. You need Docker and Node.js 20 or newer
+            for those. The six lessons below stay in the browser.
           </p>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
@@ -154,27 +165,49 @@ export function SreCatalog() {
           ))}
         </ol>
       </section>
-      <section className="practice-introduction" id="practice-labs">
-        <p className="product-eyebrow">Browser course</p>
-        <h2>Six lessons, in order, on this checkout.</h2>
-        <p>
-          Start with the hop that holds the time. Then spend a 99.5 percent
-          error budget, decide when a page is warranted, and watch a slow
-          dependency spread. Capacity and a faulty release close the course.
-          Nothing here installs. Completion records the browser lessons, not a
-          run of the local Docker course.
-        </p>
-        <LessonOutcomes
-          items={[
-            "Name the hop that holds time, using a metric, a span, and a log from the same checkout.",
-            "Tell a 99.5 percent window from a window that only looks close, including 17 misses in 1,000.",
-            "Page on customer burn across two windows, then stop a slow dependency or a bad release from spreading.",
-          ]}
-        />
-        <Link href={`/sre-labs/${next.id}`} className="product-text-link">
-          {completed ? "Continue browser practice" : "Start browser practice"}
-          <ArrowRight size={15} />
-        </Link>
+      <section className="browser-course" id="practice-labs" aria-labelledby="browser-course-title">
+        <header className="browser-course-head">
+          <div>
+            <p className="product-eyebrow">In the browser</p>
+            <h2 id="browser-course-title">Six lessons on one checkout.</h2>
+            <p>
+              Nothing to install. Start with the slow hop, then the budget, the page, and the failure as it spreads.
+            </p>
+          </div>
+          <Link href={`/sre-labs/${next.id}`} className="product-button">
+            {completed ? "Continue" : "Start lesson 1"} <ArrowRight size={16} />
+          </Link>
+        </header>
+        <ol className="browser-lessons">
+          {SRE_LESSONS.map((lab, index) => (
+            <motion.li
+              key={lab.id}
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: reduce ? 0 : 0.45, delay: reduce ? 0 : index * 0.05 }}
+            >
+              <Link href={`/sre-labs/${lab.id}`}>
+                <span className="browser-index">{String(index + 1).padStart(2, "0")}</span>
+                <h3>{lab.title}</h3>
+                <p>{lab.summary}</p>
+                <span className="hint" tabIndex={0}>
+                  <span className="hint-label">
+                    {lab.minutes} min · {lab.difficulty}
+                  </span>
+                  <span className="hint-bubble" role="tooltip">
+                    {BROWSER_HINTS[lab.id]}
+                  </span>
+                </span>
+                {progress[lab.id]?.completedModes.length ? (
+                  <span className="browser-done">Passed on this device</span>
+                ) : (
+                  <span className="browser-go">Open</span>
+                )}
+              </Link>
+            </motion.li>
+          ))}
+        </ol>
       </section>
       <div className="catalog-progress">
         <span>
@@ -189,29 +222,6 @@ export function SreCatalog() {
           Stored in this browser. Complete any mode to finish a lab.
         </small>
       </div>
-      <section
-        className="curriculum-path"
-        aria-label="Recommended learning path"
-      >
-        {SRE_LESSONS.map((lab, index) => (
-          <Link href={`/sre-labs/${lab.id}`} key={lab.id}>
-            <span>
-              {progress[lab.id]?.completedModes.length ? (
-                <Check size={14} aria-label="Completed" />
-              ) : (
-                `0${index + 1}`
-              )}
-            </span>
-            <div>
-              <strong>{lab.topic}</strong>
-              <small>
-                {lab.minutes} min · {lab.difficulty}
-              </small>
-            </div>
-            {index < 3 ? <ArrowRight size={15} aria-hidden="true" /> : null}
-          </Link>
-        ))}
-      </section>
       <section aria-labelledby="catalog-title">
         <div className="section-heading">
           <div>

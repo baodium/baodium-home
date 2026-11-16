@@ -32,23 +32,23 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     paragraphs: [
       "A slow checkout is a complaint, not a diagnosis. The page waited. The wait has a place, and that place is a hop on the path from the product page to the database. Until a record names the hop, you are guessing.",
-      "This lesson uses one checkout and three kinds of record. They answer different questions, and none of them replaces the others. Guided mode walks the four signals on. Practice lets you turn them yourself. Challenge starts with the page already slow and does not name the hop.",
+      "This lesson uses one checkout and three kinds of record. Each one answers a different question. In Guided, you turn the four signals on in order. In Practice, you turn them yourself. In Challenge, the page is already slow and the prompt does not name the hop.",
     ],
     concepts: [
       {
         name: "Metric",
-        body: "A metric is a number you can add up or plot. It tells you that checkouts got slower. It does not, by itself, tell you which call inside the checkout held the time.",
+        body: "You plot a metric. From it, you see that checkout slowed. You still cannot name the call inside the checkout that held the time.",
       },
       {
         name: "Span",
-        body: "A span is one hop with a start and an end. When spans share a trace, you can see which hop sat inside which caller, and which one accounts for the wait.",
+        body: "A span is one hop with a start and an end. When spans share a trace, you see which hop sat inside which caller, and which one accounts for the wait.",
       },
       {
         name: "Structured log",
-        body: "A structured log is an event with fields you can join to the trace. It is how you connect a decision in the code, such as a timeout or a retry, to the span that was open at the time.",
+        body: "A structured log is an event with fields. You join those fields to the trace, and you connect a timeout or a retry to the span that was open at the time.",
       },
     ],
-    goal: "Make the slow checkout explain itself. Turn on HTTP metrics, the outbound span, trace context, and a structured log, then name the hop that holds the extra time.",
+    goal: "Turn on HTTP metrics, the outbound span, trace context, and a structured log, then name the hop that holds the extra time.",
     steps: [
       "Run a checkout before the four signals are on, and notice what you cannot name.",
       "Turn on HTTP metrics, the outbound span, trace context, and a structured log.",
@@ -56,7 +56,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "In challenge mode, do the same from a slow page. The prompt does not name the hop.",
     ],
     takeaways: [
-      "A metric tells you the checkout slowed. A span tells you which hop held the time. A log tells you what the code decided while that span was open.",
+      "From the metric, you see that checkout slowed. From the span, you see which hop held the time. From the log, you see what the code decided while that span was open.",
       "Trace context is what makes the span and the log the same request, rather than two records that happen to be near each other in time.",
       "If the hop is still unnamed after you add a signal, the signal is in the wrong place or it is not joined to the request.",
     ],
@@ -84,7 +84,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     paragraphs: [
       "An SLO is the promise you are willing to be held to. On this checkout the promise is 99.5 percent of requests succeeding in under 300 milliseconds. The error budget is the half a percent you are allowed to miss. Spending the budget means those misses happened in the window you are looking at.",
-      "A request that returns 200 after the time limit is not a good checkout. The customer already waited. Seventeen failures in a thousand requests is 98.3 percent, and 98.3 does not meet 99.5. Guided mode spends the budget on purpose. Challenge asks you to judge a window against the target that is already on the chart.",
+      "A 200 after the time limit is not a good checkout. The customer already waited. Seventeen failures in a thousand requests is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
     ],
     concepts: [
       {
@@ -108,7 +108,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "In challenge mode, mark the window as meeting the target or missing it. The prompt does not tell you which.",
     ],
     takeaways: [
-      "The SLO in this course is 99.5 percent of checkouts that succeed in under 300 milliseconds.",
+      "The SLO here is 99.5 percent of checkouts succeeding in under 300 milliseconds.",
       "A slow success spends the budget. The status code alone is not the SLI.",
       "Seventeen misses in a thousand is 98.3 percent. That window does not meet 99.5 percent.",
     ],
@@ -135,8 +135,8 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Choose the situation that should wake someone, and say why the others should not.",
     ],
     paragraphs: [
-      "A page is a decision to interrupt a person. The host can be busy while customers are fine, and a single slow checkout can light a chart without being the start of an incident. The page has to describe a customer symptom that is still true after you look at more than one window.",
-      "The burn-rate rule in this lab pages only when the 12-second window and the 60-second window are both spending the 99.5 percent budget at 14.4 times the allowed rate or faster, with enough requests in each window. A spike lights the short window and then fades. Both windows have to agree. Challenge gives you the telemetry and does not tell you whether to page.",
+      "You interrupt a person only when the customer symptom is still true in more than one window. The host can be busy while customers are fine, and one slow checkout can light a chart without starting an incident.",
+      "The burn-rate rule pages only when the 12-second window and the 60-second window are both spending the 99.5 percent budget at 14.4 times the allowed rate or faster, with enough requests in each window. A spike lights the short window and then fades. Both windows have to agree. In Challenge, you have the telemetry. The prompt does not say whether to page.",
     ],
     concepts: [
       {
@@ -149,7 +149,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       },
       {
         name: "Page",
-        body: "A page is the alert you are willing to act on at once. In this lab that is the sustained checkout failure, the one where both windows agree. The other scenes are worth a look later.",
+        body: "You act at once on the sustained checkout failure, the scene where both windows agree. The other scenes can wait.",
       },
     ],
     goal: "Pick a rule, run it against the four scenes, and page only when you can say what the customer is experiencing and why both windows agree.",
@@ -173,7 +173,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/cascade",
       label: "Lesson 4, a failure that spreads",
       bridge:
-        "You know when to wake someone. The next lesson is the shape of the failure they will find: a slow dependency holds its slots, retries ask for more, and checkout starts failing for people who never called that dependency themselves.",
+        "You know when to wake someone. Next, you watch the shape of the failure: a slow dependency holds its slots, retries request another slot, and checkout fails for people who never called that dependency.",
     },
   },
   {
@@ -187,8 +187,8 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Change one limit, rerun the same seed, and say what the new evidence shows.",
     ],
     paragraphs: [
-      "A cascading failure is not a second bug. The provider is slow, so each call holds a slot for longer. Checkout retries, which asks for another slot. The queue grows. New checkouts wait or time out, including ones whose own work was fine. The symptom moves outward from the slow call.",
-      "The lab is one clock and one seed. Guided mode walks the spread. Practice lets you change slots, retries, and the deadline. Challenge asks you to restore checkout without being told which control to move. The topology lists every service. It does not tell you the cause.",
+      "A cascading failure is not a second bug. The provider is slow, so each call holds a slot for longer. Checkout retries, and the retry requests another slot. The queue grows. New checkouts wait or time out, including ones whose own work was fine. The symptom moves outward from the slow call.",
+      "One clock, one seed. In Guided, you watch the failure spread. In Practice, you change slots, retries, and the deadline. In Challenge, you bring checkout back. The prompt does not name the control. The topology lists every service and does not name the cause.",
     ],
     concepts: [
       {
@@ -197,7 +197,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       },
       {
         name: "Retry",
-        body: "A retry is another attempt at work that may already be in flight. It helps when the first attempt was lost. It hurts when the first attempt is still holding a slot, because the retry asks for a second one.",
+        body: "A retry is another attempt at work that may already be in flight. It helps when the first attempt was lost. It hurts when the first attempt is still holding a slot, because the retry requests a second one.",
       },
       {
         name: "Deadline",
@@ -240,7 +240,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     paragraphs: [
       "When work arrives faster than workers finish it, the extra work waits. Latency climbs because requests sit in the queue, not because each request suddenly got harder. Adding replicas adds workers. A utilization rule adds them when the workers you have are busy, and only if you let it.",
-      "Utilization in this lab is the share of worker capacity that is busy. It does not go above 100 percent. Work that does not fit waits in the queue, and the queue is what the customer feels. Guided mode compares the two controls. Challenge asks you to hold latency through the surge without being told which control to use.",
+      "Utilization is the share of worker capacity that is busy. It does not go above 100 percent. Work that does not fit waits in the queue, and the customer feels that wait. In Guided, you compare the two controls. In Challenge, you hold latency through the surge. The prompt does not name the control.",
     ],
     concepts: [
       {
@@ -291,8 +291,8 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Say what you would want to see before you raised the share again.",
     ],
     paragraphs: [
-      "A release is a hypothesis about a fraction of traffic. You learn from the customers who actually hit it. If that fraction fails, the blast radius is the fraction, not the whole site, for as long as you keep the fraction small and you are willing to take it back.",
-      "This lab puts a known-bad release beside the stable one. You choose the share. Rollback sets the share to zero. A repaired release can also pass, so rollback is not the only ending. Challenge asks you to stop the damage without telling you the share to pick.",
+      "You send a release to a fraction of traffic and learn from the customers who hit it. If that fraction fails, the blast radius is the fraction, not the whole site, for as long as you keep the fraction small and you are willing to take it back.",
+      "A known-bad release sits beside the stable one. You choose the share. Rollback sets the share to zero. A repaired release can also pass, so rollback is not the only ending. In Challenge, you stop the damage. The prompt does not name the share.",
     ],
     concepts: [
       {
@@ -329,7 +329,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/coding",
       label: "Coding practice",
       bridge:
-        "The six browser lessons are a course in reading a checkout. The coding path is the same work as functions: fleet health, signals, retries, and delivery, in Go, TypeScript, or Python, with a stage that moves only when the full suite passes.",
+        "After these six lessons, the coding exercises are the same decisions as functions: fleet health, signals, retries, and delivery, in Go, TypeScript, or Python. The stage moves only when the full suite passes.",
     },
   },
 ];

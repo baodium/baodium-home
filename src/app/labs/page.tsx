@@ -92,7 +92,7 @@ export default function LabsPage() {
       </section>
       <section className="lesson-band" aria-labelledby="path-title">
         <LessonPlace course="Baodium labs" />
-        <h2 id="path-title">The SRE path is the course that is open.</h2>
+        <h2 id="path-title">Site reliability is published. The other two tracks are not.</h2>
         <LessonTeaching
           paragraphs={[
             "Everything on this page uses one checkout. You learn to see which hop held the time, to count only the checkouts that were actually good, and to wake someone only when customers are still failing. The browser lessons do that without installing anything. The coding exercises are the same decisions as functions. The book labs are the chapters those decisions come from.",
@@ -101,7 +101,7 @@ export default function LabsPage() {
           concepts={[
             {
               name: "Signal",
-              body: "A signal is a metric, a span, or a log from the checkout. The first lesson is about telling them apart and joining them to the same request.",
+              body: "Signal means the metric, the span, or the log from one checkout. In lesson 1 you tell them apart and join them to the same request.",
             },
             {
               name: "Error budget",
@@ -109,7 +109,7 @@ export default function LabsPage() {
             },
             {
               name: "Page",
-              body: "A page is the decision to wake a person. It waits until the short window and the long window both say customers are failing.",
+              body: "You wake someone only when the short window and the long window both show customers failing.",
             },
           ]}
         />
@@ -123,7 +123,7 @@ export default function LabsPage() {
         <LessonClose
           takeaways={[
             "The open course is the checkout: see the hop, spend the 99.5 percent budget, and page only when customers are still affected.",
-            "A coding exercise is finished when the full suite passes, not when the examples do.",
+            "The coding stage moves after the full suite passes. Green examples are not enough.",
             "The other two tracks are on the map because they are not ready, not because they are hidden.",
           ]}
           reflection={[
@@ -134,7 +134,7 @@ export default function LabsPage() {
             href: "/sre-labs/instrument",
             label: "Start with lesson 1, instrument a service",
             bridge:
-              "The first lesson is the slow checkout. You turn on a metric, a span, and a log, then name the hop that holds the time. The prompt in challenge mode does not name it for you.",
+              "Lesson 1 is the slow checkout. You turn on a metric, a span, and a log, then name the hop that holds the time. In Challenge, the prompt does not name the hop.",
           }}
         />
       </section>
@@ -142,62 +142,52 @@ export default function LabsPage() {
         <div className="labs-section-heading">
           <div>
             <p className="labs-kicker">Paths</p>
-            <h2 id="paths-title">Site reliability is open now. The other two paths are still being written.</h2>
+            <h2 id="paths-title">Site reliability is ready. Cybersecurity and platform engineering are still on paper.</h2>
           </div>
           <p>
-            Cybersecurity and platform engineering are on the map so it stays
-            honest about what you can open today.
+            The map lists the later tracks because the lessons are not written yet.
           </p>
         </div>
-        <div className="labs-track-grid">
-          <Link className="labs-track active" href="/sre-labs">
-            <span className="labs-badge">Available now</span>
-            <span className="labs-track-symbol" aria-hidden="true">
-              ⌁
+        <div className="labs-path-board">
+          <Link className="labs-path-lead" href="/sre-labs">
+            <span className="hint" tabIndex={0}>
+              Open now
+              <span className="hint-bubble" role="tooltip">
+                Lessons, coding exercises, and the book labs all open from this row.
+              </span>
             </span>
             <h3>Site reliability engineering</h3>
             <p>
-              Write the automation, read the telemetry, and bring a service
-              back with evidence from the tools.
+              Six browser lessons and twenty-four functions are published. You name the slow hop, spend the 99.5 percent budget, and decide when to page.
             </p>
-            <div className="labs-track-topics">
-              Python · Observability · Incidents · Delivery
-            </div>
-            <strong>
-              Explore SRE <span>→</span>
-            </strong>
+            <span className="labs-path-go">Open the SRE path</span>
           </Link>
-          <article className="labs-track planned">
-            <span className="labs-badge">Planned track</span>
-            <span className="labs-track-symbol" aria-hidden="true">
-              ◇
-            </span>
-            <h3>Cybersecurity</h3>
-            <p>
-              This path is not open yet. It will cover defensive analysis,
-              secure configuration, and investigation in a controlled
-              environment.
-            </p>
-            <div className="labs-track-topics">
-              Detection · Hardening · Investigation
-            </div>
-            <strong>Not open yet</strong>
-          </article>
-          <article className="labs-track planned">
-            <span className="labs-badge">Planned track</span>
-            <span className="labs-track-symbol" aria-hidden="true">
-              ⊞
-            </span>
-            <h3>Platform engineering</h3>
-            <p>
-              This path is not open yet. It will cover delivery pipelines,
-              infrastructure automation, and the platforms other engineers use.
-            </p>
-            <div className="labs-track-topics">
-              Infrastructure · Kubernetes · CI/CD
-            </div>
-            <strong>Not open yet</strong>
-          </article>
+          <div className="labs-path-later">
+            <article>
+              <span className="hint" tabIndex={0}>
+                On paper
+                <span className="hint-bubble" role="tooltip">
+                  No exercise is published. The row stays so the map does not pretend the work exists.
+                </span>
+              </span>
+              <h3>Cybersecurity</h3>
+              <p>
+                Defensive analysis, secure configuration, and investigation will be written here. There is no lesson to start.
+              </p>
+            </article>
+            <article>
+              <span className="hint" tabIndex={0}>
+                On paper
+                <span className="hint-bubble" role="tooltip">
+                  Pipelines and infrastructure have no browser lab yet.
+                </span>
+              </span>
+              <h3>Platform engineering</h3>
+              <p>
+                Delivery pipelines, infrastructure automation, and the tools other engineers use to ship are not written yet.
+              </p>
+            </article>
+          </div>
         </div>
       </section>
       <section className="labs-practice-options">
@@ -206,7 +196,12 @@ export default function LabsPage() {
           <h2>Pick the kind of work you have time for.</h2>
         </div>
         <Link href="/sre-labs/coding">
-          <span>About 15 to 35 minutes</span>
+          <span className="hint" tabIndex={0}>
+            About 15 to 35 minutes
+            <span className="hint-bubble" role="tooltip">
+              Most functions take fifteen to thirty-five minutes. The stage moves only after the full suite passes.
+            </span>
+          </span>
           <h3>Practice an SRE coding problem</h3>
           <p>
             The editor runs Go, TypeScript, or Python against the same checks.
@@ -215,15 +210,24 @@ export default function LabsPage() {
           </p>
         </Link>
         <Link href="/sre-labs/observability">
-          <span>A guided course</span>
+          <span className="hint" tabIndex={0}>
+            Eight exercises on a running stack
+            <span className="hint-bubble" role="tooltip">
+              Plan a sitting, not a single function. You use Codespaces or local Docker, then query Prometheus, Grafana, and Jaeger yourself.
+            </span>
+          </span>
           <h3>Run an observable checkout</h3>
           <p>
-            A disposable Codespaces workspace, or a local Docker kit, with
-            telemetry you query yourself.
+            Open a Codespaces workspace, or the local Docker kit, and query the telemetry yourself.
           </p>
         </Link>
         <Link href="/sre-labs#practice-labs">
-          <span>In the browser</span>
+          <span className="hint" tabIndex={0}>
+            About 10 to 20 minutes
+            <span className="hint-bubble" role="tooltip">
+              Each browser lesson is about ten to twenty minutes. Nothing to install.
+            </span>
+          </span>
           <h3>Work an incident</h3>
           <p>
             Cascading failures, capacity, error budgets, and deployment
