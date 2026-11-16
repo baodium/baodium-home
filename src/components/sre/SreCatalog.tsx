@@ -6,7 +6,7 @@ import { ArrowRight, SlidersHorizontal } from "lucide-react";
 import { motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import "@/components/learning/lesson-craft.css";
-import { SRE_LESSONS, type SreLabKey } from "@/lib/sre/catalog";
+import { SRE_LESSONS } from "@/lib/sre/catalog";
 import {
   loadSreProgress,
   sreServerSnapshot,
@@ -14,15 +14,6 @@ import {
 } from "@/lib/sre/progress";
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { ModeTrack } from "@/components/sre/ModeTrack";
-
-const BROWSER_HINTS: Record<SreLabKey, string> = {
-  instrument: "About ten minutes. You add a metric, a span, and a log, then name the hop holding the time.",
-  slo: "About twelve minutes. You judge the window against 99.5 percent. Seventeen misses in a thousand is 98.3 percent.",
-  alert: "About fifteen minutes. You compare four scenes and page only when both windows agree.",
-  cascade: "About twenty minutes. You follow one checkout and change one limit, then rerun the same seed.",
-  capacity: "About fifteen minutes. You hold latency through the surge without turning traffic away.",
-  deployment: "About twelve minutes. You choose the share on the bad release, then take it back.",
-};
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -186,13 +177,8 @@ export function SreCatalog() {
                 <span className="browser-index">{String(index + 1).padStart(2, "0")}</span>
                 <h3>{lab.title}</h3>
                 <p>{lab.summary}</p>
-                <span className="hint" tabIndex={0}>
-                  <span className="hint-label">
-                    {lab.minutes} min · {lab.difficulty}
-                  </span>
-                  <span className="hint-bubble" role="tooltip">
-                    {BROWSER_HINTS[lab.id]}
-                  </span>
+                <span className="browser-time">
+                  {lab.minutes} min · {lab.difficulty}
                 </span>
                 {progress[lab.id]?.completedModes.length ? (
                   <span className="browser-done">Passed on this device</span>

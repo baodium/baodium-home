@@ -37,18 +37,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     concepts: [
       {
         name: "Metric",
-        body: "You plot a metric. From it, you see that checkout slowed. You still cannot name the call inside the checkout that held the time.",
+        body: "Checkout slowed. This record does not name the hop.",
       },
       {
         name: "Span",
-        body: "A span is one hop with a start and an end. When spans share a trace, you see which hop sat inside which caller, and which one accounts for the wait.",
+        body: "One hop, with a start and an end, on the same trace.",
       },
       {
         name: "Structured log",
-        body: "A structured log is an event with fields. You join those fields to the trace, and you connect a timeout or a retry to the span that was open at the time.",
+        body: "Fields you join to the span that was open.",
       },
     ],
-    goal: "Turn on HTTP metrics, the outbound span, trace context, and a structured log, then name the hop holding the extra time.",
+    goal: "Turn the four signals on, then name the hop holding the time.",
     steps: [
       "Run a checkout before the four signals are on, and notice what you cannot name.",
       "Turn on HTTP metrics, the outbound span, trace context, and a structured log.",
@@ -89,18 +89,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     concepts: [
       {
         name: "SLI",
-        body: "The SLI is the measurement. Here a good event is a checkout that succeeds and returns in under 300 milliseconds. Everything else, including a slow success, is a miss.",
+        body: "A good checkout succeeds in under 300 milliseconds. A slow success is a miss.",
       },
       {
         name: "SLO",
-        body: "The SLO is the line. This course uses 99.5 percent. A window meets it only when the measured good events, divided by the events in the window, reach that line.",
+        body: "The line is 99.5 percent of the events in the window.",
       },
       {
         name: "Error budget",
-        body: "The budget is what the SLO leaves over. At 99.5 percent you may miss 5 events in 1,000. Once the misses pass that, the window has spent the budget, whether or not anyone has been paged yet.",
+        body: "You may miss 5 events in 1,000. Past that, the window has spent the budget.",
       },
     ],
-    goal: "Keep the checkout SLO at 99.5 percent, count only a success under 300 milliseconds, and decide whether the window in front of you meets that target.",
+    goal: "Judge the window in front of you against 99.5 percent.",
     steps: [
       "Read the target on the chart before you change anything.",
       "Raise failures or latency until good events fall below 99.5 percent.",
@@ -141,18 +141,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     concepts: [
       {
         name: "Symptom",
-        body: "A symptom is what the customer experienced. Checkout failures and checkout latency are symptoms. CPU on a host is a clue about a machine, and it is not yet a reason to wake someone.",
+        body: "Checkout failures are what the customer hit. CPU is the host.",
       },
       {
         name: "Burn rate",
-        body: "Burn rate is how fast the error budget is being spent compared with the rate that would use it up exactly on time. A high burn over a short window can be a spike. The same burn over a longer window is a customer incident.",
+        body: "How fast the budget is spent. A page waits until both windows agree.",
       },
       {
         name: "Page",
-        body: "You act at once on the sustained checkout failure, the scene where both windows agree. The other scenes can wait.",
+        body: "Wake someone only while customers are still failing.",
       },
     ],
-    goal: "Pick a rule, run it against the four scenes, and page only when you can say what the customer is experiencing and why both windows agree.",
+    goal: "Page only when you can name the customer impact and both windows agree.",
     steps: [
       "Read the four scenes before you pick a rule. Note which ones are about a host, a short spike, missing data, or customers who keep failing.",
       "Select a rule and run it against the scenes.",
@@ -193,18 +193,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     concepts: [
       {
         name: "Slot",
-        body: "A slot is permission to do the provider call. While the call is slow, the slot stays taken. When every slot is taken, the next call waits or is turned away.",
+        body: "Permission for one provider call. A slow call keeps the slot.",
       },
       {
         name: "Retry",
-        body: "A retry is another attempt at work that may already be in flight. It helps when the first attempt was lost. It hurts when the first attempt is still holding a slot, because the retry requests a second one.",
+        body: "A second attempt. It takes another slot if the first call is still running.",
       },
       {
         name: "Deadline",
-        body: "A deadline is the time after which the caller stops waiting. A shorter deadline frees the caller. It does not, by itself, free the slot the provider is still using.",
+        body: "When the caller stops waiting. The provider can still hold the slot.",
       },
     ],
-    goal: "Watch checkout success fall as the provider fills its slots, then change retries, slots, or the deadline and show that the same seed recovers.",
+    goal: "Watch checkout fail, change one limit, and rerun the same seed.",
     steps: [
       "Let the run go until checkout success falls and provider slots are full.",
       "Read one trace from the gateway through to the provider before you change a control.",
@@ -245,18 +245,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     concepts: [
       {
         name: "Queue",
-        body: "The queue is work that has arrived and has not started. Its depth is how much waiting you have stored. Latency follows that wait.",
+        body: "Work that has arrived and has not started. Latency follows that wait.",
       },
       {
         name: "Replica",
-        body: "A replica is another copy of the worker. More replicas finish more work at the same time, until you run out of something else, such as the database.",
+        body: "Another worker. More replicas finish more work at once.",
       },
       {
         name: "Utilization",
-        body: "Utilization is how full the workers are. At 100 percent every worker is busy and new work queues. A scaling rule that watches utilization is trying to add workers before that queue becomes the latency.",
+        body: "How full the workers are. It does not go above 100 percent.",
       },
     ],
-    goal: "Hold checkout latency through a surge. Compare a fixed number of replicas with a utilization rule, and recover without sending traffic away.",
+    goal: "Hold latency through the surge without turning traffic away.",
     steps: [
       "Let the surge run on the starting replica count and watch the queue and the latency move together.",
       "Add replicas by hand and note how far the queue falls.",
@@ -297,18 +297,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     concepts: [
       {
         name: "Exposure",
-        body: "Exposure is the share of traffic sent to the new release. Five percent is a different experiment from fifty. The customer impact scales with that share while the release is faulty.",
+        body: "The share of traffic on the new release.",
       },
       {
         name: "Canary",
-        body: "A canary is the small share you watch before you trust the release with everyone. It is useful only if you look at the customers on it, and only if you can take it back.",
+        body: "A small share you can watch and take back.",
       },
       {
         name: "Stop",
-        body: "Stopping means the bad release stops receiving traffic, or receives less. You stop because the customers on it are failing, not because a deploy pipeline reached the next step.",
+        body: "Take traffic off the release that is failing customers.",
       },
     ],
-    goal: "Send a controlled share of traffic to a faulty release, read the customer impact, and decide when that share should go to zero or the release should be replaced.",
+    goal: "Read the customer impact, then take the share back or replace the release.",
     steps: [
       "Start with a small share and read the failure rate of the customers on the new release.",
       "Raise the share and watch the same fault affect more checkouts.",
@@ -333,6 +333,23 @@ export const SRE_COURSE: SreLessonCraft[] = [
     },
   },
 ];
+
+export function lessonBeats(lesson: SreLessonCraft) {
+  return [
+    ...lesson.concepts.map((concept) => ({
+      title: concept.name,
+      body: concept.body,
+    })),
+    { title: "The work", body: lesson.goal },
+  ];
+}
+
+export function lessonAfter(lesson: SreLessonCraft) {
+  return [
+    ...lesson.takeaways.map((body) => ({ title: "Takeaway", body })),
+    ...lesson.reflection.map((body) => ({ title: "Reflection", body })),
+  ];
+}
 
 export function sreLesson(id: SreLabKey): SreLessonCraft {
   const lesson = SRE_COURSE.find((item) => item.id === id);

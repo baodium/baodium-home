@@ -8,10 +8,10 @@
   text-decoration: underline;
 }
 .course-toolchain {
-  border: 1px solid var(--exp-line-strong);
-  border-radius: 8px;
-  background: var(--exp-panel-raise);
-  padding: 2rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
 }
 .course-toolchain > .product-eyebrow {
   color: var(--exp-faint);
@@ -79,8 +79,7 @@
 }
 .course-catalog-outline ol {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 2.5rem;
+  grid-template-columns: 1fr;
 }
 .course-catalog-outline li {
   border-top: 1px solid var(--exp-line);
@@ -91,20 +90,28 @@
   gap: 1rem;
   padding: 1.2rem 0;
 }
+.course-catalog-outline li a {
+  padding: 1.65rem 0;
+  gap: 1.5rem;
+}
 .course-catalog-outline li a > span {
-  font: 12px var(--font-mono);
-  color: var(--exp-faint);
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.25rem;
+  color: var(--exp-accent-text);
 }
 .course-catalog-outline strong {
   display: block;
-  font-size: 16px;
-  font-weight: 550;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.28;
 }
 .course-catalog-outline small {
   display: block;
   color: var(--exp-muted);
-  font-size: 11px;
-  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  margin-top: 0.35rem;
 }
 .course-catalog-outline li svg {
   margin-left: auto;

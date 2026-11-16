@@ -76,6 +76,89 @@
   color: var(--lab-ink, var(--exp-fg, #241c18));
 }
 
+.lesson-steps {
+  max-width: 44rem;
+  margin-top: 1.25rem;
+}
+.lesson-step {
+  touch-action: pan-y;
+  cursor: grab;
+}
+.lesson-step-count {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--lab-accent, var(--exp-accent-text, #8d3d2c));
+}
+.lesson-step h2 {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--lab-ink, var(--exp-fg, #241c18));
+}
+.lesson-step p {
+  max-width: 38rem;
+  margin: 0.45rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--lab-muted, var(--exp-muted, #5c514a));
+}
+.lesson-step-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.lesson-step-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: auto;
+}
+.lesson-step-dots button {
+  width: 0.45rem;
+  height: 0.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: #d4c8ba;
+  cursor: pointer;
+}
+.lesson-step-dots button[aria-selected="true"] {
+  width: 1.15rem;
+  background: #8d3d2c;
+}
+.lesson-step-nav > button {
+  min-height: 2.25rem;
+  padding: 0 0.2rem;
+  border: 0;
+  background: transparent;
+  color: var(--lab-ink, var(--exp-fg, #241c18));
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lesson-step-nav > button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.lesson-step-nav > button:last-child {
+  color: var(--lab-accent, var(--exp-accent-text, #8d3d2c));
+}
+@keyframes lesson-step-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.lesson-step {
+  animation: lesson-step-in 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-step { animation: none; }
+}
+
 .lesson-close {
   margin-top: 2.75rem;
   padding-top: 1.6rem;

@@ -21,14 +21,9 @@ import {
   type OperationsState,
 } from "@/lib/sre/operations";
 import { recordSreProgress } from "@/lib/sre/progress";
-import {
-  LessonClose,
-  LessonExercise,
-  LessonOutcomes,
-  LessonPlace,
-  LessonTeaching,
-} from "@/components/learning/LessonCraft";
-import { SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import { LessonPlace } from "@/components/learning/LessonCraft";
+import { LessonSteps } from "@/components/learning/LessonSteps";
+import { lessonAfter, lessonBeats, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
 import { seriesPath } from "@/lib/sre/chart";
 
 type Command =
@@ -137,9 +132,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
             minutes={lesson.minutes}
           />
           <h1>{lesson.title}</h1>
-          <LessonOutcomes items={lesson.outcomes} />
-          <LessonTeaching paragraphs={lesson.paragraphs} concepts={lesson.concepts} />
-          <LessonExercise goal={lesson.goal} steps={lesson.steps} />
+          <LessonSteps beats={lessonBeats(lesson)} />
         </div>
         <div className="ops-mode" role="group" aria-label="Learning mode">
           {(["guided", "practice", "challenge"] as const).map((item) => (
@@ -554,11 +547,12 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           )}
         </aside>
       </div>
-      <LessonClose
-        takeaways={lesson.takeaways}
-        reflection={lesson.reflection}
-        next={lesson.next}
-      />
+      <LessonSteps label="After the work" beats={lessonAfter(lesson)} />
+      {lesson.next ? (
+        <p className="lesson-next">
+          <Link href={lesson.next.href}>{lesson.next.label}</Link>
+        </p>
+      ) : null}
     </div>
   );
 }

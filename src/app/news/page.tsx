@@ -25,19 +25,19 @@ export default function NewsPage() {
       <main id="main" className="min-h-[100dvh] bg-[#fbf7f1] px-6 pb-28 pt-28 text-[#241c18] md:px-10 md:pt-32">
         <div className="mx-auto max-w-5xl">
           <p className="text-base font-medium text-[#8d3d2c]">News</p>
-          <h1 className="mt-4 max-w-[16ch] font-[family-name:var(--font-lab-serif)] text-[clamp(2.8rem,6vw,4.6rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+          <h1 className="mt-5 max-w-[18em] font-[family-name:var(--font-lab-serif)] text-[clamp(2.6rem,5vw,4.15rem)] font-medium leading-[1.15] tracking-[-0.02em]">
             Read the published coverage.
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-[#5c514a]">
+          <p className="mt-8 max-w-xl text-xl leading-[1.6] text-[#5c514a]">
             The OAU scholarship, Practical System Design, the dissertation, and Queen Tonight.
           </p>
 
           <Featured story={lead} banner />
           <Featured story={scholarship} reverse />
 
-          <ul className="mt-4 grid gap-x-12 border-t border-[#e6ddd2] md:grid-cols-2">
+          <ul className="mt-8 border-t border-[#e6ddd2]">
             {rest.map((story) => (
-              <li key={story.id} className="border-b border-[#e6ddd2] py-8 md:py-10">
+              <li key={story.id} className="border-b border-[#e6ddd2] py-12 md:py-16">
                 <StoryCard story={story} />
               </li>
             ))}
@@ -59,12 +59,12 @@ function Featured({
   banner?: boolean;
 }) {
   return (
-    <article className="mt-16 border-t border-[#e6ddd2] py-10 md:py-14">
+    <article className="mt-20 border-t border-[#e6ddd2] py-14 md:py-20">
       <div className={banner ? "grid gap-8" : `grid items-center gap-8 md:grid-cols-2 md:gap-12 ${reverse ? "md:[&>a]:order-2" : ""}`}>
         <StoryFigure story={story} banner={banner} />
         <div className={banner ? "max-w-2xl" : ""}>
           <StoryMeta story={story} />
-          <h2 className="mt-3 font-[family-name:var(--font-lab-serif)] text-[clamp(2rem,3vw,2.8rem)] font-medium leading-[1.12] tracking-[-0.03em]">
+          <h2 className="mt-4 font-[family-name:var(--font-lab-serif)] text-[clamp(2rem,3vw,2.7rem)] font-medium leading-[1.2] tracking-[-0.02em]">
             <a href={story.href} target="_blank" rel="noopener noreferrer" className="hover:text-[#8d3d2c]">
               {story.title}
             </a>
@@ -79,16 +79,18 @@ function Featured({
 
 function StoryCard({ story }: { story: NewsStory }) {
   return (
-    <article className="group">
+    <article className="group grid items-start gap-8 md:grid-cols-[minmax(12rem,18rem)_minmax(0,1fr)] md:gap-14">
       <StoryFigure story={story} />
-      <StoryMeta story={story} />
-      <h2 className="mt-3 font-[family-name:var(--font-lab-serif)] text-[1.7rem] font-medium leading-tight tracking-[-0.02em]">
-        <a href={story.href} target="_blank" rel="noopener noreferrer" className="transition-colors group-hover:text-[#8d3d2c]">
-          {story.title}
-        </a>
-      </h2>
-      <p className="mt-3 text-base leading-relaxed text-[#5c514a]">{story.blurb}</p>
-      <StoryLinks story={story} />
+      <div>
+        <StoryMeta story={story} />
+        <h2 className="mt-4 max-w-3xl font-[family-name:var(--font-lab-serif)] text-[clamp(1.85rem,2.4vw,2.35rem)] font-medium leading-[1.2] tracking-[-0.02em]">
+          <a href={story.href} target="_blank" rel="noopener noreferrer" className="transition-colors group-hover:text-[#8d3d2c]">
+            {story.title}
+          </a>
+        </h2>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[#5c514a]">{story.blurb}</p>
+        <StoryLinks story={story} />
+      </div>
     </article>
   );
 }
@@ -132,7 +134,7 @@ function StoryFigure({ story, banner = false }: { story: NewsStory; banner?: boo
         className={`w-full ${
           banner || story.fit === "contain"
             ? "h-auto object-contain"
-            : "h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            : "h-full object-cover object-top"
         }`}
       />
     </a>

@@ -77,14 +77,11 @@ export function BookToolbar({
       >
             <button
               type="button"
-              className="icon-btn hint hint-plain lg:hidden"
+              className="icon-btn lg:hidden"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open table of contents"
             >
               <List className="h-4 w-4" aria-hidden="true" />
-              <span className="hint-bubble" role="tooltip">
-                Open the chapter list.
-              </span>
             </button>
             <p className="min-w-0 flex-1 truncate font-serif text-base italic text-[var(--reader-muted)]">
               {chapterTitle ?? book.title}
@@ -106,20 +103,17 @@ export function BookToolbar({
                 type="button"
                 data-reader-settings-trigger
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="icon-btn hint hint-plain"
+                className="icon-btn"
                 data-open={settingsOpen ? "true" : "false"}
                 aria-label="Reading settings"
                 aria-expanded={settingsOpen}
               >
                 <Type className="h-4 w-4" aria-hidden="true" />
-                <span className="hint-bubble" role="tooltip">
-                  Change the type size, the measure, and the page color.
-                </span>
               </button>
               <button
                 type="button"
                 onClick={shareChapter}
-                className="icon-btn hint hint-plain"
+                className="icon-btn"
                 aria-label={copied ? "Chapter link copied" : "Share chapter"}
               >
                 {copied ? (
@@ -127,22 +121,14 @@ export function BookToolbar({
                 ) : (
                   <Share2 className="h-4 w-4" aria-hidden="true" />
                 )}
-                <span className="hint-bubble" role="tooltip">
-                  {copied
-                    ? "The chapter link is on the clipboard."
-                    : "Copy a link to this chapter, or pass it to the share sheet."}
-                </span>
               </button>
               {problemHref ? (
                 <a
                   href={problemHref}
-                  className="icon-btn hint hint-plain"
+                  className="icon-btn"
                   aria-label={`Report a problem in ${chapterTitle}`}
                 >
                   <Flag className="h-4 w-4" aria-hidden="true" />
-                  <span className="hint-bubble" role="tooltip">
-                    Email a correction for this chapter.
-                  </span>
                 </a>
               ) : null}
               <a

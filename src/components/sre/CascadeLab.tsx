@@ -12,14 +12,9 @@ import {
 import { CascadeTrends } from "@/components/sre/CascadeTrends";
 import { CascadePortrait } from "@/components/sre/CascadePortrait";
 import { LaboratoryShell } from "@/components/sre/LaboratoryShell";
-import {
-  LessonClose,
-  LessonExercise,
-  LessonOutcomes,
-  LessonPlace,
-  LessonTeaching,
-} from "@/components/learning/LessonCraft";
-import { SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import { LessonPlace } from "@/components/learning/LessonCraft";
+import { LessonSteps } from "@/components/learning/LessonSteps";
+import { lessonAfter, lessonBeats, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
 import {
   advanceEngine,
   DEFAULT_TICK_SEC,
@@ -383,9 +378,7 @@ function CascadeSession({
               ? "Checkout success collapsed."
               : lesson.title}
           </h1>
-          <LessonOutcomes items={lesson.outcomes} />
-          <LessonTeaching paragraphs={lesson.paragraphs} concepts={lesson.concepts} />
-          <LessonExercise goal={lesson.goal} steps={lesson.steps} />
+          <LessonSteps beats={lessonBeats(lesson)} />
           <p className="laboratory-status">
             {grade
               ? grade.ok
@@ -980,11 +973,12 @@ function CascadeSession({
         </div>
       }
     />
-    <LessonClose
-      takeaways={lesson.takeaways}
-      reflection={lesson.reflection}
-      next={lesson.next}
-    />
+    <LessonSteps label="After the work" beats={lessonAfter(lesson)} />
+    {lesson.next ? (
+      <p className="lesson-next">
+        <Link href={lesson.next.href}>{lesson.next.label}</Link>
+      </p>
+    ) : null}
     </>
   );
 }
