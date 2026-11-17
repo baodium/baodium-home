@@ -30,28 +30,28 @@ export const chapter1Scenario: ChapterScenario = {
     {
       id: "inspect",
       letter: "A",
-      title: "Inspect the feature",
+      title: "The flag is off, and the pool is idle",
       body: "Run get_product_page. Catalog is fetched on Product Page and does not take a connection. With the flag off, the handler does not call Recommendation, so the page has no recommendation row and the pool stays idle. The row appears when the flag lets a request through and the call is still in the listing. Comment out that call and the pool is not asked for a slot.",
       require: "toggle_preview",
     },
     {
       id: "deploy",
       letter: "B",
-      title: "Deploy with the flag off",
+      title: "The code is live at 0 percent",
       body: "Ship the code at 0% exposure. Deploy is not enable: the binary can be live while nobody is hashed into the cohort. You will raise exposure later without another deploy.",
       require: "deploy_zero",
     },
     {
       id: "trace",
       letter: "C",
-      title: "Trace one request",
+      title: "One request borrows a connection",
       body: "Send one personalized request. Watch Product Page call Recommendation, then a pool slot acquire, the database hold, and release. Correct code still borrows a connection from the finite pool the home page and checkout already use.",
       require: "trace_request",
     },
     {
       id: "exposure",
       letter: "D",
-      title: "Increase exposure",
+      title: "Exposure, then the pool",
       body: "Raise exposure to 5%, then 25%. Stable hashing keeps the same users in or out, and the new cohort reaches arrivals after a short delay. Pool demand is the exposed arrival rate times the recommendation hold. At 25% of about 80 req/s the pool sees about 20 acquires per second. Catalog lookups stay on Product Page. Predict before 25%, then check the measured outcome.",
       prediction:
         "At 25% with ~80 req/s and ~70ms holds for exposed users, will demand stay under 40 slots?",
@@ -60,7 +60,7 @@ export const chapter1Scenario: ChapterScenario = {
     {
       id: "saturation",
       letter: "E",
-      title: "Saturation",
+      title: "All 40 connections are assigned",
       body: "Traffic climbs or holds stretch. Slots fill; waiters appear beside the grid. Busy never exceeds 40. Overflow waits. In the incident, all 40 connections were assigned, about 80 requests were pending, query time stayed near baseline, and acquire p99 was about 600 ms. The delay is the wait for a connection, not the SQL.",
       prediction:
         "Before the surge settles: what happens to new vs in-flight work if you disable the flag?",
@@ -69,21 +69,21 @@ export const chapter1Scenario: ChapterScenario = {
     {
       id: "investigate",
       letter: "F",
-      title: "Investigate",
+      title: "The query, and the wait beside it",
       body: "Pause and read the system. Compare the catalog path with the recommendation path. Note pending acquisitions, acquire wait, and whether the query stayed near baseline. The delay you are looking for is the wait for a connection.",
       require: "none",
     },
     {
       id: "mitigate",
       letter: "G",
-      title: "Mitigate",
+      title: "A response, while the pool is full",
       body: "Choose a response. Pause freezes exposure at the current percent, so the cohort cannot grow. Disable stops new recommendation calls while holds already taken finish or time out. Investigate leaves the pressure running so you can watch the queue.",
       require: "decision",
     },
     {
       id: "review",
       letter: "H",
-      title: "Review",
+      title: "What the flag changed",
       body: "Name the shared resource: Recommendation’s 40-connection pool, already used by the home page and checkout. Say what disable did to new requests versus work already holding a connection. The design that followed capped each Product Page instance at 16 in-flight recommendation calls and about 150 ms. Then open Practice or Challenge with the same engine.",
       require: "none",
     },
@@ -97,7 +97,7 @@ export const chapter1Scenario: ChapterScenario = {
       "You chose to keep investigating while pressure continued. Active connections stayed capped at 40. Pending grew because the arrival rate times the hold exceeded the pool. Correct code still waited because every exposed request acquired from Recommendation’s finite pool. Without pausing or disabling, new recommendation traffic kept competing with in-flight work. Acquire wait stays high. A timeout only ends a wait that already started.",
   },
   challenge: {
-    title: "Can you clear the pool under live pressure?",
+    title: "Pending acquisitions beside a full pool",
     objective:
       "Waiting requests are stacking beside the 40-connection pool. Pending acquisitions should finish, and acquire time should come off the queue. The query does not have to change.",
     criteria: {

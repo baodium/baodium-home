@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import scenes from "../../../../content/experience/ch01/story/scenes.json";
 
 export type StoryBeat = (typeof scenes.beats)[number];
@@ -13,7 +13,7 @@ function inline(text: string): ReactNode[] {
     }
     if (part.startsWith("_") && part.endsWith("_")) {
       return (
-        <em key={index} className="text-[#6f625a]">
+        <em key={index} className="text-[#3e342c]">
           {part.slice(1, -1)}
         </em>
       );
@@ -33,6 +33,9 @@ export function StoryPanel({
   onLiveLab,
   onBack,
   onNext,
+  onJump,
+  index,
+  total,
   backDisabled,
   nextLabel,
 }: {
@@ -46,16 +49,38 @@ export function StoryPanel({
   onLiveLab: () => void;
   onBack: () => void;
   onNext: () => void;
+  onJump: (index: number) => void;
+  index: number;
+  total: number;
   backDisabled: boolean;
   nextLabel: string;
 }) {
+  const startX = useRef<number | null>(null);
   return (
-    <section className="flex min-h-[28rem] flex-col rounded-2xl border border-[#e6ddd2] bg-[#fffdf9] p-6 text-[#241c18] sm:p-7" aria-live="polite">
+    <section className="book-story lesson-steps" aria-label="Lesson">
+      <div
+        className="lesson-step"
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse" && event.button !== 0) return;
+          startX.current = event.clientX;
+        }}
+        onPointerUp={(event) => {
+          if (startX.current == null) return;
+          const delta = event.clientX - startX.current;
+          startX.current = null;
+          if (delta <= -56) onNext();
+          if (delta >= 56 && !backDisabled) onBack();
+        }}
+        onPointerCancel={() => {
+          startX.current = null;
+        }}
+      >
       {beat ? (
         <>
-          <p className="font-mono text-[0.75rem] uppercase tracking-[0.12em] text-[#6f625a]">{beat.label}</p>
-          <h2 className="lab-title mt-3 text-[1.7rem] leading-snug tracking-[-0.02em]">{beat.title}</h2>
-          <div className="mt-5 space-y-4 text-lg leading-relaxed">
+          <p className="lesson-step-count">{index + 1} of {total}</p>
+          <p className="book-story-label">{beat.label}</p>
+          <h2 className="lab-title">{beat.title}</h2>
+          <div className="book-story-body">
             {beat.body_md.split("\n\n").map((paragraph) => {
               const trimmed = paragraph.trim();
               if (trimmed.startsWith("[button:")) {
@@ -117,20 +142,24 @@ export function StoryPanel({
           ) : null}
         </>
       ) : null}
-      <div className="mt-auto flex gap-2 pt-4">
-        <button
-          type="button"
-          className="rounded-lg border border-[#e6ddd2] bg-white px-4 py-2.5 text-[0.95rem] disabled:opacity-40"
-          onClick={onBack}
-          disabled={backDisabled}
-        >
+      </div>
+      <div className="lesson-step-nav">
+        <div className="lesson-step-dots" role="tablist" aria-label="Lesson">
+          {Array.from({ length: total }, (_, itemIndex) => (
+            <button
+              key={itemIndex}
+              type="button"
+              role="tab"
+              aria-selected={itemIndex === index}
+              aria-label={`Step ${itemIndex + 1}`}
+              onClick={() => onJump(itemIndex)}
+            />
+          ))}
+        </div>
+        <button type="button" onClick={onBack} disabled={backDisabled}>
           Back
         </button>
-        <button
-          type="button"
-          className="rounded-lg bg-[#b4532a] px-4 py-2.5 text-[0.95rem] font-semibold text-white"
-          onClick={onNext}
-        >
+        <button type="button" onClick={onNext}>
           {nextLabel}
         </button>
       </div>

@@ -27,49 +27,49 @@ export const chapter3Steps = [
   {
     id: "inspect",
     letter: "A",
-    title: "Follow one checkout",
+    title: "A checkout is about to leave",
     body: "A checkout is about to leave the client. Follow it so the ledger row and the path stay on the same charge.",
   },
   {
     id: "fit",
     letter: "B",
-    title: "Watch it finish",
+    title: "The provider answers in time",
     body: "The provider answers before the client gives up. One charge lands, and the client sees it.",
   },
   {
     id: "slow",
     letter: "C",
-    title: "Slow the provider",
+    title: "The provider is slower than the client",
     body: `Set the provider to ${slowSec} seconds. The client still waits ${timeoutSec} second. A checkout already sent keeps the provider time it started with. Wait until a client stops waiting.`,
   },
   {
     id: "duplicate",
     letter: "D",
-    title: "See the second charge",
+    title: "A second charge settles",
     body: "The retry leaves with a new operation id. Wait until the provider settles it. That settlement is a second charge, and the first timeout stays unresolved.",
   },
   {
     id: "decide",
     letter: "E",
-    title: "Choose the identity on the retry",
+    title: "The retry’s operation id",
     body: "A retry that has not left yet can still carry the original operation id. A retry that has already left keeps the id it went out with.",
   },
   {
     id: "identity",
     letter: "F",
-    title: "Let the stored charge come back",
+    title: "The stored charge comes back",
     body: "Wait for a checkout whose retry carried the original operation id. The provider returns the stored charge. Duplicate charges stop rising.",
   },
   {
     id: "record",
     letter: "G",
-    title: "Write the notification with the charge",
+    title: "The receipt, written with the charge",
     body: "The notification is chosen when the charge is created. Write it in that same transaction, then wait for a charge that records it. Lost notifications stop rising.",
   },
   {
     id: "review",
     letter: "H",
-    title: "Read the ledger",
+    title: "The ledger for this run",
     body: "The live counts, the ledger, and the path are the same run. Charges that already landed stay on the ledger. Practice starts a fresh run with the slow provider.",
   },
 ] as const;
@@ -77,7 +77,7 @@ export const chapter3Steps = [
 export type Chapter3StepId = (typeof chapter3Steps)[number]["id"];
 
 export const chapter3Copy = {
-  h1: "Can you charge the card once when the provider answers late?",
+  h1: "The provider answers after the client has stopped",
   situation:
     "A customer gave up on checkout before the card provider answered. The charge may have landed. A second try with a new identity took the money again, and the receipt never left because the client had not seen success.",
   objective:

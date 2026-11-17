@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 const labs = [
-  { path: "/system-design/experience/chapter-2", heading: /release the connection/i },
-  { path: "/system-design/experience/chapter-4", heading: /fraud provider/i },
+  { path: "/system-design/experience/chapter-2", heading: /payload is built/i },
+  { path: "/system-design/experience/chapter-4", heading: /fraud call/i },
   { path: "/system-design/experience/chapter-5", heading: /product-metadata/i },
-  { path: "/system-design/experience/chapter-7", heading: /address that was just saved/i },
+  { path: "/system-design/experience/chapter-7", heading: /old address/i },
   { path: "/system-design/experience/chapter-12", heading: /notification task/i },
   { path: "/system-design/experience/chapter-14", heading: /17 connections/i },
 ];
@@ -23,7 +23,7 @@ test.describe("short chapter labs", () => {
 
   test("labs index lists the later chapters", async ({ page }) => {
     await page.goto("/system-design/experience");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/operate the chapter/i);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/production scenario/i);
     await expect(page.getByRole("link", { name: /Replicas, Partitions, and Shards/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Event-Driven Systems/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Designing From Production Experience/i })).toBeVisible();

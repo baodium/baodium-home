@@ -1,3 +1,34 @@
+.book-lesson {
+  --lab-ink: #241c18;
+  --lab-muted: #3e342c;
+  --lab-accent: #8d3d2c;
+  background: #f6f1ea;
+  color: #241c18;
+}
+
+.book-story-label {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #8d3d2c;
+}
+
+.book-story-body {
+  margin-top: 0.8rem;
+  color: #3e342c;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.book-story-body p + p {
+  margin-top: 0.75rem;
+}
+
+.book-lesson-work {
+  align-items: start;
+}
+
 .lesson-place {
   margin: 0 0 0.7rem;
   font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;

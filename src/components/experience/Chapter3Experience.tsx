@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { ChapterPlate } from "@/components/learning/ChapterPlate";
 import { LearningWorkbench } from "@/components/learning/LearningWorkbench";
 import { IdempotencyGraph } from "@/components/experience/IdempotencyGraph";
-import { LabIntro } from "@/components/experience/LabIntro";
 import { RunningCode } from "@/components/experience/RunningCode";
 import { chapter3Program } from "@/lib/experience/running-code";
 import { SimControls } from "@/components/experience/SimControls";
@@ -24,12 +23,9 @@ import {
 } from "@/lib/experience/idempotency/engine";
 import { readIdempotency, type IdempotencyReadout } from "@/lib/experience/idempotency/readout";
 import { chapter3Copy, chapter3Steps, type Chapter3StepId } from "@/lib/experience/scenarios/chapter-3";
-import {
-  LessonClose,
-  LessonOutcomes,
-  LessonPlace,
-  LessonTeaching,
-} from "@/components/learning/LessonCraft";
+import { LessonPlace } from "@/components/learning/LessonCraft";
+import { LessonSteps } from "@/components/learning/LessonSteps";
+import Link from "next/link";
 import { markChapterFinished, markChapterOpened } from "@/lib/learning/directory-progress";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -124,71 +120,33 @@ export function Chapter3Experience() {
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div className="min-w-0 max-w-3xl flex-1">
           <LessonPlace course="Book labs" index={2} total={2} minutes={15} />
-          <p className="mt-1 text-[1.05rem] leading-relaxed text-[color:var(--exp-muted)]">
+          <p className="mt-1 text-[1.05rem] leading-relaxed text-[color:var(--exp-fg)]">
             Chapter 3, a late charge.
           </p>
-          <h1 className="mt-3 font-serif text-[clamp(1.8rem,4vw,2.7rem)] leading-[1.16] tracking-[-0.02em] text-[color:var(--exp-fg)]">
+          <h1 className="lab-title mt-3 max-w-[16em] text-[clamp(2.15rem,3.4vw,3.05rem)] leading-[1.22] tracking-[-0.02em] text-[color:var(--exp-fg)]">
             {chapter3Copy.h1}
           </h1>
-          <LessonOutcomes
-            items={[
-              "Say what the client knew after its timeout, and what the provider may already have done.",
-              "Show which retry created a second charge, and which retry received the stored one.",
-              "Put the receipt with the charge at settlement, not after the client has already left.",
-            ]}
-          />
-          <LessonTeaching
-            paragraphs={[
-              chapter3Copy.situation,
-              "The client’s timeout is not the provider’s outcome. The charge may already have landed. A retry that invents a new operation id starts a second charge. A retry that repeats the original id is asking for the charge that was stored. The receipt has to be written with that charge, or it is a payment nobody can prove.",
-            ]}
-            concepts={[
+          <LessonSteps
+            beats={[
               {
-                name: "Unresolved",
-                body: "Unresolved means the client stopped waiting and never received the result of the original operation. It does not mean the provider stopped.",
+                title: "The client stopped waiting",
+                body: "The provider may still settle the charge. The timeout is not the provider’s outcome.",
               },
               {
-                name: "Operation id",
-                body: "The operation id is the name of one attempt to charge. Reusing it asks for the stored result. A new id is a new charge, even when the customer thinks it is the same checkout.",
+                title: "The retry went out with a new operation id",
+                body: "That settlement is a second charge. The first timeout stays unresolved.",
               },
               {
-                name: "Receipt",
-                body: "The receipt is the record written with the charge. If it is written later, a charge can exist with no proof the customer was told. This lab writes it at settlement or not at all.",
+                title: "The receipt belongs with the charge",
+                body: "Written later, the charge can exist with no proof the customer was told.",
               },
             ]}
           />
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-faint)]">
-            {chapter3Copy.approximation}
-          </p>
         </div>
         <ChapterPlate chapter={3} sizes="200px" className="hidden h-28 w-44 sm:block" />
       </header>
 
-      <div className="mt-6 space-y-4">
-        <div className="exp-progress-track" role="list" aria-label="Guided progress">
-          {chapter3Steps.map((item, index) => {
-            const done = mode !== "guided" || index < stepIndex;
-            const active = mode === "guided" && index === stepIndex;
-            return (
-              <div
-                key={item.id}
-                role="listitem"
-                className="exp-progress-dot"
-                data-done={done ? "true" : "false"}
-                data-active={active ? "true" : "false"}
-                title={`${item.letter}. ${item.title}`}
-                aria-label={`${item.letter}. ${item.title}${done ? ", done" : active ? ", current" : ""}`}
-              />
-            );
-          })}
-        </div>
-        <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">
-          {mode === "practice"
-            ? "Practice"
-            : mode === "challenge"
-              ? "Challenge"
-              : `Step ${stepIndex + 1} of ${chapter3Steps.length} · ${step.letter}. ${step.title}`}
-        </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <Segmented<IdempotencyMode>
             label="Lab mode"
@@ -241,114 +199,8 @@ export function Chapter3Experience() {
         </div>
       </div>
 
-      {mode === "guided" ? (
-        <section className="exp-panel mt-6" aria-label={step.title}>
-          <p className="exp-kicker">
-            {step.letter}. {step.title}
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">{step.body}</p>
-          {stepId === "inspect" ? (
-            <button type="button" className="exp-btn exp-btn-primary mt-4" onClick={follow} disabled={read.checkoutsSent < 1}>
-              Follow this checkout
-            </button>
-          ) : null}
-          {stepId === "slow" ? (
-            <button
-              type="button"
-              className="exp-btn exp-btn-primary mt-4"
-              onClick={() => {
-                apply((engine) => setIdempotencyControls(engine, { providerMs: SLOW_PROVIDER_MS }));
-              }}
-            >
-              Slow the provider
-            </button>
-          ) : null}
-          {stepId === "decide" ? (
-            <div className="mt-4 flex flex-col gap-2">
-              <button
-                type="button"
-                className={`exp-btn w-full justify-start ${read.controls.reuseOperationId ? "exp-btn-primary" : "exp-btn-ghost"}`}
-                onClick={() => {
-                  setDecided(true);
-                  apply((engine) => setIdempotencyControls(engine, { reuseOperationId: true }));
-                }}
-              >
-                Reuse the operation id
-              </button>
-              <button
-                type="button"
-                className={`exp-btn w-full justify-start ${read.controls.reuseOperationId ? "exp-btn-ghost" : "exp-btn-primary"}`}
-                onClick={() => {
-                  apply((engine) => setIdempotencyControls(engine, { reuseOperationId: false }));
-                }}
-              >
-                Leave a new id on the retry
-              </button>
-            </div>
-          ) : null}
-          {stepId === "record" ? (
-            <button
-              type="button"
-              className="exp-btn exp-btn-primary mt-4"
-              onClick={() => {
-                apply((engine) => setIdempotencyControls(engine, { outbox: true }));
-              }}
-            >
-              Write the notification with the charge
-            </button>
-          ) : null}
-          {stepId === "review" ? (
-            <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-fg)]">
-              {chapter3Copy.review.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-          ) : null}
-          <button
-            type="button"
-            className="exp-btn exp-btn-solid mt-5"
-            disabled={!canContinue(stepId, read)}
-            onClick={() => {
-              if (stepId === "review") {
-                setDecided(true);
-                rebuild("practice");
-                return;
-              }
-              const next = chapter3Steps[stepIndex + 1];
-              if (next) setStepId(next.id);
-            }}
-          >
-            {stepId === "review" ? "Open practice" : "Continue"}
-          </button>
-        </section>
-      ) : null}
-
-      {mode === "challenge" ? (
-        <section className="exp-panel mt-6">
-          <p className="exp-kicker">Challenge</p>
-          <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">{chapter3Copy.challenge.title}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">{chapter3Copy.challenge.situation}</p>
-          <div className="mt-4 space-y-3">
-            <div>
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">Your objective</p>
-              <p className="mt-1 text-sm text-[color:var(--exp-fg)]">{chapter3Copy.challenge.objective}</p>
-            </div>
-            <div>
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-[color:var(--exp-faint)]">Getting started</p>
-              <p className="mt-1 text-sm text-[color:var(--exp-muted)]">{chapter3Copy.challenge.gettingStarted}</p>
-            </div>
-            <p className="text-sm text-[color:var(--exp-fg)]">
-              {read.challengePassed
-                ? `Passed. Clean streak ${read.cleanStreak}.`
-                : read.challengeFailed
-                  ? `Time ran out. Clean streak ${read.cleanStreak} of ${read.window}.`
-                  : `${(read.remainingMs / 1000).toFixed(1)} seconds left. Clean streak ${read.cleanStreak} of ${read.window}.`}
-            </p>
-          </div>
-        </section>
-      ) : null}
-
       <LearningWorkbench
+        className="!mt-5"
         canvas={
           <>
             <IdempotencyGraph read={read} reducedMotion={reduced} />
@@ -377,7 +229,7 @@ export function Chapter3Experience() {
             />
             <section className="exp-panel" aria-label="Live metrics">
               <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">Live metrics</h2>
-              <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{read.narration}</p>
+              <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-fg)]">{read.narration}</p>
               <dl className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
                 <Metric label="Checkouts sent" value={read.checkoutsSent} />
                 <Metric label="Unique charges" value={read.uniqueCharges} />
@@ -392,16 +244,102 @@ export function Chapter3Experience() {
         }
         rail={
           <>
-            <LabIntro
-              embedded
-              challenge={chapter3Copy.h1}
-              situation={chapter3Copy.situation}
-              objective={chapter3Copy.objective}
-              terms={chapter3Copy.terms}
-              explore={chapter3Copy.explore}
-              gettingStarted={chapter3Copy.gettingStarted}
-            />
-            {mode === "guided" ? null : (
+            {mode === "guided" ? (
+              <section className="exp-panel" aria-label={step.title}>
+                <p className="text-[1.05rem] font-semibold text-[color:var(--exp-fg)]">
+                  Step {stepIndex + 1} of {chapter3Steps.length}
+                </p>
+                <h2 className="lesson-rail-title">{step.title}</h2>
+                <p className="mt-2 text-[1.02rem] leading-relaxed text-[color:var(--exp-fg)]">{step.body}</p>
+                {stepId === "inspect" ? (
+                  <button type="button" className="exp-btn exp-btn-primary mt-4" onClick={follow} disabled={read.checkoutsSent < 1}>
+                    Follow this checkout
+                  </button>
+                ) : null}
+                {stepId === "slow" ? (
+                  <button
+                    type="button"
+                    className="exp-btn exp-btn-primary mt-4"
+                    onClick={() => {
+                      apply((engine) => setIdempotencyControls(engine, { providerMs: SLOW_PROVIDER_MS }));
+                    }}
+                  >
+                    Slow the provider
+                  </button>
+                ) : null}
+                {stepId === "decide" ? (
+                  <div className="mt-4 flex flex-col gap-2">
+                    <button
+                      type="button"
+                      className={`exp-btn w-full justify-start ${read.controls.reuseOperationId ? "exp-btn-primary" : "exp-btn-ghost"}`}
+                      onClick={() => {
+                        setDecided(true);
+                        apply((engine) => setIdempotencyControls(engine, { reuseOperationId: true }));
+                      }}
+                    >
+                      Reuse the operation id
+                    </button>
+                    <button
+                      type="button"
+                      className={`exp-btn w-full justify-start ${read.controls.reuseOperationId ? "exp-btn-ghost" : "exp-btn-primary"}`}
+                      onClick={() => {
+                        apply((engine) => setIdempotencyControls(engine, { reuseOperationId: false }));
+                      }}
+                    >
+                      Leave a new id on the retry
+                    </button>
+                  </div>
+                ) : null}
+                {stepId === "record" ? (
+                  <button
+                    type="button"
+                    className="exp-btn exp-btn-primary mt-4"
+                    onClick={() => {
+                      apply((engine) => setIdempotencyControls(engine, { outbox: true }));
+                    }}
+                  >
+                    Write the notification with the charge
+                  </button>
+                ) : null}
+                {stepId === "review" ? (
+                  <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--exp-fg)]">
+                    {chapter3Copy.review.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                ) : null}
+                <button
+                  type="button"
+                  className="exp-btn exp-btn-solid mt-5"
+                  disabled={!canContinue(stepId, read)}
+                  onClick={() => {
+                    if (stepId === "review") {
+                      setDecided(true);
+                      rebuild("practice");
+                      return;
+                    }
+                    const next = chapter3Steps[stepIndex + 1];
+                    if (next) setStepId(next.id);
+                  }}
+                >
+                  {stepId === "review" ? "Open practice" : "Continue"}
+                </button>
+              </section>
+            ) : mode === "challenge" ? (
+              <section className="exp-panel">
+                <p className="text-[1.05rem] font-semibold text-[color:var(--exp-fg)]">Challenge</p>
+                <h2 className="lesson-rail-title">{chapter3Copy.challenge.title}</h2>
+                <p className="mt-2 text-[1.02rem] leading-relaxed text-[color:var(--exp-fg)]">{chapter3Copy.challenge.situation}</p>
+                <p className="mt-3 text-[1.02rem] leading-relaxed text-[color:var(--exp-fg)]">{chapter3Copy.challenge.objective}</p>
+                <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-fg)]">
+                  {read.challengePassed
+                    ? `Passed. Clean streak ${read.cleanStreak}.`
+                    : read.challengeFailed
+                      ? `Time ran out. Clean streak ${read.cleanStreak} of ${read.window}.`
+                      : `${(read.remainingMs / 1000).toFixed(1)} seconds left. Clean streak ${read.cleanStreak} of ${read.window}.`}
+                </p>
+              </section>
+            ) : (
               <ControlsPanel
                 mode={mode}
                 read={read}
@@ -411,23 +349,27 @@ export function Chapter3Experience() {
                 }}
               />
             )}
+            <p className="text-sm leading-relaxed text-[color:var(--exp-fg)]">{chapter3Copy.approximation}</p>
           </>
         }
       />
-      <LessonClose
-        takeaways={chapter3Copy.review}
-        reflection={[
-          "What did the client know at the timeout, and what did the provider still do after that?",
-          "Which retry created the second charge, and what was different about its operation id?",
-          "Where did the receipt have to be written for it to survive a client that had already left?",
+      <LessonSteps
+        label="After the lesson"
+        beats={[
+          ...chapter3Copy.review.map((title) => ({ title, body: "" })),
+          {
+            title: "What did the client know at the timeout, and what did the provider still do after that?",
+            body: "",
+          },
+          {
+            title: "Which retry created the second charge, and what was different about its operation id?",
+            body: "",
+          },
         ]}
-        next={{
-          href: "/sre-labs/instrument",
-          label: "SRE lesson 1, instrument a service",
-          bridge:
-            "Chapter 3 is the last full lab in the book. On the SRE path you name the hop, spend a 99.5 percent budget, and decide when a failure should page.",
-        }}
       />
+      <p className="lesson-next">
+        <Link href="/sre-labs/instrument">Which call made checkout slow</Link>
+      </p>
     </div>
   );
 }

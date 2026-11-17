@@ -108,10 +108,10 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 max-w-3xl flex-1">
           <p className="exp-kicker">Labs / Chapter {lab.number}</p>
-          <h1 className="mt-2 font-serif text-[clamp(1.85rem,4vw,2.7rem)] leading-[1.08] tracking-[-0.03em] text-[color:var(--exp-fg)]">
+          <h1 className="lab-title mt-2 max-w-[16em] text-[clamp(2.05rem,3.4vw,2.9rem)] leading-[1.22] tracking-[-0.02em] text-[color:var(--exp-fg)]">
             {lab.h1}
           </h1>
-          <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-[color:var(--exp-muted)]">
+          <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-[color:var(--exp-fg)]">
             {lab.gettingStarted}
           </p>
         </div>

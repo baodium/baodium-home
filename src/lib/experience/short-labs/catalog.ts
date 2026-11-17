@@ -17,7 +17,7 @@ export const SHORT_LABS: ShortLab[] = [
     number: 2,
     title: manuscriptTitle("chapter-2"),
     durationMin: 8,
-    h1: "Can you release the connection before the payload is built?",
+    h1: "The connection stays held while the payload is built",
     situation: [
       "Recommendation Service allows 40 connections on each instance. About 400 lookups a second each hold a connection for about 70 milliseconds. Little's Law says the average number busy is the rate times that hold: 400 × 0.070 = 28, with 12 connections left for a burst.",
       "The first handler builds the payload while the connection is already assigned, so that work is part of the hold. The second handler builds the payload, then acquires the connection only for the query.",
@@ -109,7 +109,7 @@ with pool.acquire() as conn:
     number: 4,
     title: manuscriptTitle("chapter-4"),
     durationMin: 8,
-    h1: "Can you stop the fraud provider when checkout is out of time?",
+    h1: "Checkout returns while the fraud call is still running",
     situation: [
       "Checkout calls Fraud Service, which asks an external provider to approve, deny, or request review. Before the call, the handler builds a child deadline with a 1,000 ms maximum and reserves time for the work that still has to happen after risk.",
       "If that deadline cannot start, or the outbound permit is missing, the assessment is deferred. If the call is admitted and checkout gives up, the provider keeps working unless cancellation is passed through with the deadline.",
@@ -199,7 +199,7 @@ def evaluate_risk(assessment, request, permit, deadline):
     number: 5,
     title: manuscriptTitle("chapter-5"),
     durationMin: 8,
-    h1: "Can one catalog read fill a missed product-metadata key?",
+    h1: "Every reader loads the missed product-metadata key",
     situation: [
       "Catalog stores product metadata under product-metadata:v1:{product_id}, with a 300 second TTL. A fresh entry is returned from cache. A miss reads catalog_db.fetch_metadata and stores the result.",
       "Concurrent misses each call the database unless one loader is shared. That loader must acquire a source-read permit. If the permit is missing, the loader returns TemporarilyUnavailable instead of calling the database.",
@@ -292,7 +292,7 @@ def get_metadata(key, request):
     number: 7,
     title: manuscriptTitle("chapter-7"),
     durationMin: 8,
-    h1: "Can the next read show the address that was just saved?",
+    h1: "The next read still returns the old address",
     situation: [
       "A customer saves a shipping address. The primary commits the write. The replicas apply the log later, so a read that follows the write can still see the old row.",
       "choose_read_target keeps a replica only when it is available, the lag sample is current, and the policy accepts it. If none qualify and primary fallback is allowed, the read goes to the primary. Otherwise the read is ReadTemporarilyUnavailable. It does not relax the freshness requirement because the replicas are behind.",
@@ -391,7 +391,7 @@ def get_metadata(key, request):
     number: 12,
     title: manuscriptTitle("chapter-12"),
     durationMin: 8,
-    h1: "Can the notification task be created once, then committed?",
+    h1: "The notification task, created once",
     situation: [
       "Order confirmations are built by process_order_event in the notification-task-creator group. The handler claims the message_id inside a transaction, creates the task only on the first delivery, and commits the next offset after that transaction.",
       "order-events has 12 partitions, so consumers beyond that count sit idle. Committing the offset before the task exists loses the message. Skipping the claim makes a redelivery create a second confirmation task.",
@@ -484,7 +484,7 @@ def get_metadata(key, request):
     number: 14,
     title: manuscriptTitle("chapter-14"),
     durationMin: 8,
-    h1: "Can you tell 17 connections from the pools you will actually open?",
+    h1: "17 connections, and the pools that actually open",
     situation: [
       "European Catalog was estimated at 1,440 database reads a second, with a mean connection occupancy of 12 milliseconds. Little's Law gives about 17.3 connections in use.",
       "The planning case adds 25 percent more reads and uses 18 milliseconds: 32.4 connections. At 70 percent utilization that is about 47 across the region. The configuration is four instances with 20 connections each, 80 in total, so that one instance can be down and a free connection on one instance is not assumed to help another.",

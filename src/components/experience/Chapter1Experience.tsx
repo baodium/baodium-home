@@ -40,7 +40,6 @@ import { chapter1Call } from "@/lib/experience/running-code";
 import { ConnectionPoolGrid } from "@/components/experience/ConnectionPoolGrid";
 import { FeatureFlagPanel } from "@/components/experience/FeatureFlagPanel";
 import { GuidedProgress } from "@/components/experience/GuidedProgress";
-import { LabIntro } from "@/components/experience/LabIntro";
 import { LittlesLawCallout } from "@/components/experience/LittlesLawCallout";
 import { LatencyBreakdownChart } from "@/components/experience/LatencyBreakdownChart";
 import { MetricsStrip } from "@/components/experience/MetricsStrip";
@@ -712,15 +711,6 @@ export function Chapter1Experience() {
       <LearningWorkbench
         rail={
           <>
-            <LabIntro
-              embedded
-              challenge="Can you clear pending acquisitions when all 40 connections are assigned?"
-              situation={`${scenario.brief} Product Page still talks to Catalog for the core page. When too many users hit the long path, waiting appears beside the pool even though every query is correct.`}
-              objective="By the end of the guided incident, name the shared resource, explain why waiting showed up, and say what disabling the flag does to new calls versus holds already taken."
-              terms="Acquire wait is the time spent waiting for a free connection before the database hold starts. The query stays near its baseline. Busy connections never exceed 40. Overflow waits."
-              explore="The recommendation call, the feature flag, and the 40-connection pool."
-              gettingStarted="Use Guided for the eight stages. Pause, step, or reset the shared clock anytime. Practice unlocks the levers after your first decision. Challenge starts mid-incident with exact pass and fail numbers, and the intro does not name the fix."
-            />
             <TeachingOverlay
               lesson={lesson}
               live={liveFrame}
@@ -738,14 +728,13 @@ export function Chapter1Experience() {
                   exit={reduced ? undefined : { opacity: 0, y: -6 }}
                   transition={{ duration: reduced ? 0 : 0.35, ease }}
                 >
-                  <p className="exp-kicker">
-                    Step {stepIndex + 1} of {guidedCount || CH1_GUIDED_STAGE_COUNT} ·{" "}
-                    {stepDef.letter}
+                  <p className="text-[1.05rem] font-semibold text-[color:var(--exp-fg)]">
+                    Step {stepIndex + 1} of {guidedCount || CH1_GUIDED_STAGE_COUNT}
                   </p>
-                  <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
+                  <h2 className="lesson-rail-title">
                     {stepDef.title}
                   </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                  <p className="mt-2 text-[1.02rem] leading-relaxed text-[color:var(--exp-fg)]">
                     {stepDef.body}
                   </p>
 

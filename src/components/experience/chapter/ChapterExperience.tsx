@@ -8,11 +8,8 @@ import { LabPanel, useChapter1LabDone } from "@/components/experience/chapter/La
 import { Recap } from "@/components/experience/chapter/Recap";
 import { Stage } from "@/components/experience/chapter/Stage";
 import { StoryPanel, type PredictionId } from "@/components/experience/chapter/StoryPanel";
-import {
-  LessonOutcomes,
-  LessonPlace,
-  LessonTeaching,
-} from "@/components/learning/LessonCraft";
+import { LessonPlace } from "@/components/learning/LessonCraft";
+import { LessonSteps } from "@/components/learning/LessonSteps";
 import { ChapterSimEngine } from "@/lib/experience/ch01/sim";
 import { loadActProgress, saveActProgress } from "@/lib/experience/ch01/progress";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
@@ -54,7 +51,7 @@ type ChapterProps = { killercodaUrl: string; runnerUrl: string; labUrl: string }
 function subscribeMounted() { return () => {}; }
 export function ChapterExperience(props: ChapterProps) {
   const mounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
-  return mounted ? <ChapterSession {...props} /> : <article className="bg-[#f6f1ea] p-12 text-[#241c18]"><h1 className="font-serif text-3xl">{chapter.headline}</h1></article>;
+  return mounted ? <ChapterSession {...props} /> : <article className="book-lesson p-12"><h1 className="lab-title text-3xl">The next page waits on a pool of 40</h1></article>;
 }
 function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
   const reduced = usePrefersReducedMotion();
@@ -154,44 +151,17 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
   };
 
   return (
-    <article className="bg-[#f6f1ea] text-[#241c18]" onKeyDown={onKeyDown}>
-      <header className="mx-auto max-w-[1240px] px-6 pb-8 pt-8 sm:px-10 sm:pt-10">
+    <article className="book-lesson" onKeyDown={onKeyDown}>
+      <header className="mx-auto max-w-[1240px] px-6 pb-2 pt-2 sm:px-10">
         <LessonPlace course="Book labs" index={1} total={2} minutes={20} />
-        <p className="mt-1 text-[1.05rem] leading-relaxed text-[#5c514a]">
+        <p className="mt-1 text-[1.05rem] leading-relaxed text-[#3e342c]">
           Chapter {chapter.number}, {chapter.title}.
         </p>
-        <h1 className="lab-title mt-4 max-w-[18em] text-[clamp(2.15rem,3.4vw,3.05rem)] leading-[1.15] tracking-[-0.02em]">
-          {chapter.headline}
+        <h1 className="lab-title mt-3 max-w-[16em] text-[clamp(2.15rem,3.4vw,3.05rem)] leading-[1.22] tracking-[-0.02em] text-[#241c18]">
+          The next page waits on a pool of 40
         </h1>
-        <LessonOutcomes
-          items={[
-            "Show that requests waited for a connection while the SQL stayed fast.",
-            "Explain why a small share of customers can fill one pool of 40.",
-            "Say what disabling the flag does to new calls, and what it leaves alone.",
-          ]}
-        />
-        <LessonTeaching
-          paragraphs={[
-            "The recommendation row is a small change on the product page. The cost is an extra lookup that takes a connection from a pool of 40 and holds it until the query returns. When too many lookups arrive, the next request waits before any SQL runs. The page is slow. The query is not.",
-            "The walkthrough is about twenty minutes. You see the row as a customer, then the call, then the pool. Guided mode names each stage. Challenge starts with the pool already full and does not name the fix. The store at the end is the same page on real services, when a runner is configured. This page does not invent one.",
-          ]}
-          concepts={[
-            {
-              name: "Acquisition",
-              body: "Acquisition is getting a connection from the pool. The wait you feel is often this wait. Execution is the SQL that runs after a connection is in hand, and in this incident that part stays near its usual time.",
-            },
-            {
-              name: "Exposure",
-              body: "Exposure is the share of customers the flag sends to Recommendation. One percent of customers can still be a large number of lookups, and every lookup asks the same pool.",
-            },
-            {
-              name: "Optional work",
-              body: "The recommendation is optional. It needs a bound, a deadline, and a fallback so a slow lookup cannot hold the product page. The flag is how you stop new lookups without pretending the holds already taken have finished.",
-            },
-          ]}
-        />
       </header>
-      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2.5 px-6 sm:px-10" aria-label="Acts">
+      <nav className="mx-auto flex max-w-[1240px] flex-wrap gap-2 px-6 pt-4 sm:px-10" aria-label="Acts">
         {chapter.acts.map((act, index) => {
           const current = act.id === actId;
           const done = firstCursor(act.id) < cursor || (act.id === "deeper" && labDone);
@@ -203,7 +173,7 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
               className={`rounded-full border px-4 py-2 text-base ${
                 current
                   ? "border-[#241c18] bg-[#241c18] text-white"
-                  : "border-[#e6ddd2] bg-[#fffdf9] text-[#6f625a]"
+                  : "border-[#e6ddd2] bg-[#fffdf9] text-[#3e342c]"
               }`}
               onClick={() => setCursor(firstCursor(act.id))}
             >
@@ -213,7 +183,39 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
           );
         })}
       </nav>
-      <div className="mx-auto grid max-w-[1240px] gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[24rem_minmax(0,1fr)] lg:gap-14">
+      <div className="book-lesson-work mx-auto grid max-w-[1240px] gap-8 px-6 py-6 sm:px-10 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-10">
+        <div className="min-w-0 lg:col-start-2 lg:row-start-1">
+          {step.kind === "operate" ? (
+            <div className="overflow-hidden rounded-xl border border-[#e6ddd2] bg-white">
+              <Chapter1Experience />
+            </div>
+          ) : step.kind === "lab" ? (
+            <LabPanel runnerUrl={runnerUrl} labUrl={labUrl} killercodaUrl={killercodaUrl} />
+          ) : (
+            <>
+              <Stage
+                engine={engine}
+                tick={tick}
+                view={view}
+                mix={mix}
+                reduced={reduced}
+                playing={playing}
+                speed={speed}
+                onView={setView}
+                onTogglePlay={() => setPlaying((value) => !value)}
+                onSpeed={setSpeed}
+                showTimeline={Boolean(beat?.maya) || (step.kind === "beat" && step.index === 5)}
+                showFlagStatus={Boolean(beat && "flagButton" in beat && beat.flagButton)}
+              />
+              {actId === "recap" ? (
+                <Recap
+                  onOperate={() => setCursor(firstCursor("operate"))}
+                  onLiveLab={() => setCursor(firstCursor("deeper"))}
+                />
+              ) : null}
+            </>
+          )}
+        </div>
         <StoryPanel
           beat={
             beat ?? {
@@ -243,41 +245,22 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
             if (cursor === PATH.length - 1) restart();
             else go(cursor + 1);
           }}
+          onJump={go}
+          index={cursor}
+          total={PATH.length}
           backDisabled={cursor === 0}
           nextLabel={cursor === PATH.length - 1 ? "Start over" : "Next"}
         />
-        <div>
-          {step.kind === "operate" ? (
-            <div className="overflow-hidden rounded-xl border border-[#e6ddd2] bg-white">
-              <Chapter1Experience />
-            </div>
-          ) : step.kind === "lab" ? (
-            <LabPanel runnerUrl={runnerUrl} labUrl={labUrl} killercodaUrl={killercodaUrl} />
-          ) : (
-            <>
-              <Stage
-                engine={engine}
-                tick={tick}
-                view={view}
-                mix={mix}
-                reduced={reduced}
-                playing={playing}
-                speed={speed}
-                onView={setView}
-                onTogglePlay={() => setPlaying((value) => !value)}
-                onSpeed={setSpeed}
-                showTimeline={Boolean(beat?.maya) || step.kind === "beat" && step.index === 5}
-                showFlagStatus={Boolean(beat && "flagButton" in beat && beat.flagButton)}
-              />
-              {actId === "recap" ? (
-                <Recap
-                  onOperate={() => setCursor(firstCursor("operate"))}
-                  onLiveLab={() => setCursor(firstCursor("deeper"))}
-                />
-              ) : null}
-            </>
-          )}
-        </div>
+      </div>
+      <div className="mx-auto max-w-[1240px] px-6 pb-12 sm:px-10">
+        <LessonSteps
+          label="After the lesson"
+          beats={[
+            { title: "Requests waited for a connection. The SQL stayed fast.", body: "" },
+            { title: "One percent of customers can still fill one pool of 40.", body: "" },
+            { title: "The flag stops new lookups. Connections already held still finish.", body: "" },
+          ]}
+        />
       </div>
     </article>
   );
