@@ -58,7 +58,7 @@ export function SreCatalog() {
       <header className="catalog-hero">
         <div className="catalog-heading">
           <p className="product-eyebrow">SRE labs</p>
-          <h1>Practice hands-on SRE labs.</h1>
+          <h1>The checkout, in the browser and on a real stack.</h1>
           <p>
             Eight exercises run Express and FastAPI with Prometheus, Grafana,
             OpenTelemetry, and Jaeger. Those need Docker and Node.js 20 or
@@ -114,7 +114,7 @@ export function SreCatalog() {
       </header>
       <section className="course-objective" aria-label="SRE coding practice">
         <p className="product-eyebrow">Coding practice</p>
-        <h2>Practice twenty-four functions in Go, TypeScript, or Python.</h2>
+        <h2>Twenty-four functions, in Go, TypeScript, or Python.</h2>
         <p>
           Fleet checks, log analysis, retries, rate limits, and delivery
           policies. Go, TypeScript, and Python share the same checks, and they
@@ -158,7 +158,7 @@ export function SreCatalog() {
           <div>
             <p className="product-eyebrow">In the browser</p>
             <h2 id="browser-course-title">Six lessons in the browser.</h2>
-            <p>Nothing to install. You start by naming the slow hop.</p>
+            <p>Nothing to install. The first lesson is a slow checkout.</p>
           </div>
           <Link href={`/sre-labs/${next.id}`} className="product-button">
             {completed ? "Continue" : "Start lesson 1"} <ArrowRight size={16} />
@@ -207,7 +207,7 @@ export function SreCatalog() {
         <div className="section-heading">
           <div>
             <p className="product-eyebrow">Filter</p>
-            <h2 id="catalog-title">Find a lesson by topic, level, or time.</h2>
+            <h2 id="catalog-title">Topic, level, and time.</h2>
           </div>
           <span className="catalog-count" role="status">
             {filtered.length} {filtered.length === 1 ? "lab" : "labs"}
@@ -329,7 +329,7 @@ export function SreCatalog() {
       <aside className="curriculum-next">
         <div>
           <p className="product-eyebrow">Keep practicing</p>
-          <h2>Practice five shorter drills from the book.</h2>
+          <h2>Five shorter drills from the book.</h2>
           <p>
             Explore admission limits, connection pools, caching, tail latency
             and dependency deadlines in shorter experiments.

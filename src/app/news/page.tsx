@@ -26,7 +26,7 @@ export default function NewsPage() {
         <div className="mx-auto max-w-5xl">
           <p className="text-base font-medium text-[#8d3d2c]">News</p>
           <h1 className="mt-5 max-w-[18em] font-[family-name:var(--font-lab-serif)] text-[clamp(2.6rem,5vw,4.15rem)] font-medium leading-[1.15] tracking-[-0.02em]">
-            Read the published coverage.
+            Coverage of the scholarship, the book, and the research.
           </h1>
           <p className="mt-8 max-w-xl text-xl leading-[1.6] text-[#5c514a]">
             The OAU scholarship, Practical System Design, the dissertation, and Queen Tonight.

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 const LESSON_COPY: Record<SreLabKey, string> = {
-  instrument: "Checkout is slow, and the outbound call is invisible. You add the signals and name the hop.",
+  instrument: "Checkout is slow, and the outbound call is invisible. The metric, the span, and the log are how you find it.",
   slo: "You decide what counts as a good checkout, set 99.5 percent, and watch the misses spend the budget.",
   alert: "You compare a busy host, a short spike, a sustained failure, and missing telemetry.",
   cascade: "A slow provider fills its slots. You follow checkout through retries and deadlines, then bring it back.",
@@ -25,7 +25,7 @@ export default function LabsPage() {
     <LabsShell>
       <section className="labs-hero">
         <p className="labs-kicker">Labs</p>
-        <h1>Practice hands-on SRE labs.</h1>
+        <h1>Six lessons on one checkout.</h1>
         <p className="labs-intro">
           You add the signals, spend a 99.5 percent budget, and page only when
           customers are still failing. Six lessons run in the browser.
@@ -59,7 +59,7 @@ export default function LabsPage() {
         <header className="labs-course-head">
           <div>
             <p className="labs-kicker">The course</p>
-            <h2 id="course-title">What you will practice first</h2>
+            <h2 id="course-title">The first lesson is a slow checkout.</h2>
           </div>
         </header>
         <ol className="labs-lessons">
@@ -99,7 +99,7 @@ export default function LabsPage() {
         <div className="labs-section-heading">
           <div>
             <p className="labs-kicker">Paths</p>
-            <h2 id="paths-title">Open the SRE path.</h2>
+            <h2 id="paths-title">Site reliability, and two paths with no lesson yet.</h2>
           </div>
         </div>
         <div className="labs-path-board">
@@ -130,7 +130,7 @@ export default function LabsPage() {
         <header className="labs-course-head">
           <div>
             <p className="labs-kicker">Practice</p>
-            <h2 id="practice-title">Pick a practice by how long you have.</h2>
+            <h2 id="practice-title">Ten minutes, half an hour, or an afternoon.</h2>
           </div>
         </header>
         <div className="labs-practice-board">
@@ -164,7 +164,7 @@ export default function LabsPage() {
       <section className="labs-book" aria-labelledby="book-title">
         <div>
           <p className="labs-kicker">From the book</p>
-          <h2 id="book-title">Practice the same checkout in the book.</h2>
+          <h2 id="book-title">The same checkout, in the book.</h2>
         </div>
         <div className="labs-book-links">
           <Link className="labs-button secondary" href="/system-design/experience">

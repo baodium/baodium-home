@@ -1,7 +1,7 @@
 [
   {
     "id": "unhealthy-instances-v1",
-    "title": "List the unhealthy instances",
+    "title": "Unhealthy instances",
     "category": "Fleet health",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -466,7 +466,7 @@
   },
   {
     "id": "unhealthy-instances-complete-v1",
-    "title": "Finish the unhealthy-instance list",
+    "title": "Unhealthy instances, partly written",
     "category": "Fleet health",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -931,7 +931,7 @@
   },
   {
     "id": "unhealthy-instances-debug-v1",
-    "title": "Fix the unhealthy-instance list",
+    "title": "Unhealthy instances, with a bug",
     "category": "Fleet health",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -1396,7 +1396,7 @@
   },
   {
     "id": "deployment-audit-implementation-v1",
-    "title": "Check a deploy before it continues",
+    "title": "A deploy that should stop",
     "category": "Safe delivery",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -1587,7 +1587,7 @@
   },
   {
     "id": "deployment-audit-complete-v1",
-    "title": "Finish the deploy check",
+    "title": "A deploy check, partly written",
     "category": "Safe delivery",
     "difficulty": "Foundation",
     "minutes": 20,
@@ -1778,7 +1778,7 @@
   },
   {
     "id": "deployment-audit-debug-v1",
-    "title": "Fix the deploy check",
+    "title": "A deploy check, with a bug",
     "category": "Safe delivery",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -1969,7 +1969,7 @@
   },
   {
     "id": "status-counts",
-    "title": "Count HTTP outcomes",
+    "title": "HTTP status counts",
     "category": "Signals",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2053,7 +2053,7 @@
   },
   {
     "id": "error-services",
-    "title": "Rank services by failures",
+    "title": "Services ranked by failures",
     "category": "Signals",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2139,7 +2139,7 @@
   },
   {
     "id": "latency-percentile",
-    "title": "Compute a latency percentile",
+    "title": "A latency percentile",
     "category": "Signals",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2218,7 +2218,7 @@
   },
   {
     "id": "rolling-errors",
-    "title": "Count failures in a rolling window",
+    "title": "Failures in a rolling window",
     "category": "Signals",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -2307,7 +2307,7 @@
   },
   {
     "id": "error-budget",
-    "title": "Calculate remaining error budget",
+    "title": "Error budget left",
     "category": "Signals",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -2377,7 +2377,7 @@
   },
   {
     "id": "heartbeat-gaps",
-    "title": "Find missing heartbeat intervals",
+    "title": "Missing heartbeats",
     "category": "Signals",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -2456,7 +2456,7 @@
   },
   {
     "id": "retry-backoff",
-    "title": "Generate capped retry delays",
+    "title": "Capped retry delays",
     "category": "Reliability algorithms",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2539,7 +2539,7 @@
   },
   {
     "id": "token-bucket",
-    "title": "Implement a token bucket",
+    "title": "A token bucket",
     "category": "Reliability algorithms",
     "difficulty": "Advanced",
     "minutes": 35,
@@ -2639,7 +2639,7 @@
   },
   {
     "id": "failure-streak",
-    "title": "Find when the circuit opens",
+    "title": "When the circuit opens",
     "category": "Reliability algorithms",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -2716,7 +2716,7 @@
   },
   {
     "id": "maintenance-windows",
-    "title": "Merge maintenance windows",
+    "title": "Overlapping maintenance windows",
     "category": "Reliability algorithms",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -2840,7 +2840,7 @@
   },
   {
     "id": "dependency-order",
-    "title": "Start each service after its dependencies",
+    "title": "Service startup order",
     "category": "Reliability algorithms",
     "difficulty": "Advanced",
     "minutes": 35,
@@ -2932,7 +2932,7 @@
   },
   {
     "id": "peak-concurrency",
-    "title": "Measure peak in-flight work",
+    "title": "Peak work in flight",
     "category": "Reliability algorithms",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -3025,7 +3025,7 @@
   },
   {
     "id": "config-drift",
-    "title": "Detect configuration drift",
+    "title": "Configuration drift",
     "category": "Automation",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -3109,7 +3109,7 @@
   },
   {
     "id": "deduplicate-events",
-    "title": "Deduplicate webhook deliveries",
+    "title": "Duplicate webhook deliveries",
     "category": "Automation",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -3201,7 +3201,7 @@
   },
   {
     "id": "shard-routing",
-    "title": "Route integer keys to shards",
+    "title": "Keys on shards",
     "category": "Automation",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -3285,7 +3285,7 @@
   },
   {
     "id": "rollout-batches",
-    "title": "Split a rollout into small batches",
+    "title": "Rollout batches",
     "category": "Automation",
     "difficulty": "Foundation",
     "minutes": 15,
@@ -3387,7 +3387,7 @@
   },
   {
     "id": "disk-pressure",
-    "title": "Find hosts low on disk",
+    "title": "Hosts low on disk",
     "category": "Automation",
     "difficulty": "Intermediate",
     "minutes": 25,
@@ -3475,7 +3475,7 @@
   },
   {
     "id": "redact-secrets",
-    "title": "Redact structured log secrets",
+    "title": "Secrets in a structured log",
     "category": "Automation",
     "difficulty": "Intermediate",
     "minutes": 25,

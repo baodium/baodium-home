@@ -20,11 +20,11 @@ export type SreLesson = {
 export const SRE_LESSONS: SreLesson[] = [
   {
     id: "instrument",
-    title: "Name the slow hop in a checkout",
+    title: "Which call made checkout slow",
     summary:
-      "Checkout is slow, and the outbound call is invisible. Add the signals and name the hop.",
+      "Checkout is slow, and the outbound call is invisible. The metric, the trace, and the log are how you find it.",
     outcome:
-      "Name the slow hop from the metric, the trace, and the log.",
+      "The metric shows the slowdown. The trace and the log show the call.",
     topic: "Observability",
     difficulty: "Beginner",
     minutes: 10,
@@ -32,7 +32,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "slo",
-    title: "Check a window against a 99.5% budget",
+    title: "Whether this window meets 99.5 percent",
     summary:
       "Decide what counts as a good checkout, set 99.5 percent, and watch the misses spend the budget.",
     outcome:
@@ -44,7 +44,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "alert",
-    title: "Decide when a checkout failure should page",
+    title: "Whether this failure should page someone",
     summary:
       "Compare a busy host, a short spike, a sustained checkout failure and missing telemetry.",
     outcome:
@@ -56,7 +56,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "cascade",
-    title: "Follow a slow provider until checkout fails",
+    title: "A slow provider takes checkout down",
     summary:
       "A slow external provider fills its slots. Follow checkout through retries, queues and deadlines, then recover it.",
     outcome: "Use traces and measured outcomes to contain retry amplification.",
@@ -67,7 +67,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "capacity",
-    title: "Hold latency while the checkout queue fills",
+    title: "The queue fills and latency climbs",
     summary:
       "A surge overwhelms a bounded worker queue. Compare manual capacity and a utilization-based scaling controller.",
     outcome: "Recover request success without reducing the offered load.",
@@ -78,7 +78,7 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "deployment",
-    title: "Take traffic off a bad release",
+    title: "A bad release has some of the traffic",
     summary:
       "Send a fraction of traffic to a bad release, watch the failures, and take the share back.",
     outcome: "Read how customer failures scale with the share on the bad release.",

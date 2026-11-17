@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SreChrome } from "@/components/sre/SreChrome";
 import { OperationsLab } from "@/components/sre/OperationsLab";
 export const metadata: Metadata = {
-  title: "Take traffic off a bad release",
+  title: "A bad release has some of the traffic",
   description:
     "Control release exposure, observe customer failures and recover a seeded canary deployment experiment.",
   alternates: { canonical: "/sre-labs/deployment" },

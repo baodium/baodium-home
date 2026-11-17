@@ -44,7 +44,7 @@ export function LessonSteps({
           {index + 1} of {beats.length}
         </p>
         <h2>{beat.title}</h2>
-        <p aria-live="polite">{beat.body}</p>
+        {beat.body ? <p aria-live="polite">{beat.body}</p> : null}
       </div>
       <div className="lesson-step-nav">
         <div className="lesson-step-dots" role="tablist" aria-label={label}>

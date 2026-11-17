@@ -24,7 +24,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "instrument",
     index: 1,
     minutes: 10,
-    title: "Name the slow hop in a checkout",
+    title: "Which call made checkout slow",
     outcomes: [
       "Tell a metric, a span, and a log apart on one checkout.",
       "Turn on the missing record, then name the hop holding the extra time.",
@@ -48,7 +48,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "Fields you join to the span that was open.",
       },
     ],
-    goal: "Turn the four signals on, then name the hop holding the time.",
+    goal: "Four signals go on. Then the call that held the time has a name.",
     steps: [
       "Run a checkout before the four signals are on, and notice what you cannot name.",
       "Turn on HTTP metrics, the outbound span, trace context, and a structured log.",
@@ -76,7 +76,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "slo",
     index: 2,
     minutes: 12,
-    title: "Check a window against a 99.5% budget",
+    title: "Whether this window meets 99.5 percent",
     outcomes: [
       "Write the checkout promise as a fraction of requests that both succeed and return in time.",
       "Count a slow success as a miss when the target includes a latency line.",
@@ -100,7 +100,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "You may miss 5 events in 1,000. Past that, the window has spent the budget.",
       },
     ],
-    goal: "Judge the window in front of you against 99.5 percent.",
+    goal: "The window in front of you either meets 99.5 percent or it does not.",
     steps: [
       "Read the target on the chart before you change anything.",
       "Raise failures or latency until good events fall below 99.5 percent.",
@@ -128,7 +128,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "alert",
     index: 3,
     minutes: 15,
-    title: "Decide when a checkout failure should page",
+    title: "Whether this failure should page someone",
     outcomes: [
       "Separate a busy host from a checkout failing for customers.",
       "Explain why a burn-rate page waits for both the short window and the long window.",
@@ -152,7 +152,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "Wake someone only while customers are still failing.",
       },
     ],
-    goal: "Page only when you can name the customer impact and both windows agree.",
+    goal: "A page is for customers who are still failing, and only when both windows agree.",
     steps: [
       "Read the four scenes before you pick a rule. Note which ones are about a host, a short spike, missing data, or customers who keep failing.",
       "Select a rule and run it against the scenes.",
@@ -180,7 +180,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "cascade",
     index: 4,
     minutes: 20,
-    title: "Follow a slow provider until checkout fails",
+    title: "A slow provider takes checkout down",
     outcomes: [
       "Follow one checkout across the gateway, checkout, payment, and the provider.",
       "Explain how a full set of slots plus a retry turns a slow dependency into failed checkouts.",
@@ -204,7 +204,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "When the caller stops waiting. The provider can still hold the slot.",
       },
     ],
-    goal: "Watch checkout fail, change one limit, and rerun the same seed.",
+    goal: "One limit changes. The same seed runs again.",
     steps: [
       "Let the run go until checkout success falls and provider slots are full.",
       "Read one trace from the gateway through to the provider before you change a control.",
@@ -232,7 +232,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "capacity",
     index: 5,
     minutes: 15,
-    title: "Hold latency while the checkout queue fills",
+    title: "The queue fills and latency climbs",
     outcomes: [
       "Read queue depth and latency as two views of the same shortage of workers.",
       "Compare a fixed replica count with a utilization rule on the same surge.",
@@ -256,7 +256,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "How full the workers are. It does not go above 100 percent.",
       },
     ],
-    goal: "Hold latency through the surge without turning traffic away.",
+    goal: "Latency comes back. The offered traffic stays.",
     steps: [
       "Let the surge run on the starting replica count and watch the queue and the latency move together.",
       "Add replicas by hand and note how far the queue falls.",
@@ -284,7 +284,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "deployment",
     index: 6,
     minutes: 12,
-    title: "Take traffic off a bad release",
+    title: "A bad release has some of the traffic",
     outcomes: [
       "Read customer failures as a function of how much traffic the bad release is allowed to see.",
       "Stop or shrink that share when the impact is no longer acceptable.",
@@ -305,10 +305,10 @@ export const SRE_COURSE: SreLessonCraft[] = [
       },
       {
         name: "Stop",
-        body: "Take traffic off the release that is failing customers.",
+        body: "The release that is failing customers loses its traffic.",
       },
     ],
-    goal: "Read the customer impact, then take the share back or replace the release.",
+    goal: "The bad release loses traffic, or a fixed release replaces it.",
     steps: [
       "Start with a small share and read the failure rate of the customers on the new release.",
       "Raise the share and watch the same fault affect more checkouts.",
@@ -340,14 +340,14 @@ export function lessonBeats(lesson: SreLessonCraft) {
       title: concept.name,
       body: concept.body,
     })),
-    { title: "The work", body: lesson.goal },
+    { title: lesson.goal, body: "" },
   ];
 }
 
 export function lessonAfter(lesson: SreLessonCraft) {
   return [
-    ...lesson.takeaways.map((body) => ({ title: "Takeaway", body })),
-    ...lesson.reflection.map((body) => ({ title: "Reflection", body })),
+    ...lesson.takeaways.map((body) => ({ title: body, body: "" })),
+    ...lesson.reflection.map((body) => ({ title: body, body: "" })),
   ];
 }
 

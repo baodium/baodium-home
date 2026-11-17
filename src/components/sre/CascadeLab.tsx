@@ -973,7 +973,7 @@ function CascadeSession({
         </div>
       }
     />
-    <LessonSteps label="After the work" beats={lessonAfter(lesson)} />
+    <LessonSteps label="After the lesson" beats={lessonAfter(lesson)} />
     {lesson.next ? (
       <p className="lesson-next">
         <Link href={lesson.next.href}>{lesson.next.label}</Link>

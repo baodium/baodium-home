@@ -58,7 +58,7 @@ export function AlertRuleWorkbench({
       aria-labelledby="rule-workbench-title"
     >
       <p className="exp-kicker">Rule experiment, outside the graded lab</p>
-      <h2 id="rule-workbench-title">Try the alert before it pages anyone.</h2>
+      <h2 id="rule-workbench-title">The rule, on one scene.</h2>
       <p>
         Evaluate this rule against the retained scenario. CPU uses a 0–1
         fraction. Burn requires both the 12-second and 60-second windows to

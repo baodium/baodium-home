@@ -213,11 +213,11 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
       ) : null}
       <div className="ops-layout">
         <aside className="ops-mission">
-          <p className="product-eyebrow">Your investigation</p>
+          <p className="product-eyebrow">On this run</p>
           <h2>
             {capacity
-              ? "Demand → queue → replicas"
-              : "Observe → limit → recover"}
+              ? "Demand, the queue, and the replicas"
+              : "The failures, the share, and the recovery"}
           </h2>
           {mode === "guided" ? (
             <ol>
@@ -547,7 +547,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           )}
         </aside>
       </div>
-      <LessonSteps label="After the work" beats={lessonAfter(lesson)} />
+      <LessonSteps label="After the lesson" beats={lessonAfter(lesson)} />
       {lesson.next ? (
         <p className="lesson-next">
           <Link href={lesson.next.href}>{lesson.next.label}</Link>

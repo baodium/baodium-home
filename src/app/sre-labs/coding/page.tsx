@@ -24,7 +24,7 @@ export default function CodingPage() {
           ← All learning paths
         </Link>
         <LessonPlace course="SRE coding" total={24} minutes={15} />
-        <h1>Practice twenty-four SRE functions.</h1>
+        <h1>Twenty-four functions, from fleet health to a release.</h1>
         <p>
           You write each function in Go, TypeScript, or Python. The checks
           match in every language, and a stage moves only when the full suite

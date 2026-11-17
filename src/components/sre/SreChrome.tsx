@@ -15,9 +15,9 @@ const labs = [
   { href: "/sre-labs/coding", label: "Coding practice" },
   { href: "/sre-labs/observability", label: "Hands-on course" },
   { href: "/sre-labs/cascade", label: "Slow provider" },
-  { href: "/sre-labs/instrument", label: "Slow hop" },
+  { href: "/sre-labs/instrument", label: "Checkout time" },
   { href: "/sre-labs/slo", label: "99.5% budget" },
-  { href: "/sre-labs/alert", label: "When to page" },
+  { href: "/sre-labs/alert", label: "Paging" },
   { href: "/sre-labs/capacity", label: "Queue" },
   { href: "/sre-labs/deployment", label: "Bad release" },
 ];

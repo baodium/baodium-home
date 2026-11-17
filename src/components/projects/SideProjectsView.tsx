@@ -10,7 +10,7 @@ export function SideProjectsView() {
       <div className="mx-auto max-w-5xl">
         <p className="text-base font-medium text-[#8d3d2c]">Projects</p>
         <h1 className="mt-5 max-w-[16em] font-[family-name:var(--font-lab-serif)] text-[clamp(2.6rem,5vw,4.15rem)] font-medium leading-[1.15] tracking-[-0.02em]">
-          Open Interview Coach, UpTo, or the labs
+          Interview Coach, UpTo, and the labs
         </h1>
         <ul className="mt-20 border-t border-[#e6ddd2]">
           <li>
@@ -72,7 +72,7 @@ export function SideProjectsView() {
                   Labs
                 </span>
                 <span className="mt-4 block max-w-xl text-lg leading-relaxed text-[#5c514a]">
-                  You name the slow hop, spend a 99.5 percent budget, and decide when a failure should page.
+                  A slow checkout, a 99.5 percent budget, and the question of when to page.
                 </span>
               </span>
               <span className="inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">

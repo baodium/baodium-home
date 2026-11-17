@@ -4,7 +4,7 @@ import { SreExperience } from "@/components/sre/SreExperience";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Decide when a checkout failure should page",
+  title: "Whether this failure should page someone",
   description: "Compare a CPU threshold with a multiwindow burn-rate alert on the same checkout events.",
   alternates: { canonical: `${site.url}/sre-labs/alert` },
 };

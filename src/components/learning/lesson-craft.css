@@ -91,12 +91,13 @@
   color: var(--lab-accent, var(--exp-accent-text, #8d3d2c));
 }
 .lesson-step h2 {
-  margin: 0.35rem 0 0;
+  margin: 0.4rem 0 0;
+  max-width: 22em;
   font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
-  font-size: 1.45rem;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 1.25;
+  line-height: 1.32;
   color: var(--lab-ink, var(--exp-fg, #241c18));
 }
 .lesson-step p {

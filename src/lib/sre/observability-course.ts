@@ -21,14 +21,14 @@ export type CourseLesson = {
 export const OBSERVABILITY_COURSE: CourseLesson[] = [
   {
     slug: "setup",
-    title: "Start the checkout stack",
+    title: "The checkout stack",
     minutes: 12,
     tool: "Docker Compose",
     outcome:
       "Start two real services and the tools that observe them. Prove that all four local interfaces respond.",
     steps: [
       {
-        title: "Prepare the workspace",
+        title: "Codespaces, or Docker on your machine",
         instruction:
           "Use the course overview to create a GitHub Codespace; wait for its startup task and open a terminal in labs/observability. Alternatively, install Docker with Compose and Node.js 20+, extract the downloaded kit and open its baodium-observability directory.",
         command: "node lab.mjs doctor",
@@ -36,7 +36,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
           "The Docker server version and a successful Compose configuration check. If the daemon is unavailable, start Docker before continuing.",
       },
       {
-        title: "Start your stack",
+        title: "The five services are up",
         instruction:
           "Build the Express checkout and FastAPI payment service. Start Prometheus, Grafana and Jaeger alongside them. The first run downloads pinned images and dependencies.",
         command: "node lab.mjs launch",
@@ -62,7 +62,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "metrics",
-    title: "Add a counter, a gauge, and a latency histogram",
+    title: "A counter, a gauge, and a histogram",
     minutes: 15,
     tool: "Prometheus metrics",
     outcome:
@@ -102,7 +102,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "promql",
-    title: "Compute rate, errors, and tail latency",
+    title: "Rate, errors, and tail latency",
     minutes: 18,
     tool: "PromQL",
     outcome:
@@ -146,7 +146,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "dashboards",
-    title: "Read the Grafana board and add a panel",
+    title: "The Grafana board",
     minutes: 15,
     tool: "Grafana",
     outcome:
@@ -187,7 +187,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "traces",
-    title: "Follow one checkout from Express into FastAPI",
+    title: "One checkout, from Express into FastAPI",
     minutes: 18,
     tool: "OpenTelemetry + Jaeger",
     outcome:
@@ -227,14 +227,14 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "logs",
-    title: "Match a log line to its trace",
+    title: "A log line and its trace",
     minutes: 12,
     tool: "Structured JSON logs",
     outcome:
       "Correlate an individual customer outcome with work performed by the downstream service.",
     steps: [
       {
-        title: "Produce a mixed outcome",
+        title: "Some requests fail",
         instruction:
           "Inject payment errors and generate traffic. Keep the trace ID printed by the traffic command.",
         command: "node lab.mjs fault errors\nnode lab.mjs traffic 10",
@@ -268,7 +268,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "alerts",
-    title: "Watch a checkout alert fire, then change the rule",
+    title: "A checkout alert, and the rule behind it",
     minutes: 20,
     tool: "Prometheus alert rules",
     outcome:
@@ -310,14 +310,14 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "incident",
-    title: "Find the timeout, recover checkout, and check the window",
+    title: "A timeout, the recovery, and the window after",
     minutes: 20,
     tool: "Incident response",
     outcome:
       "Use metrics, spans and logs to find a timed-out dependency, recover it, and verify a healthy rolling window.",
     steps: [
       {
-        title: "Create an incident",
+        title: "Checkout starts failing",
         instruction:
           "Make payment take 2,200 ms while checkout waits only 1,500 ms. Generate requests and examine the result before changing anything.",
         command: "node lab.mjs fault timeout\nnode lab.mjs traffic 15",

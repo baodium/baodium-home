@@ -253,7 +253,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                     />
                   ))}
                 </div>
-                <h2 className="mt-2 font-serif text-xl text-[color:var(--exp-fg)]">
+                <h2 className="lesson-rail-title">
                   {guided.title}
                 </h2>
                 <div className="mt-2 space-y-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
@@ -304,7 +304,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
           </>
         }
       />
-      <LessonSteps label="After the work" beats={lessonAfter(lesson)} />
+      <LessonSteps label="After the lesson" beats={lessonAfter(lesson)} />
       {lesson.next ? (
         <p className="lesson-next">
           <Link href={lesson.next.href}>{lesson.next.label}</Link>
@@ -648,7 +648,7 @@ function instrumentGuided(input: GuidedInput) {
   const flags = input.controls.instrumentation;
   const steps = [
     {
-      title: "Look before you add a signal",
+      title: "Checkout, before any signal is on",
       ready: true,
       body: (
         <p>
@@ -741,7 +741,7 @@ function instrumentGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "Carry the trace id",
+      title: "The payment span joins the checkout trace",
       ready:
         flags.traceContext &&
         input.snapshot.traces.some((trace) =>
@@ -750,7 +750,7 @@ function instrumentGuided(input: GuidedInput) {
       body: (
         <p>
           Trace context puts the checkout trace id on the payment span. With it,
-          the slow hop sits inside the request you opened. Without it, the
+          that span sits inside the request you opened. Without it, the
           payment span is a stranger.
         </p>
       ),
@@ -805,7 +805,7 @@ function instrumentGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "Add latency and read the trace",
+      title: "Payment is 400 ms slower",
       ready:
         input.controls.extraLatencyMs >= 200 &&
         input.snapshot.traces.some((trace) => trace.paymentMs > 200),
@@ -841,7 +841,7 @@ function instrumentGuided(input: GuidedInput) {
 function sloGuided(input: GuidedInput) {
   const steps = [
     {
-      title: "Choose the journey a customer feels",
+      title: "Checkout is the journey, not the CPU",
       ready: input.controls.journey === "checkout",
       body: (
         <>
@@ -859,7 +859,7 @@ function sloGuided(input: GuidedInput) {
       actions: null,
     },
     {
-      title: "Decide what counts as good",
+      title: "Good means success in under 300 ms",
       ready: input.controls.goodWhen === "both",
       body: (
         <>
@@ -877,7 +877,7 @@ function sloGuided(input: GuidedInput) {
       actions: null,
     },
     {
-      title: "Set the target, and keep it",
+      title: "The line stays at 99.5 percent",
       ready: input.controls.target === DEFAULT_TARGET,
       body: (
         <p>
@@ -894,7 +894,7 @@ function sloGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "Spend the budget",
+      title: "The window misses 99.5 percent",
       ready:
         (input.snapshot.window.spent ?? 0) > 1 &&
         input.snapshot.window.meets === false,
@@ -975,7 +975,7 @@ function alertGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "Page on the checkout SLO",
+      title: "The burn-rate rule, instead of CPU",
       ready: input.controls.alert === "burn",
       body: (
         <p>
@@ -1044,7 +1044,7 @@ function alertGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "Missing telemetry is not a quiet SLO",
+      title: "No samples is not a healthy window",
       ready:
         input.situation === "missing-telemetry" &&
         input.snapshot.burnAlert.status === "no-data",
