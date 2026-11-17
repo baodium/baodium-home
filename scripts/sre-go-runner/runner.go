@@ -112,7 +112,12 @@ func runCase(fn reflect.Value, params []paramSpec, item caseSpec) (result testRe
 		if !ok {
 			value = nil
 		}
-		args[index] = anyValue(value)
+		adapted, err := adapt(value, fn.Type().In(index))
+		if err != nil {
+			result.Detail = err.Error()
+			return
+		}
+		args[index] = adapted
 	}
 	returned := fn.Call(args)
 	after, _ := json.Marshal(decoded)
@@ -171,6 +176,24 @@ func decodeValue(value reflect.Value) (any, error) {
 		return nil, err
 	}
 	return decode(payload)
+}
+
+func adapt(value any, typ reflect.Type) (reflect.Value, error) {
+	if typ == nil || typ.Kind() == reflect.Interface {
+		return anyValue(value), nil
+	}
+	if value == nil {
+		return reflect.Zero(typ), nil
+	}
+	raw, err := json.Marshal(value)
+	if err != nil {
+		return reflect.Value{}, fmt.Errorf("could not read the input")
+	}
+	dest := reflect.New(typ)
+	if err := json.Unmarshal(raw, dest.Interface()); err != nil {
+		return reflect.Value{}, fmt.Errorf("the input does not match %s", typ.String())
+	}
+	return dest.Elem(), nil
 }
 
 func anyValue(value any) reflect.Value {

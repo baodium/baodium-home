@@ -51,6 +51,31 @@ func CountStatuses(records any) any {
 	}
 }
 
+func TestTypedSignature(t *testing.T) {
+	source := `package solution
+
+func GetUnhealthyInstances(records []map[string]any, cpuThreshold float64) []string {
+	return []string{"i-hot"}
+}
+`
+	got, err := execute(source, "GetUnhealthyInstances", []paramSpec{
+		{Name: "records"},
+		{Name: "cpuThreshold", HasDefault: true, Default: json.RawMessage(`85`)},
+	}, []caseSpec{{
+		ID: "typed", Title: "Typed records",
+		Kwargs: map[string]json.RawMessage{
+			"records": json.RawMessage(`[{"instance_id":"i-hot","cpu":90}]`),
+		},
+		Expected: json.RawMessage(`["i-hot"]`),
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !got.Results[0].Passed {
+		t.Fatalf("%+v", got.Results[0])
+	}
+}
+
 func TestRejectsMutation(t *testing.T) {
 	source := `package solution
 

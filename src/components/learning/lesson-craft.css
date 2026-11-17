@@ -28,6 +28,40 @@
 .book-lesson-work {
   align-items: start;
 }
+.book-lesson .book-lab {
+  --exp-fg: #241c18;
+  --exp-muted: #3e342c;
+  --exp-faint: #5c514a;
+  --exp-amber-text: #6d4a32;
+  --lab-ink: #241c18;
+  --lab-muted: #3e342c;
+  color: #241c18;
+}
+.book-lab-embedded {
+  padding-top: 0.25rem;
+}
+.book-step-count {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--exp-fg, #241c18);
+}
+.book-lesson-exit {
+  display: flex;
+  gap: 1.25rem;
+  margin: 0.5rem 0 0;
+}
+.book-lesson-exit button {
+  min-height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8d3d2c;
+  font-weight: 650;
+  cursor: pointer;
+}
 
 .lesson-place {
   margin: 0 0 0.7rem;

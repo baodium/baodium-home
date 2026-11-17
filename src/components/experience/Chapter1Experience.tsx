@@ -83,7 +83,7 @@ function isOpenMode(mode: LabMode) {
   return mode === "practice" || mode === "challenge";
 }
 
-export function Chapter1Experience() {
+export function Chapter1Experience({ embedded = false }: { embedded?: boolean }) {
   const reduced = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -587,7 +587,7 @@ export function Chapter1Experience() {
   );
 
   return (
-    <div ref={rootRef} className="relative mx-auto w-full max-w-[88rem] px-4 py-4 sm:px-6 sm:py-5">
+    <div ref={rootRef} className={`book-lab relative mx-auto w-full max-w-[88rem] px-4 py-4 sm:px-6 sm:py-5${embedded ? " book-lab-embedded" : ""}`}>
       {!reduced ? (
         <motion.div
           aria-hidden="true"
@@ -595,6 +595,7 @@ export function Chapter1Experience() {
           className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[#eef3f7]/80"
         />
       ) : null}
+      {embedded ? null : (
       <header className="relative flex flex-wrap items-end justify-between gap-5">
         <div className="min-w-0 max-w-3xl flex-1">
         <motion.p
@@ -630,8 +631,9 @@ export function Chapter1Experience() {
           className="relative z-[1] hidden h-28 w-44 sm:block"
         />
       </header>
+      )}
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-2 space-y-4">
         <GuidedProgress
           steps={scenario.steps.map((s) => ({
             id: s.id,
@@ -728,9 +730,6 @@ export function Chapter1Experience() {
                   exit={reduced ? undefined : { opacity: 0, y: -6 }}
                   transition={{ duration: reduced ? 0 : 0.35, ease }}
                 >
-                  <p className="text-[1.05rem] font-semibold text-[color:var(--exp-fg)]">
-                    Step {stepIndex + 1} of {guidedCount || CH1_GUIDED_STAGE_COUNT}
-                  </p>
                   <h2 className="lesson-rail-title">
                     {stepDef.title}
                   </h2>

@@ -4,15 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { CodingProblem } from "@/lib/labs/coding";
-import { codingSummaries, CODING_CATEGORIES } from "@/lib/labs/coding";
+import { codingSummaries } from "@/lib/labs/coding";
 import { codingLesson } from "@/lib/learning/coding-course";
-import {
-  LessonClose,
-  LessonExercise,
-  LessonOutcomes,
-  LessonPlace,
-  LessonTeaching,
-} from "@/components/learning/LessonCraft";
 import {
   draftKey,
   loadCodingProgress,
@@ -81,6 +74,11 @@ export function CodingWorkspace({
     () => null,
   );
   const starter = starterFor(problem, language);
+  const examples = problem.cases.filter((item) => item.example);
+  const shownCases = examples.length > 0 ? examples : problem.cases.slice(0, 1);
+  const [caseId, setCaseId] = useState(shownCases[0]?.id ?? "");
+  const [testTab, setTestTab] = useState<"case" | "result">("case");
+  const activeCase = shownCases.find((item) => item.id === caseId) ?? shownCases[0];
   const source =
     edited?.language === language
       ? edited.value
@@ -158,6 +156,7 @@ export function CodingWorkspace({
       const value = await execution.promise;
       if (token !== generation.current) return;
       setResult(value);
+      setTestTab("result");
       recordCodingRun(
         problem.id,
         value.results.filter((test) => test.passed).length,
@@ -213,9 +212,6 @@ export function CodingWorkspace({
   const stagePassed = stageProblems.filter(
     (item) => progress[progressKey(item.id, language)]?.status === "passed",
   ).length;
-  const stageIndex = CODING_CATEGORIES.indexOf(
-    problem.category as (typeof CODING_CATEGORIES)[number],
-  );
   const firstMiss = result?.results.find((test) => !test.passed);
   const story =
     result && !stale
@@ -227,53 +223,30 @@ export function CodingWorkspace({
       : "";
   const craft = codingLesson(problem, next?.title);
   return (
-    <div className="coding-workspace">
-      <section className="coding-prompt" aria-label="Problem description">
+    <div className="coding-ide">
+      <section className="coding-description" aria-label="Problem description">
         <Link href="/sre-labs/coding" className="labs-back">
           ← Coding roadmap
         </Link>
-        <LessonPlace
-          course="SRE coding"
-          index={craft.index}
-          total={craft.total}
-          minutes={craft.minutes}
-        />
-        <p className="labs-kicker">{craft.stageLabel}</p>
+        <p className="coding-progress">
+          {craft.index} of {craft.total} · {problem.category} · {problem.minutes} min
+        </p>
         <h1>{problem.title}</h1>
-        <LessonOutcomes items={craft.outcomes} />
-        <LessonTeaching paragraphs={craft.paragraphs} concepts={craft.concepts} />
         <p className="coding-lead">{problem.prompt}</p>
-        <code className="coding-signature">
-          {languageSignature(problem, language)}
-        </code>
+        <h2>What the function has to do</h2>
+        <ul>
+          {problem.constraints.map((rule) => (
+            <li key={rule}>{rule}</li>
+          ))}
+        </ul>
+        <h2>Signature</h2>
+        <code className="coding-signature">{languageSignature(problem, language)}</code>
         {problem.format !== "implementation" && language !== "python" ? (
           <p className="coding-note">
             The Python draft is the one with a gap to close. Go and TypeScript
             start from the signature and run the same checks.
           </p>
         ) : null}
-        <h2>Acceptance criteria</h2>
-        <ul>
-          {problem.constraints.map((rule) => (
-            <li key={rule}>{rule}</li>
-          ))}
-        </ul>
-        <h2>Examples</h2>
-        {problem.cases
-          .filter((test) => test.example)
-          .slice(0, 2)
-          .map((test) => (
-            <div className="coding-example" key={test.id}>
-              <h3>{test.title}</h3>
-              <pre tabIndex={0}>{JSON.stringify(test.kwargs, null, 2)}</pre>
-              <p>Expected</p>
-              <pre tabIndex={0}>{JSON.stringify(test.expected, null, 2)}</pre>
-            </div>
-          ))}
-        <LessonExercise
-          goal="The suite is the exercise. Examples are the first look, not the pass."
-          steps={craft.steps}
-        />
         {problem.hints.map((hint, index) => (
           <details className="coding-detail" key={hint}>
             <summary>Hint {index + 1}</summary>
@@ -293,18 +266,16 @@ export function CodingWorkspace({
               </p>
               <p>The reference below is Python.</p>
               <pre tabIndex={0}>{problem.solution}</pre>
-              <p>
-                Use it to compare approaches. Opening it does not record a pass.
-              </p>
+              <p>Opening it does not record a pass.</p>
             </>
           ) : null}
         </details>
-        <LessonClose takeaways={craft.takeaways} reflection={craft.reflection} />
-        {problem.origin ? (
-          <p className="coding-note">{problem.origin}.</p>
+        {passed === result?.results.length && fullSuite && !stale ? (
+          <p className="coding-lead">{problem.followUp}</p>
         ) : null}
+        {problem.origin ? <p className="coding-note">{problem.origin}.</p> : null}
       </section>
-      <section className="coding-console" aria-label="Code and test workspace">
+      <section className="coding-console coding-code" aria-label="Code editor">
         <div
           className="coding-languages"
           role="group"
@@ -324,12 +295,6 @@ export function CodingWorkspace({
             </button>
           ))}
         </div>
-        <p className="coding-note coding-stage">
-          Stage {stageIndex + 1} of {CODING_CATEGORIES.length}, {problem.category}.{" "}
-          {stagePassed} of {stageProblems.length} full suites passed in{" "}
-          {languageLabel(language)}. Progress for each language stays on this
-          device.
-        </p>
         <div className="coding-editor-bar">
           <span>
             {filename}{" "}
@@ -411,8 +376,54 @@ export function CodingWorkspace({
             <button onClick={() => setResetPending(false)}>Keep draft</button>
           </div>
         ) : null}
+      </section>
+      <section className="coding-tests" aria-label="Testcase and result">
         <div className="coding-results" aria-live="polite" aria-busy={busy}>
-          <h2>Test results</h2>
+          <div className="coding-test-tabs" role="tablist" aria-label="Checks">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={testTab === "case"}
+              onClick={() => setTestTab("case")}
+            >
+              Testcase
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={testTab === "result"}
+              onClick={() => setTestTab("result")}
+            >
+              Test result
+            </button>
+          </div>
+          {testTab === "case" && activeCase ? (
+            <div className="coding-case">
+              <div className="coding-case-switch">
+                {shownCases.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={item.id === activeCase.id}
+                    onClick={() => setCaseId(item.id)}
+                  >
+                    Case {index + 1}
+                  </button>
+                ))}
+              </div>
+              <h2>{activeCase.title}</h2>
+              {Object.entries(activeCase.kwargs).map(([key, value]) => (
+                <div key={key}>
+                  <p>{key}</p>
+                  <pre tabIndex={0}>{JSON.stringify(value, null, 2)}</pre>
+                </div>
+              ))}
+              <p>Expected</p>
+              <pre tabIndex={0}>{JSON.stringify(activeCase.expected, null, 2)}</pre>
+            </div>
+          ) : (
+            <>
+          <h2>Test result</h2>
           {phase === "loading" ? (
             <p>
               {language === "python"
@@ -483,23 +494,24 @@ export function CodingWorkspace({
               ) : null}
             </>
           ) : null}
-        </div>
-        <p className="coding-note">
-          These checks run in the browser. They are practice, not a sealed exam.{" "}
-          {runtimeNote(language)}
-        </p>
-        <div className="lesson-next">
-          <p>{craft.next.bridge}</p>
-          {next ? (
-            <Link href={`/sre-labs/coding/${next.id}?lang=${language}`}>
-              Next exercise: {craft.next.label}
-            </Link>
-          ) : (
-            <Link href={craft.next.href ?? "/sre-labs/observability"}>
-              {craft.next.label}
-            </Link>
+            </>
           )}
         </div>
+        <p className="coding-note">
+          These checks run in the browser. {runtimeNote(language)}{" "}
+          {stagePassed} of {stageProblems.length} exercises in {problem.category} have a passing suite in {languageLabel(language)}.
+        </p>
+        {next ? (
+          <p className="lesson-next">
+            <Link href={`/sre-labs/coding/${next.id}?lang=${language}`}>
+              Next: {craft.next.label}
+            </Link>
+          </p>
+        ) : (
+          <p className="lesson-next">
+            <Link href={craft.next.href ?? "/sre-labs/observability"}>{craft.next.label}</Link>
+          </p>
+        )}
       </section>
     </div>
   );

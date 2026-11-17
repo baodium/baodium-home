@@ -183,15 +183,21 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
           );
         })}
       </nav>
+      {step.kind === "operate" || step.kind === "lab" ? (
+        <div className="book-lesson-stage mx-auto max-w-[1240px] px-4 py-4 sm:px-8">
+          {step.kind === "operate" ? (
+            <Chapter1Experience embedded />
+          ) : (
+            <LabPanel runnerUrl={runnerUrl} labUrl={labUrl} killercodaUrl={killercodaUrl} />
+          )}
+          <p className="book-lesson-exit">
+            <button type="button" onClick={() => go(cursor - 1)}>Back to the story</button>
+            <button type="button" onClick={() => go(cursor + 1)}>Continue the chapter</button>
+          </p>
+        </div>
+      ) : (
       <div className="book-lesson-work mx-auto grid max-w-[1240px] gap-8 px-6 py-6 sm:px-10 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-10">
         <div className="min-w-0 lg:col-start-2 lg:row-start-1">
-          {step.kind === "operate" ? (
-            <div className="overflow-hidden rounded-xl border border-[#e6ddd2] bg-white">
-              <Chapter1Experience />
-            </div>
-          ) : step.kind === "lab" ? (
-            <LabPanel runnerUrl={runnerUrl} labUrl={labUrl} killercodaUrl={killercodaUrl} />
-          ) : (
             <>
               <Stage
                 engine={engine}
@@ -214,7 +220,6 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
                 />
               ) : null}
             </>
-          )}
         </div>
         <StoryPanel
           beat={
@@ -252,6 +257,7 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
           nextLabel={cursor === PATH.length - 1 ? "Start over" : "Next"}
         />
       </div>
+      )}
       <div className="mx-auto max-w-[1240px] px-6 pb-12 sm:px-10">
         <LessonSteps
           label="After the lesson"

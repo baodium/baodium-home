@@ -24,9 +24,9 @@ test("coding roadmap filters and links to real exercises", async ({ page }) => {
   await expect(page.locator(".coding-roadmap-group li")).toHaveCount(24);
   await page.getByLabel("Find an exercise").fill("token");
   await expect(page.locator(".coding-roadmap-group li")).toHaveCount(1);
-  await page.getByRole("link", { name: /Implement a token bucket/ }).click();
+  await page.getByRole("link", { name: /A token bucket/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Implement a token bucket",
+    "A token bucket",
   );
 });
 
