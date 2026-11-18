@@ -5,7 +5,7 @@ import { site } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Whether this failure should page someone",
-  description: "Compare a CPU threshold with a multiwindow burn-rate alert on the same checkout events.",
+  description: "Compare a CPU threshold with a multiwindow burn-rate alert on search queries.",
   alternates: { canonical: `${site.url}/sre-labs/alert` },
 };
 

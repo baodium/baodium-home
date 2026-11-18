@@ -187,7 +187,7 @@ export const OBSERVABILITY_COURSE: CourseLesson[] = [
   },
   {
     slug: "traces",
-    title: "One checkout, from Express into FastAPI",
+    title: "A charge, from Express into FastAPI",
     minutes: 18,
     tool: "OpenTelemetry + Jaeger",
     outcome:

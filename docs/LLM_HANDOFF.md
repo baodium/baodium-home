@@ -132,3 +132,13 @@ Vercel account/scope: `baodiumgmailcoms-projects`. Existing project: `baodium-ho
 ## Suggested next-agent prompt
 
 Continue the Baodium Labs implementation in the existing repository. Read AGENTS.md, this handoff and the latest release validation first. Preserve the portrait homepage and seven-free-chapter policy. Inspect git status and the latest main commit before editing. Verify current deployment before claiming something is live. Prioritize actual Codespaces provider validation, then deepen the SRE coding curriculum and create a deliberate cybersecurity curriculum. Keep production execution isolated, progress truthful and learner-facing instructions actionable. The user authorizes implementation and pushing main; provide concise progress updates and a final tested/not-tested distinction.
+
+## Learning workspace and visitor analytics update — November 18, 2026
+
+The current working update refines the Labs hub with Geist typography, a teal/slate palette, an explanatory service map and three actionable learning modes. Unfinished Cybersecurity/Platform cards are removed. Existing Labs navigation and Projects entry are retained and strengthened; the portrait homepage is preserved. Main-domain `/labs` redirects to the canonical labs domain.
+
+`CourseWalkthrough.tsx` replaces the observability lesson's long task list with four navigable stages: three tasks and the evidence checkpoint. Notes and current task persist per lesson using optional local storage, with Markdown export and a blocked-storage fallback. Setup provides Codespaces and Docker kit links. Checkpoint JSON import validates the course, exact checkpoint, passing state, timestamp and nonempty bounded check strings. Failed/malformed/wrong-lesson reports never show a pass. Imports are learner-held evidence, not signed attestations or live health monitoring; no file is uploaded. Reports are intentionally not persisted as a claim of current health.
+
+The local Docker stack is the real execution path verified in this update. Hosted Codespaces creation still requires the learner's GitHub account/quota; the website does not provision Docker on Vercel or embed a fake terminal.
+
+Vercel Web Analytics is already enabled on the project; root layout now integrates `@vercel/analytics/next`. Owner instructions and dashboard link: `docs/VISITOR_ANALYTICS.md`. No public counter and no notebook/source-code analytics events.

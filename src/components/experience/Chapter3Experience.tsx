@@ -368,7 +368,7 @@ export function Chapter3Experience() {
         ]}
       />
       <p className="lesson-next">
-        <Link href="/sre-labs/instrument">Which call made checkout slow</Link>
+        <Link href="/sre-labs/instrument">Which call made playback slow</Link>
       </p>
     </div>
   );

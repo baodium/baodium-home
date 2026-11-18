@@ -20,9 +20,9 @@ export type SreLesson = {
 export const SRE_LESSONS: SreLesson[] = [
   {
     id: "instrument",
-    title: "Which call made checkout slow",
+    title: "Which call made playback slow",
     summary:
-      "Checkout is slow, and the outbound call is invisible. The metric, the trace, and the log are how you find it.",
+      "A play start is slow, and the manifest fetch is invisible. The metric, the trace, and the log are how you find it.",
     outcome:
       "The metric shows the slowdown. The trace and the log show the call.",
     topic: "Observability",
@@ -32,9 +32,9 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "slo",
-    title: "Whether this window meets 99.5 percent",
+    title: "Whether these sends meet 99.5 percent",
     summary:
-      "Decide what counts as a good checkout, set 99.5 percent, and watch the misses spend the budget.",
+      "Decide what counts as a good message send, set 99.5 percent, and watch the misses spend the budget.",
     outcome:
       "Count a slow success as a miss when the line includes latency.",
     topic: "Service levels",
@@ -46,7 +46,7 @@ export const SRE_LESSONS: SreLesson[] = [
     id: "alert",
     title: "Whether this failure should page someone",
     summary:
-      "Compare a busy host, a short spike, a sustained checkout failure and missing telemetry.",
+      "Compare a busy host, a short spike, a sustained search failure, and missing telemetry.",
     outcome:
       "Use customer impact and burn rate to separate an incident from noise.",
     topic: "Alerting",
@@ -56,9 +56,9 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "cascade",
-    title: "A slow provider takes checkout down",
+    title: "A slow card provider fills its slots",
     summary:
-      "A slow external provider fills its slots. Follow checkout through retries, queues and deadlines, then recover it.",
+      "A card provider holds each charge longer. Retries ask for another slot, and new charges wait. Recover the path.",
     outcome: "Use traces and measured outcomes to contain retry amplification.",
     topic: "Resilience",
     difficulty: "Intermediate",
@@ -67,9 +67,9 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "capacity",
-    title: "The queue fills and latency climbs",
+    title: "Dispatch jobs fill the queue",
     summary:
-      "A surge overwhelms a bounded worker queue. Compare manual capacity and a utilization-based scaling controller.",
+      "Jobs arrive faster than workers finish them. Compare a fixed crew with a utilization rule on the same surge.",
     outcome: "Recover request success without reducing the offered load.",
     topic: "Capacity",
     difficulty: "Intermediate",
@@ -78,9 +78,9 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "deployment",
-    title: "A bad release has some of the traffic",
+    title: "A bad sign-in release has some of the traffic",
     summary:
-      "Send a fraction of traffic to a bad release, watch the failures, and take the share back.",
+      "Send a fraction of sign-ins to a bad release, watch the failures, and take that share back.",
     outcome: "Read how customer failures scale with the share on the bad release.",
     topic: "Deployments",
     difficulty: "Intermediate",

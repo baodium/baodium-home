@@ -7,7 +7,7 @@
   min-height: 100dvh;
   background: var(--lab-paper);
   color: var(--lab-ink);
-  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-family: var(--font-geist), sans-serif;
 }
 .labs-root * {
   box-sizing: border-box;
@@ -98,7 +98,7 @@
   font-size: 12px;
 }
 .labs-kicker {
-  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-family: var(--font-geist), sans-serif;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0.01em;
@@ -114,7 +114,7 @@
 }
 .labs-hero h1,
 .coding-roadmap-hero h1 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: clamp(2.5rem, 4vw, 3.75rem);
   font-weight: 500;
   line-height: 1.15;
@@ -189,7 +189,7 @@
 .labs-stats dd {
   order: 1;
   margin: 0;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 2.15rem;
   font-weight: 500;
   letter-spacing: -0.03em;
@@ -248,13 +248,13 @@
   border: 0;
 }
 .labs-hero-panel li > span {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.05rem;
   color: var(--lab-accent);
   padding-top: 2px;
 }
 .labs-hero-panel strong {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.2rem;
   font-weight: 500;
 }
@@ -283,7 +283,7 @@
 .labs-section-heading h2,
 .labs-practice-options h2,
 .labs-book-bridge h2 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: clamp(1.7rem, 2.4vw, 2.15rem);
   font-weight: 500;
   line-height: 1.22;
@@ -322,7 +322,7 @@
 .labs-path-lead h3 {
   grid-area: title;
   margin: 0.55rem 0 0;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: clamp(2rem, 3vw, 2.7rem);
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -364,7 +364,7 @@
 }
 .labs-path-later h3 {
   margin: 0.55rem 0 0;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.55rem;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -445,7 +445,7 @@
   color: var(--lab-accent);
 }
 .labs-track h3 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.65rem;
   letter-spacing: -0.03em;
   line-height: 1.2;
@@ -501,7 +501,7 @@
   font-weight: 600;
 }
 .labs-practice-options h3 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.45rem;
   letter-spacing: -0.02em;
   font-weight: 500;
@@ -735,7 +735,7 @@
 }
 .coding-description h1 {
   margin: 0.35rem 0 0.8rem;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: clamp(1.7rem, 2vw, 2.15rem);
   font-weight: 500;
   line-height: 1.22;
@@ -743,7 +743,7 @@
 }
 .coding-description h2 {
   margin: 1.4rem 0 0.45rem;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.2rem;
   font-weight: 500;
   color: #241c18;
@@ -842,7 +842,7 @@
   padding: 0 0 30px;
 }
 .coding-prompt h1 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: clamp(1.8rem, 2.4vw, 2.2rem);
   line-height: 1.18;
   letter-spacing: -0.03em;
@@ -850,7 +850,7 @@
   margin: 0 0 1.1rem;
 }
 .coding-prompt h2 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.25rem;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -950,7 +950,7 @@
   color: #b7ccce;
 }
 .coding-editor-bar button {
-  font-family: var(--font-lab-sans), "Source Sans 3", sans-serif;
+  font-family: var(--font-geist), sans-serif;
   color: #d4e3df;
   font-size: 11px;
   text-decoration: underline;
@@ -1374,7 +1374,7 @@
 .labs-course-head h2,
 .labs-paths h2,
 .labs-book h2 {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: clamp(2rem, 2.8vw, 2.65rem);
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -1412,7 +1412,7 @@
   padding: 2.5rem 0.35rem 2.15rem;
 }
 .labs-lesson-index {
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.35rem;
   color: var(--lab-accent);
   align-self: start;
@@ -1430,7 +1430,7 @@
 }
 .labs-lesson h3 {
   margin: 0;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-size: 1.55rem;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -1534,7 +1534,7 @@
 .labs-practice-lead h3,
 .labs-practice-rest h3 {
   margin: 0.45rem 0 0;
-  font-family: var(--font-lab-serif), "Newsreader", Georgia, serif;
+  font-family: var(--font-geist), sans-serif;
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -1699,3 +1699,45 @@
     transform: none;
   }
 }
+
+/* Learning surfaces use one sans family; monospace is reserved for code. */
+.labs-root { --lab-ink: #182c31; --lab-muted: #52656a; --lab-accent: #17645b; --lab-line: #d7e2df; --lab-paper: #f5f8f7; }
+.labs-hero { padding-top: 4rem; padding-bottom: 2rem; }
+.labs-hero h1 { max-width: 17ch; font-weight: 650; font-size: clamp(2.5rem, 5.2vw, 4.6rem); line-height: 1.06; letter-spacing: -.055em; }
+.labs-intro { max-width: 640px; font-size: 1.1rem; line-height: 1.75; }
+.labs-mode-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin-top: 32px; }
+.labs-mode-grid a { display: flex; flex-direction: column; padding: 28px; border: 1px solid var(--lab-line); border-radius: 16px; background: white; transition: border-color .2s, box-shadow .2s; }
+.labs-mode-grid a:hover { border-color: var(--lab-accent); box-shadow: 0 8px 28px #153b3510; }
+.labs-mode-number { color: var(--lab-accent); font: 11px var(--font-geist-mono); letter-spacing: .08em; }
+.labs-mode-grid h2 { margin: 24px 0 12px; font-size: 23px; line-height: 1.25; font-weight: 600; letter-spacing: -.035em; }
+.labs-mode-grid p { font-size: 14px; line-height: 1.75; color: var(--lab-muted); margin-bottom: 26px; }
+.labs-mode-grid strong { margin-top: auto; font-size: 13px; color: var(--lab-accent); }
+.labs-course, .labs-practice { margin-top: 5rem; }
+.labs-course-head h2 { font-size: clamp(1.7rem,3vw,2.3rem); font-weight: 600; letter-spacing: -.04em; max-width: 24ch; }
+.labs-lesson h3 { font-size: 1.2rem; font-weight: 600; }
+.labs-lesson.is-first h3 { font-size: 1.6rem; }
+.labs-lesson p { color: var(--lab-muted); font-size: 15px; line-height: 1.7; }
+@media(max-width: 760px) { .labs-mode-grid { grid-template-columns: 1fr; } .labs-hero { padding-top: 2rem; } .labs-mode-grid a { padding: 24px; } }
+
+.labs-hero { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); max-width: none; gap: 56px; align-items: center; }
+.labs-system-preview { background: #183e38; color: #f3faf6; border: 1px solid #28564e; border-radius: 20px; padding: 30px; box-shadow: 0 20px 50px #183e3812; }
+.labs-system-title { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font: 10px var(--font-geist-mono); letter-spacing: .08em; color: #a9d5c7; }
+.labs-system-preview h2 { margin: 36px 0 16px; font-size: clamp(1.6rem,2.6vw,2.2rem); font-weight: 550; line-height: 1.18; letter-spacing: -.04em; }
+.labs-system-preview p { color: #c7ddd5; font-size: 14px; line-height: 1.75; }
+.labs-system-flow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin: 30px 0 22px; }
+.labs-system-flow div { padding: 16px; background: #234c44; border: 1px solid #4a7168; border-radius: 10px; }
+.labs-system-flow div span { display: block; font: 9px var(--font-geist-mono); letter-spacing: .06em; color: #b4d4c9; }
+.labs-system-flow strong { display: block; font-size: 17px; font-weight: 550; margin: 10px 0 6px; }
+.labs-system-flow small { font-size: 11px; color: #c7ddd5; }
+.labs-system-signals { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; border-block: 1px solid #496e64; padding: 20px 0; }
+.labs-system-signals span { color: #c7ddd5; font-size: 10px; }
+.labs-system-signals strong { display: block; color: #f3faf6; font-size: 12px; margin-top: 5px; font-weight: 500; }
+.labs-surfaces { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 8px; }
+.labs-surfaces a { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; background: #234c44; border: 1px solid #4a7168; }
+.labs-surfaces a:hover { border-color: #d7efe4; }
+.labs-surfaces span { font: 10px var(--font-geist-mono); letter-spacing: .06em; color: #b4d4c9; text-transform: uppercase; }
+.labs-surfaces strong { font-size: 15px; font-weight: 550; color: #f3faf6; }
+.labs-system-preview > a { display: block; margin-top: 22px; font-size: 12px; text-underline-offset: 4px; }
+.labs-system-preview > a:hover { text-decoration: underline; }
+@media(max-width: 1000px) { .labs-hero { grid-template-columns: 1fr; gap: 24px; } .labs-hero-copy { max-width: 680px; } }
+@media(max-width: 500px) { .labs-system-preview { padding: 22px; } .labs-system-flow div { padding: 12px; } }

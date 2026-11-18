@@ -15,7 +15,7 @@ export default function CourseOverview() {
       <section className="course-overview">
         <header>
           <p className="product-eyebrow">Hands-on course</p>
-          <h1>Eight exercises, on the checkout you run yourself.</h1>
+          <h1>The payments stack, on your machine.</h1>
           <p>
             Generate requests, inspect the signals, introduce a fault, then
             confirm recovery in the numbers.

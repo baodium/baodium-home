@@ -26,16 +26,16 @@ test.describe("primary routes", () => {
     });
   }
 
-  test("nav labels Home / Book / SRE Labs / Projects", async ({
+  test("nav labels Home / Book / Labs / Projects", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Primary" });
-    for (const label of ["Home", "Book", "SRE Labs", "Projects"]) {
+    for (const label of ["Home", "Book", "Labs", "Projects"]) {
       await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
-    for (const label of ["Labs", "Drills", "About"]) {
+    for (const label of ["SRE Labs", "Drills", "About"]) {
       await expect(nav.getByRole("link", { name: label, exact: true })).toHaveCount(0);
     }
     await expect(page.getByRole("link", { name: "Read the book for free" })).toHaveCount(1);

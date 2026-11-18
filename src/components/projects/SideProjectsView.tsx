@@ -9,7 +9,7 @@ export function SideProjectsView() {
     <div className="min-h-[100dvh] bg-[#fbf7f1] px-6 pb-28 pt-28 text-[#241c18] md:px-10 md:pt-32">
       <div className="mx-auto max-w-5xl">
         <p className="text-base font-medium text-[#8d3d2c]">Projects</p>
-        <h1 className="mt-5 max-w-[16em] font-[family-name:var(--font-lab-serif)] text-[clamp(2.6rem,5vw,4.15rem)] font-medium leading-[1.15] tracking-[-0.02em]">
+        <h1 className="mt-5 max-w-[16em] font-[family-name:var(--font-geist)] text-[clamp(2.6rem,5vw,4.15rem)] font-medium leading-[1.15] tracking-[-0.02em]">
           Interview Coach, UpTo, and the labs
         </h1>
         <ul className="mt-20 border-t border-[#e6ddd2]">
@@ -22,7 +22,7 @@ export function SideProjectsView() {
             >
               <span>
                 <span className="text-base font-medium text-[#8d3d2c]">{featured.status}</span>
-                <span className="mt-5 block font-[family-name:var(--font-lab-serif)] text-[clamp(2.2rem,3.5vw,3.1rem)] font-medium leading-[1.2] tracking-[-0.02em]">
+                <span className="mt-5 block font-[family-name:var(--font-geist)] text-[clamp(2.2rem,3.5vw,3.1rem)] font-medium leading-[1.2] tracking-[-0.02em]">
                   {featured.name}
                 </span>
                 <span className="mt-4 block max-w-xl text-lg leading-relaxed text-[#3d322c]">
@@ -46,7 +46,7 @@ export function SideProjectsView() {
               >
                 <span>
                   <span className="text-base font-medium text-[#8d3d2c]">{project.status}</span>
-                  <span className="mt-4 block font-[family-name:var(--font-lab-serif)] text-[clamp(1.85rem,2.4vw,2.35rem)] font-medium leading-[1.2] tracking-[-0.02em]">
+                  <span className="mt-4 block font-[family-name:var(--font-geist)] text-[clamp(1.85rem,2.4vw,2.35rem)] font-medium leading-[1.2] tracking-[-0.02em]">
                     {project.name}
                   </span>
                   <span className="mt-4 block max-w-xl text-lg leading-relaxed text-[#5c514a]">
@@ -68,11 +68,11 @@ export function SideProjectsView() {
             >
               <span>
                 <span className="text-base font-medium text-[#8d3d2c]">In the browser</span>
-                <span className="mt-4 block font-[family-name:var(--font-lab-serif)] text-[clamp(1.85rem,2.4vw,2.35rem)] font-medium leading-[1.2] tracking-[-0.02em]">
+                <span className="mt-4 block font-[family-name:var(--font-geist)] text-[clamp(1.85rem,2.4vw,2.35rem)] font-medium leading-[1.2] tracking-[-0.02em]">
                   Labs
                 </span>
                 <span className="mt-4 block max-w-xl text-lg leading-relaxed text-[#5c514a]">
-                  A slow checkout, a 99.5 percent budget, and the question of when to page.
+                  Guided SRE walkthroughs, 24 coding exercises, and a real five-service observability lab with evidence checkpoints.
                 </span>
               </span>
               <span className="inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">

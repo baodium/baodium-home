@@ -5,8 +5,10 @@ import { seriesPath } from "@/lib/sre/chart";
 import { ServiceMark } from "@/components/learning/ServiceMark";
 import type { Snapshot, TraceView } from "@/lib/sre/engine";
 import { targetLabel, type Controls } from "@/lib/sre/model";
+import type { ServiceStory } from "@/lib/sre/stories";
 
 export function TelemetryBoard({
+  story,
   controls,
   snapshot,
   traceId,
@@ -14,6 +16,7 @@ export function TelemetryBoard({
   hop,
   onHop,
 }: {
+  story: ServiceStory;
   controls: Controls;
   snapshot: Snapshot;
   traceId: string | null;
@@ -36,22 +39,22 @@ export function TelemetryBoard({
   return (
     <div className="space-y-4">
       <section className="exp-panel">
-        <p className="exp-kicker">Checkout</p>
+        <p className="exp-kicker">{story.product}</p>
         <h2 className="mt-1 font-serif text-2xl text-[color:var(--exp-fg)]">
-          One payment call
+          {story.service} calls {story.dependency}
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
-          A shopper hits checkout. Checkout calls payment. The clock below is
-          the only clock. The chart, the trace, the log, and the alerts are that
-          same minute.
+          A {story.noun} reaches {story.service}. {story.service} calls{" "}
+          {story.dependency}. The clock below is the only clock. The chart, the
+          trace, the log, and the alerts are that same minute.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <ServiceCard label="Client" detail="Starts the checkout" />
+          <ServiceCard label={story.client} detail={story.clientDetail} />
           <ServiceCard
-            label="Checkout"
-            detail={`POST /checkout · ${snapshot.httpVisible ? `${window.total} in the window` : "metrics off"}`}
+            label={story.service}
+            detail={`${story.path} · ${snapshot.httpVisible ? `${window.total} in the window` : "metrics off"}`}
           />
-          <ServiceCard label="Pay" detail="payment charge" />
+          <ServiceCard label={story.dependency} detail={story.dependencySpan} />
         </div>
       </section>
 
@@ -67,8 +70,8 @@ export function TelemetryBoard({
         {snapshot.httpVisible ? (
           <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
             {window.total === 0
-              ? "No checkout has finished in this window yet."
-              : `${window.good} good and ${window.bad} bad out of ${window.total}. The target allows ${window.allowedBad.toFixed(1)} bad checkouts in a window of this size. Spent ${spentText}.`}
+              ? `No ${story.noun} has finished in this window yet.`
+              : `${window.good} good and ${window.bad} bad out of ${window.total}. The target allows ${window.allowedBad.toFixed(1)} bad ${story.plural} in a window of this size. Spent ${spentText}.`}
           </p>
         ) : (
           <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
@@ -76,7 +79,7 @@ export function TelemetryBoard({
             telemetry, not a perfect hour.
           </p>
         )}
-        <SeriesChart series={snapshot.series} />
+        <SeriesChart series={snapshot.series} service={story.service} />
         <dl className="mt-3 grid grid-cols-2 gap-2 font-mono text-[0.75rem] sm:grid-cols-4">
           <Stat
             label="CPU"
@@ -114,8 +117,8 @@ export function TelemetryBoard({
           {snapshot.traces.length === 0 ? (
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
               {controls.emitHttp
-                ? "No trace yet. Run the checkout."
-                : "Checkout telemetry is off, so there is no trace to open."}
+                ? `No trace yet. ${story.run}.`
+                : `Telemetry for ${story.plural} is off, so there is no trace to open.`}
             </p>
           ) : (
             <div className="mt-3 grid gap-3 sm:grid-cols-[9rem_minmax(0,1fr)]">
@@ -137,7 +140,7 @@ export function TelemetryBoard({
                 ))}
               </ul>
               {trace ? (
-                <TraceDetail trace={trace} hop={hop} onHop={onHop} />
+                <TraceDetail trace={trace} hop={hop} onHop={onHop} story={story} />
               ) : null}
             </div>
           )}
@@ -149,8 +152,8 @@ export function TelemetryBoard({
           {!controls.instrumentation.structuredLogs || !controls.emitHttp ? (
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
               {controls.emitHttp
-                ? "Structured logs are off. A plain sentence would not carry the trace id or the payment time."
-                : "Checkout telemetry is off, so no log line is being recorded."}
+                ? `Structured logs are off. A plain sentence would not carry the trace id or the ${story.dependency} time.`
+                : `Telemetry for ${story.plural} is off, so no log line is being recorded.`}
             </p>
           ) : snapshot.logs.length === 0 ? (
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">
@@ -173,7 +176,7 @@ export function TelemetryBoard({
 
       <section className="grid gap-4 sm:grid-cols-2">
         <AlertCard title="CPU over 80%" alert={snapshot.cpuAlert} />
-        <AlertCard title="Checkout burn rate" alert={snapshot.burnAlert} />
+        <AlertCard title={`${story.service} burn rate`} alert={snapshot.burnAlert} />
       </section>
     </div>
   );
@@ -222,13 +225,15 @@ function TraceDetail({
   trace,
   hop,
   onHop,
+  story,
 }: {
   trace: TraceView;
   hop: "checkout" | "payment" | null;
   onHop: (hop: "checkout" | "payment") => void;
+  story: ServiceStory;
 }) {
   const linkedPayment = trace.spans.some(
-    (span) => span.name === "payment charge",
+    (span) => span.name === story.dependencySpan,
   );
   return (
     <div>
@@ -265,7 +270,7 @@ function TraceDetail({
           className={hopButton(hop === "checkout")}
           onClick={() => onHop("checkout")}
         >
-          Checkout handler
+          {story.handlerButton}
         </button>
         <button
           type="button"
@@ -273,12 +278,12 @@ function TraceDetail({
           onClick={() => onHop("payment")}
           disabled={!linkedPayment && trace.unlinked.length === 0}
         >
-          Payment charge
+          {story.dependencyButton}
         </button>
       </div>
       {!linkedPayment && trace.unlinked.length > 0 ? (
         <p className="mt-2 text-xs leading-relaxed text-[color:var(--exp-muted)]">
-          The payment span has no trace id in common with checkout, so it is not
+          The {story.dependency} span has no trace id in common with {story.service}, so it is not
           part of this trace yet.
         </p>
       ) : null}
@@ -322,7 +327,13 @@ function AlertCard({
   );
 }
 
-function SeriesChart({ series }: { series: Snapshot["series"] }) {
+function SeriesChart({
+  series,
+  service,
+}: {
+  series: Snapshot["series"];
+  service: string;
+}) {
   const drawing = useMemo(() => {
     const width = 640;
     const height = 180;
@@ -349,14 +360,14 @@ function SeriesChart({ series }: { series: Snapshot["series"] }) {
   return (
     <figure>
       <figcaption className="mt-3 text-xs text-[color:var(--exp-muted)]">
-        Checkout errors (copper) and CPU (teal), % · one-second samples. Gaps
+        {service} errors (copper) and CPU (teal), % · one-second samples. Gaps
         indicate missing measurements.
       </figcaption>
       <svg
         viewBox={`0 0 ${drawing.width} ${drawing.height}`}
         className="mt-3 h-auto w-full"
         role="img"
-        aria-label="Checkout error rate and CPU over the last minute"
+        aria-label={`${service} error rate and CPU over the last minute`}
       >
         {[0, 50, 100].map((value) => (
           <g key={value}>

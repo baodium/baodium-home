@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Unmodified Go runtime shipped by the Go toolchain, not application code.
+    "public/workers/wasm_exec.js",
   ]),
 ]);
 

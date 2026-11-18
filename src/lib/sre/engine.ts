@@ -274,7 +274,7 @@ function tracesFor(requests: RequestEvent[], controls: Controls): TraceView[] {
   if (!controls.emitHttp) return [];
   return requests.slice(-6).reverse().map((request) => {
     const server: SpanView = {
-      name: "checkout POST /checkout",
+      name: controls.handlerSpan,
       ms: request.checkoutMs,
       traceId: request.traceId,
       linked: true,
@@ -283,7 +283,7 @@ function tracesFor(requests: RequestEvent[], controls: Controls): TraceView[] {
     const unlinked: SpanView[] = [];
     if (controls.instrumentation.outboundSpan) {
       const child: SpanView = {
-        name: "payment charge",
+        name: controls.dependencySpan,
         ms: request.paymentMs,
         traceId: controls.instrumentation.traceContext ? request.traceId : null,
         linked: controls.instrumentation.traceContext,
@@ -309,10 +309,10 @@ function logsFor(requests: RequestEvent[], controls: Controls): LogView[] {
     const fields: Record<string, string | number> = {
       request_id: request.id,
       status: request.status,
-      checkout_ms: request.checkoutMs,
+      [controls.requestLog]: request.checkoutMs,
     };
     if (controls.instrumentation.traceContext) fields.trace_id = request.traceId;
-    if (controls.instrumentation.outboundSpan) fields.payment_ms = request.paymentMs;
+    if (controls.instrumentation.outboundSpan) fields[controls.dependencyLog] = request.paymentMs;
     return { id: request.id, line: JSON.stringify(fields) };
   });
 }
@@ -352,8 +352,8 @@ export function snapshotSre(state: EngineState, controls: Controls): Snapshot {
       kind: "burn",
       status: "no-data",
       detail: visible
-        ? "The windows do not have enough checkout samples yet."
-        : "Checkout metrics are missing. This alert cannot call the SLO healthy, and it does not page.",
+        ? `The windows do not have enough ${controls.workPlural} yet.`
+        : `Metrics for ${controls.workPlural} are missing. This alert cannot call the SLO healthy, and it does not page.`,
     };
   } else if (shortBurn.hot && longBurn.hot) {
     burnAlert = {

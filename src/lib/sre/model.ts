@@ -45,6 +45,12 @@ export type Controls = {
   latencyBudgetMs: number;
   target: number;
   alert: AlertKind;
+  handlerSpan: string;
+  dependencySpan: string;
+  requestLog: string;
+  dependencyLog: string;
+  workNoun: string;
+  workPlural: string;
 };
 
 export type RequestEvent = {
@@ -93,6 +99,12 @@ export function defaultControls(patch?: Partial<Controls>): Controls {
     latencyBudgetMs: LATENCY_BUDGET_MS,
     target: DEFAULT_TARGET,
     alert: "burn",
+    handlerSpan: "checkout POST /checkout",
+    dependencySpan: "payment charge",
+    requestLog: "checkout_ms",
+    dependencyLog: "payment_ms",
+    workNoun: "checkout",
+    workPlural: "checkouts",
   };
   return {
     ...base,

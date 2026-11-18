@@ -4,7 +4,7 @@ import { SreChrome } from "@/components/sre/SreChrome";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "A slow provider takes checkout down",
+  title: "A slow card provider fills its slots",
   description:
     "A gateway, checkout, payment, and an external provider on one clock. Provider work, retries, and mitigations change the same spans.",
   alternates: { canonical: `${site.url}/sre-labs/cascade` },

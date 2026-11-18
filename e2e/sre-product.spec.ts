@@ -41,7 +41,7 @@ test("SRE catalog filters intersect and an empty result can be cleared", async (
     .selectOption("No prerequisites");
   await expect(page.locator(".catalog-lesson")).toHaveCount(1);
   await expect(page.locator(".catalog-lesson")).toContainText(
-    "Which call made checkout slow",
+    "Which call made playback slow",
   );
 });
 
@@ -199,9 +199,9 @@ test("beginner instruments a trace, assesses it, then completes an SLO experimen
     await page
       .getByRole("button", { name: `${signal} off`, exact: true })
       .click();
-  await page.getByRole("button", { name: "Run checkout", exact: true }).click();
+  await page.getByRole("button", { name: "Run a play start", exact: true }).click();
   await page
-    .getByRole("button", { name: "Payment charge", exact: true })
+    .getByRole("button", { name: "Manifest fetch", exact: true })
     .click();
   await page
     .getByRole("button", { name: "Check this run", exact: true })

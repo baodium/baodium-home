@@ -6,7 +6,7 @@ import { codingSummaries, CODING_CATEGORIES } from "@/lib/labs/coding";
 export const metadata: Metadata = {
   title: "SRE coding roadmap",
   description:
-    "Twenty-four SRE exercises in Go, TypeScript, or Python. The same checks run in the browser, and a stage moves only when the full suite passes.",
+    "SRE functions in Go, TypeScript, or Python. The same checks run in the browser, and a stage moves only when the full suite passes.",
   alternates: { canonical: "https://labs.baodium.com/sre-labs/coding" },
 };
 export default function CodingPage() {
@@ -16,7 +16,7 @@ export default function CodingPage() {
         <Link href="/labs" className="labs-back">
           ← All learning paths
         </Link>
-        <h1>Twenty-four functions, from fleet health to a release.</h1>
+        <h1>Functions from fleet health to a release.</h1>
         <p>
           Go, TypeScript, or Python. The checks are the same in each language,
           and a stage moves only when every exercise in it has a passing full

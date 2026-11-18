@@ -4,8 +4,8 @@ import { SreExperience } from "@/components/sre/SreExperience";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "Whether this window meets 99.5 percent",
-  description: "Set a 99.5% checkout SLO and judge the window in front of you.",
+  title: "Whether these sends meet 99.5 percent",
+  description: "Set a 99.5% SLO for message sends and judge the window in front of you.",
   alternates: { canonical: `${site.url}/sre-labs/slo` },
 };
 

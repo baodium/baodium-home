@@ -58,11 +58,12 @@ export function SreCatalog() {
       <header className="catalog-hero">
         <div className="catalog-heading">
           <p className="product-eyebrow">SRE labs</p>
-          <h1>The checkout, in the browser and on a real stack.</h1>
+          <h1>Browser lessons across services. A payments stack you run.</h1>
           <p>
-            Eight exercises run Express and FastAPI with Prometheus, Grafana,
-            OpenTelemetry, and Jaeger. Those need Docker and Node.js 20 or
-            newer. The six lessons below run in the browser.
+            Playback, messaging, search, dispatch, and sign-in run in the
+            browser. Payments is the stack you start yourself: Express and
+            FastAPI, with Prometheus, Grafana, OpenTelemetry, and Jaeger.
+            That stack needs Docker and Node.js 20 or newer.
           </p>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
@@ -72,7 +73,7 @@ export function SreCatalog() {
           </Link>
         </div>
         <aside className="course-toolchain">
-          <p className="product-eyebrow">What this checkout records</p>
+          <p className="product-eyebrow">What the payments stack records</p>
           <div className="course-service-pair">
             <span>
               <strong>Express</strong>Checkout service
@@ -114,7 +115,7 @@ export function SreCatalog() {
       </header>
       <section className="course-objective" aria-label="SRE coding practice">
         <p className="product-eyebrow">Coding practice</p>
-        <h2>Twenty-four functions, in Go, TypeScript, or Python.</h2>
+        <h2>Functions in Go, TypeScript, or Python.</h2>
         <p>
           Fleet checks, log analysis, retries, rate limits, and delivery
           policies. Go, TypeScript, and Python share the same checks, and they
@@ -131,7 +132,7 @@ export function SreCatalog() {
           <div>
             <p className="product-eyebrow">The hands-on path</p>
             <h2 id="course-outline-title">
-              Eight exercises on a running checkout.
+              Exercises on the payments stack.
             </h2>
           </div>
           <span>8 exercises · local execution</span>
@@ -157,8 +158,8 @@ export function SreCatalog() {
         <header className="browser-course-head">
           <div>
             <p className="product-eyebrow">In the browser</p>
-            <h2 id="browser-course-title">Six lessons in the browser.</h2>
-            <p>Nothing to install. The first lesson is a slow checkout.</p>
+            <h2 id="browser-course-title">In the browser.</h2>
+            <p>Nothing to install. The first lesson is a slow play start.</p>
           </div>
           <Link href={`/sre-labs/${next.id}`} className="product-button">
             {completed ? "Continue" : "Start lesson 1"} <ArrowRight size={16} />

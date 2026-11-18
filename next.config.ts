@@ -16,12 +16,17 @@ const nextConfig: NextConfig = {
     };
   },
   async redirects() {
-    return ["baodium.com", "www.baodium.com"].map((host) => ({
+    return ["baodium.com", "www.baodium.com"].flatMap((host) => [{
+      source: "/labs",
+      has: [{ type: "host" as const, value: host }],
+      destination: "https://labs.baodium.com/",
+      permanent: true,
+    }, {
       source: "/sre-labs/:path*",
       has: [{ type: "host" as const, value: host }],
       destination: "https://labs.baodium.com/sre-labs/:path*",
       permanent: true,
-    }));
+    }]);
   },
   async headers() {
     return [

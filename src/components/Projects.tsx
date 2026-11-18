@@ -48,14 +48,14 @@ export function Projects() {
                 id="projects-heading"
                 className="mt-2 max-w-[22ch] font-serif text-[clamp(1.55rem,2.8vw,2.1rem)] italic leading-[1.08] tracking-[-0.03em] text-ink"
               >
-                Interview Coach and UpTo.
+                Interview Coach, UpTo, and Labs.
               </h2>
               <p className="mt-2 max-w-md text-[0.95rem] leading-relaxed text-muted">
-                Live products with full-page walkthroughs. One follows your
-                interview answers. The other is a status page you update once.
+                Interview practice, status sharing, and hands-on engineering labs.
+                Explore the products and learn by building.
               </p>
               <p className="mt-4 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-tide/80">
-                {projects.map((p) => p.name).join(" · ")}
+                {[...projects.map((p) => p.name), "Baodium Labs"].join(" · ")}
               </p>
             </div>
 

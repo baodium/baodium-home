@@ -362,7 +362,7 @@ function CascadeSession({
     <LaboratoryShell
       toolbar={
         <p className="product-eyebrow">
-          Gateway / Checkout / Payment / Provider
+          Payments · gateway, checkout, payment, card provider
         </p>
       }
       mission={
@@ -375,7 +375,7 @@ function CascadeSession({
           />
           <h1 className="cascade-title">
             {mode === "challenge"
-              ? "Checkout success collapsed."
+              ? "Charge success collapsed."
               : lesson.title}
           </h1>
           <LessonSteps beats={lessonBeats(lesson)} />

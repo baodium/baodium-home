@@ -44,6 +44,7 @@ import {
   type Journey,
   type Scene,
 } from "@/lib/sre/model";
+import { serviceStory } from "@/lib/sre/stories";
 
 export type SreLabId = "instrument" | "slo" | "alert";
 type Mode = "guided" | "practice" | "challenge";
@@ -174,6 +175,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
   });
 
   const lesson = sreLesson(lab);
+  const story = serviceStory(lab);
   return (
     <>
       <header className="sre-lesson-mast">
@@ -204,6 +206,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
         canvas={
           <>
             <TelemetryBoard
+              story={story}
               controls={controls}
               snapshot={snapshot}
               traceId={trace?.id ?? null}
@@ -373,7 +376,7 @@ function PracticeRail({
             className="exp-btn exp-btn-ghost"
             onClick={onRun}
           >
-            Run checkout
+            {serviceStory("slo").run}
           </button>
           <button
             type="button"
@@ -439,7 +442,7 @@ function PracticeRail({
       ) : null}
       {lab === "instrument" ? (
         <button type="button" className="exp-btn exp-btn-ghost" onClick={onRun}>
-          Run checkout
+          {serviceStory("instrument").run}
         </button>
       ) : null}
       <button type="button" className="exp-btn exp-btn-solid" onClick={onCheck}>
@@ -505,8 +508,8 @@ function AlertPicker({
   const rows = [
     ["cpu-spike", "CPU spike"],
     ["short-spike", "Short spike"],
-    ["sustained", "Sustained checkout failure"],
-    ["missing-telemetry", "Missing checkout metrics"],
+    ["sustained", "Sustained query failure"],
+    ["missing-telemetry", "Missing query metrics"],
   ] as const;
   return (
     <div className="space-y-3">
@@ -571,9 +574,22 @@ function choiceClass(on: boolean): string {
   return `exp-btn ${on ? "exp-btn-primary" : "exp-btn-ghost"} w-full justify-start`;
 }
 
+function withStory(lab: SreLabId, controls: Controls): Controls {
+  const story = serviceStory(lab);
+  return {
+    ...controls,
+    handlerSpan: story.handlerSpan,
+    dependencySpan: story.dependencySpan,
+    requestLog: story.requestLog,
+    dependencyLog: story.dependencyLog,
+    workNoun: story.noun,
+    workPlural: story.plural,
+  };
+}
+
 function initialControls(lab: SreLabId, mode: Mode): Controls {
   if (lab === "instrument") {
-    return defaultControls({
+    return withStory(lab, defaultControls({
       instrumentation:
         mode === "challenge"
           ? {
@@ -588,18 +604,21 @@ function initialControls(lab: SreLabId, mode: Mode): Controls {
       arrivalRate: 4,
       emitHttp: true,
       alert: "cpu",
-    });
+    }));
   }
-  return defaultControls({
-    instrumentation: { ...FULL_INSTRUMENTATION },
-    timeoutMs: 300,
-    arrivalRate: 10,
-    target: DEFAULT_TARGET,
-    journey: "checkout",
-    goodWhen: "both",
-    alert: mode === "guided" ? "cpu" : "burn",
-    emitHttp: true,
-  });
+  return withStory(
+    lab,
+    defaultControls({
+      instrumentation: { ...FULL_INSTRUMENTATION },
+      timeoutMs: 300,
+      arrivalRate: 10,
+      target: DEFAULT_TARGET,
+      journey: "checkout",
+      goodWhen: "both",
+      alert: mode === "guided" ? "cpu" : "burn",
+      emitHttp: true,
+    }),
+  );
 }
 
 function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
@@ -646,16 +665,17 @@ type GuidedInput = Parameters<typeof guidedStep>[0];
 
 function instrumentGuided(input: GuidedInput) {
   const flags = input.controls.instrumentation;
+  const story = serviceStory("instrument");
   const steps = [
     {
-      title: "Checkout, before any signal is on",
+      title: "Playback, before any signal is on",
       ready: true,
       body: (
         <p>
-          Checkout is calling payment, and none of that is recorded yet. Run it
-          once. The chart, the trace, and the log stay empty because the service
-          has no HTTP metrics, no outbound span, no trace context, and no
-          structured log.
+          Playback is calling the manifest service, and none of that is recorded
+          yet. Run a play start. The chart, the trace, and the log stay empty
+          because the service has no HTTP metrics, no outbound span, no trace
+          context, and no structured log.
         </p>
       ),
       actions: (
@@ -664,7 +684,7 @@ function instrumentGuided(input: GuidedInput) {
           className="exp-btn exp-btn-primary"
           onClick={() => input.runCheckout(3)}
         >
-          Run checkout
+          {story.run}
         </button>
       ),
     },
@@ -673,7 +693,7 @@ function instrumentGuided(input: GuidedInput) {
       ready: flags.httpMetrics && input.snapshot.window.total > 0,
       body: (
         <p>
-          HTTP metrics count the checkouts and how many of them failed. Turn
+          HTTP metrics count the play starts and how many of them failed. Turn
           them on and run again. The error line is the share of those calls that
           returned 500 or 504.
         </p>
@@ -695,7 +715,7 @@ function instrumentGuided(input: GuidedInput) {
             className="exp-btn exp-btn-ghost"
             onClick={() => input.runCheckout(3)}
           >
-            Run checkout
+            {story.run}
           </button>
         </>
       ),
@@ -709,10 +729,10 @@ function instrumentGuided(input: GuidedInput) {
         ),
       body: (
         <p>
-          The checkout span only says the request took some time. An outbound
-          span is the payment call inside it. Add that span and run again. Until
-          trace context is on, the payment span will not share the checkout
-          trace id.
+          The playback span only says the request took some time. An outbound
+          span is the manifest fetch inside it. Add that span and run again.
+          Until trace context is on, the manifest span will not share the
+          playback trace id.
         </p>
       ),
       actions: (
@@ -735,23 +755,23 @@ function instrumentGuided(input: GuidedInput) {
             className="exp-btn exp-btn-ghost"
             onClick={() => input.runCheckout(3)}
           >
-            Run checkout
+            {story.run}
           </button>
         </>
       ),
     },
     {
-      title: "The payment span joins the checkout trace",
+      title: "The manifest span joins the playback trace",
       ready:
         flags.traceContext &&
         input.snapshot.traces.some((trace) =>
-          trace.spans.some((span) => span.name === "payment charge"),
+          trace.spans.some((span) => span.name === story.dependencySpan),
         ),
       body: (
         <p>
-          Trace context puts the checkout trace id on the payment span. With it,
-          that span sits inside the request you opened. Without it, the
-          payment span is a stranger.
+          Trace context puts the playback trace id on the manifest span. With
+          it, that span sits inside the request you opened. Without it, the
+          manifest span is a stranger.
         </p>
       ),
       actions: (
@@ -799,21 +819,21 @@ function instrumentGuided(input: GuidedInput) {
             className="exp-btn exp-btn-ghost"
             onClick={() => input.runCheckout(2)}
           >
-            Run checkout
+            {story.run}
           </button>
         </>
       ),
     },
     {
-      title: "Payment is 400 ms slower",
+      title: "The manifest fetch is 400 ms slower",
       ready:
         input.controls.extraLatencyMs >= 200 &&
         input.snapshot.traces.some((trace) => trace.paymentMs > 200),
       body: (
         <p>
-          Add 400 ms on the payment call and run again. Open a trace. The
-          checkout span is the whole request. The payment span is the part that
-          grew. The log records that same payment time.
+          Add 400 ms on the manifest fetch and run again. Open a trace. The
+          playback span is the whole request. The manifest span is the part that
+          grew. The log records that same manifest time.
         </p>
       ),
       actions: (
@@ -829,7 +849,7 @@ function instrumentGuided(input: GuidedInput) {
             })
           }
         >
-          Add payment latency
+          Add manifest latency
         </button>
       ),
     },
@@ -839,16 +859,17 @@ function instrumentGuided(input: GuidedInput) {
 }
 
 function sloGuided(input: GuidedInput) {
+  const story = serviceStory("slo");
   const steps = [
     {
-      title: "Checkout is the journey, not the CPU",
+      title: "A send is the journey, not the CPU",
       ready: input.controls.journey === "checkout",
       body: (
         <>
           <p>
-            An SLO is a promise about a journey, not about a host. Checkout is
-            the journey. CPU is a measurement of the machine. If you aim the SLO
-            at CPU, failed checkouts will not spend the budget.
+            An SLO is a promise about a journey, not about a host. A message
+            send is the journey. CPU is a measurement of the machine. If you
+            aim the SLO at CPU, failed sends will not spend the budget.
           </p>
           <JourneyButtons
             controls={input.controls}
@@ -864,8 +885,8 @@ function sloGuided(input: GuidedInput) {
       body: (
         <>
           <p>
-            A 500 that returns quickly is not a good checkout. A 200 that takes
-            800 ms is not a good checkout either. Count the call as good only
+            A 500 that returns quickly is not a good send. A 200 that takes
+            800 ms is not a good send either. Count the call as good only
             when it succeeds in under 300 ms.
           </p>
           <GoodButtons
@@ -881,7 +902,7 @@ function sloGuided(input: GuidedInput) {
       ready: input.controls.target === DEFAULT_TARGET,
       body: (
         <p>
-          This SLO is 99.5%. In 1,000 checkouts the budget is 5 bad calls. 17
+          This SLO is 99.5%. In 1,000 sends the budget is 5 bad calls. 17
           bad calls is 98.3% good. 98.3% does not meet 99.5%. The pass line is
           the number you wrote down, not a nearby number.
         </p>
@@ -900,9 +921,9 @@ function sloGuided(input: GuidedInput) {
         input.snapshot.window.meets === false,
       body: (
         <p>
-          Raise the failure rate and run the checkout. The bad count, the
+          Raise the failure rate and run the sends. The bad count, the
           allowed count, and the budget meter all move from those calls. When
-          bad checkouts pass the allowance, the window has missed 99.5%.
+          bad sends pass the allowance, the window has missed 99.5%.
         </p>
       ),
       actions: (
@@ -930,16 +951,16 @@ function sloGuided(input: GuidedInput) {
 function alertGuided(input: GuidedInput) {
   const steps = [
     {
-      title: "A CPU alert pages with no failed checkout",
+      title: "A CPU alert pages with no failed query",
       ready:
         input.situation === "cpu-spike" &&
         input.snapshot.cpuAlert.status === "paging" &&
         input.snapshot.window.meets === true,
       body: (
         <p>
-          This rule pages when CPU stays over 80%. Run the spike. Checkout is
-          still succeeding. The page fires because the host is busy, not because
-          a customer is stuck.
+          This rule pages when CPU stays over 80%. Run the spike. Search queries
+          are still succeeding. The page fires because the host is busy, not
+          because a searcher is stuck.
         </p>
       ),
       actions: (
@@ -953,15 +974,15 @@ function alertGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "The same alert misses checkout timeouts",
+      title: "The same alert misses query timeouts",
       ready:
         input.situation === "sustained" &&
         input.snapshot.cpuAlert.status === "quiet" &&
         input.snapshot.window.bad > 0,
       body: (
         <p>
-          Now checkouts fail while CPU stays near 35%. The CPU alert is quiet.
-          Customers are not. A threshold on the host cannot see this.
+          Now queries fail while CPU stays near 35%. The CPU alert is quiet.
+          Searchers are not. A threshold on the host cannot see this.
         </p>
       ),
       actions: (
@@ -970,7 +991,7 @@ function alertGuided(input: GuidedInput) {
           className="exp-btn exp-btn-primary"
           onClick={() => input.play("sustained", { alert: "cpu" })}
         >
-          Run checkout failures
+          {serviceStory("alert").runFailures}
         </button>
       ),
     },
@@ -1007,7 +1028,7 @@ function alertGuided(input: GuidedInput) {
       body: (
         <p>
           Run a short burst of failures after a healthy hour. The short window
-          burns. The long window still contains the healthy checkouts, so the
+          burns. The long window still contains the healthy queries, so the
           alert stays quiet.
         </p>
       ),
@@ -1050,7 +1071,7 @@ function alertGuided(input: GuidedInput) {
         input.snapshot.burnAlert.status === "no-data",
       body: (
         <p>
-          Stop the checkout metrics while failures continue. The burn alert has
+          Stop the query metrics while failures continue. The burn alert has
           no samples. It does not draw a healthy 100%, and it does not page. You
           cannot explain a page from a chart that is not there.
         </p>
@@ -1061,7 +1082,7 @@ function alertGuided(input: GuidedInput) {
           className="exp-btn exp-btn-primary"
           onClick={() => input.play("missing-telemetry", { alert: "burn" })}
         >
-          Stop checkout metrics
+          Stop query metrics
         </button>
       ),
     },
@@ -1086,7 +1107,7 @@ function JourneyButtons({
         className={choiceClass(controls.journey === "checkout")}
         onClick={() => setJourney("checkout")}
       >
-        Checkout completes
+        A send completes
       </button>
       <button
         type="button"
@@ -1161,28 +1182,28 @@ function TargetButtons({
 function objective(lab: SreLabId, mode: Mode): string {
   if (lab === "instrument") {
     return mode === "challenge"
-      ? "Checkout is slow. Turn on the missing signal and name the hop that holds the time."
-      : "Turn on HTTP metrics, the outbound span, trace context, and a structured log. Then show that the extra latency sits on the payment span.";
+      ? "Playback is slow. Turn on the missing signal and name the hop that holds the time."
+      : "Turn on HTTP metrics, the outbound span, trace context, and a structured log. Then show that the extra latency sits on the manifest fetch.";
   }
   if (lab === "slo") {
     return mode === "challenge"
-      ? "The stated target is on the chart. Decide whether this window meets that target."
-      : "Keep the checkout SLO at 99.5%, count only a success under 300 ms, and raise failures until the window spends the budget.";
+      ? "The stated target is on the chart. Decide whether this window of sends meets that target."
+      : "Keep the messaging SLO at 99.5%, count only a send that succeeds under 300 ms, and raise failures until the window spends the budget.";
   }
   return mode === "challenge"
-    ? "Something paged. From the checkout telemetry, decide whether a customer is failing badly enough to wake someone."
-    : "Choose the burn-rate alert, then name the situation that deserves a page: the sustained checkout failure.";
+    ? "Something paged. From the search telemetry, decide whether a searcher is failing badly enough to wake someone."
+    : "Choose the burn-rate alert, then name the situation that deserves a page: the sustained query failure.";
 }
 
 function gettingStarted(lab: SreLabId, mode: Mode): string {
   if (lab === "instrument") {
-    return "Run the checkout, turn the four signals on, open a trace, and choose the hop that holds the extra time.";
+    return "Run a play start, turn the four signals on, open a trace, and choose the hop that holds the extra time.";
   }
   if (lab === "slo" && mode === "challenge") {
     return "Read the good count against the stated target. Then mark the window as meeting it or missing it.";
   }
   if (lab === "slo") {
-    return "Run the checkout, then raise failures. The allowed bad count is 0.5% of the window, because the target is 99.5%.";
+    return "Run the sends, then raise failures. The allowed bad count is 0.5% of the window, because the target is 99.5%.";
   }
   if (mode === "challenge") {
     return "Read the CPU line, the two burn windows, and a trace before you decide.";

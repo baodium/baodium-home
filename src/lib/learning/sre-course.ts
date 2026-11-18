@@ -24,20 +24,20 @@ export const SRE_COURSE: SreLessonCraft[] = [
     id: "instrument",
     index: 1,
     minutes: 10,
-    title: "Which call made checkout slow",
+    title: "Which call made playback slow",
     outcomes: [
-      "Tell a metric, a span, and a log apart on one checkout.",
+      "Tell a metric, a span, and a log apart on one play start.",
       "Turn on the missing record, then name the hop holding the extra time.",
       "Say what you still could not see if you had only one of those three records.",
     ],
     paragraphs: [
-      "A slow checkout is a complaint, not a diagnosis. The page waited. The wait has a place, and that place is a hop on the path from the product page to the database. Until a record names the hop, you are guessing.",
-      "This lesson uses one checkout and three kinds of record. Each one answers a different question. In Guided, you turn the four signals on in order. In Practice, you turn them yourself. In Challenge, the page is already slow and the prompt does not name the hop.",
+      "A slow play start is a complaint, not a diagnosis. The player waited. The wait has a place, and that place is a hop between playback and the manifest service. Until a record names the hop, you are guessing.",
+      "This lesson uses one play start and three kinds of record. Each one answers a different question. In Guided, you turn the four signals on in order. In Practice, you turn them yourself. In Challenge, playback is already slow and the prompt does not name the hop.",
     ],
     concepts: [
       {
         name: "Metric",
-        body: "Checkout slowed. This record does not name the hop.",
+        body: "Playback slowed. This record does not name the hop.",
       },
       {
         name: "Span",
@@ -50,13 +50,13 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     goal: "Four signals go on. Then the call that held the time has a name.",
     steps: [
-      "Run a checkout before the four signals are on, and notice what you cannot name.",
+      "Run a play start before the four signals are on, and notice what you cannot name.",
       "Turn on HTTP metrics, the outbound span, trace context, and a structured log.",
       "Open one trace and point at the hop whose duration accounts for the wait.",
       "In challenge mode, do the same from a slow page. The prompt does not name the hop.",
     ],
     takeaways: [
-      "From the metric, you see that checkout slowed. From the span, you see which hop held the time. From the log, you see what the code decided while that span was open.",
+      "From the metric, you see that playback slowed. From the span, you see which hop held the time. From the log, you see what the code decided while that span was open.",
       "Trace context is what makes the span and the log the same request, rather than two records that happen to be near each other in time.",
       "If the hop is still unnamed after you add a signal, the signal is in the wrong place or it is not joined to the request.",
     ],
@@ -69,27 +69,27 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/slo",
       label: "Lesson 2, the error budget",
       bridge:
-        "You can now see where the time went. The next lesson asks a different question: of the checkouts that finished, how many were actually good, and have you already spent the failures you said you would allow?",
+        "You can now see where the time went. The next lesson is a different service. Of the message sends that finished, how many were actually good, and have you already spent the failures you said you would allow?",
     },
   },
   {
     id: "slo",
     index: 2,
     minutes: 12,
-    title: "Whether this window meets 99.5 percent",
+    title: "Whether these sends meet 99.5 percent",
     outcomes: [
-      "Write the checkout promise as a fraction of requests that both succeed and return in time.",
+      "Write the messaging promise as a fraction of sends that both succeed and return in time.",
       "Count a slow success as a miss when the target includes a latency line.",
       "Say whether a window meets 99.5 percent.",
     ],
     paragraphs: [
-      "An SLO is the promise you are willing to be held to. On this checkout the promise is 99.5 percent of requests succeeding in under 300 milliseconds. The error budget is the half a percent you are allowed to miss. Spending the budget means those misses happened in the window you are looking at.",
-      "A 200 after the time limit is not a good checkout. The customer already waited. Seventeen failures in a thousand requests is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
+      "An SLO is the promise you are willing to be held to. For message sends the promise is 99.5 percent succeeding in under 300 milliseconds. The error budget is the half a percent you are allowed to miss. Spending the budget means those misses happened in the window you are looking at.",
+      "A 200 after the time limit is not a good send. The person already waited. Seventeen failures in a thousand sends is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
     ],
     concepts: [
       {
         name: "SLI",
-        body: "A good checkout succeeds in under 300 milliseconds. A slow success is a miss.",
+        body: "A good send succeeds in under 300 milliseconds. A slow success is a miss.",
       },
       {
         name: "SLO",
@@ -108,7 +108,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "In challenge mode, mark the window as meeting the target or missing it. The prompt does not tell you which.",
     ],
     takeaways: [
-      "The SLO here is 99.5 percent of checkouts succeeding in under 300 milliseconds.",
+      "The SLO here is 99.5 percent of sends succeeding in under 300 milliseconds.",
       "A slow success spends the budget. The status code alone is not the SLI.",
       "Seventeen misses in a thousand is 98.3 percent. That window does not meet 99.5 percent.",
     ],
@@ -121,7 +121,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/alert",
       label: "Lesson 3, when to page",
       bridge:
-        "A spent budget is not yet a page. The next lesson is the decision to wake someone. A busy host and a short spike are on the same checkout as a failure that keeps spending the budget.",
+        "A spent budget is not yet a page. The next lesson is search. A busy host and a short spike sit beside queries that keep failing.",
     },
   },
   {
@@ -130,18 +130,18 @@ export const SRE_COURSE: SreLessonCraft[] = [
     minutes: 15,
     title: "Whether this failure should page someone",
     outcomes: [
-      "Separate a busy host from a checkout failing for customers.",
+      "Separate a busy host from search queries failing for people.",
       "Explain why a burn-rate page waits for both the short window and the long window.",
       "Choose which situation should wake someone, and say why the others should not.",
     ],
     paragraphs: [
-      "You interrupt a person only when the customer symptom is still true in more than one window. The host can be busy while customers are fine, and one slow checkout can light a chart without starting an incident.",
+      "You interrupt a person only when the customer symptom is still true in more than one window. The host can be busy while searchers are fine, and one slow query can light a chart without starting an incident.",
       "The burn-rate rule pages only when the 12-second window and the 60-second window are both spending the 99.5 percent budget at 14.4 times the allowed rate or faster, with enough requests in each window. A spike lights the short window and then fades. Both windows have to agree. In Challenge, you have the telemetry. The prompt does not say whether to page.",
     ],
     concepts: [
       {
         name: "Symptom",
-        body: "Checkout failures are what the customer hit. CPU is the host.",
+        body: "Query failures are what the searcher hit. CPU is the host.",
       },
       {
         name: "Burn rate",
@@ -173,22 +173,22 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/cascade",
       label: "Lesson 4, a slow provider",
       bridge:
-        "You know when to wake someone. Next, you watch the shape of the failure: a slow dependency holds its slots, retries request another slot, and checkout fails for people who never called that dependency.",
+        "You know when to wake someone. Next is payments. A slow card provider holds its slots, retries request another slot, and charges fail for buyers whose own request was fine.",
     },
   },
   {
     id: "cascade",
     index: 4,
     minutes: 20,
-    title: "A slow provider takes checkout down",
+    title: "A slow card provider fills its slots",
     outcomes: [
-      "Follow one checkout across the gateway, checkout, payment, and the provider.",
-      "Explain how a full set of slots plus a retry turns a slow dependency into failed checkouts.",
+      "Follow one charge across the gateway, checkout, payment, and the card provider.",
+      "Explain how a full set of slots plus a retry turns a slow provider into failed charges.",
       "Change one limit, rerun the same seed, and say what the new evidence shows.",
     ],
     paragraphs: [
-      "A cascading failure is not a second bug. The provider is slow, so each call holds a slot for longer. Checkout retries, and the retry requests another slot. The queue grows. New checkouts wait or time out, including ones whose own work was fine. The symptom moves outward from the slow call.",
-      "One clock, one seed. In Guided, you watch the failure spread. In Practice, you change slots, retries, and the deadline. In Challenge, you bring checkout back. The prompt does not name the control. The topology lists every service and does not name the cause.",
+      "A cascading failure is not a second bug. The card provider is slow, so each call holds a slot for longer. The charge path retries, and the retry requests another slot. The queue grows. New charges wait or time out, including ones whose own work was fine. The symptom moves outward from the slow call.",
+      "One clock, one seed. In Guided, you watch the failure spread. In Practice, you change slots, retries, and the deadline. In Challenge, you bring the charge path back. The prompt does not name the control. The topology lists every service and does not name the cause.",
     ],
     concepts: [
       {
@@ -206,40 +206,40 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     goal: "One limit changes. The same seed runs again.",
     steps: [
-      "Let the run go until checkout success falls and provider slots are full.",
+      "Let the run go until charge success falls and provider slots are full.",
       "Read one trace from the gateway through to the provider before you change a control.",
       "Change one thing: retries, the number of slots, or the deadline. Reset to the same seed and run again.",
-      "In challenge mode, recover checkout from the evidence. The prompt does not name the control.",
+      "In challenge mode, recover the charge path from the evidence. The prompt does not name the control.",
     ],
     takeaways: [
       "The failure spreads because retries and a full set of slots turn one slow dependency into a queue.",
-      "Shedding requests can hide the damage if you only count the calls that were allowed to finish. This lab counts timeouts and rejected checkouts in the success rate.",
+      "Shedding requests can hide the damage if you only count the calls that were allowed to finish. This lab counts timeouts and rejected charges in the success rate.",
       "The same seed is the comparison. A change that only looks better on a different run has not been shown.",
     ],
     reflection: [
       "Which control did you move, and which number told you it was the right one?",
-      "What did the retry buy you, and what did it cost the next checkout?",
+      "What did the retry buy you, and what did it cost the next charge?",
       "If the provider stayed slow, which limit would you leave in place overnight?",
     ],
     next: {
       href: "/sre-labs/capacity",
       label: "Lesson 5, the queue and the replicas",
       bridge:
-        "The last lesson was a dependency that could not take more calls. This one is your own queue. Traffic arrives faster than the workers finish, and you decide whether more replicas, or a utilization rule, brings latency back without turning customers away.",
+        "The last lesson was a card provider that could not take more calls. This one is a dispatch queue. Jobs arrive faster than the workers finish, and you decide whether more workers, or a utilization rule, brings latency back without turning jobs away.",
     },
   },
   {
     id: "capacity",
     index: 5,
     minutes: 15,
-    title: "The queue fills and latency climbs",
+    title: "Dispatch jobs fill the queue",
     outcomes: [
       "Read queue depth and latency as two views of the same shortage of workers.",
       "Compare a fixed replica count with a utilization rule on the same surge.",
       "Bring latency back without reducing the traffic you were offered.",
     ],
     paragraphs: [
-      "When work arrives faster than workers finish it, the extra work waits. Latency climbs because requests sit in the queue, not because each request suddenly got harder. Adding replicas adds workers. A utilization rule adds them when the workers you have are busy, and only if you let it.",
+      "Dispatch jobs arrive faster than workers finish them, so the extra jobs wait. Latency climbs because a job sits in the queue, not because the job itself got harder. Adding replicas adds workers. A utilization rule adds them when the workers you have are busy, and only if you let it.",
       "Utilization is the share of worker capacity that is busy. It does not go above 100 percent. Work that does not fit waits in the queue, and the customer feels that wait. In Guided, you compare the two controls. In Challenge, you hold latency through the surge. The prompt does not name the control.",
     ],
     concepts: [
@@ -270,21 +270,21 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     reflection: [
       "Did the hand-set replica count and the utilization rule recover the same way, or did one of them lag?",
-      "What would you watch in the first minute of a sale to tell queueing from a slower dependency?",
+      "What would you watch in the first minute of a surge to tell queueing from a slower dependency?",
       "What other limit would you hit if you kept adding replicas?",
     ],
     next: {
       href: "/sre-labs/deployment",
       label: "Lesson 6, a bad release",
       bridge:
-        "Capacity was about work you meant to serve. The last lesson is work you did not mean to break. A share of traffic goes to a bad release, and you decide when that share has to stop.",
+        "Dispatch was work you meant to serve. Sign-in is different. A share of sessions goes to a bad release, and you decide when that share has to stop.",
     },
   },
   {
     id: "deployment",
     index: 6,
     minutes: 12,
-    title: "A bad release has some of the traffic",
+    title: "A bad sign-in release has some of the traffic",
     outcomes: [
       "Read customer failures as a function of how much traffic the bad release is allowed to see.",
       "Stop or shrink that share when the impact is no longer acceptable.",
@@ -311,7 +311,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     goal: "The bad release loses traffic, or a fixed release replaces it.",
     steps: [
       "Start with a small share and read the failure rate of the customers on the new release.",
-      "Raise the share and watch the same fault affect more checkouts.",
+      "Raise the share and watch the same fault affect more sign-ins.",
       "Roll back, or repair the release, and show the customer failures fall.",
       "In challenge mode, contain the impact. The prompt does not tell you the share.",
     ],
@@ -329,7 +329,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/coding",
       label: "Coding practice",
       bridge:
-        "After these six lessons, the coding exercises are the same decisions as functions: fleet health, signals, retries, and delivery, in Go, TypeScript, or Python. The stage moves only when the full suite passes.",
+        "The coding exercises are the same decisions as functions: fleet health, signals, retries, and delivery, in Go, TypeScript, or Python. A stage moves only when the full suite passes.",
     },
   },
 ];

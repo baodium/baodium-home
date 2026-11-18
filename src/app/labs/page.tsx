@@ -6,17 +6,17 @@ import { SRE_LESSONS, type SreLabKey } from "@/lib/sre/catalog";
 export const metadata: Metadata = {
   title: "Labs",
   description:
-    "Hands-on SRE labs. Six browser lessons, twenty-four functions, and eight exercises on a running checkout.",
+    "Hands-on SRE labs across playback, messaging, search, payments, dispatch, and sign-in.",
   alternates: { canonical: "https://labs.baodium.com/" },
 };
 
 const LESSON_COPY: Record<SreLabKey, string> = {
-  instrument: "Checkout is slow, and the outbound call is invisible. The metric, the span, and the log are how you find it.",
-  slo: "You decide what counts as a good checkout, set 99.5 percent, and watch the misses spend the budget.",
-  alert: "You compare a busy host, a short spike, a sustained failure, and missing telemetry.",
-  cascade: "A slow provider fills its slots. You follow checkout through retries and deadlines, then bring it back.",
-  capacity: "A surge fills a bounded queue. You compare extra workers with a controller keyed to utilization.",
-  deployment: "You send a fraction of traffic to a bad release, watch the failures, and take the share back.",
+  instrument: "A play start is slow, and the manifest fetch is invisible. The metric, the span, and the log name the hop.",
+  slo: "A message send is good only when it succeeds in under 300 ms. You watch 99.5 percent get spent.",
+  alert: "Search queries fail while a host looks busy. You decide which of those should wake someone.",
+  cascade: "A card provider holds its slots. Retries ask for another, and new charges wait.",
+  capacity: "Dispatch jobs arrive faster than workers finish them. Latency is the wait, not a harder job.",
+  deployment: "A fraction of sign-ins hit a bad release. You watch the failures and take that share back.",
 };
 
 export default function LabsPage() {
@@ -24,11 +24,13 @@ export default function LabsPage() {
   return (
     <LabsShell>
       <section className="labs-hero">
-        <p className="labs-kicker">Labs</p>
-        <h1>Six lessons on one checkout.</h1>
+        <div className="labs-hero-copy">
+        <p className="labs-kicker">Baodium Labs / Site reliability engineering</p>
+        <h1>Playback, search, dispatch, and a payments stack.</h1>
         <p className="labs-intro">
-          You add the signals, spend a 99.5 percent budget, and page only when
-          customers are still failing. Six lessons run in the browser.
+          Each browser lesson is a different service. You change the simulation,
+          read the evidence, and decide. The stack you run yourself is payments:
+          Express and FastAPI, with Prometheus, Grafana, and Jaeger.
         </p>
         <div className="labs-actions">
           <Link className="labs-button" href="/sre-labs/instrument">
@@ -53,13 +55,33 @@ export default function LabsPage() {
             <dd>6</dd>
           </div>
         </dl>
+        </div>
+        <aside className="labs-system-preview" aria-label="Services in the labs">
+          <div className="labs-system-title"><span>Services</span><span>Browser, then the payments stack</span></div>
+          <h2>The service in front of you changes.</h2>
+          <ul className="labs-surfaces">
+            <li><Link href="/sre-labs/instrument"><span>Streaming</span><strong>Playback calls Manifest</strong></Link></li>
+            <li><Link href="/sre-labs/slo"><span>Messaging</span><strong>Send calls Fanout</strong></Link></li>
+            <li><Link href="/sre-labs/alert"><span>Search</span><strong>Query calls Index</strong></Link></li>
+            <li><Link href="/sre-labs/cascade"><span>Payments</span><strong>A charge calls the card provider</strong></Link></li>
+            <li><Link href="/sre-labs/capacity"><span>Logistics</span><strong>Dispatch jobs wait on workers</strong></Link></li>
+            <li><Link href="/sre-labs/deployment"><span>Auth</span><strong>Sign-in meets a bad release</strong></Link></li>
+          </ul>
+          <Link href="/sre-labs/observability/setup">Run the payments stack <span aria-hidden="true">↗</span></Link>
+        </aside>
+      </section>
+
+      <section className="labs-mode-grid" aria-label="Choose your learning mode">
+        <Link href="/sre-labs/instrument"><span className="labs-mode-number">01 / GUIDED</span><h2>Walk through an incident</h2><p>Change a live simulation, follow the signals, and explain what happened. No setup required.</p><strong>Start the walkthrough →</strong></Link>
+        <Link href="/sre-labs/coding"><span className="labs-mode-number">02 / PRACTICE</span><h2>Write the function</h2><p>Fleet health, retries, rate limits, and delivery. The checks run in the browser, in Go, TypeScript, or Python.</p><strong>Open coding practice →</strong></Link>
+        <Link href="/sre-labs/observability/setup"><span className="labs-mode-number">03 / REAL STACK</span><h2>Run the payments services</h2><p>Express and FastAPI, with Prometheus, Grafana, and Jaeger. Query the signals, add a fault, and confirm recovery.</p><strong>Open the hands-on course →</strong></Link>
       </section>
 
       <section className="labs-course" id="course" aria-labelledby="course-title">
         <header className="labs-course-head">
           <div>
             <p className="labs-kicker">The course</p>
-            <h2 id="course-title">The first lesson is a slow checkout.</h2>
+            <h2 id="course-title">Start with a slow play start.</h2>
           </div>
         </header>
         <ol className="labs-lessons">
@@ -95,76 +117,11 @@ export default function LabsPage() {
         </ol>
       </section>
 
-      <section className="labs-paths" aria-labelledby="paths-title">
-        <div className="labs-section-heading">
-          <div>
-            <p className="labs-kicker">Paths</p>
-            <h2 id="paths-title">Site reliability, and two paths with no lesson yet.</h2>
-          </div>
-        </div>
-        <div className="labs-path-board">
-          <Link className="labs-path-lead" href="/sre-labs">
-            <span className="labs-time">Open now</span>
-            <h3>Site reliability engineering</h3>
-            <p>
-              Six browser lessons and twenty-four functions.
-            </p>
-            <span className="labs-path-go">Open the SRE path</span>
-          </Link>
-          <div className="labs-path-later">
-            <article>
-              <span className="labs-time">No lesson yet</span>
-              <h3>Cybersecurity</h3>
-              <p>Defensive analysis, secure configuration, and investigation.</p>
-            </article>
-            <article>
-              <span className="labs-time">No lesson yet</span>
-              <h3>Platform engineering</h3>
-              <p>Delivery pipelines and infrastructure automation.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="labs-practice" aria-labelledby="practice-title">
-        <header className="labs-course-head">
-          <div>
-            <p className="labs-kicker">Practice</p>
-            <h2 id="practice-title">Ten minutes, half an hour, or an afternoon.</h2>
-          </div>
-        </header>
-        <div className="labs-practice-board">
-          <Link className="labs-practice-lead" href="/sre-labs#practice-labs">
-            <span className="labs-time">10 to 20 minutes</span>
-            <h3>Work a checkout incident</h3>
-            <p>Six lessons. Nothing to install.</p>
-            <span className="labs-path-go">Open the six lessons</span>
-          </Link>
-          <div className="labs-practice-rest">
-            <Link href="/sre-labs/coding">
-              <span className="labs-time">15 to 35 minutes</span>
-              <h3>Write one function</h3>
-              <p>
-                Go, TypeScript, and Python share the same checks. Green examples do not finish the exercise.
-              </p>
-              <span className="labs-path-go">Open the coding exercises</span>
-            </Link>
-            <Link href="/sre-labs/observability">
-              <span className="labs-time">About an afternoon</span>
-              <h3>Query a running checkout</h3>
-              <p>
-                Needs Docker or Codespaces. You read Prometheus, Grafana, and Jaeger yourself.
-              </p>
-              <span className="labs-path-go">Open the hands-on course</span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       <section className="labs-book" aria-labelledby="book-title">
         <div>
           <p className="labs-kicker">From the book</p>
-          <h2 id="book-title">The same checkout, in the book.</h2>
+          <h2 id="book-title">The book’s own incidents.</h2>
+          <p>The recommendation pool, then a charge the client may have sent twice. Those labs follow the manuscript.</p>
         </div>
         <div className="labs-book-links">
           <Link className="labs-button secondary" href="/system-design/experience">

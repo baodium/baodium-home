@@ -235,3 +235,6 @@
     transition: none;
   }
 }
+
+/* A consistent interface typeface across the SRE course and simulations. */
+.sre-root { --font-lab-sans: var(--font-geist); --font-lab-serif: var(--font-geist); font-family: var(--font-geist), sans-serif; }

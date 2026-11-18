@@ -47,6 +47,7 @@ export function Segmented<T extends string>({
             key={option.id}
             type="button"
             disabled={option.disabled}
+            aria-label={option.label}
             aria-pressed={active}
             aria-describedby={option.title ? `${layoutId}-${option.id}-tip` : undefined}
             onClick={() => {

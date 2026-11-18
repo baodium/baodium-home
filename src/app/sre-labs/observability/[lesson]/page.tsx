@@ -6,6 +6,7 @@ import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { SreChrome } from "@/components/sre/SreChrome";
 import { CourseSyllabus } from "@/components/sre/CourseSyllabus";
 import { COURSE_TEACHING } from "@/lib/sre/course-teaching";
+import { CourseWalkthrough } from "@/components/sre/CourseWalkthrough";
 import { CourseCommand } from "@/components/sre/CourseCommand";
 export function generateStaticParams() {
   return OBSERVABILITY_COURSE.map(({ slug }) => ({ lesson: slug }));
@@ -42,7 +43,7 @@ export default async function LessonPage({
           <Link href="/sre-labs/observability" className="course-back">
             <ArrowLeft size={14} /> Course overview
           </Link>
-          <p className="product-eyebrow">Build an observable checkout</p>
+          <p className="product-eyebrow">Payments stack</p>
           <CourseSyllabus
             items={OBSERVABILITY_COURSE.map(({ slug, title }) => ({
               slug,
@@ -70,7 +71,7 @@ export default async function LessonPage({
             <h1>{item.title}</h1>
             <p>{item.outcome}</p>
             <div className="course-execution">
-              Execute locally · inspect real tool output · verify a checkpoint
+              Guided walkthrough · real services · checkpoint evidence
             </div>
           </header>
           <nav className="course-tool-links" aria-label="Local tool shortcuts">
@@ -111,38 +112,7 @@ export default async function LessonPage({
             <p>{teaching.prediction}</p>
             <p>Write your prediction in your lab notes. After the experiment, compare it with what actually happened.</p>
           </section>
-          <ol className="course-steps">
-            {item.steps.map((step, i) => (
-              <li key={step.title}>
-                <span className="course-step-number">0{i + 1}</span>
-                <div>
-                  <h2>{step.title}</h2>
-                  <p>{step.instruction}</p>
-                  {step.command ? (
-                    <CourseCommand command={step.command} />
-                  ) : null}
-                  <div className="course-expect">
-                    <strong>What to look for</strong>
-                    <p>{step.expect}</p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <section
-            className="course-checkpoint"
-            aria-labelledby="checkpoint-title"
-          >
-            <p className="product-eyebrow">Evidence checkpoint</p>
-            <h2 id="checkpoint-title">The checkpoint reads the running system.</h2>
-            <CourseCommand command={item.checkpoint} />
-            <p>{item.checkpointMeaning}</p>
-            <p>
-              The command exits with a failure code when evidence is missing.
-              Passing reports stay in the kit’s reports folder. This page does
-              not claim to inspect your local Docker environment.
-            </p>
-          </section>
+          <CourseWalkthrough key={item.slug} lesson={item} />
           <details className="course-hint">
             <summary>Need a hint or a troubleshooting path?</summary>
             <p>{item.hint}</p>

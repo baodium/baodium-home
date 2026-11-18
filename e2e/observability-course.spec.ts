@@ -23,8 +23,9 @@ test("hands-on course has eight actionable, independently reachable exercises", 
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Make a prediction first" })).toBeVisible();
     await expect(page.locator(".course-rubric > div")).toHaveCount(3);
-    await expect(page.locator(".course-steps > li")).toHaveCount(3);
-    await expect(page.locator(".course-checkpoint")).toContainText(
+    await expect(page.getByRole("navigation", { name: "Walkthrough steps" }).getByRole("button")).toHaveCount(4);
+    await page.getByRole("button", { name: /Check the evidence/ }).click();
+    await expect(page.locator(".course-workspace")).toContainText(
       "node lab.mjs verify",
     );
     await expect(
@@ -62,7 +63,7 @@ test("mobile lesson syllabus, copy command, hints and next exercise work", async
   });
   await toggle.click();
   await expect(
-    page.getByRole("link", { name: /05 One checkout/ }),
+    page.getByRole("link", { name: /05 A charge/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Hide course contents", exact: true })
@@ -77,7 +78,7 @@ test("mobile lesson syllabus, copy command, hints and next exercise work", async
   await page
     .getByText("Need a hint or a troubleshooting path?", { exact: true })
     .click();
-  await expect(page.locator(".course-hint").first()).toHaveAttribute("open", "");
+  await expect(page.locator("details").filter({ hasText: "Need a hint or a troubleshooting path?" })).toHaveAttribute("open", "");
   await page.getByRole("link", { name: /Next: A counter/ }).click();
   await expect(page).toHaveURL(/observability\/metrics$/);
   expect(

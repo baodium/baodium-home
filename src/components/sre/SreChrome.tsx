@@ -14,12 +14,12 @@ import { SitePill } from "@/components/Navigation";
 const labs = [
   { href: "/sre-labs/coding", label: "Coding practice" },
   { href: "/sre-labs/observability", label: "Hands-on course" },
-  { href: "/sre-labs/cascade", label: "Slow provider" },
-  { href: "/sre-labs/instrument", label: "Checkout time" },
+  { href: "/sre-labs/cascade", label: "Card provider" },
+  { href: "/sre-labs/instrument", label: "Playback" },
   { href: "/sre-labs/slo", label: "99.5% budget" },
   { href: "/sre-labs/alert", label: "Paging" },
-  { href: "/sre-labs/capacity", label: "Queue" },
-  { href: "/sre-labs/deployment", label: "Bad release" },
+  { href: "/sre-labs/capacity", label: "Dispatch" },
+  { href: "/sre-labs/deployment", label: "Sign-in" },
 ];
 
 export function SreChrome({
@@ -34,7 +34,7 @@ export function SreChrome({
   const inLab = pathname !== "/sre-labs";
 
   return (
-    <div className="learn-root exp-root relative min-h-[100dvh] pt-[5.5rem]">
+    <div className="sre-root learn-root exp-root relative min-h-[100dvh] pt-[5.5rem]">
       <SitePill />
       <main
         id="main"

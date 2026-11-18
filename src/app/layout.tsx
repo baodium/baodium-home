@@ -9,6 +9,7 @@ import {
   Source_Sans_3,
   Source_Serif_4,
 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "@/components/Providers";
 import { site } from "@/data/site";
 import "lenis/dist/lenis.css";
@@ -112,6 +113,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
