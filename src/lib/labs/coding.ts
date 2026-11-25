@@ -5,6 +5,8 @@ export type CodingCase = {
   kwargs: Record<string, unknown>;
   expected: unknown;
   example: boolean;
+  /** What to inspect next when this check fails. */
+  coach?: string;
 };
 export type CodingProblem = {
   id: string;
@@ -14,10 +16,19 @@ export type CodingProblem = {
   minutes: number;
   format: string;
   prompt: string;
+  /** What breaks in production when this check is wrong. */
+  situation?: string;
+  /** What the function must guarantee. */
+  guarantee?: string;
+  /** Edge cases called out before code. */
+  edges?: string[];
+  /** Fallback coaching when a check fails without a per-case coach. */
+  failureGuide?: string;
   signature: string;
   entrypoint: string;
   starter: string;
   constraints: string[];
+  /** Progressive hints in order: concept, approach, partial sketch. */
   hints: string[];
   explanation: string;
   complexity: string;

@@ -11,12 +11,12 @@ export function LabsShell({
   wide?: boolean;
 }) {
   return (
-    <div className="labs-root pt-[5.5rem]">
+    <div className={`labs-root pt-[5.5rem]${wide ? " labs-ide-shell" : ""}`}>
       <SitePill />
       <main id="main" className={wide ? "labs-main labs-wide" : "labs-main"}>
         {children}
       </main>
-      <Footer />
+      {wide ? null : <Footer />}
     </div>
   );
 }

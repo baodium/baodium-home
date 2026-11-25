@@ -112,6 +112,7 @@ function goType(value: unknown): string {
     const first = goType(value[0]);
     return value.every((item) => goType(item) === first) ? `[]${first}` : "[]any";
   }
+  // JSON objects arrive as string-keyed maps; values stay loosely typed.
   if (value && typeof value === "object") return "map[string]any";
   return "any";
 }
@@ -184,11 +185,15 @@ export function languageSignature(
 }
 
 export function starterFor(
-  problem: Pick<CodingProblem, "signature" | "entrypoint" | "starter" | "cases">,
+  problem: Pick<
+    CodingProblem,
+    "signature" | "entrypoint" | "starter" | "cases" | "format" | "title"
+  >,
   language: PracticeLanguage,
 ): string {
   if (language === "python") return problem.starter;
   const params = signatureParams(problem.signature);
+  const goal = `// TODO: ${problem.title.replace(/\s+/g, " ").trim()} — return value must satisfy the checks.`;
   if (language === "typescript") {
     const args = params
       .map((param) => {
@@ -197,20 +202,34 @@ export function starterFor(
       })
       .join(", ");
     const ret = annotatedTsReturn(problem.signature) ?? tsType(sampleReturn(problem));
-    return `function ${camel(problem.entrypoint)}(${args}): ${ret} {\n  return ${tsZero(ret)};\n}\n`;
+    const body =
+      problem.format === "debug"
+        ? `  // The Python draft on this exercise carries the bug to find.\n  // Port the corrected behavior into this TypeScript stub.\n  return ${tsZero(ret)};`
+        : problem.format === "complete"
+          ? `  // Finish the policy described on the left. This stub only names the signature.\n  return ${tsZero(ret)};`
+          : `  return ${tsZero(ret)};`;
+    return `${goal}\nfunction ${camel(problem.entrypoint)}(${args}): ${ret} {\n${body}\n}\n`;
   }
   const args = params
     .map((param) => `${camel(param.name)} ${goType(sampleValue(problem, param.name))}`)
     .join(", ");
   const ret = annotatedGoReturn(problem.signature) ?? goType(sampleReturn(problem));
-  const notes = params
-    .filter((param) => param.hasDefault)
-    .map(
-      (param) =>
-        `// ${camel(param.name)} is ${JSON.stringify(param.default)} when a check omits it.`,
-    );
-  const comment = notes.length ? `${notes.join("\n")}\n` : "";
-  return `package solution\n\n${comment}func ${exportedName(problem.entrypoint)}(${args}) ${ret} {\n\treturn ${goZero(ret)}\n}\n`;
+  const notes = [
+    ...params
+      .filter((param) => param.hasDefault)
+      .map(
+        (param) =>
+          `// ${camel(param.name)} is ${JSON.stringify(param.default)} when a check omits it.`,
+      ),
+    problem.format === "debug"
+      ? "// The Python draft on this exercise carries the bug to find. Port the fix here."
+      : "",
+    problem.format === "complete"
+      ? "// Finish the policy described on the left. This stub only names the signature."
+      : "",
+    goal,
+  ].filter(Boolean);
+  return `package solution\n\n${notes.join("\n")}\nfunc ${exportedName(problem.entrypoint)}(${args}) ${ret} {\n\treturn ${goZero(ret)}\n}\n`;
 }
 
 export function runtimeNote(language: PracticeLanguage): string {

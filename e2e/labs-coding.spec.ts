@@ -36,7 +36,7 @@ test("real Python executes examples and full checks, saves drafts and reports ed
   test.setTimeout(120000);
   const problem = problems.find((problem) => problem.id === "status-counts")!;
   await page.goto("/sre-labs/coding/status-counts");
-  await page.getByRole("button", { name: "Use plain text editor" }).click();
+  await page.getByRole("button", { name: "Plain text" }).click();
   await page
     .getByRole("textbox", { name: "Python solution editor" })
     .fill(problem.solution);
@@ -63,7 +63,7 @@ test("real Python executes examples and full checks, saves drafts and reports ed
     page.getByText("Code changed since this run.", { exact: false }),
   ).toBeVisible();
   await page.reload();
-  await page.getByRole("button", { name: "Use plain text editor" }).click();
+  await page.getByRole("button", { name: "Plain text" }).click();
   await expect(
     page.getByRole("textbox", { name: "Python solution editor" }),
   ).toHaveValue(problem.solution + "\n# revision");
@@ -87,7 +87,7 @@ test("runtime errors and infinite loops recover without freezing the page", asyn
 }) => {
   test.setTimeout(120000);
   await page.goto("/sre-labs/coding/status-counts");
-  await page.getByRole("button", { name: "Use plain text editor" }).click();
+  await page.getByRole("button", { name: "Plain text" }).click();
   const editor = page.getByRole("textbox", { name: "Python solution editor" });
   await editor.fill(
     "def count_statuses(records):\n    raise ValueError('inspect the contract')",
@@ -142,7 +142,7 @@ test("new learning pages fit mobile and remain usable with blocked storage", asy
       ),
     ).toBe(false);
   }
-  await page.getByRole("button", { name: "Use plain text editor" }).click();
+  await page.getByRole("button", { name: "Plain text" }).click();
   await page
     .getByRole("textbox", { name: "Python solution editor" })
     .fill("# saved in session fallback");

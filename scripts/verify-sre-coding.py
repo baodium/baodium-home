@@ -9,6 +9,9 @@ count = 0
 for problem in problems:
     assert any(case['example'] for case in problem['cases'])
     assert any(not case['example'] for case in problem['cases'])
+    assert len(problem['hints']) == 3, problem['id']
+    assert problem.get('situation') and problem.get('guarantee') and problem.get('edges'), problem['id']
+    assert 'Any' not in problem['starter'], problem['id']
     namespace = {}
     exec(compile(problem['solution'], problem['id'], 'exec'), namespace)
     for case in problem['cases']:

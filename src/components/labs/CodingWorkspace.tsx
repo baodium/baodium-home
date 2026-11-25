@@ -7,6 +7,12 @@ import type { CodingProblem } from "@/lib/labs/coding";
 import { codingSummaries } from "@/lib/labs/coding";
 import { codingLesson } from "@/lib/learning/coding-course";
 import {
+  failureCoach,
+  framingFor,
+  progressiveHints,
+  workedPattern,
+} from "@/lib/labs/coding-pedagogy";
+import {
   draftKey,
   loadCodingProgress,
   loadPracticeLanguage,
@@ -93,8 +99,13 @@ export function CodingWorkspace({
   const [fullSuite, setFullSuite] = useState(false);
   const [resetPending, setResetPending] = useState(false);
   const [solutionOpen, setSolutionOpen] = useState(false);
+  const [hintStep, setHintStep] = useState(0);
+  const [openHint, setOpenHint] = useState<number | null>(null);
   const activeRun = useRef<ReturnType<typeof runPython> | null>(null);
   const generation = useRef(0);
+  const hints = progressiveHints(problem);
+  const framing = framingFor(problem);
+  const pattern = workedPattern(problem);
   useEffect(() => {
     const runGeneration = generation;
     const execution = activeRun;
@@ -109,6 +120,11 @@ export function CodingWorkspace({
       storePracticeLanguage(value);
     }
   }, []);
+  useEffect(() => {
+    setHintStep(0);
+    setOpenHint(null);
+    setSolutionOpen(false);
+  }, [problem.id]);
   function edit(value: string) {
     setEdited({ language, value });
     writeStored(draftKey(problem.id, language), value);
@@ -219,9 +235,13 @@ export function CodingWorkspace({
         ? `The full suite passed in ${languageLabel(language)}. ${problem.category} has ${stagePassed} of ${stageProblems.length} exercises saved on this device.`
         : passed === result.results.length
           ? "The examples passed. Run the full suite if you want this exercise to count."
-          : `${passed} of ${result.results.length} checks passed. ${firstMiss?.title ?? "One check"} still does not match.`
+          : firstMiss
+            ? `${passed} of ${result.results.length} checks passed. ${firstMiss.title} still does not match. ${failureCoach(problem, firstMiss)}`
+            : `${passed} of ${result.results.length} checks passed.`
       : "";
   const craft = codingLesson(problem, next?.title);
+  const hintsUnlocked = hintStep;
+  const allHintsSeen = hintStep >= hints.length;
   return (
     <div className="coding-ide">
       <section className="coding-description" aria-label="Problem description">
@@ -229,47 +249,116 @@ export function CodingWorkspace({
           ← Coding roadmap
         </Link>
         <p className="coding-progress">
-          {craft.index} of {craft.total} · {problem.category} · {problem.minutes} min
+          {craft.index} of {craft.total} · {problem.category} · {problem.minutes}{" "}
+          min
         </p>
         <h1>{problem.title}</h1>
         <p className="coding-lead">{problem.prompt}</p>
-        <h2>What the function has to do</h2>
+
+        <h2>In production</h2>
+        <p className="coding-framing">{framing.situation}</p>
+
+        <h2>What the function must guarantee</h2>
+        <p className="coding-framing">{framing.guarantee}</p>
         <ul>
           {problem.constraints.map((rule) => (
             <li key={rule}>{rule}</li>
           ))}
         </ul>
+
+        <h2>Watch these edges</h2>
+        <ul>
+          {framing.edges.map((edge) => (
+            <li key={edge}>{edge}</li>
+          ))}
+        </ul>
+
         <h2>Signature</h2>
-        <code className="coding-signature">{languageSignature(problem, language)}</code>
+        <code className="coding-signature">
+          {languageSignature(problem, language)}
+        </code>
         {problem.format !== "implementation" && language !== "python" ? (
           <p className="coding-note">
             The Python draft is the one with a gap to close. Go and TypeScript
             start from the signature and run the same checks.
           </p>
         ) : null}
-        {problem.hints.map((hint, index) => (
-          <details className="coding-detail" key={hint}>
-            <summary>Hint {index + 1}</summary>
-            <p>{hint}</p>
+
+        <h2>When you are stuck</h2>
+        <p className="coding-note">
+          Hints open one step at a time: concept, then approach, then a partial
+          sketch. The reference stays closed until you have seen each step.
+        </p>
+        <ol className="coding-hints">
+          {hints.map((hint, index) => {
+            const unlocked = index < hintsUnlocked;
+            const isNext = index === hintsUnlocked;
+            return (
+              <li key={hint.id} data-unlocked={unlocked || undefined}>
+                {unlocked ? (
+                  <details
+                    className="coding-detail"
+                    open={openHint === index}
+                    onToggle={(event) => {
+                      if (event.currentTarget.open) setOpenHint(index);
+                      else if (openHint === index) setOpenHint(null);
+                    }}
+                  >
+                    <summary>
+                      {hint.label}
+                      <span className="coding-hint-meta">{hint.summary}</span>
+                    </summary>
+                    <p>{hint.text}</p>
+                  </details>
+                ) : isNext ? (
+                  <button
+                    type="button"
+                    className="coding-hint-unlock"
+                    onClick={() => {
+                      setHintStep(index + 1);
+                      setOpenHint(index);
+                    }}
+                  >
+                    Reveal {hint.label.toLowerCase()}
+                    <span className="coding-hint-meta">{hint.summary}</span>
+                  </button>
+                ) : (
+                  <p className="coding-hint-locked">
+                    {hint.label}
+                    <span className="coding-hint-meta">
+                      Opens after the previous step
+                    </span>
+                  </p>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+
+        {allHintsSeen ? (
+          <details
+            className="coding-detail"
+            onToggle={(event) => setSolutionOpen(event.currentTarget.open)}
+          >
+            <summary>Why this shape, and a reference</summary>
+            {solutionOpen ? (
+              <>
+                <p>{pattern.why}</p>
+                <p>
+                  <strong>Cost:</strong> {pattern.cost}
+                </p>
+                <p>The reference below is Python.</p>
+                <pre tabIndex={0}>{problem.solution}</pre>
+                <p>Opening it does not record a pass.</p>
+              </>
+            ) : null}
           </details>
-        ))}
-        <details
-          className="coding-detail"
-          onToggle={(event) => setSolutionOpen(event.currentTarget.open)}
-        >
-          <summary>Approach and reference solution</summary>
-          {solutionOpen ? (
-            <>
-              <p>{problem.explanation}</p>
-              <p>
-                <strong>Complexity:</strong> {problem.complexity}
-              </p>
-              <p>The reference below is Python.</p>
-              <pre tabIndex={0}>{problem.solution}</pre>
-              <p>Opening it does not record a pass.</p>
-            </>
-          ) : null}
-        </details>
+        ) : (
+          <p className="coding-note">
+            Reveal each hint step before the reference solution unlocks.
+          </p>
+        )}
+
         {passed === result?.results.length && fullSuite && !stale ? (
           <p className="coding-lead">{problem.followUp}</p>
         ) : null}
@@ -289,9 +378,6 @@ export function CodingWorkspace({
               onClick={() => chooseLanguage(item.id)}
             >
               {item.label}
-              <span className="hint-bubble" role="tooltip">
-                {item.note}
-              </span>
             </button>
           ))}
         </div>
@@ -301,13 +387,9 @@ export function CodingWorkspace({
             <span className="coding-note">· {languageLabel(language)}</span>
           </span>
           <button type="button" onClick={() => setPlain(!plain)}>
-            {plain ? "Use code editor" : "Use plain text editor"}
+            {plain ? "Code editor" : "Plain text"}
           </button>
         </div>
-        <p className="coding-note coding-editor-help">
-          Tab indents. Press Escape, then Tab to move out of the code editor.
-          Drafts and progress stay in this browser.
-        </p>
         {plain ? (
           <textarea
             className="coding-plain"
@@ -386,7 +468,7 @@ export function CodingWorkspace({
               aria-selected={testTab === "case"}
               onClick={() => setTestTab("case")}
             >
-              Testcase
+              Cases
             </button>
             <button
               type="button"
@@ -394,7 +476,7 @@ export function CodingWorkspace({
               aria-selected={testTab === "result"}
               onClick={() => setTestTab("result")}
             >
-              Test result
+              Result
             </button>
           </div>
           {testTab === "case" && activeCase ? (
@@ -419,87 +501,95 @@ export function CodingWorkspace({
                 </div>
               ))}
               <p>Expected</p>
-              <pre tabIndex={0}>{JSON.stringify(activeCase.expected, null, 2)}</pre>
+              <pre tabIndex={0}>
+                {JSON.stringify(activeCase.expected, null, 2)}
+              </pre>
             </div>
           ) : (
             <>
-          <h2>Test result</h2>
-          {phase === "loading" ? (
-            <p>
-              {language === "python"
-                ? "Loading Python. The first run downloads a cached runtime. Your code executes in this browser."
-                : language === "go"
-                  ? "Loading Go. The first run downloads a cached runtime. Your code executes in this browser."
-                  : "Checking TypeScript in this browser."}
-            </p>
-          ) : phase === "running" ? (
-            <p>Executing {fullSuite ? "all checks" : "examples"}.</p>
-          ) : null}
-          {error ? (
-            <p role="alert" className="coding-error">
-              {error}
-            </p>
-          ) : null}
-          {!busy && !result && !error ? (
-            <p>
-              Run the examples for feedback, then run all {problem.cases.length}{" "}
-              checks. Only a complete passing suite records completion.
-            </p>
-          ) : null}
-          {result ? (
-            <>
-              <p
-                className={
-                  passed === result.results.length
-                    ? "coding-pass"
-                    : "coding-error"
-                }
-              >
-                {passed} / {result.results.length} checks passed
-                {fullSuite && passed === result.results.length
-                  ? " · Full suite passed"
-                  : ""}
-              </p>
-              {story ? (
-                <motion.p
-                  className="coding-story"
-                  initial={reduce ? false : { opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: reduce ? 0 : 0.22 }}
-                >
-                  {story}
-                </motion.p>
+              <h2>Result</h2>
+              {phase === "loading" ? (
+                <p>
+                  {language === "python"
+                    ? "Loading Python. The first run downloads a cached runtime."
+                    : language === "go"
+                      ? "Loading Go. The first run downloads a cached runtime."
+                      : "Checking TypeScript in this browser."}
+                </p>
+              ) : phase === "running" ? (
+                <p>Executing {fullSuite ? "all checks" : "examples"}.</p>
               ) : null}
-              {stale ? (
-                <p className="coding-error">
-                  Code changed since this run. Run again to check your current
-                  draft.
+              {error ? (
+                <p role="alert" className="coding-error">
+                  {error}
                 </p>
               ) : null}
-              <ol>
-                {result.results.map((test) => (
-                  <li key={test.id}>
-                    <strong>
-                      {test.passed ? "✓" : "×"} {test.title}
-                    </strong>
-                    <p>{test.detail}</p>
-                  </li>
-                ))}
-              </ol>
-              {result.output ? (
-                <details open>
-                  <summary>Program output (first 4,000 characters)</summary>
-                  <pre tabIndex={0}>{result.output}</pre>
-                </details>
+              {!busy && !result && !error ? (
+                <p>
+                  Run the examples for feedback, then run all{" "}
+                  {problem.cases.length} checks. Only a complete passing suite
+                  records completion.
+                </p>
               ) : null}
-            </>
-          ) : null}
+              {result ? (
+                <>
+                  <p
+                    className={
+                      passed === result.results.length
+                        ? "coding-pass"
+                        : "coding-error"
+                    }
+                  >
+                    {passed} / {result.results.length} checks passed
+                    {fullSuite && passed === result.results.length
+                      ? " · Full suite passed"
+                      : ""}
+                  </p>
+                  {story ? (
+                    <motion.p
+                      className="coding-story"
+                      initial={reduce ? false : { opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: reduce ? 0 : 0.22 }}
+                    >
+                      {story}
+                    </motion.p>
+                  ) : null}
+                  {stale ? (
+                    <p className="coding-error">
+                      Code changed since this run. Run again to check your
+                      current draft.
+                    </p>
+                  ) : null}
+                  <ol>
+                    {result.results.map((test) => (
+                      <li key={test.id}>
+                        <strong>
+                          {test.passed ? "✓" : "×"} {test.title}
+                        </strong>
+                        <p>{test.detail}</p>
+                        {!test.passed ? (
+                          <p className="coding-coach">
+                            {failureCoach(problem, test)}
+                          </p>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ol>
+                  {result.output ? (
+                    <details>
+                      <summary>Program output</summary>
+                      <pre tabIndex={0}>{result.output}</pre>
+                    </details>
+                  ) : null}
+                </>
+              ) : null}
             </>
           )}
         </div>
         <p className="coding-note">
-          These checks run in the browser. {runtimeNote(language)}{" "}
-          {stagePassed} of {stageProblems.length} exercises in {problem.category} have a passing suite in {languageLabel(language)}.
+          {runtimeNote(language)} {stagePassed} of {stageProblems.length} in{" "}
+          {problem.category} passed in {languageLabel(language)} on this device.
         </p>
         {next ? (
           <p className="lesson-next">
@@ -509,7 +599,9 @@ export function CodingWorkspace({
           </p>
         ) : (
           <p className="lesson-next">
-            <Link href={craft.next.href ?? "/sre-labs/observability"}>{craft.next.label}</Link>
+            <Link href={craft.next.href ?? "/sre-labs/observability"}>
+              {craft.next.label}
+            </Link>
           </p>
         )}
       </section>
