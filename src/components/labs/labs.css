@@ -814,6 +814,43 @@
   font-size: 0.95rem;
   line-height: 1.45;
 }
+.coding-stage-label {
+  margin: 0 0 0.55rem;
+  font-size: 0.84rem;
+  font-weight: 450;
+  color: #6a5a50;
+}
+.coding-lesson-quiet summary {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #3e342c;
+}
+.coding-concepts {
+  margin: 0.55rem 0 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.coding-concepts dt {
+  margin: 0;
+  font-weight: 600;
+  color: #241c18;
+}
+.coding-concepts dd {
+  margin: 0.2rem 0 0;
+  color: #3e342c;
+  line-height: 1.5;
+}
+.coding-steps {
+  margin: 0.55rem 0 0;
+  padding-left: 1.15rem;
+  color: #3e342c;
+  line-height: 1.5;
+}
+.coding-reflection ul {
+  margin: 0.4rem 0 0.6rem;
+  padding-left: 1.15rem;
+  color: #3e342c;
+}
 .labs-ide-shell .site-footer,
 .labs-ide-shell footer {
   display: none;

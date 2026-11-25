@@ -254,6 +254,7 @@ export function CodingWorkspace({
         </p>
         <h1>{problem.title}</h1>
         <p className="coding-lead">{problem.prompt}</p>
+        <p className="coding-framing">{craft.paragraphs[0]}</p>
 
         <h2>In production</h2>
         <p className="coding-framing">{framing.situation}</p>
@@ -273,14 +274,47 @@ export function CodingWorkspace({
           ))}
         </ul>
 
+        <details className="coding-detail coding-lesson-quiet">
+          <summary>Ideas that travel with this stage</summary>
+          <dl className="coding-concepts">
+            {craft.concepts.map((concept) => (
+              <div key={concept.name}>
+                <dt>{concept.name}</dt>
+                <dd>{concept.body}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+
+        <details className="coding-detail coding-lesson-quiet">
+          <summary>Getting started</summary>
+          <p className="coding-note">{craft.stageLabel}</p>
+          <ol className="coding-steps">
+            {craft.steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          <ul className="coding-steps" aria-label="By the end">
+            {craft.outcomes.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </details>
+
         <h2>Signature</h2>
         <code className="coding-signature">
           {languageSignature(problem, language)}
         </code>
-        {problem.format !== "implementation" && language !== "python" ? (
+        {problem.format === "complete" ? (
           <p className="coding-note">
-            The Python draft is the one with a gap to close. Go and TypeScript
-            start from the signature and run the same checks.
+            The starter already has structure. Fill the TODOs so the suite
+            passes in {languageLabel(language)}.
+          </p>
+        ) : null}
+        {problem.format === "debug" ? (
+          <p className="coding-note">
+            The starter is a buggy draft. Repair it until the suite passes in{" "}
+            {languageLabel(language)}.
           </p>
         ) : null}
 
@@ -360,7 +394,17 @@ export function CodingWorkspace({
         )}
 
         {passed === result?.results.length && fullSuite && !stale ? (
-          <p className="coding-lead">{problem.followUp}</p>
+          <div className="coding-reflection">
+            <p className="coding-lead">{problem.followUp}</p>
+            <ul>
+              {craft.reflection.slice(1).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            {craft.next.bridge ? (
+              <p className="coding-note">{craft.next.bridge}</p>
+            ) : null}
+          </div>
         ) : null}
         {problem.origin ? <p className="coding-note">{problem.origin}.</p> : null}
       </section>

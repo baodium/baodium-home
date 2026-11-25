@@ -12,6 +12,8 @@ for problem in problems:
     assert len(problem['hints']) == 3, problem['id']
     assert problem.get('situation') and problem.get('guarantee') and problem.get('edges'), problem['id']
     assert 'Any' not in problem['starter'], problem['id']
+    if problem['format'] in ('complete', 'debug'):
+        assert 'TODO' in problem['starter'] or 'Existing' in problem['starter'] or 'existing check' in problem['starter'].lower(), problem['id']
     namespace = {}
     exec(compile(problem['solution'], problem['id'], 'exec'), namespace)
     for case in problem['cases']:
