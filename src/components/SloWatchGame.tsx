@@ -158,14 +158,14 @@ function ControlsPanel({
       <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
         <input
           type="checkbox"
-          className="mt-1 size-4 accent-[var(--cinnabar)]"
+          className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
           checked={controls.flagOff}
           onChange={(e) => setControls((c) => ({ ...c, flagOff: e.target.checked }))}
         />
         <span>
           <span className="font-medium text-[color:var(--drill-fg)]">Flag off for new calls</span>
           <span className="mt-1.5 block leading-relaxed">
-            Stops new recommendation calls. A hold that already has a connection finishes. The query stays at {QUERY_MS} ms.
+            Stops new recommendation calls from entering the pool. A hold that already has a connection finishes on its own clock. The query stays at {QUERY_MS} ms.
           </span>
         </span>
       </label>
@@ -173,7 +173,7 @@ function ControlsPanel({
       <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
         <input
           type="checkbox"
-          className="mt-1 size-4 accent-[var(--cinnabar)]"
+          className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
           checked={stepMode}
           onChange={(e) => setStepOverride(e.target.checked)}
           disabled={running}
@@ -181,8 +181,7 @@ function ControlsPanel({
         <span>
           <span className="font-medium text-[color:var(--drill-fg)]">Step mode</span>
           <span className="mt-1.5 block leading-relaxed">
-            Advance one simulation tick at a time. Default when reduced motion is
-            on.
+            Advance one simulation tick at a time. This is the default when reduced motion is on.
           </span>
         </span>
       </label>
@@ -342,7 +341,7 @@ export function SloWatchGame({
   const technologies = useMemo(() => catalog?.technologies ?? ["Feature flags", "Connection pools", "Acquire wait"], []);
   const takeaway =
     catalog?.takeaway ??
-    "Disabling the flag stops new recommendation calls. The query stays near 70 ms.";
+    "Turning the flag off for new traffic stops fresh recommendation calls. The query stays near 70 ms, and acquire wait is the line that tracked the queue for a connection.";
 
   const criteria = useMemo(
     () =>
@@ -352,7 +351,7 @@ export function SloWatchGame({
 
   const prose = useMemo((): DrillProse => {
     const challengeQ = "Can you clear the 40-connection pool when the burst lands?";
-    const objective = `Finish with pending acquisitions at zero and acquire wait under ${ACQUIRE_BAR_MS} ms. The pool stays at ${POOL}. The query stays at ${QUERY_MS} ms.`;
+    const objective = `Finish with pending acquisitions at zero and acquire wait under ${ACQUIRE_BAR_MS} ms. The pool size stays at ${POOL}, and the query hold stays at ${QUERY_MS} ms.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -361,7 +360,8 @@ export function SloWatchGame({
         situation: <p>{result?.reason ?? snap.message}</p>,
         objective,
         explore: technologies,
-        gettingStarted: "Change exposure or turn the flag off for new calls, then run the burst again.",
+        gettingStarted:
+          "Change exposure or turn the flag off for new calls, then run the burst again and watch pending acquisitions drain.",
         takeaway: result?.takeaway || takeaway,
       };
     }
@@ -372,14 +372,12 @@ export function SloWatchGame({
       situation: (
         <>
           <p>
-            Recommendation allows 40 connections, shared with the home page and checkout.
-            About 400 lookups a second at 70 ms use 28 of them. Then the arrival rate
-            rises by about 1.7 times, and the spare connections fill.
+            Recommendation Service shares a pool of {POOL} database connections with the home page and checkout.
+            At about 400 lookups a second with a {QUERY_MS} ms hold, Little&apos;s Law puts roughly 28 connections in use, which leaves a thin margin for a burst.
           </p>
           <p>
-            Acquire wait is the time spent waiting for a connection. The query itself
-            stays near 70 ms. Turning the flag off stops new recommendation calls.
-            Making the pool bigger is not the response.
+            When the arrival rate rises by about 1.7 times, the spare connections fill and acquire wait climbs while the query hold stays near {QUERY_MS} ms.
+            Cutting exposure or turning the feature flag off stops new recommendation calls from entering the pool. Growing the pool is outside the response this incident uses.
           </p>
         </>
       ),
@@ -388,12 +386,13 @@ export function SloWatchGame({
         mode === "practice" ? (
           <>
             Exposure is the share of product-page traffic that calls Recommendation.
-            The flag, when off, stops new calls. A connection already held is left to finish.
+            When the flag is off, new calls stop entering the pool, and a connection already held is left to finish on its own clock.
+            Acquire wait is the time spent waiting for a free connection from the pool of {POOL}.
           </>
         ) : undefined,
       explore: technologies,
       gettingStarted:
-        "Start with full exposure and watch pending acquisitions during the burst. Then cut exposure or turn the flag off and let the queue finish.",
+        "Start with full exposure and watch pending acquisitions during the burst. Then cut exposure or turn the flag off and let the queue finish while the query hold stays at 70 ms.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);

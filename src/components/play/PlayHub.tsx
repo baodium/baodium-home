@@ -189,19 +189,19 @@ function HubBand({
           />
         ) : null}
         <div
-          className={`relative z-[1] flex min-h-[9rem] flex-[0.95] flex-col justify-center border-b border-ink/8 p-3.5 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-4 ${
+          className={`relative z-[1] flex min-h-[10rem] flex-[0.95] flex-col justify-center border-b border-ink/8 p-4 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-5 ${
             accent ? "bg-[color-mix(in_srgb,#1b6b62_6%,#f3f7f5)]" : "bg-[#f3f7f5]"
           }`}
         >
-          <span className="mb-2 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
+          <span className="mb-2.5 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
             0{index + 1}
           </span>
-          <ChapterFigure href={game.chapterHref} className="mb-2 h-16" />
-          <div className="h-[7.25rem] w-full sm:h-[8.5rem]">
+          <ChapterFigure href={game.chapterHref} className="mb-2.5 h-16" />
+          <div className="h-[7.5rem] w-full sm:h-[9rem]">
             <DrillPreview game={game} size="sm" />
           </div>
         </div>
-        <div className="relative z-[1] flex flex-[1.2] flex-col justify-center gap-2 p-4 sm:p-5 md:p-6">
+        <div className="relative z-[1] flex flex-[1.2] flex-col justify-center gap-2.5 p-5 sm:p-6 md:p-7">
           <div className="flex flex-wrap items-center gap-2 text-[0.66rem] uppercase tracking-[0.16em] text-muted">
             <span
               className={
@@ -215,11 +215,11 @@ function HubBand({
             <span aria-hidden="true">·</span>
             <span>{game.minutes}</span>
           </div>
-          <h2 className="font-serif text-[1.35rem] leading-tight tracking-[-0.02em] text-ink md:text-[1.5rem]">
+          <h2 className="font-serif text-[1.4rem] leading-tight tracking-[-0.02em] text-ink md:text-[1.55rem]">
             {game.title}
           </h2>
-          <p className="text-[0.95rem] leading-snug text-ink">{game.challenge}</p>
-          <p className="text-[0.9rem] leading-relaxed text-muted">{game.feel}</p>
+          <p className="text-[0.98rem] leading-snug text-ink">{game.challenge}</p>
+          <p className="text-[0.92rem] leading-relaxed text-muted">{game.feel}</p>
         </div>
       </Link>
     </motion.div>

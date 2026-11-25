@@ -210,8 +210,8 @@ export function TrafficSurgeGame() {
         explore: technologies,
         gettingStarted:
           phase === "won"
-            ? "The test stayed on the passing rows. A higher limit includes a stage the table marks as failed."
-            : "Read which bar failed. A stage can show acquire p95 under 50 ms and still fail on rejections.",
+            ? "Raise the admission limit once and watch a later stage fail at least one bar, then bring the limit back to 400."
+            : "Read which bar failed. A stage can show acquire p95 under 50 ms and still fail because rejections crossed 1 percent.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
@@ -222,13 +222,14 @@ export function TrafficSurgeGame() {
         challenge: challengeQ,
         situation: (
           <p>
-            The load test raises lookups per second in stages and stops at the admission limit you set. A stage passes only when acquire p95 stays under {P95_LIMIT_MS} ms and rejections stay under 1 percent.
+            The chapter load test raises lookups per second in stages and stops at the admission limit you set.
+            A stage clears only when acquire p95 stays under {P95_LIMIT_MS} ms and rejections stay under 1 percent on that same stage.
           </p>
         ),
         objective,
         explore: technologies,
         gettingStarted:
-          "Set the admission limit, start the run, and read both bars on the highest stage the test reaches.",
+          "Set the admission limit, start the run, and read both bars on the highest stage the test is allowed to reach.",
         takeaway,
       };
     }
@@ -239,10 +240,12 @@ export function TrafficSurgeGame() {
       situation: (
         <>
           <p>
-            The chapter&apos;s load test walks 300, 400, 480, and 560 lookups a second. A stage passes only when acquire p95 stays under {P95_LIMIT_MS} ms and rejections stay under 1 percent.
+            The chapter load test walks four stages: 300, 400, 480, and 560 lookups a second.
+            A stage clears only when acquire p95 stays under {P95_LIMIT_MS} ms and rejections stay under 1 percent.
           </p>
           <p>
-            300 and 400 pass. At 480, acquire p95 can still be 25 ms while about 2 percent of requests are rejected, so that stage fails. At 560, 120 requests are rejected and acquire p95 is about 80 ms.
+            Both 300 and 400 clear those bars. At 480, acquire p95 can still be about 25 ms while roughly 2 percent of requests are rejected, so that stage fails.
+            At 560, 120 of 560 requests are rejected and acquire p95 is about 80 ms. You choose the admission limit that stops the walk.
           </p>
         </>
       ),
@@ -255,12 +258,13 @@ export function TrafficSurgeGame() {
           >
             <span className="text-[color:var(--drill-fg)]">Acquire p95</span>
           </DrillTip>{" "}
-          is the wait for a connection, at the 95th percentile. Rejections are requests that stage turned away. A stage can look fine on latency and still fail the rejection bar.
+          is the wait for a connection at the 95th percentile. Rejections are requests that stage turned away.
+          Both numbers have to clear on the same stage before the admission limit can sit there.
         </>
       ),
       explore: technologies,
       gettingStarted:
-        "Set the admission limit, then start. The test spends about 9 seconds on each stage it is allowed to reach, beginning at 300.",
+        "Set the admission limit, then start. The test spends about 9 seconds on each stage it is allowed to reach, beginning at 300 lookups a second.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);

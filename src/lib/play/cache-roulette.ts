@@ -70,7 +70,7 @@ export function emptyCacheSnap(message?: string): CacheSnap {
     waitingOnFill: 0,
     stampededSec: 0,
     rps: 0,
-    message: message ?? "The key is product-metadata:v1. A fresh entry does not call Catalog.",
+    message: message ?? "The key is product-metadata:v1. A fresh entry returns from cache without calling Catalog.",
   };
 }
 
@@ -92,11 +92,11 @@ export function tickCache(
   const stampededSec = state.stampededSec + (stampeded ? dt : 0);
 
   const message = controls.fresh
-    ? "The entry is inside its 300 second TTL. Catalog is not called."
+    ? "The entry is inside its 300 second TTL, so Catalog is not called."
     : !controls.permit
-      ? "try_acquire returned nothing. Readers get source_read_limit instead of a catalog query."
+      ? "source_reads.try_acquire returned nothing. Readers receive TemporarilyUnavailable(source_read_limit) instead of a catalog query."
       : controls.singleflight
-        ? "One loader fills product-metadata:v1. Catalog sees one read."
+        ? "One shared loader fills product-metadata:v1, so Catalog sees a single read for the miss."
         : `${readers} readers each call catalog_db.fetch_metadata for the same missed key.`;
 
   const next: CacheState = { t, hits, reads, peakOrigin, stampededSec };
@@ -124,21 +124,23 @@ export function tickCache(
     outcome: won ? "won" : "lost",
     score: Math.round(won ? 100 : Math.max(0, 100 - origin)),
     reason: won
-      ? "The missed key produced one catalog read. The waiters shared that loader, and the source permit was present."
+      ? "The missed key produced one catalog read. The waiters shared that loader, and the source-read permit was present."
       : controls.fresh
-        ? "A fresh entry never calls Catalog. The miss is the case this drill is about."
+        ? "A fresh entry returns from cache without calling Catalog. This drill starts from the miss."
         : !controls.permit
-          ? "Without a source permit the loader returns source_read_limit and Catalog stays idle."
-          : `${origin} catalog reads left from one missed key. The listing shares one loader.`,
+          ? "Without a source-read permit the loader returns source_read_limit and Catalog stays idle."
+          : `${origin} catalog reads came from one missed key. The listing shares one loader for every waiter on that key.`,
     chapterHref: "/system-design/chapter-5",
     chapterLabel: "Ch.5 · Caching",
     takeaway:
-      "get_product_metadata is cache-aside with a 300 second TTL. On a miss, singleflight.run uses one loader, and that loader needs source_reads.try_acquire.",
+      "get_product_metadata is cache-aside with a 300 second TTL. On a miss, singleflight.run shares one loader, and that loader needs source_reads.try_acquire before it may read Catalog.",
     debrief: `Catalog reads ${origin}. Unavailable ${unavailable}. Readers ${readers}.`,
-    before: "Each miss would call Catalog on its own.",
-    after: won ? "Catalog sees one read for the key." : "Catalog did not see a single shared read.",
+    before: "Each concurrent miss would call Catalog on its own.",
+    after: won
+      ? "Catalog saw one read for the missed key."
+      : "Catalog did not see a single shared read for the miss.",
     changed: controls.singleflight
-      ? "The readers shared one loader."
+      ? "The readers shared one in-flight loader for the key."
       : "Each reader loaded the missed key alone.",
     metrics: [
       { label: "Catalog reads", value: `${origin}`, tone: origin === 1 ? "ok" : "bad" },

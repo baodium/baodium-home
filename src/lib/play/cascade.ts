@@ -74,7 +74,7 @@ export function emptyCascadeSnap(message?: string): CascadeSnap {
     checkoutOk: 0,
     checkoutFail: 0,
     cascadeRisk: 0,
-    message: message ?? "Checkout calls fraud with a child deadline. The provider should stop when checkout is out of time.",
+    message: message ?? "Checkout calls Fraud Service with a child deadline. Leftover provider work should stop when that deadline is spent.",
   };
 }
 
@@ -129,20 +129,22 @@ export function tickCascade(
     outcome: won ? "won" : "lost",
     score: Math.round((1 - next.peakRisk) * 100),
     reason: won
-      ? "Cancellation stopped the provider when the child deadline was spent. Checkout did not leave that work running."
+      ? "Cancellation stopped the provider when the child deadline was spent, so checkout left no outbound work running."
       : call.orphan > 0
-        ? "The provider kept working after checkout returned. The listing passes request.cancellation with the deadline."
-        : "The call never started. A missing permit defers the assessment, which is a different branch from stopping a call already in flight.",
+        ? "The provider kept working after checkout returned. evaluate_risk has to receive request.cancellation with the child deadline."
+        : "The provider call never started. A missing outbound permit defers the assessment on a separate path from cancelling a call that already left.",
     chapterHref: "/system-design/chapter-4",
     chapterLabel: "Ch.4 · Cascading failure",
     takeaway:
-      "reserve_fraud_call caps the child deadline and takes an outbound permit. evaluate_risk passes cancellation so leftover provider work stops with the caller.",
+      "reserve_fraud_call caps the child deadline and acquires an outbound permit. evaluate_risk passes request.cancellation with that deadline so leftover provider work stops with the caller.",
     debrief: `Caller ${call.caller.toFixed(0)} ms. Still running ${call.orphan.toFixed(0)} ms. Child deadline ${call.child.toFixed(0)} ms.`,
-    before: "A slow fraud provider can outlast the time checkout has left.",
-    after: won ? "Leftover provider work is 0 ms." : "Provider work continued after the caller returned.",
+    before: "A slow fraud provider can keep running after checkout has already returned to the customer.",
+    after: won
+      ? "Leftover provider work finished at 0 ms for the full run."
+      : "Provider work continued after the caller returned.",
     changed: controls.cancel
-      ? "Cancellation was passed with the deadline."
-      : "The deadline was computed, and the provider was allowed to finish anyway.",
+      ? "Cancellation traveled with the child deadline into evaluate_risk."
+      : "The child deadline was computed, and the provider was left to finish on its own clock.",
     metrics: [
       { label: "Caller", value: `${call.caller.toFixed(0)} ms`, tone: "neutral" },
       { label: "Still running", value: `${call.orphan.toFixed(0)} ms`, tone: call.orphan < 1 ? "ok" : "bad" },

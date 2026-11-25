@@ -132,7 +132,7 @@ export function CacheRouletteGame() {
     setResult(null);
     setShareError(false);
     setCopied(false);
-    setSnap(emptyCacheSnap("The key has missed. Watch how many catalog reads that produces."));
+    setSnap(emptyCacheSnap("The key has missed. Count catalog reads against the reader count."));
     setPaused(false);
     setPhase("running");
     if (stepMode) {
@@ -186,7 +186,7 @@ export function CacheRouletteGame() {
   const technologies = useMemo(() => catalog?.technologies ?? ["Cache-aside", "TTL", "Shared loader", "Source permits"], []);
   const takeaway =
     catalog?.takeaway ??
-    "A miss shares one loader, and that loader needs a source permit.";
+    "A fresh entry returns from cache without calling Catalog. A miss shares one loader, and that loader needs a source permit before it may read Catalog.";
 
   const criteria = useMemo(
     () => liveCacheCriteria(snap.inFlightMisses, snap.waitingOnFill, controls.fresh, phase),
@@ -195,7 +195,7 @@ export function CacheRouletteGame() {
 
   const prose = useMemo((): DrillProse => {
     const challengeQ = "Can one catalog read fill a missed product-metadata key?";
-    const objective = `One catalog read for the miss, and unavailable responses at zero, for ${CACHE_DURATION_S}s.`;
+    const objective = `Hold Catalog to one read for the miss, with unavailable responses at zero, for the full ${CACHE_DURATION_S}-second run.`;
 
     if (phase === "won" || phase === "lost") {
       return {
@@ -206,10 +206,10 @@ export function CacheRouletteGame() {
         explore: technologies,
         gettingStarted:
           mode === "challenge"
-            ? "Compare catalog reads with the reader count, then share one loader and run again."
+            ? "Compare catalog reads with the reader count, then share one loader and keep the source permit."
             : phase === "won"
-              ? "Turn the shared loader off once and watch Catalog see every reader."
-              : "The miss is still calling Catalog once per reader, or the source permit is missing.",
+              ? "Turn the shared loader off once and watch Catalog see every reader on the miss."
+              : "Either each reader is still loading alone, or the source-read permit is missing.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
@@ -221,23 +221,23 @@ export function CacheRouletteGame() {
         mode === "challenge" ? (
           <>
             <p>
-              The key is product-metadata:v1. It is cache-aside, with a 300 second TTL.
-              This run is the miss: every reader would call Catalog unless they share one loader.
+              The key is product-metadata:v1, a cache-aside entry with a 300 second TTL.
+              This run starts from the miss: every concurrent reader would call Catalog unless they share one loader.
             </p>
             <p>
-              The loader also has to acquire a source permit. Without it, readers get
-              source_read_limit and Catalog stays idle.
+              That loader still has to acquire a source-read permit. Without it, readers receive
+              TemporarilyUnavailable(source_read_limit) and Catalog stays idle.
             </p>
           </>
         ) : (
           <>
             <p>
-              The key is product-metadata:v1, kept for 300 seconds. While it is fresh,
+              The key is product-metadata:v1, kept for 300 seconds. While the entry is fresh,
               Catalog is not called. This drill starts from the miss.
             </p>
             <p>
               Readers that do not share a loader each call catalog_db.fetch_metadata.
-              The loader that does run still needs source_reads.try_acquire.
+              The loader that does run still needs source_reads.try_acquire before it may read Catalog.
             </p>
           </>
         ),
@@ -246,14 +246,14 @@ export function CacheRouletteGame() {
         mode === "practice" ? (
           <>
             A shared loader means one catalog read for every waiter on the key.
-            A source permit is what lets that loader call Catalog.
+            A source-read permit is what lets that loader call Catalog; without it the loader returns source_read_limit.
           </>
         ) : undefined,
       explore: technologies,
       gettingStarted:
         mode === "challenge"
-          ? "Start on the miss, then share one loader and keep the source permit."
-          : "Start with each reader loading alone. Then share one loader and watch Catalog fall to one read.",
+          ? "Start on the miss, share one loader, and keep the source-read permit available."
+          : "Start with each reader loading alone. Then share one loader and watch Catalog fall to a single read for the miss.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);

@@ -110,7 +110,7 @@ export function emptySloSnap(message?: string): TickSnapshot {
     cascadeRisk: 0,
     message:
       message ??
-      "Recommendation allows 40 connections. The query holds one for 70 ms. A 1.7× burst is about to fill the spare connections.",
+      "Recommendation Service allows 40 connections. At about 400 lookups a second with a 70 ms hold, roughly 28 are in use. A burst of about 1.7 times that rate is about to fill the spare connections.",
   };
 }
 
@@ -154,10 +154,10 @@ export function tick(
   };
 
   const message = controls.flagOff
-    ? "The flag is off for new calls. In-flight holds finish. The query stays at 70 ms, and acquire wait is the queue draining."
+    ? "The feature flag is off for new recommendation calls. Holds that already have a connection finish on their own clock. The query stays at 70 ms while acquire wait drains."
     : pending > 1
-      ? `Pending acquisitions are ${pending.toFixed(0)}. Acquire wait is ${acquire.toFixed(0)} ms. The query is still ${QUERY_MS} ms.`
-      : `${arrivals.toFixed(0)} lookups a second need about ${(arrivals * QUERY_S).toFixed(1)} of ${POOL} connections.`;
+      ? `Pending acquisitions are ${pending.toFixed(0)} and acquire wait is ${acquire.toFixed(0)} ms, while the query hold stays at ${QUERY_MS} ms.`
+      : `${arrivals.toFixed(0)} lookups a second need about ${(arrivals * QUERY_S).toFixed(1)} of the ${POOL} connections in the pool.`;
 
   const snap: TickSnapshot = {
     t,
@@ -183,9 +183,9 @@ export function tick(
   const won = pending < 1 && acquire < ACQUIRE_BAR_MS;
   const reason = won
     ? controls.flagOff
-      ? "New recommendation calls stopped, pending acquisitions finished, and acquire wait stayed under 50 ms. The pool stayed at 40."
-      : "Exposure left enough spare connections for the burst. Pending finished at 0 and acquire wait stayed under 50 ms."
-    : "The burst filled the 40 connections. Pending acquisitions were still waiting, and acquire time was the queue, not a slower query.";
+      ? "New recommendation calls stopped, pending acquisitions finished at zero, and acquire wait stayed under 50 ms. The pool size stayed at 40."
+      : "Exposure left enough spare connections for the burst. Pending acquisitions finished at zero and acquire wait stayed under 50 ms."
+    : "The burst filled all 40 connections. Pending acquisitions were still waiting, and acquire wait tracked the queue for a free connection while the query hold stayed near 70 ms.";
 
   const done: GameResult = {
     outcome: won ? "won" : "lost",
@@ -197,14 +197,14 @@ export function tick(
     chapterLabel: "Ch.1 · Resource contention",
     shareText: `SLO Watch: acquire wait ${acquire.toFixed(0)} ms, pending ${pending.toFixed(0)}, pool ${POOL}. https://baodium.com/play/slo-watch`,
     takeaway:
-      "Disabling the flag stops new recommendation calls. Making the pool bigger is not how this incident ends. The query stays near 70 ms while acquire wait is the line that moves.",
+      "Turning the flag off for new traffic stops fresh recommendation calls from entering the pool. Growing the pool is outside the response this incident uses. The query stays near 70 ms while acquire wait is the line that moves.",
     debrief: `Acquire ${acquire.toFixed(0)} ms. Pending ${pending.toFixed(0)}. Query ${QUERY_MS} ms. Exposure ${exposure.toFixed(0)}%. Flag ${controls.flagOff ? "off" : "on"}.`,
-    before: "400 lookups a second at 70 ms is 28 of 40 connections. The burst is about 1.7 times that rate.",
+    before: "At 400 lookups a second with a 70 ms hold, about 28 of the 40 connections are in use. The burst is about 1.7 times that rate.",
     after: won
       ? "Pending acquisitions ended at zero and acquire wait stayed under the 50 ms bar."
-      : "All 40 connections stayed assigned, and acquire wait carried the queue.",
+      : "All 40 connections stayed assigned, and acquire wait carried the queue for the rest of the run.",
     changed: controls.flagOff
-      ? "The flag stopped new recommendation calls. Work already holding a connection was left to finish."
+      ? "The feature flag stopped new recommendation calls. Work already holding a connection was left to finish."
       : "Exposure changed how many lookups a second asked the shared pool for a connection.",
     metrics: [
       { label: "Acquire wait", value: `${acquire.toFixed(0)} ms`, tone: acquire < ACQUIRE_BAR_MS ? "ok" : "bad" },

@@ -45,7 +45,7 @@ import {
 const catalog = getPlayGame("tail-latency");
 
 const idleSnap: TailSnap = emptyTailSnap(
-  "The query stays at 70 ms. Acquire p95 is the line that moves.",
+  "The query hold stays at 70 ms. Acquire p95 is the line that moves with the offered lookup rate.",
 );
 
 function toneFor(met: boolean | null): CriterionTone {
@@ -188,7 +188,7 @@ export function TailLatencyGame() {
 
   const prose = useMemo((): DrillProse => {
     const challengeQ = "Can you keep acquire p95 under 50 ms while the query stays at 70?";
-    const objective = `Keep acquire p95 under ${P99_BUDGET_MS} ms for the full ${TAIL_DURATION_S}-second run. The query stays at 70 ms.`;
+    const objective = `Keep acquire p95 under ${P99_BUDGET_MS} ms for the full ${TAIL_DURATION_S}-second run while the query hold stays at 70 ms.`;
 
     if (mode === "challenge") {
       if (phase === "won" || phase === "lost") {
@@ -200,8 +200,8 @@ export function TailLatencyGame() {
           explore: technologies,
           gettingStarted:
             phase === "won"
-              ? "Run it again at a higher lookup rate and watch acquire p95 cross 50 ms while the query stays at 70."
-              : "Read which line failed. The query does not move. The lookup rate does.",
+              ? "Run it again at a higher lookup rate and watch acquire p95 cross 50 ms while the query hold stays at 70."
+              : "Read which line failed. The query hold stays put; the offered lookup rate is what moves acquire wait.",
           takeaway: result?.takeaway ?? takeaway,
         };
       }
@@ -210,13 +210,15 @@ export function TailLatencyGame() {
         challenge: challengeQ,
         situation: (
           <p>
-            The recommendation query holds a connection for about 70 ms. That number stays put. You choose how many lookups a second ask the 40-connection pool for a connection. The pass bar is acquire p95 under {P99_BUDGET_MS} ms.
+            The recommendation query holds a connection for about 70 ms for the whole run.
+            You choose how many lookups a second ask the 40-connection pool for a connection.
+            The pass bar is acquire p95 under {P99_BUDGET_MS} ms.
           </p>
         ),
         objective,
         explore: technologies,
         gettingStarted:
-          "Set the lookup rate, start the run, and read acquire p95 against the query.",
+          "Set the lookup rate, start the run, and read acquire p95 against the flat query line.",
         takeaway,
       };
     }
@@ -230,8 +232,8 @@ export function TailLatencyGame() {
         explore: technologies,
         gettingStarted:
           phase === "won"
-            ? "The offered rate stayed on a passing stage. A higher rate is the row the table marks as failed."
-            : "Lower the lookup rate and run again. The query stays at 70 ms either way.",
+            ? "Raise the offered rate once to a row the load-test table marks as failed, then bring it back under 400."
+            : "Lower the lookup rate and run again. The query hold stays at 70 ms either way.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
@@ -241,10 +243,12 @@ export function TailLatencyGame() {
       situation: (
         <>
           <p>
-            The recommendation query holds a connection for about 70 ms and does not slow down in this drill. What changes is how long a lookup waits to acquire a connection from the 40-connection pool.
+            The recommendation query holds a connection for about 70 ms for the whole drill.
+            What changes is how long a lookup waits to acquire a connection from the pool of 40.
           </p>
           <p>
-            The chapter&apos;s load test records acquire p95 of about 8 ms at 400 lookups a second, and about 80 ms at 560. The pass bar is acquire p95 under {P99_BUDGET_MS} ms. The query stays at 70 ms, so a slower database call is not what fails the bar.
+            The chapter load test records acquire p95 of about 8 ms at 400 lookups a second, and about 80 ms at 560.
+            The pass bar is acquire p95 under {P99_BUDGET_MS} ms. The query hold stays at 70 ms, which means a slower database call is not what fails the bar.
           </p>
         </>
       ),
@@ -258,12 +262,12 @@ export function TailLatencyGame() {
           >
             <span className="text-[color:var(--drill-fg)]">Acquire p95</span>
           </DrillTip>{" "}
-          is that wait at the 95th percentile. It moves with the lookup rate. The query does not.
+          is that wait at the 95th percentile. It moves with the offered lookup rate while the query hold stays flat.
         </>
       ),
       explore: technologies,
       gettingStarted:
-        "Set lookups per second, then start the run. 400 a second is a passing stage. 480 and 560 are not. Watch the query stay at 70 ms while acquire p95 moves.",
+        "Set lookups per second, then start the run. 400 a second is a passing stage; 480 and 560 are not. Watch the query stay at 70 ms while acquire p95 moves.",
       takeaway,
     };
   }, [mode, phase, result, snap.message, takeaway, technologies]);

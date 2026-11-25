@@ -204,8 +204,8 @@ export function CascadeGame() {
         explore: technologies,
         gettingStarted:
           phase === "won"
-            ? "Run it again without cancellation and watch the provider keep working after checkout returns."
-            : "Read which line failed. Cancellation stops a call that already started. A missing permit never starts it.",
+            ? "Run it again without cancellation and watch leftover provider work continue after checkout returns."
+            : "Read which line failed. Cancellation stops a call that already started. Refusing the outbound permit never starts the call.",
         takeaway: result?.takeaway ?? takeaway,
       };
     }
@@ -213,10 +213,12 @@ export function CascadeGame() {
     const situation = (
       <>
         <p>
-          Checkout calls the fraud provider through reserve_fraud_call. The child deadline is the time checkout has left, minus the reserve, and it is capped at 1000 ms. That provider is slower than the remaining child deadline.
+          Checkout calls Fraud Service through reserve_fraud_call. The child deadline is cut from the time checkout still has left after the reserve, and it is capped at 1000 ms.
+          In this run the provider is slower than that remaining child deadline.
         </p>
         <p>
-          If cancellation is passed with the deadline, the provider stops when checkout returns. If it is not, the provider keeps running after the caller is done. A missing permit is a different branch: the call never starts.
+          When evaluate_risk receives request.cancellation with the deadline, the provider stops when checkout returns.
+          Without that signal, the provider keeps running after the caller is done. Refusing the outbound permit is a separate path: the assessment is deferred and the call never leaves.
         </p>
       </>
     );
@@ -228,12 +230,14 @@ export function CascadeGame() {
       objective,
       terms: (
         <>
-          The child deadline is the minimum of 1000 ms and the time checkout has left, minus the reserve. Cancellation is request.cancellation, passed into evaluate_risk with that deadline. The outbound permit comes from outbound_fraud_slots.try_acquire. Without a permit the assessment is deferred.
+          The child deadline is the minimum of 1000 ms and the time checkout has left, minus the reserve.
+          Cancellation is request.cancellation, passed into evaluate_risk with that deadline.
+          The outbound permit comes from outbound_fraud_slots.try_acquire. Without a permit the assessment is deferred.
         </>
       ),
       explore: technologies,
       gettingStarted:
-        "Start from a provider that outlasts checkout. Pass cancellation and keep the permit. You can also refuse the permit and watch the deferred branch.",
+        "Start from a provider that outlasts checkout. Pass cancellation and keep the outbound permit, then refuse the permit once and compare the deferred path.",
       takeaway,
     };
   }, [phase, result, snap.message, takeaway, technologies]);

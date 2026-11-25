@@ -86,7 +86,7 @@ export function emptySurgeSnap(message?: string): SurgeSnap {
     vipSuccessRate: 1,
     underBudgetSec: 0,
     happyMs: 8,
-    message: message ?? "300 a second passes. 400 a second passes. 480 a second does not.",
+    message: message ?? "The load test walks 300, 400, 480, and 560 lookups a second. The last stage that clears both bars is 400.",
   };
 }
 
@@ -127,8 +127,8 @@ export function tickSurge(
 
   const message =
     reject >= 0.01
-      ? `${arrivals.toFixed(0)} lookups a second rejects about ${(reject * 100).toFixed(1)} percent. Acquire p95 is ${p95.toFixed(0)} ms, and the pass bar is both p95 under 50 ms and rejections under 1 percent.`
-      : `${arrivals.toFixed(0)} lookups a second keeps acquire p95 at ${p95.toFixed(0)} ms with no rejections. The chapter's last passing stage is 400.`;
+      ? `${arrivals.toFixed(0)} lookups a second rejects about ${(reject * 100).toFixed(1)} percent while acquire p95 is ${p95.toFixed(0)} ms. Both bars have to clear: acquire p95 under 50 ms and rejections under 1 percent.`
+      : `${arrivals.toFixed(0)} lookups a second keeps acquire p95 at ${p95.toFixed(0)} ms with no rejections. The chapter's last stage that clears both bars is 400.`;
 
   const next: SurgeState = {
     t,
@@ -163,10 +163,10 @@ export function tickSurge(
 
   const won = limit >= 390 && limit < 450 && worstReject < 0.01 && peakP95 < P95_LIMIT_MS;
   const reason = won
-    ? "The load test stopped on the 400 per second stage. Acquire p95 stayed under 50 ms and rejections stayed under 1 percent."
+    ? "The load test stopped on the 400 lookups-per-second stage. Acquire p95 stayed under 50 ms and rejections stayed under 1 percent on every stage the test was allowed to reach."
     : limit < 390
-      ? "300 per second passes, and so does 400. The admission limit can sit on that last passing stage."
-      : "A later stage misses the bar. At 480 per second, acquire p95 can still be 25 ms while about 2 percent of requests are rejected.";
+      ? "Both 300 and 400 lookups a second clear the bars. The admission limit belongs on that last passing stage rather than stopping earlier."
+      : "A later stage misses at least one bar. At 480 lookups a second, acquire p95 can still be about 25 ms while roughly 2 percent of requests are rejected.";
 
   const done: SurgeResult = {
     outcome: won ? "won" : "lost",
@@ -175,13 +175,13 @@ export function tickSurge(
     chapterHref: "/system-design/chapter-2",
     chapterLabel: "Ch.2 · Requests, latency, throughput",
     takeaway:
-      "The pass bar is acquire p95 under 50 ms and rejections under 1 percent. The 400 per second stage is the last one that clears both. That is where the admission limit sits.",
+      "Both bars have to clear on the same stage: acquire p95 under 50 ms and rejections under 1 percent. The 400 lookups-per-second stage is the last one that clears both, and that is where the admission limit belongs.",
     debrief: `Limit ${limit.toFixed(0)}/s. Peak acquire p95 ${peakP95.toFixed(0)} ms. Worst rejection ${(worstReject * 100).toFixed(1)} percent.`,
-    before: "300 and 400 lookups a second pass. 480 rejects about 2 percent. 560 rejects 120 of 560.",
+    before: "At 300 and 400 lookups a second both bars clear. At 480 about 2 percent are rejected. At 560, 120 of 560 requests are rejected.",
     after: won
-      ? "The test never left the passing stages."
-      : "The test included a stage the chapter marks as failed.",
-    changed: "The admission limit chose the highest stage the load test was allowed to reach.",
+      ? "The test stayed on the passing rows of the load-test table."
+      : "The test included a stage the chapter already marks as failed.",
+    changed: "The admission limit set the highest stage the load test was allowed to reach.",
     metrics: [
       { label: "Acquire p95", value: `${peakP95.toFixed(0)} ms`, tone: peakP95 < P95_LIMIT_MS ? "ok" : "bad" },
       { label: "Rejections", value: `${(worstReject * 100).toFixed(1)}%`, tone: worstReject < 0.01 ? "ok" : "bad" },

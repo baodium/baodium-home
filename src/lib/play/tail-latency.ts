@@ -75,7 +75,7 @@ export function emptyTailSnap(message?: string): TailSnap {
     samples: [],
     hedgeExtra: 0,
     sampleCount: 0,
-    message: message ?? "The query stays near 70 ms. Acquire p95 is the line that moves with load.",
+    message: message ?? "The query hold stays near 70 ms. Acquire p95 moves with the offered lookup rate.",
   };
 }
 
@@ -99,8 +99,8 @@ export function tickTail(
 
   const message =
     p95 < P99_BUDGET_MS
-      ? `Acquire p95 is ${p95.toFixed(0)} ms. The query is still ${QUERY_MS} ms. ${rate.toFixed(0)} lookups a second is inside the passing stages.`
-      : `Acquire p95 is ${p95.toFixed(0)} ms, past the 50 ms bar. The query is still ${QUERY_MS} ms. The tail is the wait for a connection.`;
+      ? `Acquire p95 is ${p95.toFixed(0)} ms while the query hold stays at ${QUERY_MS} ms. ${rate.toFixed(0)} lookups a second sits on a stage the load-test table marks as passing.`
+      : `Acquire p95 is ${p95.toFixed(0)} ms, past the 50 ms bar, while the query hold stays at ${QUERY_MS} ms. The measured tail is the wait for a free connection.`;
 
   const next: TailState = { t, samples, sampleCount, underSec };
   const snap: TailSnap = {
@@ -125,16 +125,18 @@ export function tickTail(
     outcome: won ? "won" : "lost",
     score: Math.round(Math.max(0, 100 - p95)),
     reason: won
-      ? "Acquire p95 stayed under 50 ms. The query stayed at 70 ms, so the tail was not a slower database call."
-      : "Acquire p95 crossed 50 ms while the query stayed at 70 ms. That is the load-test failure, not a second copy of the request.",
+      ? "Acquire p95 stayed under 50 ms for the full run while the query hold stayed at 70 ms. The offered rate matched a passing row of the load-test table."
+      : "Acquire p95 crossed 50 ms while the query hold stayed at 70 ms. The failure tracked the wait for a connection at the offered lookup rate.",
     chapterHref: "/system-design/chapter-2",
     chapterLabel: "Ch.2 · Requests, latency, throughput",
     takeaway:
-      "In this chapter the tail that fails the bar is acquire time. The query stays near its baseline. The passing rate is 400 lookups a second.",
+      "The pass bar measures acquire time. The query stays near its baseline, and 400 lookups a second is the last stage the table marks as passing.",
     debrief: `Query ${QUERY_MS} ms. Acquire p95 ${p95.toFixed(0)} ms. Lookups ${rate.toFixed(0)}/s.`,
-    before: "At 400 per second, acquire p95 is about 8 ms. At 560 it is about 80 ms.",
-    after: won ? "The offered rate stayed on a passing stage." : "The offered rate was a stage the table marks as failed.",
-    changed: "The lookup rate changed acquire wait. It did not change the query.",
+    before: "At 400 lookups a second, acquire p95 is about 8 ms. At 560 lookups a second it is about 80 ms.",
+    after: won
+      ? "The offered rate stayed on a passing stage of the load-test table."
+      : "The offered rate included a stage the load-test table marks as failed.",
+    changed: "Changing the offered lookup rate moved acquire wait while the query hold stayed at 70 ms.",
     metrics: [
       { label: "Query", value: `${QUERY_MS} ms`, tone: "neutral" },
       { label: "Acquire p95", value: `${p95.toFixed(0)} ms`, tone: won ? "ok" : "bad" },

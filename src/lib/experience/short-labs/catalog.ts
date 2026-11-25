@@ -19,8 +19,8 @@ export const SHORT_LABS: ShortLab[] = [
     durationMin: 8,
     h1: "The connection stays held while the payload is built",
     situation: [
-      "Recommendation Service allows 40 connections on each instance. About 400 lookups a second each hold a connection for about 70 milliseconds. Little's Law says the average number busy is the rate times that hold: 400 × 0.070 = 28, with 12 connections left for a burst.",
-      "The first handler builds the payload while the connection is already assigned, so that work is part of the hold. The second handler builds the payload, then acquires the connection only for the query.",
+      "Recommendation Service allows 40 connections on each instance. At about 400 lookups a second, each lookup holds a connection for about 70 milliseconds. Little's Law puts the average number busy at the rate times that hold: 400 × 0.070 = 28, which leaves about 12 connections for a burst.",
+      "In the first handler listing, build_payload runs while the connection is already assigned, so that work lengthens the hold. In the second listing, the payload is built first, and the connection is acquired only for the query.",
     ],
     objective:
       "Keep the average at or below 32 connections, with no pending acquisitions, by building the payload before the connection is taken.",
@@ -35,16 +35,16 @@ export const SHORT_LABS: ShortLab[] = [
       },
       {
         term: "Pending acquisitions",
-        explain: "Requests waiting for a connection because the average demand is above the 40 the pool allows.",
+        explain: "Requests waiting for a connection because average demand is above the 40 connections the pool allows.",
       },
     ],
     explore: ["Little's Law", "Connection occupancy", "build_payload", "The 40-connection pool"],
     gettingStarted:
-      "Start from the chapter's estimate, 400 lookups a second and a 70 ms query. Then add payload work while the connection is held, and watch pending acquisitions. Move that work to before the acquire and let the queue finish.",
+      "Start from the chapter estimate of 400 lookups a second and a 70 ms query. Raise payload work while the connection is held, and watch pending acquisitions climb. Then move that work to before the acquire and let the queue finish.",
     keepInMind:
-      "The load test in the chapter completed 400 requests a second with no rejections. At 480 a second, about 2 percent were rejected even though acquisition p95 was still 25 ms, under the 50 ms bar. The passing stage is what the admission limit should sit under.",
+      "The chapter load test completed 400 requests a second with no rejections. At 480 a second, about 2 percent were rejected even though acquisition p95 was still 25 ms, under the 50 ms bar. The admission limit should sit under the last stage that clears both bars.",
     challengeSituation:
-      "Recommendation Service is taking 400 lookups a second. The query holds a connection for 70 ms, and build_payload is running for 40 ms while that connection is already assigned. The pool allows 40 connections.",
+      "Recommendation Service is taking 400 lookups a second. The query holds a connection for 70 ms, and build_payload runs for 40 ms while that connection is already assigned. The pool allows 40 connections.",
     challengeObjective:
       "Bring the average number of busy connections to 32 or fewer, and bring pending acquisitions to zero.",
     challengeSuccess:
@@ -63,12 +63,12 @@ export const SHORT_LABS: ShortLab[] = [
       { id: "holdDuringBuild", kind: "toggle", label: "Build while holding the connection", explain: "On, the handler matches the first listing: the payload is built inside pool.acquire. Off, it matches the second listing: the payload is built, then the connection is acquired." },
     ],
     stages: [
-      { id: "estimate", letter: "A", title: "Read the 28", body: "Leave the payload at 0. Average connections should sit near 28 of the 40 allowed.", gate: "estimate" },
+      { id: "estimate", letter: "A", title: "Read the baseline of 28", body: "Leave payload build at 0 ms. Average connections should sit near 28 of the 40 the pool allows.", gate: "estimate" },
       { id: "over", letter: "B", title: "Hold the connection during the build", body: "Keep the first listing, and raise payload build until average connections pass 40.", gate: "over" },
-      { id: "queue", letter: "C", title: "Watch acquisitions wait", body: "Leave that hold in place until pending acquisitions climb. The query itself has not gotten slower.", gate: "queued" },
-      { id: "release", letter: "D", title: "Build, then acquire", body: "Switch to the second listing. Occupancy falls back to the query, and pending acquisitions should finish.", gate: "released" },
+      { id: "queue", letter: "C", title: "Watch acquisitions wait", body: "Leave that hold in place until pending acquisitions climb. The query time stays near 70 ms while the wait grows.", gate: "queued" },
+      { id: "release", letter: "D", title: "Build, then acquire", body: "Switch to the second listing. Occupancy falls back to the query alone, and pending acquisitions should finish.", gate: "released" },
     ],
-    graphLabel: "Product Page calls Recommendation. The pool and the database live in that service.",
+    graphLabel: "Product Page calls Recommendation Service. The pool and the database live inside that service.",
     graph: {
       nodes: [
         { id: "page", label: "Product Page", x: 0, y: 80, sourceRight: true },
@@ -112,7 +112,7 @@ with pool.acquire() as conn:
     h1: "Checkout returns while the fraud call is still running",
     situation: [
       "Checkout calls Fraud Service, which asks an external provider to approve, deny, or request review. Before the call, the handler builds a child deadline with a 1,000 ms maximum and reserves time for the work that still has to happen after risk.",
-      "If that deadline cannot start, or the outbound permit is missing, the assessment is deferred. If the call is admitted and checkout gives up, the provider keeps working unless cancellation is passed through with the deadline.",
+      "If that deadline cannot start, or the outbound permit is missing, the assessment is deferred. If the call is admitted and checkout returns early, the provider keeps working unless cancellation is passed through with the deadline.",
     ],
     objective:
       "When the provider is slower than the child deadline, return inside the time checkout has left and leave no provider work running.",
@@ -123,9 +123,9 @@ with pool.acquire() as conn:
     ],
     explore: ["Child deadline", "Outbound permit", "Cancellation", "Fraud provider"],
     gettingStarted:
-      "Start with a provider call that fits inside the child deadline. Then slow the provider until work is still running after checkout returns. Pass cancellation with the deadline, and also try refusing the permit.",
+      "Start with a provider call that fits inside the child deadline. Then slow the provider until work is still running after checkout returns. Pass cancellation with the deadline, then refuse the permit once and compare the deferred path.",
     keepInMind:
-      "A timeout on checkout does not, by itself, stop the provider. The call has to receive the deadline and the cancellation, or it should not have been started.",
+      "A checkout timeout alone does not stop the provider. The outbound call has to receive the deadline and the cancellation, or the call should never have been started.",
     challengeSituation:
       "Checkout has 500 ms left. The fraud provider needs 900 ms. The call already holds an outbound permit, and 80 ms is reserved for the work after risk.",
     challengeObjective:
@@ -146,12 +146,12 @@ with pool.acquire() as conn:
       { id: "cancel", kind: "toggle", label: "Pass cancellation with the deadline", explain: "On, evaluate_risk passes request.cancellation, and the provider stops when the child deadline is spent. Off, the provider keeps working." },
     ],
     stages: [
-      { id: "fit", letter: "A", title: "The provider finishes inside the deadline", body: "With the starting times, the provider should finish inside the child deadline and leave nothing running.", gate: "inside" },
-      { id: "slow", letter: "B", title: "Slow the provider", body: "Raise provider work until checkout has returned and the provider is still running.", gate: "overrun" },
+      { id: "fit", letter: "A", title: "Finish inside the deadline", body: "With the starting times, the provider should finish inside the child deadline and leave nothing running afterward.", gate: "inside" },
+      { id: "slow", letter: "B", title: "Slow the provider", body: "Raise provider work until checkout has returned while the provider is still running.", gate: "overrun" },
       { id: "stop", letter: "C", title: "Stop the provider with the caller", body: "Pass cancellation with the deadline. Leftover provider work should fall to zero.", gate: "stopped" },
-      { id: "defer", letter: "D", title: "Refuse the permit", body: "Turn the permit off. The provider should not be called, and nothing should be left running.", gate: "deferred" },
+      { id: "defer", letter: "D", title: "Refuse the permit", body: "Turn the permit off. The provider should not be called, and leftover provider work should stay at zero.", gate: "deferred" },
     ],
-    graphLabel: "Checkout to Fraud Service, then the external provider.",
+    graphLabel: "Checkout calls Fraud Service, which then calls the external provider.",
     graph: {
       nodes: [
         { id: "checkout", label: "Checkout", x: 0, y: 80, sourceRight: true },
@@ -201,11 +201,11 @@ def evaluate_risk(assessment, request, permit, deadline):
     durationMin: 8,
     h1: "Every reader loads the missed product-metadata key",
     situation: [
-      "Catalog stores product metadata under product-metadata:v1:{product_id}, with a 300 second TTL. A fresh entry is returned from cache. A miss reads catalog_db.fetch_metadata and stores the result.",
-      "Concurrent misses each call the database unless one loader is shared. That loader must acquire a source-read permit. If the permit is missing, the loader returns TemporarilyUnavailable instead of calling the database.",
+      "Catalog stores product metadata under product-metadata:v1:{product_id}, with a 300 second TTL. A fresh entry returns from cache. A miss reads catalog_db.fetch_metadata and stores the result.",
+      "Concurrent misses each call the database unless one loader is shared for the key. That loader must acquire a source-read permit first. If the permit is missing, the loader returns TemporarilyUnavailable instead of calling the database.",
     ],
     objective:
-      "On a miss, hold catalog to one successful read, or to zero reads when the source permit is refused.",
+      "On a miss, hold Catalog to one successful read, or to zero reads when the source permit is refused.",
     terms: [
       { term: "Cache-aside", explain: "The application reads the cache, and on a miss it reads the database and stores the value. The database is not updated by the cache." },
       { term: "Shared loader", explain: "One in-flight load serves every reader waiting on that key. The loader checks the cache again before it uses a database permit." },
@@ -213,11 +213,11 @@ def evaluate_risk(assessment, request, permit, deadline):
     ],
     explore: ["Cache-aside", "product-metadata", "Shared loader", "Source permit"],
     gettingStarted:
-      "Read the key while it is fresh. Then miss it and let every reader call Catalog. Share one loader, then refuse the source permit and read what the callers receive.",
+      "Read the key while it is fresh and confirm Catalog stays quiet. Then miss the entry and let every reader load alone. Share one loader, then refuse the source permit and read what the callers receive.",
     keepInMind:
-      "A failed cache write does not undo a successful source read. A version rejection means newer data is already known, and this handler returns temporary unavailability instead of starting another read.",
+      "A failed cache write does not undo a successful source read. A version rejection means newer data is already known, so this handler returns temporary unavailability instead of starting another read.",
     challengeSituation:
-      "The product-metadata entry is missing. Eighty readers ask for it at the same time, and a source read permit is available. Each reader can call Catalog on its own.",
+      "The product-metadata entry is missing. Eighty readers ask for it at the same time, and a source-read permit is available. Each reader can call Catalog on its own.",
     challengeObjective:
       "Catalog performs one read for that miss, and no reader is refused for lack of a permit.",
     challengeSuccess: "Catalog stays at one read for the miss, and unavailable responses stay at zero.",
@@ -234,12 +234,12 @@ def evaluate_risk(assessment, request, permit, deadline):
       { id: "permit", kind: "toggle", label: "Source permit available", explain: "On, try_acquire returns a permit and the loader may read Catalog. Off, the loader returns TemporarilyUnavailable(source_read_limit)." },
     ],
     stages: [
-      { id: "warm", letter: "A", title: "Read a fresh entry", body: "Leave the entry fresh. Catalog should stay at zero.", gate: "warm" },
-      { id: "miss", letter: "B", title: "Miss without a shared loader", body: "Mark the entry missed and leave each reader to load it. Catalog reads should jump to the reader count.", gate: "stampede" },
-      { id: "share", letter: "C", title: "Share one loader", body: "Share one loader for the key. Catalog should fall to one read.", gate: "coalesced" },
-      { id: "limit", letter: "D", title: "Refuse the source permit", body: "Take the source permit away. Catalog should stay at zero, and readers should see source_read_limit.", gate: "limited" },
+      { id: "warm", letter: "A", title: "Read a fresh entry", body: "Leave the entry fresh. Catalog reads should stay at zero.", gate: "warm" },
+      { id: "miss", letter: "B", title: "Miss without a shared loader", body: "Mark the entry missed and leave each reader to load alone. Catalog reads should rise to the reader count.", gate: "stampede" },
+      { id: "share", letter: "C", title: "Share one loader", body: "Share one loader for the key. Catalog should fall to a single read for the miss.", gate: "coalesced" },
+      { id: "limit", letter: "D", title: "Refuse the source permit", body: "Take the source permit away. Catalog should stay at zero, and readers should receive source_read_limit.", gate: "limited" },
     ],
-    graphLabel: "Client to the app, the cache, and Catalog.",
+    graphLabel: "The client calls the app, which reads the cache and, on a miss, Catalog.",
     graph: {
       nodes: [
         { id: "client", label: "Client", x: 0, y: 80, sourceRight: true },
@@ -295,9 +295,9 @@ def get_metadata(key, request):
     h1: "The next read still returns the old address",
     situation: [
       "A customer saves a shipping address. The primary commits the write. The replicas apply the log later, so a read that follows the write can still see the old row.",
-      "choose_read_target keeps a replica only when it is available, the lag sample is current, and the policy accepts it. If none qualify and primary fallback is allowed, the read goes to the primary. Otherwise the read is ReadTemporarilyUnavailable. It does not relax the freshness requirement because the replicas are behind.",
+      "choose_read_target keeps a replica only when it is available, the lag sample is current, and the policy accepts it. If none qualify and primary fallback is allowed, the read goes to the primary. Otherwise the read raises ReadTemporarilyUnavailable. The router does not relax the freshness requirement when the replicas are behind.",
     ],
-    objective: "After the address is saved, the next read shows that address, or fails as unavailable. It does not show the old one.",
+    objective: "After the address is saved, the next read returns that address, or fails as unavailable. The old address must not come back.",
     terms: [
       { term: "Read-your-writes", explain: "The session that just saved the address must see that write on its next read." },
       { term: "Eligible replica", explain: "Available, with a current lag sample, and accepted by the policy. A replica that has not applied the write is not a candidate." },
@@ -305,9 +305,9 @@ def get_metadata(key, request):
     ],
     explore: ["Read-your-writes", "Replica lag", "Primary fallback", "choose_read_target"],
     gettingStarted:
-      "Read a replica that has not applied the write and watch the old address come back. Then run the router. Without fallback the read should be unavailable. With fallback it should come from the primary. Catch a replica up and watch the router choose it again.",
+      "Read a replica that has not applied the write and watch the old address come back. Then run choose_read_target. Without primary fallback the read should be unavailable. With fallback it should come from the primary. Catch a replica up and watch the router choose it again.",
     keepInMind:
-      "A replica can be up and still be the wrong place to read a row you just wrote. The router must not serve that replica just because the primary is busy.",
+      "A replica can be up and still be the wrong place to read a row you just wrote. Busy primary capacity is not a reason to serve that stale replica.",
     challengeSituation:
       "A customer saved a new address. The replicas have not replayed that write. The next read is still aimed at a replica.",
     challengeObjective: "The next read shows the address that was just saved.",
@@ -336,11 +336,11 @@ def get_metadata(key, request):
     ],
     stages: [
       { id: "stale", letter: "A", title: "Read the replica anyway", body: "Leave the read on a replica that is behind. The old address should come back.", gate: "stale" },
-      { id: "refuse", letter: "B", title: "Run the router without fallback", body: "Switch to choose_read_target and leave primary fallback off. The read should be unavailable, not the old address.", gate: "refused" },
+      { id: "refuse", letter: "B", title: "Run the router without fallback", body: "Switch to choose_read_target and leave primary fallback off. The read should raise unavailable instead of returning the old address.", gate: "refused" },
       { id: "primary", letter: "C", title: "Allow the primary", body: "Allow primary fallback. The saved address should come from the primary.", gate: "current" },
       { id: "caught", letter: "D", title: "Catch a replica up", body: "Set replica lag to 0 and turn primary fallback off. The router should choose the replica, and the address should still be the new one.", gate: "caughtUp" },
     ],
-    graphLabel: "The app chooses a primary or a replica for this read.",
+    graphLabel: "The app chooses the primary or a replica for this read.",
     graph: {
       nodes: [
         { id: "app", label: "App", x: 0, y: 100, sourceRight: true },
@@ -394,19 +394,19 @@ def get_metadata(key, request):
     h1: "The notification task, created once",
     situation: [
       "Order confirmations are built by process_order_event in the notification-task-creator group. The handler claims the message_id inside a transaction, creates the task only on the first delivery, and commits the next offset after that transaction.",
-      "order-events has 12 partitions, so consumers beyond that count sit idle. Committing the offset before the task exists loses the message. Skipping the claim makes a redelivery create a second confirmation task.",
+      "order-events has 12 partitions, so consumers beyond that count sit idle. Committing the offset before the task exists loses the message on a crash. Skipping the claim lets a redelivery create a second confirmation task.",
     ],
     objective: "Hold backlog age under 2 seconds, with no second confirmation task and no lost task.",
     terms: [
-      { term: "Backlog age", explain: "Lag divided by the rate the group is actually consuming. The size alone does not say how late the oldest message is." },
+      { term: "Backlog age", explain: "Lag divided by the rate the group is actually consuming. Size alone does not say how late the oldest message is." },
       { term: "claim_event", explain: "Inserts the consumer and message_id. A conflict means this delivery already created the task." },
       { term: "Commit after", explain: "consumer.commit_next_offset runs after the transaction that created the task. Committing first drops the message on a crash." },
     ],
     explore: ["message_id", "Partitions", "Backlog age", "Commit order"],
     gettingStarted:
-      "Match consume to produce and read a young backlog. Slow the handler until age climbs. Add consumers up to the partition count, then decide what a redelivered message_id should do and when the offset is committed.",
+      "Match consume to produce and confirm a young backlog. Slow the handler until age climbs. Add consumers up to the partition count, then set the claim and commit-after toggles so a redelivered message_id creates one task and loses none.",
     keepInMind:
-      "An extra consumer with no partition does not make the backlog younger. A redelivery is the same message_id, not a new order to confirm.",
+      "An extra consumer with no free partition does not make the backlog younger. A redelivery carries the same message_id; it is not a new order to confirm.",
     challengeSituation:
       "The producer writes 80 messages a second across 12 partitions. Each message takes 50 ms. A crash delivers the last batch again, and a repeated message still creates another task.",
     challengeObjective:
@@ -431,10 +431,10 @@ def get_metadata(key, request):
     stages: [
       { id: "steady", letter: "A", title: "Hold a young backlog", body: "With the starting rates, consume should stay ahead of produce and age should stay under 2 seconds.", gate: "steady" },
       { id: "age", letter: "B", title: "Slow the handler", body: "Raise handler time until backlog age passes 5 seconds.", gate: "aged" },
-      { id: "scale", letter: "C", title: "Give the partitions consumers", body: "Add consumers and shorten the handler until consume is ahead of produce and age is under 4 seconds. A consumer past the partition count will not help.", gate: "scaled" },
-      { id: "once", letter: "D", title: "Make the redelivery safe", body: "Claim the message_id, and commit the offset only after the task exists. Second tasks and lost tasks should both be zero.", gate: "safe" },
+      { id: "scale", letter: "C", title: "Match consumers to partitions", body: "Add consumers and shorten the handler until consume is ahead of produce and age is under 4 seconds. A consumer past the partition count sits idle.", gate: "scaled" },
+      { id: "once", letter: "D", title: "Make the redelivery safe", body: "Claim the message_id, and commit the offset only after the task exists. Second tasks and lost tasks should both stay at zero.", gate: "safe" },
     ],
-    graphLabel: "The API writes the outbox. The relay appends order-events. notification-task-creator reads it.",
+    graphLabel: "The API writes the outbox. The relay appends order-events. notification-task-creator consumes it.",
     graph: {
       nodes: [
         { id: "api", label: "API", x: 0, y: 80, sourceRight: true },
@@ -486,11 +486,11 @@ def get_metadata(key, request):
     durationMin: 8,
     h1: "17 connections, and the pools that actually open",
     situation: [
-      "European Catalog was estimated at 1,440 database reads a second, with a mean connection occupancy of 12 milliseconds. Little's Law gives about 17.3 connections in use.",
-      "The planning case adds 25 percent more reads and uses 18 milliseconds: 32.4 connections. At 70 percent utilization that is about 47 across the region. The configuration is four instances with 20 connections each, 80 in total, so that one instance can be down and a free connection on one instance is not assumed to help another.",
+      "European Catalog was estimated at 1,440 database reads a second, with a mean connection occupancy of 12 milliseconds. Little's Law gives about 17.3 connections in use across the region.",
+      "The planning case adds 25 percent more reads and uses 18 milliseconds, which is 32.4 connections. At 70 percent utilization that is about 47 across the region. The configuration opens four instances with 20 connections each, 80 in total, so one instance can be down without treating an idle connection on one instance as available to another.",
     ],
     objective:
-      "With one Catalog instance down, the remaining pools still cover the planning demand of 32.4 connections. Do not treat 17.3 as the size of one pool.",
+      "With one Catalog instance down, the remaining pools still cover the planning demand of 32.4 connections. Treat 17.3 as the regional average, not as the size of one pool.",
     terms: [
       { term: "Regional average", explain: "1,440 × 0.012 is about 17.3 connections across the region, not the pool size of one instance." },
       { term: "Planning case", explain: "1,440 × 1.25 × 0.018 = 32.4 connections. The 70 percent target of that figure is about 47, rounded up from 46." },
@@ -498,9 +498,9 @@ def get_metadata(key, request):
     ],
     explore: ["Little's Law", "Planning case", "Instance loss", "Per-instance pools"],
     gettingStarted:
-      "Read the 17.3 figure first. Then apply the planning case and compare it with four pools of 20. Take one instance down and check that the remaining pools still cover 32.4.",
+      "Read the 17.3 regional average first. Then apply the planning case and compare it with four pools of 20. Take one instance down and check that the remaining pools still cover 32.4.",
     keepInMind:
-      "A pool that covers the planning demand still does not decide which region may retry a payment. The provider key is the operation identifier, and the region is only metadata on that attempt.",
+      "A pool that covers the planning demand still leaves payment retries keyed by the operation identifier. The region is metadata on that attempt, not the key the provider uses for idempotency.",
     challengeSituation:
       "European Catalog is in the planning case: 1,440 reads a second, 25 percent more traffic, and 18 ms occupancy. One of the four instances is down. Each instance is allowed 8 connections.",
     challengeObjective:
@@ -521,12 +521,12 @@ def get_metadata(key, request):
       { id: "instanceDown", kind: "toggle", label: "One instance is down", explain: "On, the surviving pools are one instance fewer. A free connection on a living instance does not move to the missing one." },
     ],
     stages: [
-      { id: "base", letter: "A", title: "Read the 17.3", body: "Leave the rate at 1,440 and the occupancy at 12 ms, with no extra reads. Average connections should sit near 17.3.", gate: "baseline" },
+      { id: "base", letter: "A", title: "Read the regional average", body: "Leave the rate at 1,440 and the occupancy at 12 ms, with no extra reads. Average connections should sit near 17.3 across the region.", gate: "baseline" },
       { id: "plan", letter: "B", title: "Apply the planning case", body: "Add 25 percent more reads and set occupancy to 18 ms. Average connections should sit near 32.4.", gate: "planning" },
-      { id: "fleet", letter: "C", title: "Open four pools of 20", body: "Set four instances and 20 connections each, with every instance up. That opens 80, which is the configuration, not the 17.3.", gate: "fleet" },
+      { id: "fleet", letter: "C", title: "Open four pools of 20", body: "Set four instances and 20 connections each, with every instance up. That opens 80, which is the configured capacity rather than the 17.3 average.", gate: "fleet" },
       { id: "down", letter: "D", title: "Lose one instance", body: "Take one instance down. Three pools of 20 should still cover the 32.4 planning demand.", gate: "survivor" },
     ],
-    graphLabel: "European Catalog, its per-instance pools, and the database.",
+    graphLabel: "European Catalog opens per-instance pools against the database.",
     graph: {
       nodes: [
         { id: "region", label: "Region", x: 0, y: 80, sourceRight: true },
