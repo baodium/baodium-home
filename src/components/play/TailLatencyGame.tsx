@@ -406,39 +406,42 @@ export function TailLatencyGame() {
                 />
               </div>
 
-              <table className="drill-metrics-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Metric</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">What it means</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Query</td>
-                    <td>{snap.p50.toFixed(0)} ms</td>
-                    <td>Time a connection is held. This stays at 70 ms.</td>
-                  </tr>
-                  <tr>
-                    <td>Acquire p95</td>
-                    <td>{snap.p95.toFixed(0)} ms</td>
-                    <td>Wait for a connection. Hold this under {P99_BUDGET_MS} ms.</td>
-                  </tr>
-                  <tr>
-                    <td>Lookups</td>
-                    <td>{controls.lookupsPerSec.toFixed(0)}/s</td>
-                    <td>Offered to the 40-connection pool. 400/s passes. 560/s does not.</td>
-                  </tr>
-                  <tr>
-                    <td>Demand</td>
-                    <td>{(controls.lookupsPerSec * 0.07).toFixed(0)}</td>
-                    <td>Lookups per second times 70 ms, in connections. The pool holds 40.</td>
-                  </tr>
-                </tbody>
-              </table>
+              <details className="drill-metrics-more mb-4">
+                <summary>Metric definitions</summary>
+                <table className="drill-metrics-table mt-3">
+                  <thead>
+                    <tr>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">What it means</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Query</td>
+                      <td>{snap.p50.toFixed(0)} ms</td>
+                      <td>Time a connection is held. This stays at 70 ms.</td>
+                    </tr>
+                    <tr>
+                      <td>Acquire p95</td>
+                      <td>{snap.p95.toFixed(0)} ms</td>
+                      <td>Wait for a connection. Hold this under {P99_BUDGET_MS} ms.</td>
+                    </tr>
+                    <tr>
+                      <td>Lookups</td>
+                      <td>{controls.lookupsPerSec.toFixed(0)}/s</td>
+                      <td>Offered to the 40-connection pool. 400/s passes. 560/s does not.</td>
+                    </tr>
+                    <tr>
+                      <td>Demand</td>
+                      <td>{(controls.lookupsPerSec * 0.07).toFixed(0)}</td>
+                      <td>Lookups per second times 70 ms, in connections. The pool holds 40.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-1 grid gap-4 sm:grid-cols-2">
                 <PlayMeter
                   label="Query"
                   tip="Time a connection is held for the recommendation lookup. It stays at 70 ms."

@@ -438,39 +438,42 @@ export function CacheRouletteGame() {
                 Live metrics
               </DrillPanelHeading>
 
-              <table className="drill-metrics-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Metric</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">What it means</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Catalog reads</td>
-                    <td>{snap.inFlightMisses}</td>
-                    <td>fetch_metadata calls this miss produces.</td>
-                  </tr>
-                  <tr>
-                    <td>Unavailable</td>
-                    <td>{snap.waitingOnFill}</td>
-                    <td>Readers who got source_read_limit.</td>
-                  </tr>
-                  <tr>
-                    <td>TTL</td>
-                    <td>{snap.ttlSec}s</td>
-                    <td>How long a fresh product-metadata entry is kept.</td>
-                  </tr>
-                  <tr>
-                    <td>Readers</td>
-                    <td>{snap.rps}</td>
-                    <td>Requests on this one key.</td>
-                  </tr>
-                </tbody>
-              </table>
+              <details className="drill-metrics-more mb-4">
+                <summary>Metric definitions</summary>
+                <table className="drill-metrics-table mt-3">
+                  <thead>
+                    <tr>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">What it means</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Catalog reads</td>
+                      <td>{snap.inFlightMisses}</td>
+                      <td>fetch_metadata calls this miss produces.</td>
+                    </tr>
+                    <tr>
+                      <td>Unavailable</td>
+                      <td>{snap.waitingOnFill}</td>
+                      <td>Readers who got source_read_limit.</td>
+                    </tr>
+                    <tr>
+                      <td>TTL</td>
+                      <td>{snap.ttlSec}s</td>
+                      <td>How long a fresh product-metadata entry is kept.</td>
+                    </tr>
+                    <tr>
+                      <td>Readers</td>
+                      <td>{snap.rps}</td>
+                      <td>Requests on this one key.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-1 grid gap-4 sm:grid-cols-2">
                 <PlayMeter
                   label="Catalog reads"
                   tip="fetch_metadata calls this missed key produces. The pass is one."

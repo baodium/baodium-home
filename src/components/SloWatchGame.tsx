@@ -463,44 +463,47 @@ export function SloWatchGame({
         Live metrics
       </DrillPanelHeading>
 
-      <table className="drill-metrics-table">
-        <thead>
-          <tr>
-            <th scope="col">Metric</th>
-            <th scope="col">Value</th>
-            <th scope="col">What it means</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Pool</td>
-            <td>{Math.round(snap.poolUtil * 100)}% of {POOL}</td>
-            <td>Busy connections divided by 40. Utilization stays at or under 100 percent. Extra lookups wait.</td>
-          </tr>
-          <tr>
-            <td>Query</td>
-            <td>{QUERY_MS} ms</td>
-            <td>The database hold. It stays here while acquire time moves.</td>
-          </tr>
-          <tr>
-            <td>Pending</td>
-            <td>{snap.pending.toFixed(0)}</td>
-            <td>Lookups waiting for a connection.</td>
-          </tr>
-          <tr>
-            <td>Lookups</td>
-            <td>{snap.arrivals.toFixed(0)}/s</td>
-            <td>Recommendation calls still being attempted.</td>
-          </tr>
-          <tr>
-            <td>Acquire headroom</td>
-            <td>{snap.errorBudget.toFixed(0)}%</td>
-            <td>100 percent is no queue. 0 percent is the 600 ms acquire tail.</td>
-          </tr>
-        </tbody>
-      </table>
+      <details className="drill-metrics-more mb-4">
+        <summary>Metric definitions</summary>
+        <table className="drill-metrics-table mt-3">
+          <thead>
+            <tr>
+              <th scope="col">Metric</th>
+              <th scope="col">Value</th>
+              <th scope="col">What it means</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pool</td>
+              <td>{Math.round(snap.poolUtil * 100)}% of {POOL}</td>
+              <td>Busy connections divided by 40. Utilization stays at or under 100 percent. Extra lookups wait.</td>
+            </tr>
+            <tr>
+              <td>Query</td>
+              <td>{QUERY_MS} ms</td>
+              <td>The database hold. It stays here while acquire time moves.</td>
+            </tr>
+            <tr>
+              <td>Pending</td>
+              <td>{snap.pending.toFixed(0)}</td>
+              <td>Lookups waiting for a connection.</td>
+            </tr>
+            <tr>
+              <td>Lookups</td>
+              <td>{snap.arrivals.toFixed(0)}/s</td>
+              <td>Recommendation calls still being attempted.</td>
+            </tr>
+            <tr>
+              <td>Acquire headroom</td>
+              <td>{snap.errorBudget.toFixed(0)}%</td>
+              <td>100 percent is no queue. 0 percent is the 600 ms acquire tail.</td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+      <div className="mt-1 grid gap-4 sm:grid-cols-2">
         <PlayMeter
           label="Pool utilization"
           tip="How full the connection pool is."

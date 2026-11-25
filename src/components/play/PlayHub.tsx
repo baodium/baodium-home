@@ -111,13 +111,13 @@ function HubFeatured({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline hover:border-[color-mix(in_srgb,#1b6b62_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
+        className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#f7faf8] no-underline hover:border-[color-mix(in_srgb,#1b6b62_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
-        <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7f5] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
+        <div className="relative z-[1] border-b border-ink/8 bg-[#eef3f1] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
           <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color:var(--drill-kicker,#1b6b62)]">
             Featured · 01
           </span>
-          <ChapterFigure href={game.chapterHref} className="mb-3 h-24" />
+          <ChapterFigure href={game.chapterHref} className="play-chapter-plate mb-3 h-24" />
           <div className="h-[11.5rem] md:h-[14.5rem]">
             <DrillPreview game={game} size="lg" />
           </div>
@@ -176,7 +176,7 @@ function HubBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`lift-card group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline sm:flex-row [&_*]:no-underline ${
+        className={`lift-card group relative flex h-full flex-col overflow-hidden border bg-[#f7faf8] no-underline sm:flex-row [&_*]:no-underline ${
           accent
             ? "border-[color-mix(in_srgb,#1b6b62_35%,transparent)] hover:border-[color-mix(in_srgb,#1b6b62_55%,transparent)]"
             : "border-ink/10 hover:border-[color-mix(in_srgb,#1b6b62_40%,transparent)]"
@@ -190,13 +190,13 @@ function HubBand({
         ) : null}
         <div
           className={`relative z-[1] flex min-h-[10rem] flex-[0.95] flex-col justify-center border-b border-ink/8 p-4 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-5 ${
-            accent ? "bg-[color-mix(in_srgb,#1b6b62_6%,#f3f7f5)]" : "bg-[#f3f7f5]"
+            accent ? "bg-[color-mix(in_srgb,#1b6b62_7%,#eef3f1)]" : "bg-[#eef3f1]"
           }`}
         >
           <span className="mb-2.5 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
             0{index + 1}
           </span>
-          <ChapterFigure href={game.chapterHref} className="mb-2.5 h-16" />
+          <ChapterFigure href={game.chapterHref} className="play-chapter-plate mb-2.5 h-16" />
           <div className="h-[7.5rem] w-full sm:h-[9rem]">
             <DrillPreview game={game} size="sm" />
           </div>

@@ -55,8 +55,8 @@ export function LearningWorkbench({
         </div>
       ) : null}
       <div className="learn-workbench-grid">
-        <div className="learn-canvas min-w-0 space-y-5">{canvas}</div>
-        <aside className="learn-rail min-w-0 space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+        <div className="learn-canvas min-w-0 space-y-6 md:space-y-7">{canvas}</div>
+        <aside className="learn-rail min-w-0 space-y-4 overscroll-contain pr-0.5 lg:pr-1">
           {rail}
         </aside>
       </div>

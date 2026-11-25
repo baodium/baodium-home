@@ -1501,13 +1501,42 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   min-width: 0;
 }
 
+/* Default split: room to scroll without Maximize. Sticky rail only when the
+   viewport is tall enough that it does not crush the canvas. */
+.learn-workbench:not([data-expanded="true"]) {
+  padding-bottom: 2.5rem;
+}
+
+.learn-workbench:not([data-expanded="true"]) .learn-canvas > * {
+  scroll-margin-top: 5.5rem;
+}
+
+@media (min-width: 1024px) and (min-height: 860px) {
+  .learn-workbench:not([data-expanded="true"]) .learn-rail {
+    position: sticky;
+    top: 5.5rem;
+    align-self: start;
+    max-height: calc(100dvh - 6.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 0.5rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 859px) {
+  .learn-workbench:not([data-expanded="true"]) .learn-rail {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 .learn-workbench-chrome {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.85rem;
-  padding: 0.45rem 0.15rem;
+  margin-bottom: 1rem;
+  padding: 0.55rem 0.15rem;
 }
 
 .learn-workbench-chrome p {
@@ -1538,14 +1567,31 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .learn-workbench-grid {
   display: grid;
   align-items: start;
-  gap: 2rem;
+  gap: 2.25rem;
 }
 
 @media (min-width: 1024px) {
   .learn-workbench-grid {
-    grid-template-columns: minmax(0, 2fr) minmax(18rem, 0.7fr);
-    gap: 3rem;
+    grid-template-columns: minmax(0, 2fr) minmax(19rem, 0.72fr);
+    gap: 3.25rem;
   }
+}
+
+/* Drill viz and live panels need a usable default height before Maximize. */
+.learn-workbench:not([data-expanded="true"]) .slo-game .drill-panel,
+.learn-workbench:not([data-expanded="true"]) .learn-canvas > .drill-panel {
+  padding: 1.35rem 1.35rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .learn-workbench:not([data-expanded="true"]) .slo-game .drill-panel,
+  .learn-workbench:not([data-expanded="true"]) .learn-canvas > .drill-panel {
+    padding: 1.5rem 1.6rem 1.7rem;
+  }
+}
+
+.learn-workbench:not([data-expanded="true"]) .learn-canvas .overflow-hidden.rounded-2xl {
+  min-height: 14.5rem;
 }
 
 .learn-workbench[data-expanded="true"] {
@@ -1567,7 +1613,12 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .learn-workbench[data-expanded="true"] .learn-rail {
+  position: sticky;
+  top: 0.35rem;
+  align-self: start;
   max-height: calc(100dvh - 5.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .book-lesson-work[data-expanded="true"],
@@ -1588,13 +1639,13 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 }
 
 .service-flow {
-  height: clamp(280px, 36vh, 380px);
+  height: clamp(300px, 40vh, 420px);
   width: 100%;
   background: transparent;
 }
 
 .service-flow-short {
-  height: clamp(300px, 40vh, 420px);
+  height: clamp(320px, 44vh, 460px);
 }
 
 .service-flow .react-flow {
@@ -2106,6 +2157,13 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   border-radius: 0.9rem;
 }
 
+/* Play hub only: cool the figure plate to paper/teal. Book desk stays cream. */
+.play-chapter-plate.chapter-plate,
+.chapter-plate.play-chapter-plate {
+  background: #eef3f1;
+  border-color: color-mix(in srgb, #1b6b62 14%, transparent);
+}
+
 .exp-panel {
   border: 1px solid var(--exp-line);
   border-radius: 1.15rem;
@@ -2116,6 +2174,34 @@ html[data-reader-theme="dark"] .book-interactive-concept {
     0 18px 40px -28px rgba(26, 35, 48, 0.22);
   padding: 1rem 1.1rem;
   color: var(--exp-fg);
+}
+
+.short-lab-rail-more > summary,
+.drill-metrics-more > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 550;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--exp-faint, var(--drill-faint, #6e7a74));
+}
+
+.short-lab-rail-more > summary::-webkit-details-marker,
+.drill-metrics-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.short-lab-rail-more > summary::after,
+.drill-metrics-more > summary::after {
+  content: " · open";
+  letter-spacing: 0.08em;
+}
+
+.short-lab-rail-more[open] > summary::after,
+.drill-metrics-more[open] > summary::after {
+  content: " · close";
 }
 
 .exp-panel-flat {

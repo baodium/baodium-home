@@ -410,39 +410,42 @@ export function TrafficSurgeGame() {
                 />
               </div>
 
-              <table className="drill-metrics-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Metric</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">What it means</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Stage</td>
-                    <td>{snap.arrivals.toFixed(0)}/s</td>
-                    <td>The load-test row running now. The ladder is 300, 400, 480, 560.</td>
-                  </tr>
-                  <tr>
-                    <td>Acquire p95</td>
-                    <td>{snap.p95.toFixed(0)} ms</td>
-                    <td>Hold this under {P95_LIMIT_MS} ms. At 480 it can still be 25 ms.</td>
-                  </tr>
-                  <tr>
-                    <td>Rejections</td>
-                    <td>{((1 - snap.successRate) * 100).toFixed(1)}%</td>
-                    <td>Must stay under 1 percent. 480 fails this bar even when p95 looks fine.</td>
-                  </tr>
-                  <tr>
-                    <td>Limit</td>
-                    <td>{controls.admitPerSec.toFixed(0)}/s</td>
-                    <td>The highest stage the test is allowed to reach. The last passing stage is {CAPACITY}/s.</td>
-                  </tr>
-                </tbody>
-              </table>
+              <details className="drill-metrics-more mb-4">
+                <summary>Metric definitions</summary>
+                <table className="drill-metrics-table mt-3">
+                  <thead>
+                    <tr>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">What it means</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Stage</td>
+                      <td>{snap.arrivals.toFixed(0)}/s</td>
+                      <td>The load-test row running now. The ladder is 300, 400, 480, 560.</td>
+                    </tr>
+                    <tr>
+                      <td>Acquire p95</td>
+                      <td>{snap.p95.toFixed(0)} ms</td>
+                      <td>Hold this under {P95_LIMIT_MS} ms. At 480 it can still be 25 ms.</td>
+                    </tr>
+                    <tr>
+                      <td>Rejections</td>
+                      <td>{((1 - snap.successRate) * 100).toFixed(1)}%</td>
+                      <td>Must stay under 1 percent. 480 fails this bar even when p95 looks fine.</td>
+                    </tr>
+                    <tr>
+                      <td>Limit</td>
+                      <td>{controls.admitPerSec.toFixed(0)}/s</td>
+                      <td>The highest stage the test is allowed to reach. The last passing stage is {CAPACITY}/s.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-1 grid gap-4 sm:grid-cols-2">
                 <PlayMeter
                   label="Stage"
                   tip="Lookups per second on the current load-test row."

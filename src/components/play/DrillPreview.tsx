@@ -45,7 +45,7 @@ export function DrillPreview({
 
   return (
     <div
-      className={`relative flex h-full w-full flex-col justify-between overflow-hidden rounded-xl border border-ink/10 bg-[#fbfcfe] ${pad}`}
+      className={`relative flex h-full w-full flex-col justify-between overflow-hidden rounded-xl border border-[color-mix(in_srgb,#1b6b62_12%,transparent)] bg-[#f7faf8] ${pad}`}
       aria-hidden="true"
     >
       <div className="flex items-start justify-between gap-3">

@@ -453,39 +453,42 @@ export function CascadeGame() {
                 Live metrics
               </DrillPanelHeading>
 
-              <table className="drill-metrics-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Metric</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">What it means</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Child deadline</td>
-                    <td>{childMs.toFixed(0)} ms</td>
-                    <td>min(1000, time left minus the reserve).</td>
-                  </tr>
-                  <tr>
-                    <td>Caller</td>
-                    <td>{callerMs.toFixed(0)} ms</td>
-                    <td>How long checkout waits. It should finish inside the time it had left.</td>
-                  </tr>
-                  <tr>
-                    <td>Still running</td>
-                    <td>{orphanMs.toFixed(0)} ms</td>
-                    <td>Provider work after checkout returns. Pass when this is 0.</td>
-                  </tr>
-                  <tr>
-                    <td>Permit</td>
-                    <td>{controls.permit ? "acquired" : "missing"}</td>
-                    <td>A missing permit defers the call. That is not the same as stopping it.</td>
-                  </tr>
-                </tbody>
-              </table>
+              <details className="drill-metrics-more mb-4">
+                <summary>Metric definitions</summary>
+                <table className="drill-metrics-table mt-3">
+                  <thead>
+                    <tr>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">What it means</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Child deadline</td>
+                      <td>{childMs.toFixed(0)} ms</td>
+                      <td>min(1000, time left minus the reserve).</td>
+                    </tr>
+                    <tr>
+                      <td>Caller</td>
+                      <td>{callerMs.toFixed(0)} ms</td>
+                      <td>How long checkout waits. It should finish inside the time it had left.</td>
+                    </tr>
+                    <tr>
+                      <td>Still running</td>
+                      <td>{orphanMs.toFixed(0)} ms</td>
+                      <td>Provider work after checkout returns. Pass when this is 0.</td>
+                    </tr>
+                    <tr>
+                      <td>Permit</td>
+                      <td>{controls.permit ? "acquired" : "missing"}</td>
+                      <td>A missing permit defers the call. That is not the same as stopping it.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-1 grid gap-4 sm:grid-cols-2">
                 <PlayMeter
                   label="Still running"
                   tip="Provider work that continues after checkout returns."

@@ -212,24 +212,50 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
             <section className="exp-panel">
               <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">Your objective</h2>
               <p className="mt-2 text-sm leading-relaxed text-[color:var(--exp-muted)]">{objective}</p>
-              {situation.map((paragraph) => (
-                <p key={paragraph.slice(0, 24)} className="mt-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
-                  {paragraph}
-                </p>
-              ))}
-              {mode !== "challenge" ? (
-                <dl className="mt-4 space-y-2">
-                  {lab.terms.map((term) => (
-                    <div key={term.term}>
-                      <dt className="text-sm font-medium text-[color:var(--exp-fg)]">{term.term}</dt>
-                      <dd className="text-sm leading-relaxed text-[color:var(--exp-muted)]">{term.explain}</dd>
-                    </div>
+              {mode === "guided" ? (
+                <details className="short-lab-rail-more mt-3">
+                  <summary>Situation and terms</summary>
+                  <div className="mt-3 space-y-3">
+                    {situation.map((paragraph) => (
+                      <p key={paragraph.slice(0, 24)} className="text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                        {paragraph}
+                      </p>
+                    ))}
+                    <dl className="space-y-2 border-t border-[color:var(--exp-line)] pt-3">
+                      {lab.terms.map((term) => (
+                        <div key={term.term}>
+                          <dt className="text-sm font-medium text-[color:var(--exp-fg)]">{term.term}</dt>
+                          <dd className="text-sm leading-relaxed text-[color:var(--exp-muted)]">{term.explain}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="text-[0.78rem] leading-relaxed text-[color:var(--exp-faint)]">
+                      {lab.explore.join(" · ")}
+                    </p>
+                  </div>
+                </details>
+              ) : (
+                <>
+                  {situation.map((paragraph) => (
+                    <p key={paragraph.slice(0, 24)} className="mt-3 text-sm leading-relaxed text-[color:var(--exp-muted)]">
+                      {paragraph}
+                    </p>
                   ))}
-                </dl>
-              ) : null}
-              <p className="mt-4 text-[0.78rem] leading-relaxed text-[color:var(--exp-faint)]">
-                {lab.explore.join(" · ")}
-              </p>
+                  {mode !== "challenge" ? (
+                    <dl className="mt-4 space-y-2">
+                      {lab.terms.map((term) => (
+                        <div key={term.term}>
+                          <dt className="text-sm font-medium text-[color:var(--exp-fg)]">{term.term}</dt>
+                          <dd className="text-sm leading-relaxed text-[color:var(--exp-muted)]">{term.explain}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : null}
+                  <p className="mt-4 text-[0.78rem] leading-relaxed text-[color:var(--exp-faint)]">
+                    {lab.explore.join(" · ")}
+                  </p>
+                </>
+              )}
             </section>
 
             {mode === "guided" && stage ? (
@@ -268,9 +294,11 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
                     <tr key={metric.id} className="border-t border-[color:var(--exp-line)]">
                       <th scope="row" className="py-2 pr-3 align-top font-medium text-[color:var(--exp-fg)]">
                         {metric.label}
-                        <span className="mt-0.5 block text-[0.78rem] font-normal leading-snug text-[color:var(--exp-muted)]">
-                          {metric.explain}
-                        </span>
+                        {mode === "guided" ? null : (
+                          <span className="mt-0.5 block text-[0.78rem] font-normal leading-snug text-[color:var(--exp-muted)]">
+                            {metric.explain}
+                          </span>
+                        )}
                       </th>
                       <td className="py-2 text-right align-top font-mono tabular-nums text-[color:var(--exp-fg)]">
                         {formatMetric(snap.metrics[metric.id] ?? 0, metric.digits)}
@@ -280,11 +308,24 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
                   ))}
                 </tbody>
               </table>
+              {mode === "guided" ? (
+                <details className="short-lab-rail-more mt-3">
+                  <summary>What each metric means</summary>
+                  <dl className="mt-3 space-y-2">
+                    {lab.metrics.map((metric) => (
+                      <div key={`explain-${metric.id}`}>
+                        <dt className="text-sm font-medium text-[color:var(--exp-fg)]">{metric.label}</dt>
+                        <dd className="text-sm leading-relaxed text-[color:var(--exp-muted)]">{metric.explain}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              ) : null}
             </section>
 
             <section className="exp-panel">
               <h2 className="font-serif text-lg text-[color:var(--exp-fg)]">Adjust your settings</h2>
-              <div className="mt-3 space-y-5">
+              <div className={`mt-3 ${mode === "guided" ? "space-y-4" : "space-y-5"}`}>
                 {lab.controls.map((control) => {
                   const locked = mode === "challenge" && control.id in lab.sim.challengeLocks;
                   const value = controls[control.id];
@@ -299,7 +340,11 @@ function ShortLabSession({ lab }: { lab: NonNullable<ReturnType<typeof getShortL
                           {locked ? " · fixed" : ""}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{control.explain}</p>
+                      {mode === "guided" ? (
+                        <p className="mt-1 text-[0.78rem] leading-snug text-[color:var(--exp-faint)]">{control.explain}</p>
+                      ) : (
+                        <p className="mt-1 text-sm leading-relaxed text-[color:var(--exp-muted)]">{control.explain}</p>
+                      )}
                       {control.kind === "range" ? (
                         <input
                           id={`${lab.slug}-${control.id}`}
