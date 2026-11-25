@@ -100,7 +100,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "You may miss 5 events in 1,000. Past that, the window has spent the budget.",
       },
     ],
-    goal: "The window in front of you either meets 99.5 percent or it does not.",
+    goal: "This window either meets 99.5 percent or it does not.",
     steps: [
       "Read the target on the chart before you change anything.",
       "Raise failures or latency until good events fall below 99.5 percent.",

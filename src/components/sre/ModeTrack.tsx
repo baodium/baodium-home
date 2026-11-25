@@ -7,7 +7,7 @@ const MODES: { id: SreMode; label: string; note: string }[] = [
   {
     id: "guided",
     label: "Guided",
-    note: "In Guided, you finish the step in front of you before the next one opens.",
+    note: "In Guided, you finish the current step before the next one opens.",
   },
   {
     id: "practice",

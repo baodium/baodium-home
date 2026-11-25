@@ -18,10 +18,10 @@ export function LearningWorkbench({
 }) {
   return (
     <div
-      className={`learn-workbench mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1.9fr)_minmax(17.5rem,0.62fr)] lg:gap-10 ${className}`}
+      className={`learn-workbench mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,0.7fr)] lg:gap-12 ${className}`}
     >
-      <div className="learn-canvas min-w-0 space-y-4">{canvas}</div>
-      <aside className="learn-rail min-w-0 space-y-4 lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+      <div className="learn-canvas min-w-0 space-y-5">{canvas}</div>
+      <aside className="learn-rail min-w-0 space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
         {rail}
       </aside>
     </div>

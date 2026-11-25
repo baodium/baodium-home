@@ -58,12 +58,12 @@ export function SreCatalog() {
       <header className="catalog-hero">
         <div className="catalog-heading">
           <p className="product-eyebrow">SRE labs</p>
-          <h1>Browser lessons across services. A payments stack you run.</h1>
+          <h1>Practice reliability on real product surfaces.</h1>
           <p>
-            Playback, messaging, search, dispatch, and sign-in run in the
-            browser. Payments is the stack you start yourself: Express and
-            FastAPI, with Prometheus, Grafana, OpenTelemetry, and Jaeger.
-            That stack needs Docker and Node.js 20 or newer.
+            Browser lessons cover streaming playback, messaging, search,
+            dispatch, and sign-in. Payments is the stack you start yourself:
+            Express and FastAPI, with Prometheus, Grafana, OpenTelemetry, and
+            Jaeger. That stack needs Docker and Node.js 20 or newer.
           </p>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
@@ -115,7 +115,7 @@ export function SreCatalog() {
       </header>
       <section className="course-objective" aria-label="SRE coding practice">
         <p className="product-eyebrow">Coding practice</p>
-        <h2>Functions in Go, TypeScript, or Python.</h2>
+        <h2>Write production-shaped functions in Go, TypeScript, or Python.</h2>
         <p>
           Fleet checks, log analysis, retries, rate limits, and delivery
           policies. Go, TypeScript, and Python share the same checks, and they

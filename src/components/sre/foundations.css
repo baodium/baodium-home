@@ -1,13 +1,13 @@
 .exp-root {
-  --product-accent: #99452f;
-  --product-healthy: #246366;
+  --product-accent: #1b6b62;
+  --product-healthy: #1b6b62;
   --product-critical: #a63d2c;
 }
 .product-eyebrow {
   font: 600 0.95rem/1.4 var(--font-lab-sans), "Source Sans 3", sans-serif;
   letter-spacing: 0.01em;
   text-transform: none;
-  color: var(--exp-accent-text, #8d3d2c);
+  color: var(--exp-accent-text, #1b6b62);
 }
 .product-button {
   display: inline-flex;
@@ -18,7 +18,7 @@
   padding: 0.7rem 1.1rem;
   border: 1px solid transparent;
   border-radius: 7px;
-  background: #99452f;
+  background: #1b6b62;
   color: #fff;
   font-size: 14px;
   font-weight: 550;
@@ -26,7 +26,7 @@
   transition: background 0.16s;
 }
 .product-button:hover {
-  background: #7d3827;
+  background: #15574f;
 }
 .product-button:disabled {
   opacity: 0.65;

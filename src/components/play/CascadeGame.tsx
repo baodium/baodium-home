@@ -213,7 +213,7 @@ export function CascadeGame() {
     const situation = (
       <>
         <p>
-          Checkout calls the fraud provider through reserve_fraud_call. The child deadline is the time checkout has left, minus the reserve, and it is capped at 1000 ms. The provider in front of you is slower than that time.
+          Checkout calls the fraud provider through reserve_fraud_call. The child deadline is the time checkout has left, minus the reserve, and it is capped at 1000 ms. That provider is slower than the remaining child deadline.
         </p>
         <p>
           If cancellation is passed with the deadline, the provider stops when checkout returns. If it is not, the provider keeps running after the caller is done. A missing permit is a different branch: the call never starts.

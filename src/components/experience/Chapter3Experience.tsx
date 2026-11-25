@@ -160,7 +160,7 @@ export function Chapter3Experience() {
               {
                 id: "guided",
                 label: "Guided",
-                title: "In Guided, you finish the step in front of you before the next one opens.",
+                title: "In Guided, you finish the current step before the next one opens.",
               },
               {
                 id: "practice",

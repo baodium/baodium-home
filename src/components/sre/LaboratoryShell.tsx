@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
   useSyncExternalStore,
   type CSSProperties,
@@ -47,12 +48,27 @@ export function LaboratoryShell({
 }) {
   const [mobilePanel, setMobilePanel] = useState("overview");
   const [focus, setFocus] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const width = useSyncExternalStore(subscribe, widthSnapshot, () => 28);
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [expanded]);
   return (
     <div
       className="cascade-lab laboratory-shell"
       data-focus={focus}
+      data-expanded={expanded}
       data-mobile-panel={mobilePanel}
       data-lab-theme={theme}
       style={{ "--lab-rail-width": `${width}%` } as CSSProperties}
@@ -70,9 +86,16 @@ export function LaboratoryShell({
             {focus ? "Show guidance" : "Focus workspace"}
           </button>
           <button
+            onClick={() => setExpanded(!expanded)}
+            aria-pressed={expanded}
+          >
+            {expanded ? "Exit full screen" : "Maximize"}
+          </button>
+          <button
             onClick={() => {
               saveWidth(28);
               setFocus(false);
+              setExpanded(false);
               setTheme("light");
             }}
           >

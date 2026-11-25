@@ -101,6 +101,9 @@ export function CodingWorkspace({
   const [solutionOpen, setSolutionOpen] = useState(false);
   const [hintStep, setHintStep] = useState(0);
   const [openHint, setOpenHint] = useState<number | null>(null);
+  const [layout, setLayout] = useState<"split" | "editor" | "maximized">(
+    "split",
+  );
   const activeRun = useRef<ReturnType<typeof runPython> | null>(null);
   const generation = useRef(0);
   const hints = progressiveHints(problem);
@@ -125,6 +128,19 @@ export function CodingWorkspace({
     setOpenHint(null);
     setSolutionOpen(false);
   }, [problem.id]);
+  useEffect(() => {
+    if (layout === "split") return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLayout("split");
+    };
+    const previous = document.body.style.overflow;
+    if (layout === "maximized") document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [layout]);
   function edit(value: string) {
     setEdited({ language, value });
     writeStored(draftKey(problem.id, language), value);
@@ -243,7 +259,40 @@ export function CodingWorkspace({
   const hintsUnlocked = hintStep;
   const allHintsSeen = hintStep >= hints.length;
   return (
-    <div className="coding-ide">
+    <div className="coding-ide" data-layout={layout}>
+      <div className="coding-ide-chrome" role="toolbar" aria-label="Workspace layout">
+        <p>
+          {layout === "maximized"
+            ? "Full workspace"
+            : layout === "editor"
+              ? "Editor focus"
+              : "Split workspace"}
+        </p>
+        <div>
+          <button
+            type="button"
+            aria-pressed={layout === "editor"}
+            onClick={() =>
+              setLayout((current) =>
+                current === "editor" ? "split" : "editor",
+              )
+            }
+          >
+            {layout === "editor" ? "Show brief" : "Expand editor"}
+          </button>
+          <button
+            type="button"
+            aria-pressed={layout === "maximized"}
+            onClick={() =>
+              setLayout((current) =>
+                current === "maximized" ? "split" : "maximized",
+              )
+            }
+          >
+            {layout === "maximized" ? "Exit full screen" : "Maximize"}
+          </button>
+        </div>
+      </div>
       <section className="coding-description" aria-label="Problem description">
         <Link href="/sre-labs/coding" className="labs-back">
           ← Coding roadmap

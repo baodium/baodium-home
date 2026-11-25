@@ -38,7 +38,7 @@ export function SreChrome({
       <SitePill />
       <main
         id="main"
-        className="relative z-[1] mx-auto w-full max-w-[88rem] px-4 pb-16 pt-2 sm:px-6"
+        className="relative z-[1] mx-auto w-full max-w-[96rem] px-4 pb-20 pt-2 sm:px-6 lg:px-8"
       >
         {inLab || showSections ? (
           <nav className="sre-sections" aria-label="SRE labs">

@@ -22,7 +22,7 @@ export default function NewsPage() {
   return (
     <>
       <Navigation />
-      <main id="main" className="min-h-[100dvh] bg-[#fbf7f1] px-6 pb-28 pt-28 text-[#241c18] md:px-10 md:pt-32">
+      <main id="main" className="min-h-[100dvh] bg-[#f6f8f7] px-6 pb-28 pt-28 text-[#18201c] md:px-10 md:pt-32">
         <div className="mx-auto max-w-5xl">
           <p className="text-base font-medium text-[#8d3d2c]">News</p>
           <h1 className="mt-5 max-w-[18em] font-[family-name:var(--font-lab-serif)] text-[clamp(2.6rem,5vw,4.15rem)] font-medium leading-[1.15] tracking-[-0.02em]">

@@ -1,8 +1,8 @@
 /* Operations labs share an explicit hierarchy: mission, environment, policy. */
 .operations-lab {
-  --ops-line: #e6ddd2;
-  --ops-ink: #241c18;
-  --ops-muted: #5c514a;
+  --ops-line: #dde5e1;
+  --ops-ink: #18201c;
+  --ops-muted: #5a6762;
   color: var(--ops-ink);
 }
 .ops-mast {
@@ -288,10 +288,12 @@
   fill: none;
 }
 .ops-events {
-  max-height: 26rem;
+  max-height: min(48dvh, 32rem);
   overflow: auto;
+  overscroll-behavior: contain;
   margin-top: 1rem;
   font-size: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 .ops-events li {
   display: flex;

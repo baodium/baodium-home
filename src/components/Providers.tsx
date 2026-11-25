@@ -22,7 +22,25 @@ export function Providers({ children }: { children: ReactNode }) {
       allowNestedScroll: true,
       prevent: (node) =>
         node.id === "book-reader-scroll" ||
-        Boolean(node.closest?.(".book-reader #book-reader-scroll, .book-reader .book-sidebar nav")),
+        Boolean(
+          node.closest?.(
+            [
+              ".book-reader #book-reader-scroll",
+              ".book-reader .book-sidebar nav",
+              ".coding-description",
+              ".coding-tests",
+              ".coding-ide .cm-scroller",
+              ".coding-ide .coding-plain",
+              ".topology-viewport",
+              ".ops-events",
+              ".cascade-log",
+              ".course-workspace-body",
+              ".learn-rail",
+              ".laboratory-shell[data-expanded='true']",
+              ".coding-ide[data-layout='maximized']",
+            ].join(", "),
+          ),
+        ),
     });
     let frame = requestAnimationFrame(function raf(time) {
       lenis.raf(time);

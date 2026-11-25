@@ -1,35 +1,35 @@
-/* Refinement: warm editorial surfaces, forest policy panels, copper interventions. */
+/* Refinement: calm editorial surfaces, forest policy panels. */
 .ops-controls {
-  background: #213b30;
-  border-color: #345747;
-  color: #eef4ec;
-  box-shadow: 0 8px 24px #1b302314;
+  background: #1a2f29;
+  border-color: #2f4f46;
+  color: #eef6f3;
+  box-shadow: 0 8px 24px #15282214;
 }
 .ops-controls .product-eyebrow {
-  color: #b8ccb8;
+  color: #b5d0c7;
 }
 .ops-controls p:not(.product-eyebrow) {
-  color: #c0d0c1;
+  color: #c2d6cf;
 }
 .ops-controls label {
-  border-color: #486552;
+  border-color: #3f6359;
 }
 .ops-controls output {
-  color: #e7d4ae;
+  color: #d7ebe4;
 }
 .ops-controls .ops-toggle {
-  border-color: #67816b;
-  background: #2b483a;
+  border-color: #4f7469;
+  background: #243f37;
 }
 .ops-controls .ops-toggle strong {
-  color: #cfdfbd;
+  color: #d5ebe3;
 }
 .ops-controls input {
-  accent-color: #c8d5a7;
+  accent-color: #9ecfc3;
 }
 .ops-mission {
-  background: #f2efe6;
-  border-color: #dcd7c7;
+  background: #f3f7f5;
+  border-color: #d5e0db;
 }
 .ops-transport .signal-label {
   font-size: 12px;
