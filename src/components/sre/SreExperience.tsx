@@ -885,9 +885,9 @@ function sloGuided(input: GuidedInput) {
       body: (
         <>
           <p>
-            A 500 that returns quickly is not a good send. A 200 that takes
-            800 ms is not a good send either. Count the call as good only
-            when it succeeds in under 300 ms.
+            Count a send as good only when it succeeds in under 300 ms. A
+            fast 500 still fails the customer. A 200 that takes 800 ms still
+            spends the budget, because the recipient already waited.
           </p>
           <GoodButtons
             controls={input.controls}

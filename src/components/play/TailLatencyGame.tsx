@@ -304,7 +304,7 @@ export function TailLatencyGame() {
       <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
         <input
           type="checkbox"
-          className="mt-1 size-4 accent-[var(--cinnabar)]"
+          className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
           checked={stepMode}
           onChange={(e) => setStepOverride(e.target.checked)}
           disabled={phase === "running"}

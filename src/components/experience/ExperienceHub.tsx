@@ -41,15 +41,16 @@ export function ExperienceHub() {
       <header className="max-w-2xl">
         <p className="exp-kicker">Practical System Design</p>
         <h1 className="lab-title mt-3 max-w-[18em] text-balance text-[clamp(2.15rem,4vw,3.15rem)] leading-[1.16] tracking-[-0.02em] text-[color:var(--exp-fg)]">
-          Every chapter with a lab has a production scenario.
+          Chapter labs that follow the manuscript’s incidents.
         </h1>
         <p className="mt-5 max-w-[40rem] text-[1.125rem] leading-[1.7] text-[color:var(--exp-muted)]">
-          The book has {CHAPTERS.length} chapters. {full} of them are full incidents, {short} are
-          shorter labs, and {book} are still only on the page.
+          Across {CHAPTERS.length} chapters you will find {full} full incidents and {short}{" "}
+          shorter labs that teach the same failure modes. {book} chapters are still reading-only
+          until their labs ship.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-faint)]">
-          Progress stays in this browser. No sign-in.
-          {finished > 0 ? ` Labs finished here: ${finished}.` : ""}
+          Progress is saved in this browser. No sign-in.
+          {finished > 0 ? ` Finished on this device: ${finished}.` : ""}
         </p>
       </header>
 

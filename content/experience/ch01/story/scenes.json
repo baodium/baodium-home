@@ -7,8 +7,8 @@
     {
       "act": "story",
       "label": "Monday, 09:00",
-      "title": "Baodium wants a “Recommended for you” row on every product page.",
-      "body_md": "Recommendation Service already powers the **home page** and **checkout**. Reusing it is four lines of code. The unit test passes. Code review approves.\n\nLook at the store on the right: shoppers browse, and every page loads quickly.",
+      "title": "The brief asks for a “Recommended for you” row on every product page.",
+      "body_md": "Recommendation Service already powers the **home page** and **checkout**. Reusing it is four lines of code. The unit test passes, and code review approves the change.\n\nLook at the store on the right: shoppers browse, and every page loads quickly.",
       "view": "customer",
       "target": 0.0
     },
@@ -70,7 +70,7 @@
       "act": "recap",
       "label": "What you saw",
       "title": "Three things to carry into the rest of the book.",
-      "body_md": "**1. Acquisition is not execution.** Requests waited for a connection while the SQL stayed fast. Query metrics alone would have said “database fine.”\n\n**2. Exposure is not traffic.** “1% of customers” said nothing about how many lookups reached one pool of 40.\n\n**3. Optional work must stay optional.** In the chapter's fix, the page gives recommendations at most 150 ms and a limited number of permits, then renders without them.\n\n▶ Work the pool · Open the same store\n\n_Next, in Chapter 2, Baodium plans capacity for its biggest sale, and you'll learn to do the arithmetic before the rollout, not after._",
+      "body_md": "**1. Acquisition wait and SQL execution are different intervals.** Requests waited for a connection while the SQL stayed fast. Query metrics alone would have said “database fine.”\n\n**2. Customer exposure is not lookup traffic.** “1% of customers” said nothing about how many lookups reached one pool of 40.\n\n**3. Optional work must stay optional.** In the chapter's fix, the page gives recommendations at most 150 ms and a limited number of permits, then renders without them.\n\n▶ Work the pool · Open the same store\n\n_Next, in Chapter 2, the team plans capacity for its biggest sale, and you do the arithmetic before the rollout rather than after._",
       "view": "customer",
       "target": 0.0
     }

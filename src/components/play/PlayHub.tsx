@@ -39,13 +39,13 @@ export function PlayHub() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease }}
           >
-            <p className="kicker inline-flex items-center gap-2.5 text-[color:var(--tide)]">
+            <p className="kicker inline-flex items-center gap-2.5 text-[color:var(--drill-kicker,#1b6b62)]">
               <span
                 aria-hidden="true"
                 className="play-cue relative inline-flex h-2 w-2"
               >
-                <span className="absolute inset-0 rounded-full bg-[color:var(--tide)]" />
-                <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--tide)]" />
+                <span className="absolute inset-0 rounded-full bg-[color:var(--drill-signal,#1b6b62)]" />
+                <span className="play-cue-ring absolute inset-0 rounded-full bg-[color:var(--drill-signal,#1b6b62)]" />
               </span>
               Drills
             </p>
@@ -67,7 +67,7 @@ export function PlayHub() {
           <motion.div
             aria-hidden="true"
             style={{ scaleX: rail }}
-            className="mt-9 h-px origin-left bg-[color-mix(in_srgb,#3d7a8c_55%,transparent)]"
+            className="mt-9 h-px origin-left bg-[color-mix(in_srgb,#1b6b62_55%,transparent)]"
           />
 
           <div className="mt-9 space-y-4 md:mt-11 md:space-y-5">
@@ -111,10 +111,10 @@ function HubFeatured({
     >
       <Link
         href={`/play/${game.slug}`}
-        className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline hover:border-[color-mix(in_srgb,#3d7a8c_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
+        className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#fbfcfe] no-underline hover:border-[color-mix(in_srgb,#1b6b62_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
-        <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7fa] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
-          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color-mix(in_srgb,#3d7a8c_85%,#1a2330)]">
+        <div className="relative z-[1] border-b border-ink/8 bg-[#f3f7f5] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
+          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color:var(--drill-kicker,#1b6b62)]">
             Featured · 01
           </span>
           <ChapterFigure href={game.chapterHref} className="mb-3 h-24" />
@@ -124,7 +124,7 @@ function HubFeatured({
         </div>
         <div className="relative z-[1] flex flex-col justify-center p-6 md:col-span-7 md:p-9">
           <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.16em] text-muted">
-            <span className="text-cinnabar">{difficultyLabel(game.difficulty)}</span>
+            <span className="text-[color:var(--drill-kicker,#1b6b62)]">{difficultyLabel(game.difficulty)}</span>
             <span aria-hidden="true">·</span>
             <span>{game.minutes}</span>
             <span aria-hidden="true">·</span>
@@ -142,7 +142,7 @@ function HubFeatured({
           <p className="mt-4 max-w-xl border-t border-ink/8 pt-4 text-[0.92rem] leading-relaxed text-ink/75">
             {game.takeaway}
           </p>
-          <span className="mt-6 inline-flex items-center gap-2 text-[0.92rem] text-[color-mix(in_srgb,#3d7a8c_95%,#1a2330)] transition-transform duration-300 group-hover:translate-x-1">
+          <span className="mt-6 inline-flex items-center gap-2 text-[0.92rem] text-[color:var(--drill-kicker,#1b6b62)] transition-transform duration-300 group-hover:translate-x-1">
             Run this drill
             <span aria-hidden="true">→</span>
           </span>
@@ -178,19 +178,19 @@ function HubBand({
         href={`/play/${game.slug}`}
         className={`lift-card group relative flex h-full flex-col overflow-hidden border bg-[#fbfcfe] no-underline sm:flex-row [&_*]:no-underline ${
           accent
-            ? "border-cinnabar/30 hover:border-cinnabar/50"
-            : "border-ink/10 hover:border-[color-mix(in_srgb,#3d7a8c_40%,transparent)]"
+            ? "border-[color-mix(in_srgb,#1b6b62_35%,transparent)] hover:border-[color-mix(in_srgb,#1b6b62_55%,transparent)]"
+            : "border-ink/10 hover:border-[color-mix(in_srgb,#1b6b62_40%,transparent)]"
         }`}
       >
         {accent ? (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-cinnabar"
+            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-[color:var(--drill-signal,#1b6b62)]"
           />
         ) : null}
         <div
           className={`relative z-[1] flex min-h-[9rem] flex-[0.95] flex-col justify-center border-b border-ink/8 p-3.5 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-4 ${
-            accent ? "bg-[color-mix(in_srgb,var(--cinnabar)_6%,#f3f7fa)]" : "bg-[#f3f7fa]"
+            accent ? "bg-[color-mix(in_srgb,#1b6b62_6%,#f3f7f5)]" : "bg-[#f3f7f5]"
           }`}
         >
           <span className="mb-2 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
@@ -206,8 +206,8 @@ function HubBand({
             <span
               className={
                 accent
-                  ? "text-cinnabar"
-                  : "text-[color-mix(in_srgb,#3d7a8c_90%,#1a2330)]"
+                  ? "text-[color:var(--drill-kicker,#1b6b62)]"
+                  : "text-[color-mix(in_srgb,#1b6b62_90%,#18201c)]"
               }
             >
               {difficultyLabel(game.difficulty)}

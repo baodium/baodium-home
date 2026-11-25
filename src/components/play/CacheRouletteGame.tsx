@@ -308,7 +308,7 @@ export function CacheRouletteGame() {
               <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
                 <input
                   type="checkbox"
-                  className="mt-1 size-4 accent-[var(--cinnabar)]"
+                  className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
                   checked={controls.fresh}
                   onChange={(e) => setControls((c) => ({ ...c, fresh: e.target.checked }))}
                 />
@@ -323,7 +323,7 @@ export function CacheRouletteGame() {
               <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
                 <input
                   type="checkbox"
-                  className="mt-1 size-4 accent-[var(--cinnabar)]"
+                  className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
                   checked={controls.singleflight}
                   onChange={(e) =>
                     setControls((c) => ({ ...c, singleflight: e.target.checked }))
@@ -340,7 +340,7 @@ export function CacheRouletteGame() {
               <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
                 <input
                   type="checkbox"
-                  className="mt-1 size-4 accent-[var(--cinnabar)]"
+                  className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
                   checked={controls.permit}
                   onChange={(e) => setControls((c) => ({ ...c, permit: e.target.checked }))}
                 />
@@ -355,7 +355,7 @@ export function CacheRouletteGame() {
               <label className="flex items-start gap-3 text-sm text-[color:var(--drill-muted)]">
                 <input
                   type="checkbox"
-                  className="mt-1 size-4 accent-[var(--cinnabar)]"
+                  className="mt-1 size-4 accent-[var(--drill-signal,#1b6b62)]"
                   checked={stepMode}
                   onChange={(e) => setStepOverride(e.target.checked)}
                   disabled={running}

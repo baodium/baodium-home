@@ -12,7 +12,7 @@ export function PlayChrome({
       <SitePill />
       <main
         id="main"
-        className="bg-[#f4f7fa] pb-16 pt-28 text-ink md:pb-24"
+        className="bg-[#f6f8f7] pb-16 pt-28 text-ink md:pb-24"
       >
         {children}
       </main>

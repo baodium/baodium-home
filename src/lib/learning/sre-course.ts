@@ -31,8 +31,8 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Say what you still could not see if you had only one of those three records.",
     ],
     paragraphs: [
-      "A slow play start is a complaint, not a diagnosis. The player waited. The wait has a place, and that place is a hop between playback and the manifest service. Until a record names the hop, you are guessing.",
-      "This lesson uses one play start and three kinds of record. Each one answers a different question. In Guided, you turn the four signals on in order. In Practice, you turn them yourself. In Challenge, playback is already slow and the prompt does not name the hop.",
+      "A slow play start means the player waited. The wait sits on a hop between playback and the manifest service. Until a metric, span, or log names that hop, you are guessing where the time went.",
+      "This lesson uses one play start and three kinds of record. Each record answers a different question. In Guided, you turn the four signals on in order. In Practice, you turn them yourself. In Challenge, playback is already slow and the prompt does not name the hop.",
     ],
     concepts: [
       {
@@ -56,9 +56,9 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "In challenge mode, do the same from a slow page. The prompt does not name the hop.",
     ],
     takeaways: [
-      "From the metric, you see that playback slowed. From the span, you see which hop held the time. From the log, you see what the code decided while that span was open.",
-      "Trace context is what makes the span and the log the same request, rather than two records that happen to be near each other in time.",
-      "If the hop is still unnamed after you add a signal, the signal is in the wrong place or it is not joined to the request.",
+      "The metric shows that playback slowed. The span shows which hop held the time. The log shows what the code recorded while that span was open.",
+      "Trace context joins the span and the log to the same request, so two nearby timestamps do not get mistaken for one story.",
+      "If the hop is still unnamed after you add a signal, put the signal on the right call or join it to the request id.",
     ],
     reflection: [
       "Which record would you open first the next time a page is slow, and what would make you open a second one?",
@@ -69,7 +69,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/slo",
       label: "Lesson 2, the error budget",
       bridge:
-        "You can now see where the time went. The next lesson is a different service. Of the message sends that finished, how many were actually good, and have you already spent the failures you said you would allow?",
+        "You can now name where the time went. The next lesson moves to messaging: of the sends that finished, how many were actually good, and has this window already spent the failures you said you would allow?",
     },
   },
   {
@@ -83,8 +83,8 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Say whether a window meets 99.5 percent.",
     ],
     paragraphs: [
-      "An SLO is the promise you are willing to be held to. For message sends the promise is 99.5 percent succeeding in under 300 milliseconds. The error budget is the half a percent you are allowed to miss. Spending the budget means those misses happened in the window you are looking at.",
-      "A 200 after the time limit is not a good send. The person already waited. Seventeen failures in a thousand sends is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
+      "An SLO is the promise you are willing to be held to. For message sends the promise is 99.5 percent succeeding in under 300 milliseconds. The error budget is the half a percent you are allowed to miss. Spending the budget means those misses already happened in the window you are reading.",
+      "A 200 that arrives after the time limit still spends the budget, because the recipient already waited. Seventeen failures in a thousand sends is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
     ],
     concepts: [
       {
@@ -100,7 +100,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "You may miss 5 events in 1,000. Past that, the window has spent the budget.",
       },
     ],
-    goal: "This window either meets 99.5 percent or it does not.",
+    goal: "Mark this window as meeting 99.5 percent, or as missing it.",
     steps: [
       "Read the target on the chart before you change anything.",
       "Raise failures or latency until good events fall below 99.5 percent.",
@@ -121,7 +121,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/alert",
       label: "Lesson 3, when to page",
       bridge:
-        "A spent budget is not yet a page. The next lesson is search. A busy host and a short spike sit beside queries that keep failing.",
+        "This window already spent part of the budget. The next lesson is search: a busy host and a short spike sit beside queries that keep failing, and you choose which of those should wake someone.",
     },
   },
   {
@@ -160,9 +160,9 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "In challenge mode, decide from the telemetry whether a customer is failing badly enough to wake someone. The prompt does not tell you.",
     ],
     takeaways: [
-      "A page describes customer impact that is still happening, not a host that looks busy.",
+      "A page should describe customers who are still failing. A busy host alone is not enough.",
       "The burn-rate page in this lab needs both the 12-second window and the 60-second window.",
-      "A spike that fades, and a scrape that stopped, are real problems. They are not this page.",
+      "A short spike that fades, and a scrape that stopped, still need follow-up. Neither should wake someone on this page.",
     ],
     reflection: [
       "Which scene was easiest to mistake for an incident, and what record separated them?",
@@ -187,7 +187,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Change one limit, rerun the same seed, and say what the new evidence shows.",
     ],
     paragraphs: [
-      "A cascading failure is not a second bug. The card provider is slow, so each call holds a slot for longer. The charge path retries, and the retry requests another slot. The queue grows. New charges wait or time out, including ones whose own work was fine. The symptom moves outward from the slow call.",
+      "The cascade starts with one slow dependency. The card provider is slow, so each call holds a slot for longer. The charge path retries, and the retry requests another slot. The queue grows. New charges wait or time out, including ones whose own work was fine. The symptom moves outward from the slow call.",
       "One clock, one seed. In Guided, you watch the failure spread. In Practice, you change slots, retries, and the deadline. In Challenge, you bring the charge path back. The prompt does not name the control. The topology lists every service and does not name the cause.",
     ],
     concepts: [
@@ -225,7 +225,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/capacity",
       label: "Lesson 5, the queue and the replicas",
       bridge:
-        "The last lesson was a card provider that could not take more calls. This one is a dispatch queue. Jobs arrive faster than the workers finish, and you decide whether more workers, or a utilization rule, brings latency back without turning jobs away.",
+        "The last lesson held a card provider that could not take more calls. This one is a dispatch queue. Jobs arrive faster than workers finish them. Compare more workers with a utilization rule, and bring latency back without turning jobs away.",
     },
   },
   {
@@ -239,7 +239,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Bring latency back without reducing the traffic you were offered.",
     ],
     paragraphs: [
-      "Dispatch jobs arrive faster than workers finish them, so the extra jobs wait. Latency climbs because a job sits in the queue, not because the job itself got harder. Adding replicas adds workers. A utilization rule adds them when the workers you have are busy, and only if you let it.",
+      "Dispatch jobs arrive faster than workers finish them, so the extra jobs wait. Latency climbs because a job sits in the queue; the job itself did not get harder. Adding replicas adds workers. A utilization rule adds them when the workers you have are busy, and only if you enable the rule.",
       "Utilization is the share of worker capacity that is busy. It does not go above 100 percent. Work that does not fit waits in the queue, and the customer feels that wait. In Guided, you compare the two controls. In Challenge, you hold latency through the surge. The prompt does not name the control.",
     ],
     concepts: [
@@ -256,7 +256,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "How full the workers are. It does not go above 100 percent.",
       },
     ],
-    goal: "Latency comes back. The offered traffic stays.",
+    goal: "Bring latency back while the offered traffic stays at the surge level.",
     steps: [
       "Let the surge run on the starting replica count and watch the queue and the latency move together.",
       "Add replicas by hand and note how far the queue falls.",
@@ -277,7 +277,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/deployment",
       label: "Lesson 6, a bad release",
       bridge:
-        "Dispatch was work you meant to serve. Sign-in is different. A share of sessions goes to a bad release, and you decide when that share has to stop.",
+        "Dispatch recovered when you matched workers to demand. Sign-in is next: a share of sessions lands on a bad release, and you choose when that share has to stop.",
     },
   },
   {
@@ -288,11 +288,11 @@ export const SRE_COURSE: SreLessonCraft[] = [
     outcomes: [
       "Read customer failures as a function of how much traffic the bad release is allowed to see.",
       "Stop or shrink that share when the impact is no longer acceptable.",
-      "Say what you would want to see before you raised the share again.",
+      "Say what evidence you would require before raising the share again.",
     ],
     paragraphs: [
-      "You send a release to a fraction of traffic and learn from the customers who hit it. If that fraction fails, the blast radius is the fraction, not the whole site, for as long as you keep the fraction small and you are willing to take it back.",
-      "A known-bad release sits beside the stable one. You choose the share. Rollback sets the share to zero. A repaired release can also pass, so rollback is not the only ending. In Challenge, you stop the damage. The prompt does not name the share.",
+      "You send a release to a fraction of traffic and learn from the customers who hit it. If that fraction fails, the blast radius is the fraction for as long as you keep the share small and take it back when the numbers say so.",
+      "A known-bad release sits beside the stable one. You choose the share. Rollback sets the share to zero. A repaired release can also pass, so rollback is one of two endings. In Challenge, you stop the damage. The prompt does not name the share.",
     ],
     concepts: [
       {
@@ -308,7 +308,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
         body: "The release that is failing customers loses its traffic.",
       },
     ],
-    goal: "The bad release loses traffic, or a fixed release replaces it.",
+    goal: "Move traffic off the bad release, or replace it with a fixed one.",
     steps: [
       "Start with a small share and read the failure rate of the customers on the new release.",
       "Raise the share and watch the same fault affect more sign-ins.",
@@ -318,10 +318,10 @@ export const SRE_COURSE: SreLessonCraft[] = [
     takeaways: [
       "The size of the incident is the share of traffic you leave on the bad release.",
       "A canary only limits damage if someone is watching it and can take the traffic back.",
-      "Rollback is one way to stop. A release that has been fixed is another. Both have to show up in the customer numbers.",
+      "Rollback stops the share. A fixed release also works when the customer numbers show the failures are gone.",
     ],
     reflection: [
-      "At what failure rate did you decide the share was too large?",
+      "At what failure rate did you judge the share was too large?",
       "What would you want the next ten minutes of the stable release to show before you tried again?",
       "Who is allowed to set that share to zero, and how long does it take them?",
     ],

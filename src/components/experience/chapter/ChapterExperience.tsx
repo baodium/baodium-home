@@ -68,7 +68,22 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
   const [speed, setSpeed] = useState(0.3);
   const [tick, setTick] = useState(0);
   const [mix, setMix] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   const labDone = useChapter1LabDone(Boolean(runnerUrl || labUrl));
+
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [expanded]);
 
   const playingRef = useRef(true);
   const speedRef = useRef(0.3);
@@ -184,7 +199,20 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
         })}
       </nav>
       {step.kind === "operate" || step.kind === "lab" ? (
-        <div className="book-lesson-stage mx-auto max-w-[1240px] px-4 py-4 sm:px-8">
+        <div
+          className="book-lesson-stage mx-auto max-w-[1240px] px-4 py-4 sm:px-8"
+          data-expanded={expanded ? "true" : "false"}
+        >
+          <div className="learn-workbench-chrome" role="toolbar" aria-label="Chapter lab workspace">
+            <p>{expanded ? "Full workspace" : "Chapter lab"}</p>
+            <button
+              type="button"
+              aria-pressed={expanded}
+              onClick={() => setExpanded((value) => !value)}
+            >
+              {expanded ? "Exit full screen" : "Maximize"}
+            </button>
+          </div>
           {step.kind === "operate" ? (
             <Chapter1Experience embedded />
           ) : (
@@ -196,7 +224,21 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
           </p>
         </div>
       ) : (
-      <div className="book-lesson-work mx-auto grid max-w-[1240px] gap-8 px-6 py-6 sm:px-10 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-10">
+      <div
+        className="book-lesson-work mx-auto max-w-[1240px] px-6 py-6 sm:px-10"
+        data-expanded={expanded ? "true" : "false"}
+      >
+        <div className="learn-workbench-chrome" role="toolbar" aria-label="Chapter workspace">
+          <p>{expanded ? "Full workspace" : "Chapter workspace"}</p>
+          <button
+            type="button"
+            aria-pressed={expanded}
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? "Exit full screen" : "Maximize"}
+          </button>
+        </div>
+        <div className="grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-10">
         <div className="min-w-0 lg:col-start-2 lg:row-start-1">
             <>
               <Stage
@@ -256,6 +298,7 @@ function ChapterSession({ killercodaUrl, runnerUrl, labUrl }: ChapterProps) {
           backDisabled={cursor === 0}
           nextLabel={cursor === PATH.length - 1 ? "Start over" : "Next"}
         />
+        </div>
       </div>
       )}
       <div className="mx-auto max-w-[1240px] px-6 pb-12 sm:px-10">

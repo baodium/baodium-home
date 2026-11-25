@@ -72,7 +72,7 @@ function fillDebrief(kind: DecisionKind, snap: EngineSnapshot): string {
     snap.waitingCount === 0
       ? "cleared as demand fell under 40"
       : snap.waitingCount > 0
-        ? `remained at ${snap.waitingCount} while demand stayed elevated`
+        ? `held near ${snap.waitingCount} while demand stayed elevated`
         : "shifted with traffic";
   return tpl
     .replace("{exposure}", String(snap.controls.exposurePct))
@@ -711,6 +711,7 @@ export function Chapter1Experience({ embedded = false }: { embedded?: boolean })
       </div>
 
       <LearningWorkbench
+        expandable={!embedded}
         rail={
           <>
             <TeachingOverlay

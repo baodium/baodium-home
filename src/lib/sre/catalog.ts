@@ -34,7 +34,7 @@ export const SRE_LESSONS: SreLesson[] = [
     id: "slo",
     title: "Whether these sends meet 99.5 percent",
     summary:
-      "Decide what counts as a good message send, set 99.5 percent, and watch the misses spend the budget.",
+      "Define a good message send, set 99.5 percent, and watch the misses spend the budget.",
     outcome:
       "Count a slow success as a miss when the line includes latency.",
     topic: "Service levels",

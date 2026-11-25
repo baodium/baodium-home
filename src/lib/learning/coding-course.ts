@@ -10,13 +10,13 @@ type Stage = {
 const STAGES: Record<string, Stage> = {
   "Fleet health": {
     paragraphs: [
-      "A fleet check is a policy applied to records you did not write. An instance is unhealthy when a record says so. A missing field is not a verdict, and the order of the answer is the order you first saw the instance, not the order you decided it was unhealthy.",
-      "The same checks run in Go, TypeScript, and Python. A stage moves only when the full suite passes in the language you are writing. Examples are a hint. They are not the suite.",
+      "A fleet check applies a policy to records you did not write. Mark an instance unhealthy only when a field or rule says so. Skip a missing field instead of inventing a verdict, and keep output order as the first time you saw each instance.",
+      "The same checks run in Go, TypeScript, and Python. A stage advances only when the full suite passes in the language you are writing. Examples are a hint; completion still requires the full suite.",
     ],
     concepts: [
       {
         name: "Policy",
-        body: "You apply a policy to one record without looking at the others. CPU, a failed heartbeat, and an explicit unhealthy flag are separate policies. Any one of them is enough.",
+        body: "Apply a policy to one record without looking at the others. CPU, a failed heartbeat, and an explicit unhealthy flag are separate policies. Any one of them is enough.",
       },
       {
         name: "First seen",
@@ -26,13 +26,13 @@ const STAGES: Record<string, Stage> = {
   },
   Signals: {
     paragraphs: [
-      "You compare a number or an event with the last one. The exercises turn raw lines, counters, and windows into something you could put on a chart or a page. The hard part is usually the edge the examples skip: an empty window, a repeated key, a line almost in the expected format.",
+      "These exercises turn raw lines, counters, and windows into values you could put on a chart or a page. Compare each number or event with the previous one. The hard part is usually the edge the examples skip: an empty window, a repeated key, or a line almost in the expected format.",
       "Write the function so the full suite passes. Then look at the reference and name the cost you accepted. Opening the reference does not record a pass.",
     ],
     concepts: [
       {
         name: "Window",
-        body: "A window is the slice of events you are willing to judge. A rate with no window is not a measurement. The exercise names which events belong in the slice.",
+        body: "A window is the slice of events you are judging. Without a window, a rate has no meaning. The exercise names which events belong in the slice.",
       },
       {
         name: "Edge",
@@ -42,7 +42,7 @@ const STAGES: Record<string, Stage> = {
   },
   Automation: {
     paragraphs: [
-      "These functions run when you are not watching. Each one leaves a result you check later, and it returns a refusal when the input is not the shape you required.",
+      "These functions run when you are not watching. Each one leaves a result you can check later, and it returns a refusal when the input is not the shape you required.",
       "Read the contract before you write the loop. If the suite fails, the failing check is the input you did not picture. Name it, then change the code.",
     ],
     concepts: [
@@ -58,24 +58,24 @@ const STAGES: Record<string, Stage> = {
   },
   "Reliability algorithms": {
     paragraphs: [
-      "Retries, limits, and deadlines are policies about a request that does not fit. The interesting case is the request that is already in flight, or the one that arrives after you said you were full.",
-      "These functions are small because the policy is small. The suite is there to stop a clever version that passes the examples and breaks the request you forgot.",
+      "Retries, limits, and deadlines are policies for a request that does not fit. The interesting case is the request already in flight, or the one that arrives after you said you were full.",
+      "These functions stay small because the policy is small. The suite blocks a clever version that passes the examples and breaks the request you forgot.",
     ],
     concepts: [
       {
         name: "In flight",
-        body: "Work in flight has already left. A retry or a timeout decision has to say what happens to that work, not only to the next caller.",
+        body: "Work in flight has already left. A retry or a timeout policy has to say what happens to that work, not only to the next caller.",
       },
       {
         name: "Limit",
-        body: "A limit is the number you will not pass. When the next request would pass it, the function owes the caller an explicit answer, not a slower success.",
+        body: "A limit is the number you will not pass. When the next request would pass it, return an explicit answer instead of a slower success.",
       },
     ],
   },
   "Safe delivery": {
     paragraphs: [
-      "Delivery code decides who sees a release and when that stops. The fraction matters. A check that treats every host as the whole fleet will pass a story and fail the suite.",
-      "After the suite passes, the follow-up question is the production version of the same function. Answer it in a sentence before you open the next exercise.",
+      "Delivery functions set who sees a release and when that exposure stops. The fraction matters. A check that treats every host as the whole fleet will pass a story and fail the suite.",
+      "After the suite passes, answer the follow-up in a sentence before you open the next exercise. That sentence is the production version of the same function.",
     ],
     concepts: [
       {

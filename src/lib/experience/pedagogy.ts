@@ -206,7 +206,7 @@ export function selectPedagogyLesson(
       eyebrow: "What’s happening",
       title: "The code is live and the cohort is empty",
       seeing: "Flag is ON at 0% exposure. Code is live, but no user is hashed into the cohort.",
-      why: "The code can be deployed while nobody is in the cohort. Exposure, not a new build, decides who calls Recommendation.",
+      why: "The code can be deployed while nobody is in the cohort. Exposure, not a new build, controls who calls Recommendation.",
       next: "Trace one forced request, then raise exposure.",
       prod: "The binary is present and the cohort is empty. Move exposure forward or back without shipping another build.",
       tone: "calm",

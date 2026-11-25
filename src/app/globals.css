@@ -19,20 +19,20 @@
   --moss: #5c6b42;
   --moss-soft: #96a86e;
   --signal: #6b9e9a;
-  /* Play/lab light tokens (portaled tips inherit from :root) */
-  --drill-fg: #1a2330;
-  --drill-muted: #3a4656;
-  --drill-faint: #3e4c5e;
-  --drill-kicker: #1f5f64;
-  --drill-accent-text: #8d3e2b;
-  --drill-line: color-mix(in srgb, #1a2330 10%, transparent);
-  --drill-line-strong: color-mix(in srgb, #1a2330 18%, transparent);
+  /* Play/lab light tokens — cool paper + teal; red reserved for failure tones */
+  --drill-fg: #18201c;
+  --drill-muted: #5a6762;
+  --drill-faint: #6e7a74;
+  --drill-kicker: #1b6b62;
+  --drill-accent-text: #1b6b62;
+  --drill-line: color-mix(in srgb, #18201c 10%, transparent);
+  --drill-line-strong: color-mix(in srgb, #18201c 18%, transparent);
   --drill-panel: #ffffff;
-  --drill-panel-soft: color-mix(in srgb, #f3f7fa 88%, #e8eef4 12%);
-  --drill-accent: #ad4f36;
-  --drill-signal: #2f7a7e;
-  --drill-warn: #b45309;
-  --drill-track: color-mix(in srgb, #1a2330 8%, transparent);
+  --drill-panel-soft: color-mix(in srgb, #f6f8f7 88%, #e8efeb 12%);
+  --drill-accent: #1b6b62;
+  --drill-signal: #1b6b62;
+  --drill-warn: #a63d2c;
+  --drill-track: color-mix(in srgb, #18201c 8%, transparent);
 }
 
 @theme inline {
@@ -1499,6 +1499,92 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .learn-workbench .learn-rail,
 .learn-workbench .learn-canvas {
   min-width: 0;
+}
+
+.learn-workbench-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+  padding: 0.45rem 0.15rem;
+}
+
+.learn-workbench-chrome p {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 550;
+  color: var(--learn-muted, #5a6762);
+}
+
+.learn-workbench-chrome button {
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--learn-line, #dde5e1);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--learn-fg, #18201c);
+  font-size: 0.78rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.learn-workbench-chrome button[aria-pressed="true"],
+.learn-workbench-chrome button:hover {
+  border-color: var(--learn-accent, #1b6b62);
+  color: var(--learn-accent, #1b6b62);
+}
+
+.learn-workbench-grid {
+  display: grid;
+  align-items: start;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .learn-workbench-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(18rem, 0.7fr);
+    gap: 3rem;
+  }
+}
+
+.learn-workbench[data-expanded="true"] {
+  position: fixed;
+  inset: 0.65rem;
+  z-index: 70;
+  margin: 0;
+  padding: 0.85rem 1rem 1.1rem;
+  border: 1px solid var(--learn-line, #dde5e1);
+  border-radius: 14px;
+  background: var(--learn-panel, #f6f8f7);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 28px 80px -40px rgba(18, 32, 28, 0.45);
+}
+
+.learn-workbench[data-expanded="true"] .learn-workbench-grid {
+  min-height: calc(100dvh - 4.5rem);
+}
+
+.learn-workbench[data-expanded="true"] .learn-rail {
+  max-height: calc(100dvh - 5.5rem);
+}
+
+.book-lesson-work[data-expanded="true"],
+.book-lesson-stage[data-expanded="true"] {
+  position: fixed;
+  inset: 0.65rem;
+  z-index: 70;
+  margin: 0;
+  max-width: none;
+  width: auto;
+  padding: 0.85rem 1.1rem 1.25rem;
+  border: 1px solid var(--learn-line, #dde5e1);
+  border-radius: 14px;
+  background: var(--learn-panel, #f6f8f7);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 28px 80px -40px rgba(18, 32, 28, 0.45);
 }
 
 .service-flow {
