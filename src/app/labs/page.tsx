@@ -6,7 +6,7 @@ import { SRE_LESSONS, type SreLabKey } from "@/lib/sre/catalog";
 export const metadata: Metadata = {
   title: "Labs",
   description:
-    "Hands-on SRE labs across playback, messaging, search, payments, dispatch, and sign-in.",
+    "Hands-on SRE labs across playback, messaging, search, payments, edge delivery, and sign-in.",
   alternates: { canonical: "https://labs.baodium.com/" },
 };
 
@@ -19,7 +19,7 @@ const LESSON_COPY: Record<SreLabKey, string> = {
   cascade:
     "A card provider holds its slots. Retries ask for another, and new charges wait.",
   capacity:
-    "Dispatch jobs arrive faster than workers finish them. Latency is the wait, not a harder job.",
+    "Cache misses hit origin faster than edge workers finish them. Latency is the wait at the POP, not a harder object.",
   deployment:
     "A fraction of sign-ins hit a bad release. You watch the failures and take that share back.",
 };
@@ -33,12 +33,13 @@ export default function LabsPage() {
           <p className="labs-kicker">
             Baodium Labs / Site reliability engineering
           </p>
-          <h1>Playback, search, dispatch, and a payments stack.</h1>
+          <h1>Playback, search, edge delivery, and a payments stack.</h1>
           <p className="labs-intro">
-            Browser lessons put you on streaming, messaging, search, logistics,
-            and auth. You change the simulation, read the evidence, and choose
-            the next move. Separately, you can run a payments stack yourself:
-            Express and FastAPI, with Prometheus, Grafana, and Jaeger.
+            Browser lessons put you on streaming, messaging, search, edge
+            delivery, and auth. Coding practice adds analytics windows and API
+            contract checks. You change the simulation, read the evidence, and
+            choose the next move. Separately, you can run a payments path
+            yourself: Express and FastAPI, with Prometheus, Grafana, and Jaeger.
           </p>
           <div className="labs-actions">
             <Link className="labs-button" href="/sre-labs/instrument">
@@ -97,8 +98,8 @@ export default function LabsPage() {
             </li>
             <li>
               <Link href="/sre-labs/capacity">
-                <span>Logistics</span>
-                <strong>Dispatch jobs wait on workers</strong>
+                <span>Edge / CDN</span>
+                <strong>Origin misses wait on edge workers</strong>
               </Link>
             </li>
             <li>

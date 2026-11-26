@@ -18,7 +18,7 @@ const labs = [
   { href: "/sre-labs/instrument", label: "Playback" },
   { href: "/sre-labs/slo", label: "99.5% budget" },
   { href: "/sre-labs/alert", label: "Paging" },
-  { href: "/sre-labs/capacity", label: "Dispatch" },
+  { href: "/sre-labs/capacity", label: "Edge / CDN" },
   { href: "/sre-labs/deployment", label: "Sign-in" },
 ];
 

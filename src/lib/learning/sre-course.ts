@@ -223,61 +223,61 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     next: {
       href: "/sre-labs/capacity",
-      label: "Lesson 5, the queue and the replicas",
+      label: "Lesson 5, the edge queue and the replicas",
       bridge:
-        "The last lesson held a card provider that could not take more calls. This one is a dispatch queue. Jobs arrive faster than workers finish them. Compare more workers with a utilization rule, and bring latency back without turning jobs away.",
+        "The last lesson held a card provider that could not take more calls. This one is an edge POP under an origin surge. Cache misses arrive faster than edge workers finish them. Compare more workers with a utilization rule, and bring latency back without turning viewers away.",
     },
   },
   {
     id: "capacity",
     index: 5,
     minutes: 15,
-    title: "Dispatch jobs fill the queue",
+    title: "Origin misses fill the edge queue",
     outcomes: [
-      "Read queue depth and latency as two views of the same shortage of workers.",
-      "Compare a fixed replica count with a utilization rule on the same surge.",
+      "Read queue depth and latency as two views of the same shortage of edge workers.",
+      "Compare a fixed replica count with a utilization rule on the same origin surge.",
       "Bring latency back without reducing the traffic you were offered.",
     ],
     paragraphs: [
-      "Dispatch jobs arrive faster than workers finish them, so the extra jobs wait. Latency climbs because a job sits in the queue; the job itself did not get harder. Adding replicas adds workers. A utilization rule adds them when the workers you have are busy, and only if you enable the rule.",
-      "Utilization is the share of worker capacity that is busy. It does not go above 100 percent. Work that does not fit waits in the queue, and the customer feels that wait. In Guided, you compare the two controls. In Challenge, you hold latency through the surge. The prompt does not name the control.",
+      "Cache misses reach origin faster than edge workers finish them, so the extra fetches wait at the POP. Latency climbs because a request sits in the edge queue; the object itself did not get harder to serve. Adding replicas adds edge workers. A utilization rule adds them when the workers you have are busy, and only if you enable the rule.",
+      "Utilization is the share of edge capacity that is busy. It does not go above 100 percent. Work that does not fit waits in the queue, and the viewer feels that wait. In Guided, you compare the two controls. In Challenge, you hold latency through the surge. The prompt does not name the control.",
     ],
     concepts: [
       {
         name: "Queue",
-        body: "Work that has arrived and has not started. Latency follows that wait.",
+        body: "Origin fetches that have arrived and have not started. Latency follows that wait.",
       },
       {
         name: "Replica",
-        body: "Another worker. More replicas finish more work at once.",
+        body: "Another edge worker. More replicas finish more origin fetches at once.",
       },
       {
         name: "Utilization",
-        body: "How full the workers are. It does not go above 100 percent.",
+        body: "How full the edge workers are. It does not go above 100 percent.",
       },
     ],
     goal: "Bring latency back while the offered traffic stays at the surge level.",
     steps: [
-      "Let the surge run on the starting replica count and watch the queue and the latency move together.",
-      "Add replicas by hand and note how far the queue falls.",
+      "Let the origin surge run on the starting replica count and watch the queue and the latency move together.",
+      "Add edge replicas by hand and note how far the queue falls.",
       "Reset and try the utilization rule on the same surge.",
       "In challenge mode, hold latency without reducing demand. The prompt does not name the control.",
     ],
     takeaways: [
-      "Latency during the surge is mostly time spent waiting for a worker.",
+      "Latency during the surge is mostly time spent waiting for an edge worker before the origin fetch starts.",
       "Utilization stops at 100 percent. The overflow is the queue, not a utilization number above the workers you have.",
       "Recovery in this lesson means the offered traffic still arrives and the latency comes back.",
     ],
     reflection: [
       "Did the hand-set replica count and the utilization rule recover the same way, or did one of them lag?",
-      "What would you watch in the first minute of a surge to tell queueing from a slower dependency?",
-      "What other limit would you hit if you kept adding replicas?",
+      "What would you watch in the first minute of a surge to tell edge queueing from a slower origin?",
+      "What other limit would you hit if you kept adding edge replicas?",
     ],
     next: {
       href: "/sre-labs/deployment",
       label: "Lesson 6, a bad release",
       bridge:
-        "Dispatch recovered when you matched workers to demand. Sign-in is next: a share of sessions lands on a bad release, and you choose when that share has to stop.",
+        "The edge recovered when you matched workers to origin demand. Sign-in is next: a share of sessions lands on a bad release, and you choose when that share has to stop.",
     },
   },
   {

@@ -1311,6 +1311,18 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   margin-bottom: 0.25rem;
 }
 
+.drill-prose[data-density="airy"] {
+  margin-bottom: 0.15rem;
+}
+
+.drill-prose-more summary {
+  transition: color 180ms ease;
+}
+
+.drill-prose-more summary:hover {
+  color: var(--drill-signal, #1b6b62);
+}
+
 .drill-metrics-table {
   width: 100%;
   border-collapse: collapse;

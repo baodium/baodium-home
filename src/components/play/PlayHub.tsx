@@ -67,10 +67,10 @@ export function PlayHub() {
           <motion.div
             aria-hidden="true"
             style={{ scaleX: rail }}
-            className="mt-9 h-px origin-left bg-[color-mix(in_srgb,#1b6b62_55%,transparent)]"
+            className="mt-10 h-px origin-left bg-[color-mix(in_srgb,#1b6b62_55%,transparent)] md:mt-12"
           />
 
-          <div className="mt-9 space-y-4 md:mt-11 md:space-y-5">
+          <div className="mt-10 space-y-5 md:mt-12 md:space-y-6">
             {featured ? <HubFeatured game={featured} reduce={reduce} /> : null}
             <ul className="grid gap-4 lg:grid-cols-12 lg:gap-5">
               {rest.map((game, index) => (

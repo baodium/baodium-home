@@ -9,7 +9,7 @@
     "prompt": "You are given heartbeat records from production instances. Return the unique instance ids that are unhealthy, in the order they first appear. An instance is unhealthy if any of its records has healthy=False, cpu at or above the threshold, or last_heartbeat_seconds greater than 120. Missing optional fields are not enough to mark it unhealthy. Ignore unknown keys.",
     "signature": "get_unhealthy_instances(records, cpu_threshold=85.0) -> list[str]",
     "entrypoint": "get_unhealthy_instances",
-    "starter": "def get_unhealthy_instances(\n    records: list[dict[str, object]],\n    cpu_threshold: float = 85.0,\n) -> list[str]:\n    \"\"\"Return unique unhealthy instance ids in first-seen order.\"\"\"\n    return []\n",
+    "starter": "def get_unhealthy_instances(\n    records: list[dict[str, object]],\n    cpu_threshold: float = 85.0,\n) -> list[str]:\n    \"\"\"Return unique unhealthy instance ids in first-seen order.\"\"\"\n    # Implementation: start from the empty return.\n    # TODO 1: remember first-seen order for every instance id.\n    # TODO 2: mark an id unhealthy when any record fails a policy.\n    # TODO 3: emit ordered ids that are unhealthy. Do not mutate records.\n    return []\n",
     "constraints": [
       "Return unique instance ids in the order they first appear.",
       "An instance is unhealthy if any record has healthy=False, CPU at or above the threshold, or last_heartbeat_seconds greater than 120.",
@@ -1434,10 +1434,10 @@
     "difficulty": "Foundation",
     "minutes": 20,
     "format": "implementation",
-    "prompt": "Your platform team runs an offline check before a batch rollout. Work on the Python checker using normalized deployment records. Report unsafe defaults without changing the input. This exercise runs against fixtures, not a live cluster.",
+    "prompt": "Your platform team runs an offline check before a batch rollout. Work on the Python checker using normalized deployment records. Report unsafe defaults without changing the input. This exercise runs against fixtures, not a live cluster. Treat each deployment record as an API contract the platform must refuse when defaults are unsafe.",
     "signature": "audit_deployments(deployments) -> list[dict]",
     "entrypoint": "audit_deployments",
-    "starter": "def audit_deployments(deployments):\n    \"\"\"Return deployment names and missing safeguards; do not modify the input.\"\"\"\n    return []\n",
+    "starter": "def audit_deployments(deployments):\n    \"\"\"Return deployment names and missing safeguards; do not modify the input.\"\"\"\n    # Implementation: start from the empty return.\n    # TODO 1: collect issue codes in order: replicas, readiness, memory.\n    # TODO 2: append a finding only when issues is non-empty.\n    return []\n",
     "constraints": [
       "Each record has a unique name. Other fields may be missing; numeric fields contain numbers when present.",
       "Report no_replicas when replicas is missing or at most zero.",

@@ -178,7 +178,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
             patch(capacity ? { arrivalRate: 600 } : { canaryPct: 50 })
           }
         >
-          {capacity ? "Introduce traffic surge" : "Deploy canary to 50%"}
+          {capacity ? "Introduce origin surge" : "Deploy canary to 50%"}
           <ArrowRight size={15} />
         </button>
         <button className="ops-assess" onClick={check}>
@@ -216,20 +216,20 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           <p className="product-eyebrow">On this run</p>
           <h2>
             {capacity
-              ? "Demand, the queue, and the replicas"
+              ? "Origin demand, the edge queue, and the replicas"
               : "The failures, the share, and the recovery"}
           </h2>
           {mode === "guided" ? (
             <ol>
-              <li>Step the healthy service to establish a baseline.</li>
+              <li>Step the healthy edge path to establish a baseline.</li>
               <li>
                 {capacity
-                  ? "Introduce 600 requests/s and observe the queue and failures."
+                  ? "Introduce 600 origin fetches/s and observe the edge queue and failures."
                   : "Deploy to 50% of traffic and observe failed requests."}
               </li>
               <li>
                 {capacity
-                  ? "Add replicas or enable autoscaling. Keep traffic at 500 requests/s or higher."
+                  ? "Add edge replicas or enable autoscaling. Keep traffic at 500 fetches/s or higher."
                   : "Roll back, or repair the release’s failure rate before increasing its exposure."}
               </li>
               <li>
@@ -240,7 +240,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           ) : (
             <p>
               {capacity
-                ? "Recover a surge of at least 500 requests/s. Keep the queue empty and finish five seconds without failures."
+                ? "Recover an origin surge of at least 500 fetches/s. Keep the edge queue empty and finish five seconds without failures."
                 : "Demonstrate the release’s failures, then recover five seconds without failed requests. More than one configuration can succeed."}
             </p>
           )}
@@ -283,7 +283,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
             className="ops-topology"
             aria-label={
               capacity
-                ? "Traffic enters a bounded FIFO queue and is served by worker replicas"
+                ? "Origin fetches enter a bounded FIFO edge queue and are served by edge worker replicas"
                 : "Traffic router sends requests to stable and canary releases"
             }
           >
@@ -330,7 +330,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
               </strong>
               <span>
                 {capacity
-                  ? "Configured service capacity"
+                  ? "Configured edge capacity"
                   : "Stable release is error-free"}
               </span>
             </div>
@@ -352,18 +352,18 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           </div>
           {panel === "metrics" ? (
             <div className="ops-chart">
-              <h3>{capacity ? "Worker utilization" : "Observed error rate"}</h3>
+              <h3>{capacity ? "Edge utilization" : "Observed error rate"}</h3>
               <p>
                 One-second samples · last 60 simulation seconds ·{" "}
                 {capacity
-                  ? "percentage of configured capacity used"
+                  ? "percentage of configured edge capacity used"
                   : "failed / completed requests"}
               </p>
               <svg
                 role="img"
                 aria-label={
                   capacity
-                    ? "Worker utilization over simulation time"
+                    ? "Edge worker utilization over simulation time"
                     : "Request error rate over simulation time"
                 }
                 viewBox="0 0 640 170"
@@ -463,9 +463,9 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
           {capacity ? (
             <>
               <label>
-                Worker replicas <output>{state.controls.replicas}</output>
-                <input
-                  aria-label="Worker replicas"
+                Edge replicas <output>{state.controls.replicas}</output>
+                  <input
+                  aria-label="Edge replicas"
                   type="range"
                   min={1}
                   max={12}
@@ -499,7 +499,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
                 />
               </label>
               <p>
-                Each replica has 100 requests/s of simulated capacity. A
+                Each edge replica has 100 fetches/s of simulated capacity. A
                 scale-up decision takes effect at the next five-second
                 controller check.
               </p>

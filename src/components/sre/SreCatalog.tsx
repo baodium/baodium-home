@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 import "@/components/learning/lesson-craft.css";
 import { SRE_LESSONS } from "@/lib/sre/catalog";
+import { SERVICE_STORIES } from "@/lib/sre/stories";
 import {
   loadSreProgress,
   sreServerSnapshot,
@@ -14,6 +15,27 @@ import {
 } from "@/lib/sre/progress";
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { ModeTrack } from "@/components/sre/ModeTrack";
+
+const PRODUCT_MOSAIC = [
+  ...SRE_LESSONS.map((lab) => ({
+    id: lab.id,
+    label: SERVICE_STORIES[lab.id].product,
+    href: `/sre-labs/${lab.id}` as const,
+    kind: "lab" as const,
+  })),
+  {
+    id: "analytics",
+    label: "Analytics",
+    href: "/sre-labs/coding" as const,
+    kind: "coding" as const,
+  },
+  {
+    id: "api-docs",
+    label: "API contracts",
+    href: "/sre-labs/coding/deployment-audit-implementation-v1" as const,
+    kind: "coding" as const,
+  },
+];
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -60,11 +82,30 @@ export function SreCatalog() {
           <p className="product-eyebrow">SRE labs</p>
           <h1>Practice reliability on real product surfaces.</h1>
           <p>
-            Browser lessons cover streaming playback, messaging, search,
-            dispatch, and sign-in. Payments is the stack you start yourself:
-            Express and FastAPI, with Prometheus, Grafana, OpenTelemetry, and
-            Jaeger. That stack needs Docker and Node.js 20 or newer.
+            Browser lessons move across streaming, messaging, search, payments,
+            edge delivery, and sign-in. Coding practice adds analytics windows
+            and API contract checks. The optional local course runs Express and
+            FastAPI with Prometheus, Grafana, OpenTelemetry, and Jaeger when you
+            want Docker and Node.js 20 or newer.
           </p>
+          <ul className="product-mosaic" aria-label="Product surfaces">
+            {PRODUCT_MOSAIC.map((item, index) => (
+              <motion.li
+                key={item.id}
+                initial={reduce ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: reduce ? 0 : 0.4,
+                  delay: reduce ? 0 : 0.04 * index,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <Link href={item.href} data-kind={item.kind}>
+                  {item.label}
+                </Link>
+              </motion.li>
+            ))}
+          </ul>
           <Link className="product-button" href="/sre-labs/observability/setup">
             Start the hands-on course <ArrowRight size={17} />
           </Link>
@@ -73,7 +114,7 @@ export function SreCatalog() {
           </Link>
         </div>
         <aside className="course-toolchain">
-          <p className="product-eyebrow">What the payments stack records</p>
+          <p className="product-eyebrow">What the local stack records</p>
           <div className="course-service-pair">
             <span>
               <strong>Express</strong>Checkout service
@@ -117,9 +158,10 @@ export function SreCatalog() {
         <p className="product-eyebrow">Coding practice</p>
         <h2>Write production-shaped functions in Go, TypeScript, or Python.</h2>
         <p>
-          Fleet checks, log analysis, retries, rate limits, and delivery
-          policies. Go, TypeScript, and Python share the same checks, and they
-          run in the browser.
+          Implementation stages start from a blank return. Complete and debug
+          stages hand you a draft. Across fleet health, analytics windows, API
+          contract audits, retries, and delivery policy, the same checks run in
+          the browser for every language.
         </p>
         <Link href="/sre-labs/coding" className="product-button">Open the coding roadmap <ArrowRight size={16}/></Link>
         <Link href="/labs" className="product-text-link">All learning paths</Link>
@@ -132,7 +174,7 @@ export function SreCatalog() {
           <div>
             <p className="product-eyebrow">The hands-on path</p>
             <h2 id="course-outline-title">
-              Exercises on the payments stack.
+              Exercises on a checkout and payment path.
             </h2>
           </div>
           <span>8 exercises · local execution</span>

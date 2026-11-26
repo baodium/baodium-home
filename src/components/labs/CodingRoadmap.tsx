@@ -235,7 +235,8 @@ export function CodingRoadmap({
                       </span>
                       <strong>{problem.title}</strong>
                       <span className="coding-row-meta">
-                        {problem.difficulty} · {problem.minutes} min
+                        {problem.format} · {problem.difficulty} ·{" "}
+                        {problem.minutes} min
                       </span>
                       <span aria-hidden="true">↗</span>
                     </Link>

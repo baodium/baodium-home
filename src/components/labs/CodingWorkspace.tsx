@@ -354,6 +354,13 @@ export function CodingWorkspace({
         <code className="coding-signature">
           {languageSignature(problem, language)}
         </code>
+        {problem.format === "implementation" ? (
+          <p className="coding-note">
+            This is an implementation stage. The starter returns an empty
+            answer on purpose. Name the contract, walk one example, then fill
+            the function until the suite passes in {languageLabel(language)}.
+          </p>
+        ) : null}
         {problem.format === "complete" ? (
           <p className="coding-note">
             The starter already has structure. Fill the TODOs so the suite

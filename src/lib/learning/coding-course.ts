@@ -26,7 +26,7 @@ const STAGES: Record<string, Stage> = {
   },
   Signals: {
     paragraphs: [
-      "These exercises turn raw lines, counters, and windows into values you could put on a chart or a page. Compare each number or event with the previous one. The hard part is usually the edge the examples skip: an empty window, a repeated key, or a line almost in the expected format.",
+      "These exercises are analytics work in miniature. Raw lines, counters, and windows become the numbers a dashboard or a page would show. Compare each value with the previous one. The hard part is usually the edge the examples skip: an empty window, a repeated key, or a line almost in the expected format.",
       "Write the function so the full suite passes. Then look at the reference and name the cost you accepted. Opening the reference does not record a pass.",
     ],
     concepts: [
@@ -90,6 +90,32 @@ const STAGES: Record<string, Stage> = {
   },
 };
 
+function formatSteps(format: string) {
+  if (format === "complete") {
+    return [
+      "Read the signature and the TODOs already in the starter. Name what each TODO still has to decide.",
+      "Choose Go, TypeScript, or Python. The checks are the same in each language, and progress is kept per language on this device.",
+      "Fill one TODO, run the examples, then the full suite. The exercise counts only when every check passes.",
+      "Open the reference after you pass, or when you are stuck, and write down one difference.",
+    ];
+  }
+  if (format === "debug") {
+    return [
+      "Run the examples first and name which check fails before you edit a line.",
+      "Choose Go, TypeScript, or Python. The checks are the same in each language, and progress is kept per language on this device.",
+      "Change only the branch that explains the failing check. Re-run examples, then the full suite.",
+      "Open the reference after you pass, or when you are stuck, and write down one difference.",
+    ];
+  }
+  return [
+    "Read the signature and the two examples, and write down one input they do not show.",
+    "State the return value in one sentence before you leave the empty starter.",
+    "Choose Go, TypeScript, or Python. The checks are the same in each language, and progress is kept per language on this device.",
+    "Run the examples. When those pass, run the full suite. The exercise counts only when every check passes.",
+    "Open the reference after you pass, or when you are stuck, and write down one difference.",
+  ];
+}
+
 export function codingLesson(problem: CodingProblem, nextTitle?: string) {
   const ordered = codingSummaries();
   const index = ordered.findIndex((item) => item.id === problem.id);
@@ -99,12 +125,18 @@ export function codingLesson(problem: CodingProblem, nextTitle?: string) {
   );
   const placeInStage = stageProblems.findIndex((item) => item.id === problem.id);
   const stage = STAGES[problem.category] ?? STAGES["Fleet health"]!;
+  const formatLabel =
+    problem.format === "complete"
+      ? "complete"
+      : problem.format === "debug"
+        ? "debug"
+        : "implementation";
   return {
     course: "SRE coding",
     index: index + 1,
     total: ordered.length,
     minutes: problem.minutes,
-    stageLabel: `Stage ${stageIndex + 1} of ${CODING_CATEGORIES.length}, ${problem.category}, exercise ${placeInStage + 1} of ${stageProblems.length}`,
+    stageLabel: `Stage ${stageIndex + 1} of ${CODING_CATEGORIES.length}, ${problem.category}, ${formatLabel}, exercise ${placeInStage + 1} of ${stageProblems.length}`,
     outcomes: [
       `State what ${problem.title.replace(/ · implement| · fix/g, "")} has to return, in one sentence, before you write it.`,
       "Pass the full suite in the language you chose. The examples are not enough.",
@@ -113,12 +145,7 @@ export function codingLesson(problem: CodingProblem, nextTitle?: string) {
     paragraphs: stage.paragraphs,
     concepts: stage.concepts,
     goal: problem.prompt,
-    steps: [
-      "Read the signature and the two examples, and write down one input they do not show.",
-      "Choose Go, TypeScript, or Python. The checks are the same in each language, and progress is kept per language on this device.",
-      "Run the examples. When those pass, run the full suite. The exercise counts only when every check passes.",
-      "Open the reference after you pass, or when you are stuck, and write down one difference.",
-    ],
+    steps: formatSteps(problem.format),
     takeaways: [
       problem.explanation,
       problem.complexity,

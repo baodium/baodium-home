@@ -2,10 +2,100 @@ import type { CodingProblem } from "./coding";
 import type { PracticeLanguage } from "./languages";
 
 /**
- * Authored Go / TypeScript drafts for complete and debug tracks.
- * These mirror the Python gap or bug quality instead of empty zero returns.
+ * Authored Go / TypeScript drafts for implementation, complete, and debug tracks.
+ * Implementation starters carry typed scaffolding and TODOs instead of bare zeros.
+ * Complete and debug mirror the Python gap or bug quality.
  */
 const STARTERS: Record<string, Partial<Record<Exclude<PracticeLanguage, "python">, string>>> = {
+  "unhealthy-instances-v1": {
+    typescript: `type Heartbeat = {
+  instance_id: string;
+  cpu?: number;
+  healthy?: boolean;
+  last_heartbeat_seconds?: number;
+};
+
+function getUnhealthyInstances(
+  records: Heartbeat[],
+  cpuThreshold = 85.0,
+): string[] {
+  // Implementation: build the answer from an empty return.
+  // TODO 1: remember first-seen order for every instance id.
+  // TODO 2: mark an id unhealthy when any record fails a policy.
+  // TODO 3: emit ordered ids that are unhealthy. Do not mutate records.
+  void records;
+  void cpuThreshold;
+  return [];
+}
+`,
+    go: `package solution
+
+type Heartbeat struct {
+	InstanceID           string   \`json:"instance_id"\`
+	CPU                  *float64 \`json:"cpu"\`
+	Healthy              *bool    \`json:"healthy"\`
+	LastHeartbeatSeconds *float64 \`json:"last_heartbeat_seconds"\`
+}
+
+// Implementation: build the answer from an empty return.
+func GetUnhealthyInstances(records []Heartbeat, cpuThreshold float64) []string {
+	// TODO 1: remember first-seen order for every instance id.
+	// TODO 2: mark an id unhealthy when any record fails a policy.
+	// TODO 3: emit ordered ids that are unhealthy. Do not mutate records.
+	_ = records
+	_ = cpuThreshold
+	return []string{}
+}
+`,
+  },
+  "deployment-audit-implementation-v1": {
+    typescript: `type Deployment = {
+  name: string;
+  replicas?: number;
+  readiness_probe?: boolean;
+  memory_limit_mib?: number;
+};
+
+type Finding = {
+  name: string;
+  issues: string[];
+};
+
+function auditDeployments(deployments: Deployment[]): Finding[] {
+  // Implementation: build findings from an empty list.
+  // TODO 1: for each deployment, collect issue codes in order:
+  //         no_replicas, no_readiness_probe, no_memory_limit.
+  // TODO 2: append a finding only when issues is non-empty.
+  // Keep input order. Do not mutate deployments.
+  void deployments;
+  return [];
+}
+`,
+    go: `package solution
+
+type Deployment struct {
+	Name           string   \`json:"name"\`
+	Replicas       *float64 \`json:"replicas"\`
+	ReadinessProbe *bool    \`json:"readiness_probe"\`
+	MemoryLimitMiB *float64 \`json:"memory_limit_mib"\`
+}
+
+type Finding struct {
+	Name   string   \`json:"name"\`
+	Issues []string \`json:"issues"\`
+}
+
+// Implementation: build findings from an empty list.
+func AuditDeployments(deployments []Deployment) []Finding {
+	// TODO 1: for each deployment, collect issue codes in order:
+	//         no_replicas, no_readiness_probe, no_memory_limit.
+	// TODO 2: append a finding only when issues is non-empty.
+	// Keep input order. Do not mutate deployments.
+	_ = deployments
+	return []Finding{}
+}
+`,
+  },
   "unhealthy-instances-complete-v1": {
     typescript: `type Heartbeat = {
   instance_id: string;

@@ -365,7 +365,16 @@ export function starterFor(
   if (authored) return authored;
 
   const params = signatureParams(problem.signature);
-  const goal = `// TODO: ${problem.title.replace(/\s+/g, " ").trim()} — return value must satisfy the checks.`;
+  const title = problem.title.replace(/\s+/g, " ").trim();
+  const implementation =
+    problem.format === "implementation"
+      ? [
+          `// Implementation: start from the empty return and satisfy the checks.`,
+          `// TODO 1: Name the value this function must return for “${title}”.`,
+          `// TODO 2: Walk one example by hand, then code that shape.`,
+          `// TODO 3: Cover the edges the examples skip before you trust the suite.`,
+        ]
+      : [`// TODO: ${title} — return value must satisfy the checks.`];
 
   if (language === "typescript") {
     const args = params
@@ -376,7 +385,7 @@ export function starterFor(
       .join(", ");
     const ret = annotatedTsReturn(problem) ?? tsType(sampleReturn(problem));
     const preamble = typePreamble(problem, "typescript");
-    return `${preamble}${goal}\nfunction ${camel(problem.entrypoint)}(${args}): ${ret} {\n  return ${tsZero(ret)};\n}\n`;
+    return `${preamble}${implementation.join("\n")}\nfunction ${camel(problem.entrypoint)}(${args}): ${ret} {\n  return ${tsZero(ret)};\n}\n`;
   }
 
   const args = params
@@ -390,7 +399,7 @@ export function starterFor(
         (param) =>
           `// ${camel(param.name)} is ${JSON.stringify(param.default)} when a check omits it.`,
       ),
-    goal,
+    ...implementation,
   ].filter(Boolean);
   const preamble = typePreamble(problem, "go");
   return `package solution\n\n${preamble}${notes.join("\n")}\nfunc ${exportedName(problem.entrypoint)}(${args}) ${ret} {\n\treturn ${goZero(ret)}\n}\n`;

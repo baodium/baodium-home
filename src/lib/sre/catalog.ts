@@ -67,9 +67,9 @@ export const SRE_LESSONS: SreLesson[] = [
   },
   {
     id: "capacity",
-    title: "Dispatch jobs fill the queue",
+    title: "Origin misses fill the edge queue",
     summary:
-      "Jobs arrive faster than workers finish them. Compare a fixed crew with a utilization rule on the same surge.",
+      "Cache misses hit origin faster than edge workers finish them. Compare a fixed crew with a utilization rule on the same surge.",
     outcome: "Recover request success without reducing the offered load.",
     topic: "Capacity",
     difficulty: "Intermediate",
