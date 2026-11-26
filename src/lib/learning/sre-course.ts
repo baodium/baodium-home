@@ -157,7 +157,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Read the target on the chart before you change anything.",
       "Raise docs lag until late 200s spend the latency half of the SLI.",
       "Reset the lag, then introduce contract mismatches so HTTP 400s spend the success half.",
-      "In challenge mode, mark the window as meeting the target or missing it. The prompt does not tell you which.",
+      "In challenge mode, open a trace. The window is either late docs responses (HTTP 200 over 300 ms) or contract mismatches (HTTP 400). Mark whether it meets 99.5 percent.",
     ],
     takeaways: [
       "The SLO here is 99.5 percent of API calls succeeding in under 300 milliseconds.",

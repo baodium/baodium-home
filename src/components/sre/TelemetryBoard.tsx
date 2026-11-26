@@ -372,11 +372,19 @@ function SeriesChart({
       pad.l + ((t - from) / (to - from)) * (width - pad.l - pad.r);
     const y = (value: number) =>
       height - pad.b - value * (height - pad.t - pad.b);
+    // Sparse miss windows (challenge 17/1000) need copper ticks, not only a flat near-zero line.
+    const missMarks = rows
+      .filter((row) => row.errorRate != null && row.errorRate > 0)
+      .map((row) => ({
+        cx: x(row.t),
+        cy: y(Math.max(row.errorRate ?? 0, 0.04)),
+      }));
     return {
       width,
       height,
       errors: seriesPath(rows, (row) => row.errorRate, x, y),
       cpu: seriesPath(rows, (row) => row.cpu, x, y),
+      missMarks,
       from,
       to,
       y80: y(0.8),
@@ -386,14 +394,15 @@ function SeriesChart({
   return (
     <figure>
       <figcaption className="mt-3 text-xs text-[color:var(--exp-muted)]">
-        {service} errors (copper) and {hostLabel.toLowerCase()} (teal), % ·
-        one-second samples. Gaps indicate missing measurements.
+        {service} SLI misses (copper) and {hostLabel.toLowerCase()} (teal), % ·
+        one-second samples. A late 200 counts as a miss when the line includes
+        latency. Gaps indicate missing measurements.
       </figcaption>
       <svg
         viewBox={`0 0 ${drawing.width} ${drawing.height}`}
         className="mt-3 h-auto w-full"
         role="img"
-        aria-label={`${service} error rate and ${hostLabel} over the last minute`}
+        aria-label={`${service} SLI miss rate and ${hostLabel} over the last minute`}
       >
         {[0, 50, 100].map((value) => (
           <g key={value}>
@@ -450,6 +459,15 @@ function SeriesChart({
             strokeWidth={1.8}
           />
         ) : null}
+        {drawing.missMarks.map((mark, index) => (
+          <circle
+            key={`${mark.cx}-${index}`}
+            cx={mark.cx}
+            cy={mark.cy}
+            r={2.4}
+            fill="var(--exp-accent)"
+          />
+        ))}
       </svg>
     </figure>
   );

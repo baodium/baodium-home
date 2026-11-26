@@ -15,10 +15,12 @@ export function AlertRuleWorkbench({
   engine,
   controls,
   onScene,
+  profile = "default",
 }: {
   engine: EngineState;
   controls: Controls;
   onScene: (scene: Scene) => void;
+  profile?: Controls["profile"];
 }) {
   const [rule, setRule] = useState(DEFAULT_RULE);
   const [draft, setDraft] = useState(configText(DEFAULT_RULE));
@@ -60,9 +62,12 @@ export function AlertRuleWorkbench({
       <p className="exp-kicker">Rule experiment, outside the graded lab</p>
       <h2 id="rule-workbench-title">The rule, on one scene.</h2>
       <p>
-        Evaluate this rule against the retained scenario. CPU uses a 0–1
-        fraction. Burn requires both the 12-second and 60-second windows to
-        exceed the threshold, with at least 20 and 40 requests respectively.
+        Evaluate this rule against the retained scenario.{" "}
+        {profile === "analytics"
+          ? "Warehouse util uses a 0–1 fraction."
+          : "CPU uses a 0–1 fraction."}{" "}
+        Burn requires both the 12-second and 60-second windows to exceed the
+        threshold, with at least 20 and 40 requests respectively.
       </p>
       <div className="rule-fields">
         <label>
@@ -78,7 +83,9 @@ export function AlertRuleWorkbench({
             }
           >
             <option value="burn">Multiwindow burn rate</option>
-            <option value="cpu">CPU fraction</option>
+            <option value="cpu">
+              {profile === "analytics" ? "Warehouse util fraction" : "CPU fraction"}
+            </option>
           </select>
         </label>
         <label>
@@ -146,13 +153,20 @@ export function AlertRuleWorkbench({
         role="group"
         aria-label="Test alert scenario"
       >
-        {(
-          [
-            ["cpu-spike", "CPU spike"],
-            ["short-spike", "Short failure spike"],
-            ["sustained", "Sustained failure"],
-            ["missing-telemetry", "Missing metrics"],
-          ] as const
+        {(profile === "analytics"
+          ? ([
+              ["warehouse-busy", "Warehouse busy"],
+              ["late-batches", "Late batches"],
+              ["short-spike", "Short ingest spike"],
+              ["sustained", "Sustained rejects"],
+              ["missing-telemetry", "Missing metrics"],
+            ] as const)
+          : ([
+              ["cpu-spike", "CPU spike"],
+              ["short-spike", "Short failure spike"],
+              ["sustained", "Sustained failure"],
+              ["missing-telemetry", "Missing metrics"],
+            ] as const)
         ).map(([id, label]) => (
           <button
             key={id}

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { ModeTrack } from "@/components/sre/ModeTrack";
 import { LessonPlace } from "@/components/learning/LessonCraft";
 import { LessonSteps } from "@/components/learning/LessonSteps";
 import { lessonAfter, lessonBeats, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
@@ -57,6 +56,7 @@ type Mode = "guided" | "practice" | "challenge";
 type PageScene =
   | "cpu-spike"
   | "warehouse-busy"
+  | "late-batches"
   | "short-spike"
   | "sustained"
   | "missing-telemetry";
@@ -125,7 +125,23 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
     setPageChoice(null);
     setDecision(null);
     setGrade(null);
-    const nextControls = initialControls(lab, nextMode);
+    let nextControls = initialControls(lab, nextMode);
+    if (lab === "api" && nextMode === "challenge") {
+      nextControls =
+        nextSeed % 2 === 0
+          ? {
+              ...nextControls,
+              docsLagMs: 520,
+              contractMismatchRate: 0,
+              timeoutMs: 2000,
+            }
+          : {
+              ...nextControls,
+              docsLagMs: 0,
+              contractMismatchRate: 0.017,
+              timeoutMs: 300,
+            };
+    }
     const nextEngine = initialEngine(lab, nextMode, nextSeed);
     setControls(nextControls);
     setEngine(nextEngine);
@@ -209,7 +225,9 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
             layoutId={`sre-mode-${lab}`}
             size="sm"
           />
-          <ModeTrack completed={completed} current={mode} compact />
+          <p className="sre-mode-saved">
+            {completed.length} of 3 modes saved from a passing run on this device
+          </p>
         </div>
       </header>
       <LearningWorkbench
@@ -230,6 +248,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                 engine={engine}
                 controls={controls}
                 onScene={play}
+                profile={controls.profile}
               />
             ) : null}
             {grade ? (
@@ -562,12 +581,12 @@ function AlertPicker({
   setPageChoice: (value: PageScene) => void;
 }) {
   const story = serviceStory(lab);
-  const rows =
+  const pageRows =
     lab === "analytics"
       ? ([
           ["warehouse-busy", "Warehouse busy"],
           ["short-spike", "Short ingest spike"],
-          ["sustained", `Sustained ${story.noun} failure`],
+          ["sustained", `Sustained ${story.noun} rejects`],
           ["missing-telemetry", `Missing ${story.noun} metrics`],
         ] as const)
       : ([
@@ -605,10 +624,12 @@ function AlertPicker({
         </button>
       </div>
       <p className="text-sm leading-relaxed text-[color:var(--exp-muted)]">
-        Which situation deserves a page?
+        {lab === "analytics"
+          ? "Run scenes on the rule board, including late batches. Then name which situation deserves a page under the burn-rate rule."
+          : "Which situation deserves a page under the burn-rate rule?"}
       </p>
       <div className="flex flex-col gap-2">
-        {rows.map(([id, label]) => (
+        {pageRows.map(([id, label]) => (
           <button
             key={id}
             type="button"
@@ -740,6 +761,17 @@ function initialControls(lab: SreLabId, mode: Mode): Controls {
 
 function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
   const pedagogy = pedagogyOf(lab);
+  if (lab === "api" && mode === "challenge") {
+    // Docs upstream lag: 17 late 200s in 1,000 gateway calls (98.3%). Traces stay 200.
+    return loadCheckoutWindow(seed, {
+      total: 1000,
+      bad: 17,
+      checkoutMs: 90,
+      badMs: 520,
+      missKind: seed % 2 === 0 ? "latency" : "mismatch",
+      host: 0.28,
+    });
+  }
   if (pedagogy === "slo" && mode === "challenge") {
     return loadCheckoutWindow(seed, {
       total: 1000,
@@ -760,14 +792,6 @@ function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
           : "cpu-spike"
         : "sustained";
     return runScene(scene, seed, base).state;
-  }
-  if (lab === "api" && mode === "challenge") {
-    return loadCheckoutWindow(seed, {
-      total: 1000,
-      bad: 17,
-      checkoutMs: 80,
-      badMs: 800,
-    });
   }
   return createSreEngine(seed);
 }
@@ -1621,6 +1645,9 @@ function gettingStarted(lab: SreLabId, mode: Mode): string {
     return "Run a play start, turn the four signals on, open a trace, and choose the hop that holds the extra time.";
   }
   if (pedagogy === "slo" && mode === "challenge") {
+    if (lab === "api") {
+      return "Open a trace. Decide whether late docs upstream responses or contract mismatches left this window under 99.5 percent.";
+    }
     return "Read the good count against the stated target. Then mark the window as meeting it or missing it.";
   }
   if (pedagogy === "slo") {
@@ -1635,6 +1662,6 @@ function gettingStarted(lab: SreLabId, mode: Mode): string {
       : "Read the CPU line, the two burn windows, and a trace before you decide.";
   }
   return lab === "analytics"
-    ? "Select the burn-rate alert. A busy warehouse, a short ingest spike, and missing metrics do not deserve a page."
+    ? "On the rule board, run late batches and the other scenes. Select the burn-rate alert. A busy warehouse, a short ingest spike, and missing metrics do not deserve a page."
     : "Select the burn-rate alert. The CPU spike, the short spike, and the missing metrics do not deserve a page.";
 }

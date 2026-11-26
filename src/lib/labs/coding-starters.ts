@@ -579,7 +579,7 @@ function getUnhealthyInstances(
   records: Heartbeat[],
   cpuThreshold = 85.0,
 ): string[] {
-  // Complete the two TODOs. Keep the first-seen order of instance ids.
+  // Heartbeat scrapes feed pages. Finish the filter; keep first-seen order.
   const order: string[] = [];
   const seen = new Set<string>();
   const unhealthy = new Set<string>();
@@ -589,9 +589,10 @@ function getUnhealthyInstances(
       seen.add(instanceId);
       order.push(instanceId);
     }
-    // TODO 1: set this from the health, CPU, and heartbeat rules.
+    // TODO 1: unhealthy when healthy===false, cpu >= threshold, or heartbeat > 120.
+    // Missing optional fields are not enough on their own.
     const isUnhealthy = false;
-    // TODO 2: remember unhealthy ids, including later records for an existing id.
+    // TODO 2: add instanceId to unhealthy when isUnhealthy is true.
     void isUnhealthy;
   }
   return order.filter((instanceId) => unhealthy.has(instanceId));
@@ -606,7 +607,7 @@ type Heartbeat struct {
 	LastHeartbeatSeconds *float64 \`json:"last_heartbeat_seconds"\`
 }
 
-// Complete the two TODOs. Keep the first-seen order of instance ids.
+// Heartbeat scrapes feed pages. Finish the filter; keep first-seen order.
 func GetUnhealthyInstances(records []Heartbeat, cpuThreshold float64) []string {
 	order := make([]string, 0)
 	seen := map[string]bool{}
@@ -617,9 +618,10 @@ func GetUnhealthyInstances(records []Heartbeat, cpuThreshold float64) []string {
 			seen[id] = true
 			order = append(order, id)
 		}
-		// TODO 1: set this from the health, CPU, and heartbeat rules.
+		// TODO 1: unhealthy when Healthy==false, CPU >= threshold, or heartbeat > 120.
+		// Missing optional fields are not enough on their own.
 		isUnhealthy := false
-		// TODO 2: remember unhealthy ids, including later records for an existing id.
+		// TODO 2: mark id in unhealthy when isUnhealthy is true.
 		_ = isUnhealthy
 	}
 	out := make([]string, 0)
@@ -644,7 +646,10 @@ function getUnhealthyInstances(
   records: Heartbeat[],
   cpuThreshold = 85.0,
 ): string[] {
-  // Existing implementation: tests report missed alerts and duplicate ids.
+  // Live check: pages healthy hosts and duplicates the same id.
+  // Bugs to find: strict > on CPU (threshold equality should page),
+  // >= 120 on heartbeat (policy is > 120), missing cpu treated as 0,
+  // and every failing record appends again instead of unique first-seen order.
   const result: string[] = [];
   for (const row of records) {
     if (
@@ -667,7 +672,9 @@ type Heartbeat struct {
 	LastHeartbeatSeconds *float64 \`json:"last_heartbeat_seconds"\`
 }
 
-// Existing implementation: tests report missed alerts and duplicate ids.
+// Live check: pages healthy hosts and duplicates the same id.
+// Bugs to find: strict > on CPU, >= 120 on heartbeat, missing CPU as 0,
+// and appending every failing record instead of unique first-seen order.
 func GetUnhealthyInstances(records []Heartbeat, cpuThreshold float64) []string {
 	result := make([]string, 0)
 	for _, row := range records {
@@ -702,15 +709,16 @@ type Finding = {
 };
 
 function auditDeployments(deployments: Deployment[]): Finding[] {
-  // Finish this offline pre-deployment check. No cluster connection is needed.
+  // Offline pre-deploy gate. Issue codes: no_replicas, no_readiness_probe, no_memory_limit.
   const findings: Finding[] = [];
   for (const deployment of deployments) {
     const issues: string[] = [];
-    // TODO 1: check replicas, readiness_probe, and memory_limit_mib.
-    // Append issue codes in the order listed in the task.
+    // TODO 1: flag replicas missing or < 1 as no_replicas.
+    // TODO 2: flag readiness_probe missing or false as no_readiness_probe.
+    // TODO 3: flag memory_limit_mib missing or <= 0 as no_memory_limit.
+    // Keep that issue order. Leave the input unchanged.
     void deployment;
-    // TODO 2: append a finding only when there are issues.
-    // Keep input order and leave the input unchanged.
+    // TODO 4: append { name, issues } only when issues is non-empty.
     void issues;
   }
   return findings;
@@ -730,16 +738,17 @@ type Finding struct {
 	Issues []string \`json:"issues"\`
 }
 
-// Finish this offline pre-deployment check. No cluster connection is needed.
+// Offline pre-deploy gate. Issue codes: no_replicas, no_readiness_probe, no_memory_limit.
 func AuditDeployments(deployments []Deployment) []Finding {
 	findings := make([]Finding, 0)
 	for _, deployment := range deployments {
 		issues := make([]string, 0)
-		// TODO 1: check replicas, readiness_probe, and memory_limit_mib.
-		// Append issue codes in the order listed in the task.
+		// TODO 1: flag replicas missing or < 1 as no_replicas.
+		// TODO 2: flag readiness_probe missing or false as no_readiness_probe.
+		// TODO 3: flag memory_limit_mib missing or <= 0 as no_memory_limit.
+		// Keep that issue order. Leave the input unchanged.
 		_ = deployment
-		// TODO 2: append a finding only when there are issues.
-		// Keep input order and leave the input unchanged.
+		// TODO 4: append a Finding only when issues is non-empty.
 		_ = issues
 	}
 	return findings
@@ -760,7 +769,9 @@ type Finding = {
 };
 
 function auditDeployments(deployments: Deployment[]): Finding[] {
-  // The existing check reports healthy services and misses unsafe defaults.
+  // Live check: marks healthy services and misses unsafe defaults.
+  // Bugs: defaults of 1 / true / 512 hide missing fields; readiness true
+  // is treated as a finding; every service gets a finding even with no issues.
   const findings: Finding[] = [];
   for (const deployment of deployments) {
     const issues: string[] = [];
@@ -792,7 +803,9 @@ type Finding struct {
 	Issues []string \`json:"issues"\`
 }
 
-// The existing check reports healthy services and misses unsafe defaults.
+// Live check: marks healthy services and misses unsafe defaults.
+// Bugs: defaults hide missing fields; readiness true is treated as a finding;
+// every service gets a finding even with no issues.
 func AuditDeployments(deployments []Deployment) []Finding {
 	findings := make([]Finding, 0)
 	for _, deployment := range deployments {

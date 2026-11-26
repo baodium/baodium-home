@@ -19,6 +19,9 @@ import {
   type Scene,
 } from "@/lib/sre/model";
 
+/** How a seeded challenge window marks the bad share of events. */
+export type WindowMissKind = "http" | "latency" | "mismatch";
+
 export type EngineState = {
   t: number;
   seed: number;
@@ -208,38 +211,74 @@ export function resetSre(seed: number): EngineState {
   return createSreEngine(seed);
 }
 
-/** Replace the window with an exact checkout count. Used so 17 failures in 1,000 stay 98.3%. */
+/**
+ * Replace the window with an exact event count.
+ * Keeps 17 misses in 1,000 at 98.3%. missKind shapes how those misses look in traces.
+ */
 export function loadCheckoutWindow(
   seed: number,
-  input: { total: number; bad: number; checkoutMs?: number; badMs?: number },
+  input: {
+    total: number;
+    bad: number;
+    checkoutMs?: number;
+    badMs?: number;
+    missKind?: WindowMissKind;
+    host?: number;
+  },
 ): EngineState {
   const state = createSreEngine(seed);
   const total = Math.max(0, Math.round(input.total));
   const bad = Math.min(total, Math.max(0, Math.round(input.bad)));
   const goodMs = input.checkoutMs ?? 80;
   const badMs = input.badMs ?? 800;
+  const missKind = input.missKind ?? "http";
+  const host = input.host ?? 0.3;
   const requests: RequestEvent[] = [];
+  // Spread misses through the window so the copper miss line stays readable.
+  const missAt = new Set<number>();
+  for (let m = 0; m < bad; m += 1) {
+    missAt.add(Math.min(total - 1, Math.floor(((m + 0.5) * total) / bad)));
+  }
   for (let i = 0; i < total; i += 1) {
-    const failed = i < bad;
+    const failed = missAt.has(i);
     const id = `c-${i + 1}`;
+    let status = 200;
+    let checkoutMs = goodMs;
+    if (failed) {
+      if (missKind === "latency") {
+        status = 200;
+        checkoutMs = badMs;
+      } else if (missKind === "mismatch") {
+        status = 400;
+        checkoutMs = Math.max(8, Math.floor(goodMs * 0.5));
+      } else {
+        status = 500;
+        checkoutMs = badMs;
+      }
+    }
+    const t = SLO_WINDOW_SEC * ((i + 1) / Math.max(1, total));
     requests.push({
-      t: SLO_WINDOW_SEC * ((i + 1) / Math.max(1, total)),
+      t,
       id,
       traceId: `t-${i + 1}`,
-      status: failed ? 500 : 200,
-      checkoutMs: failed ? badMs : goodMs,
-      paymentMs: failed ? Math.max(0, badMs - CHECKOUT_SELF_MS) : Math.max(0, goodMs - CHECKOUT_SELF_MS),
-      cpu: 0.3,
-      bad: failed,
+      status,
+      checkoutMs,
+      paymentMs: Math.max(0, checkoutMs - CHECKOUT_SELF_MS),
+      cpu: host,
+      bad: status !== 200,
       timedOut: false,
     });
+  }
+  const gauges: GaugeEvent[] = [];
+  for (let t = 1; t <= SLO_WINDOW_SEC; t += 1) {
+    gauges.push({ t, cpu: host });
   }
   return {
     ...state,
     t: SLO_WINDOW_SEC,
     nextId: total + 1,
     requests,
-    gauges: [{ t: SLO_WINDOW_SEC, cpu: 0.3 }],
+    gauges,
   };
 }
 
@@ -374,7 +413,11 @@ function seriesFor(state: EngineState, controls: Controls): Snapshot["series"] {
       continue;
     }
     const rows = state.requests.filter((request) => Math.round(request.t) === t);
-    const errorRate = rows.length === 0 ? null : rows.filter((request) => request.bad).length / rows.length;
+    // Copper tracks SLI misses (HTTP failure or over the latency line), not status≠200 alone.
+    const errorRate =
+      rows.length === 0
+        ? null
+        : rows.filter((request) => !isCheckoutGood(request, controls)).length / rows.length;
     buckets.push({ t, errorRate, cpu });
   }
   return buckets;

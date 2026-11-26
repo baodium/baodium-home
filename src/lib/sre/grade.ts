@@ -152,6 +152,7 @@ export function gradeAlert(input: {
   choice:
     | "cpu-spike"
     | "warehouse-busy"
+    | "late-batches"
     | "short-spike"
     | "sustained"
     | "missing-telemetry"
@@ -163,6 +164,13 @@ export function gradeAlert(input: {
     return {
       ok: false,
       reason: `A ${hostLabel} threshold is the alert that pages with no failed ${input.controls.workNoun}.`,
+    };
+  }
+  if (input.choice === "late-batches") {
+    return {
+      ok: false,
+      reason:
+        "Late batches spend the latency line. For this exercise, name the sustained reject storm as the page the burn-rate rule was built to catch.",
     };
   }
   if (input.choice !== "sustained") {
