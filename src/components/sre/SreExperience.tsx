@@ -214,7 +214,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
             minutes={lesson.minutes}
           />
           <h1>{lesson.title}</h1>
-          <LessonSteps beats={lessonBeats(lesson)} />
+          <LessonSteps beats={lessonBeats(lesson)} density="compact" />
         </div>
         <div className="sre-lesson-modes">
           <Segmented

@@ -837,6 +837,200 @@ func AuditDeployments(deployments []Deployment) []Finding {
 }
 `,
   },
+  "status-counts-complete-v1": {
+    typescript: `type StatusRecord = {
+  status: number;
+};
+
+function countStatuses(records: StatusRecord[]): Record<string, number> {
+  // Finish the class map. Keys look like 2xx and 5xx.
+  const counts: Record<string, number> = {};
+  for (const row of records) {
+    // TODO 1: build the class key with integer division by 100.
+    const key = "";
+    // TODO 2: increment counts[key]. Omit classes that never appear.
+    void key;
+    void row;
+  }
+  return counts;
+}
+`,
+    go: `package solution
+
+// Finish the class map. Keys look like 2xx and 5xx.
+func CountStatuses(records []map[string]float64) map[string]float64 {
+	counts := map[string]float64{}
+	for _, row := range records {
+		// TODO 1: build the class key with integer division by 100.
+		key := ""
+		// TODO 2: increment counts[key]. Omit classes that never appear.
+		_ = key
+		_ = row
+	}
+	return counts
+}
+`,
+  },
+  "status-counts-debug-v1": {
+    typescript: `type StatusRecord = {
+  status: number;
+};
+
+function countStatuses(records: StatusRecord[]): Record<string, number> {
+  // Existing map: tests report wrong keys and inflated totals.
+  // Bugs: float division, "x" instead of "xx", and +2 per row.
+  const counts: Record<string, number> = {};
+  for (const row of records) {
+    const key = String(row.status / 100) + "x";
+    counts[key] = (counts[key] ?? 0) + 2;
+  }
+  return counts;
+}
+`,
+    go: `package solution
+
+import "strconv"
+
+// Existing map: tests report wrong keys and inflated totals.
+// Bugs: float division path, "x" instead of "xx", and +2 per row.
+func CountStatuses(records []map[string]float64) map[string]float64 {
+	counts := map[string]float64{}
+	for _, row := range records {
+		status := row["status"]
+		key := strconv.FormatFloat(status/100, 'f', -1, 64) + "x"
+		counts[key] = counts[key] + 2
+	}
+	return counts
+}
+`,
+  },
+  "retry-backoff-complete-v1": {
+    typescript: `function retryDelays(
+  attempts: number,
+  baseMs: number,
+  capMs: number,
+): number[] {
+  // Finish the capped exponential schedule.
+  const delays: number[] = [];
+  // TODO 1: if attempts is 0, return [] without building delay.
+  let delay = Math.min(baseMs, capMs);
+  for (let i = 0; i < attempts; i += 1) {
+    // TODO 2: append the current delay, then double and cap for the next step.
+    void delay;
+  }
+  return delays;
+}
+`,
+    go: `package solution
+
+// Finish the capped exponential schedule.
+func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
+	delays := make([]float64, 0)
+	// TODO 1: if attempts is 0, return an empty slice.
+	delay := baseMs
+	if capMs < delay {
+		delay = capMs
+	}
+	for i := 0.0; i < attempts; i++ {
+		// TODO 2: append the current delay, then double and cap for the next step.
+		_ = delay
+	}
+	return delays
+}
+`,
+  },
+  "retry-backoff-debug-v1": {
+    typescript: `function retryDelays(
+  attempts: number,
+  baseMs: number,
+  capMs: number,
+): number[] {
+  // Existing schedule: uncapped growth and an off-by-one length.
+  // Bugs: doubles before the first append, ignores the cap, loops attempts+1.
+  const delays: number[] = [];
+  let delay = baseMs;
+  for (let i = 0; i < attempts + 1; i += 1) {
+    delay = delay * 2;
+    delays.push(delay);
+  }
+  void capMs;
+  return delays;
+}
+`,
+    go: `package solution
+
+// Existing schedule: uncapped growth and an off-by-one length.
+// Bugs: doubles before the first append, ignores the cap, loops attempts+1.
+func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
+	delays := make([]float64, 0)
+	delay := baseMs
+	for i := 0.0; i < attempts+1; i++ {
+		delay = delay * 2
+		delays = append(delays, delay)
+	}
+	_ = capMs
+	return delays
+}
+`,
+  },
+  "error-budget-complete-v1": {
+    typescript: `function remainingBudget(
+  total: number,
+  failures: number,
+  sloBps: number,
+): number {
+  // Finish the integer budget. Do not clamp negatives to zero.
+  // TODO 1: allowed = floor(total * (10000 - sloBps) / 10000)
+  const allowed = 0;
+  // TODO 2: return allowed - failures
+  void total;
+  void failures;
+  void sloBps;
+  return allowed;
+}
+`,
+    go: `package solution
+
+// Finish the integer budget. Do not clamp negatives to zero.
+func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
+	// TODO 1: allowed = floor(total * (10000 - sloBps) / 10000)
+	allowed := 0.0
+	// TODO 2: return allowed - failures
+	_ = total
+	_ = failures
+	_ = sloBps
+	return allowed
+}
+`,
+  },
+  "error-budget-debug-v1": {
+    typescript: `function remainingBudget(
+  total: number,
+  failures: number,
+  sloBps: number,
+): number {
+  // Existing budget math: float drift and a clamped floor.
+  // Bugs: float ratio instead of integer bps math, and Math.max hides overspend.
+  const allowed = total * (1 - sloBps / 10000);
+  return Math.max(Math.trunc(allowed) - failures, 0);
+}
+`,
+    go: `package solution
+
+import "math"
+
+// Existing budget math: float drift and a clamped floor.
+// Bugs: float ratio instead of integer bps math, and a floor at zero.
+func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
+	allowed := total * (1 - sloBps/10000)
+	out := math.Trunc(allowed) - failures
+	if out < 0 {
+		return 0
+	}
+	return out
+}
+`,
+  },
 };
 
 export function authoredStarter(

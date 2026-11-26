@@ -1620,9 +1620,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or \u2264 0 \u2192 no_replicas.",
-      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
-      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
+      "replicas missing or ≤ 0 → no_replicas.",
+      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
+      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -1819,9 +1819,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or \u2264 0 \u2192 no_replicas.",
-      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
-      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
+      "replicas missing or ≤ 0 → no_replicas.",
+      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
+      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -2018,9 +2018,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or \u2264 0 \u2192 no_replicas.",
-      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
-      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
+      "replicas missing or ≤ 0 → no_replicas.",
+      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
+      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -2040,7 +2040,7 @@
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
-      "HTTP status classes are hundreds: 200\u2013299 share class 2, 500\u2013599 share class 5.",
+      "HTTP status classes are hundreds: 200–299 share class 2, 500–599 share class 5.",
       "One pass is enough. Use a dictionary from class to count, then return the structure the examples show.",
       "For each record, key = status // 100; counts[key] = counts.get(key, 0) + 1. Skip building entries for classes you never saw."
     ],
@@ -2129,7 +2129,7 @@
     "entrypoint": "rank_errors",
     "starter": "def rank_errors(records):\n    \"\"\"Rank services by 5xx volume.\"\"\"\n    # Implementation: start from an empty ranking.\n    # TODO 1: count only 5xx records.\n    # TODO 2: sort by descending count, then lexicographic name.\n    return []\n",
     "constraints": [
-      "Records have service (string) and status (integer). Count statuses 500\u2013599 only. Return service names by count descending, then name ascending for ties.",
+      "Records have service (string) and status (integer). Count statuses 500–599 only. Return service names by count descending, then name ascending for ties.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2312,7 +2312,7 @@
     "entrypoint": "window_errors",
     "starter": "def window_errors(events, now, window):\n    \"\"\"Count failures inside the rolling window.\"\"\"\n    # Implementation: start from zero.\n    # TODO 1: keep only timestamps in [now - window, now].\n    # TODO 2: count failed events only.\n    return 0\n",
     "constraints": [
-      "Events contain timestamp (integer seconds) and status. Count 500\u2013599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
+      "Events contain timestamp (integer seconds) and status. Count 500–599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2410,13 +2410,13 @@
     "entrypoint": "remaining_budget",
     "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Integer budget left; do not clamp negatives.\"\"\"\n    # Implementation: keep arithmetic in integers.\n    # TODO 1: compute allowed failures from total and slo_bps.\n    # TODO 2: return allowed - failures.\n    return 0\n",
     "constraints": [
-      "total and failures are nonnegative integers; failures <= total. slo_bps is 0\u201310000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
       "Budget remaining is allowed budget minus observed failures, expressed with the SLO in basis points.",
       "Prefer integer math so floating point cannot nudge a boundary. A negative result means the budget is already spent.",
-      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, \u2026)."
+      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, …)."
     ],
     "explanation": "Basis points make the contract exact. Integer floor prevents promising a fractional failed request.",
     "complexity": "O(1) time and space.",
@@ -2495,7 +2495,7 @@
     "hints": [
       "Gaps are expected ticks that never arrived, not the spaces between whatever you happened to receive.",
       "Put received timestamps in a set. Walk the theoretical schedule from start through end by interval.",
-      "expected = start, start+interval, \u2026 while <= end; emit those missing from the received set, in schedule order."
+      "expected = start, start+interval, … while <= end; emit those missing from the received set, in schedule order."
     ],
     "explanation": "Comparing with an expected schedule detects absence. Only looking at received events cannot identify all missing data.",
     "complexity": "O(n + k) time, O(n + k) space for n events and k slots.",
@@ -3005,7 +3005,7 @@
       "Track how many dependencies each service still needs, plus reverse edges to decrement dependents. Use a min-structure for the ready set.",
       "While ready: pop the smallest name, append it, decrement dependents, and enqueue those that hit zero. If len(order) < len(services): return None."
     ],
-    "explanation": "Kahn\u2019s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
+    "explanation": "Kahn’s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
     "complexity": "O((V + E) log V) time, O(V + E) space.",
     "followUp": "How would you distinguish a dependency cycle from a service that is merely slow to become ready?",
     "solution": "import heapq\n\ndef startup_order(dependencies):\n    counts = {name: len(items) for name, items in dependencies.items()}\n    dependents = {name: [] for name in dependencies}\n    for name, items in dependencies.items():\n        for dependency in items:\n            dependents[dependency].append(name)\n    ready = [name for name, count in counts.items() if count == 0]\n    heapq.heapify(ready)\n    result = []\n    while ready:\n        name = heapq.heappop(ready)\n        result.append(name)\n        for dependent in dependents[name]:\n            counts[dependent] -= 1\n            if counts[dependent] == 0:\n                heapq.heappush(ready, dependent)\n    return result if len(result) == len(dependencies) else None\n",
@@ -3278,7 +3278,7 @@
       "Membership checks come before value compares.",
       "Do not mutate either mapping."
     ],
-    "failureGuide": "Walk desired \u222a actual. Absent on one side is drift even when the other value looks fine."
+    "failureGuide": "Walk desired ∪ actual. Absent on one side is drift even when the other value looks fine."
   },
   {
     "id": "deduplicate-events",
@@ -3597,7 +3597,7 @@
     "entrypoint": "pressured_disks",
     "starter": "def pressured_disks(disks, threshold_percent):\n    \"\"\"Disk names at or above utilization threshold.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: skip missing or non-positive capacity.\n    # TODO 2: compare used against threshold without float traps.\n    return []\n",
     "constraints": [
-      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0\u2013100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
+      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0–100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -3782,5 +3782,539 @@
       "Preserve key spelling for non-sensitive fields."
     ],
     "failureGuide": "Recurse into nested maps and lists. Compare keys case-insensitively only for the three sensitive names."
+  },
+  {
+    "id": "status-counts-complete-v1",
+    "title": "Status class counts, partly written",
+    "category": "Signals",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "complete",
+    "prompt": "Summarize normalized access-log records for an incident report. Count records in each HTTP status class.",
+    "signature": "count_statuses(records)",
+    "entrypoint": "count_statuses",
+    "starter": "def count_statuses(records):\n    \"\"\"Finish the class map. Keys look like 2xx and 5xx.\"\"\"\n    counts = {}\n    for row in records:\n        status = row[\"status\"]\n        # TODO 1: build the class key with integer division by 100.\n        key = \"\"\n        # TODO 2: increment counts[key]. Omit classes that never appear.\n        pass\n    return counts\n",
+    "constraints": [
+      "Each record has integer status from 100 to 599. Return only observed classes as string keys such as \"2xx\".",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "HTTP status classes are hundreds: 200–299 share class 2, 500–599 share class 5.",
+      "One pass is enough. Use a dictionary from class to count, then return the structure the examples show.",
+      "For each record, key = status // 100; counts[key] = counts.get(key, 0) + 1. Skip building entries for classes you never saw."
+    ],
+    "explanation": "Aggregate by status // 100. Empty input produces an empty mapping; missing traffic is not a healthy percentage.",
+    "complexity": "O(n) time; at most five counters.",
+    "followUp": "What additional information would distinguish no traffic from missing telemetry?",
+    "solution": "def count_statuses(records):\n    counts = {}\n    for row in records:\n        key = str(row[\"status\"] // 100) + \"xx\"\n        counts[key] = counts.get(key, 0) + 1\n    return counts\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Mixed responses",
+        "kwargs": {
+          "records": [
+            {
+              "status": 200
+            },
+            {
+              "status": 204
+            },
+            {
+              "status": 503
+            }
+          ]
+        },
+        "expected": {
+          "2xx": 2,
+          "5xx": 1
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No traffic",
+        "kwargs": {
+          "records": []
+        },
+        "expected": {},
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Every class",
+        "kwargs": {
+          "records": [
+            {
+              "status": 101
+            },
+            {
+              "status": 302
+            },
+            {
+              "status": 404
+            },
+            {
+              "status": 599
+            }
+          ]
+        },
+        "expected": {
+          "1xx": 1,
+          "3xx": 1,
+          "4xx": 1,
+          "5xx": 1
+        },
+        "example": false
+      }
+    ],
+    "situation": "Status codes land in dashboards as class counts. A wrong bucket makes a 5xx spike look like a 4xx or hides it.",
+    "guarantee": "Map each status into its hundred-class and count how many records fall in each class that appears.",
+    "edges": [
+      "Integer division by 100 is the class key.",
+      "Classes with zero count must not appear.",
+      "Do not mutate the input list."
+    ],
+    "failureGuide": "Confirm the class key is status // 100 and that unused classes are omitted.",
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "status-counts-debug-v1",
+    "title": "Status class counts, with a bug",
+    "category": "Signals",
+    "difficulty": "Intermediate",
+    "minutes": 20,
+    "format": "debug",
+    "prompt": "Summarize normalized access-log records for an incident report. Count records in each HTTP status class.",
+    "signature": "count_statuses(records)",
+    "entrypoint": "count_statuses",
+    "starter": "def count_statuses(records):\n    \"\"\"Existing map: tests report wrong keys and inflated totals.\"\"\"\n    counts = {}\n    for row in records:\n        # Bugs: float division, string without xx, and counting every row twice.\n        key = str(row[\"status\"] / 100) + \"x\"\n        counts[key] = counts.get(key, 0) + 2\n    return counts\n",
+    "constraints": [
+      "Each record has integer status from 100 to 599. Return only observed classes as string keys such as \"2xx\".",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "HTTP status classes are hundreds: 200–299 share class 2, 500–599 share class 5.",
+      "One pass is enough. Use a dictionary from class to count, then return the structure the examples show.",
+      "For each record, key = status // 100; counts[key] = counts.get(key, 0) + 1. Skip building entries for classes you never saw."
+    ],
+    "explanation": "Aggregate by status // 100. Empty input produces an empty mapping; missing traffic is not a healthy percentage.",
+    "complexity": "O(n) time; at most five counters.",
+    "followUp": "What additional information would distinguish no traffic from missing telemetry?",
+    "solution": "def count_statuses(records):\n    counts = {}\n    for row in records:\n        key = str(row[\"status\"] // 100) + \"xx\"\n        counts[key] = counts.get(key, 0) + 1\n    return counts\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Mixed responses",
+        "kwargs": {
+          "records": [
+            {
+              "status": 200
+            },
+            {
+              "status": 204
+            },
+            {
+              "status": 503
+            }
+          ]
+        },
+        "expected": {
+          "2xx": 2,
+          "5xx": 1
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No traffic",
+        "kwargs": {
+          "records": []
+        },
+        "expected": {},
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Every class",
+        "kwargs": {
+          "records": [
+            {
+              "status": 101
+            },
+            {
+              "status": 302
+            },
+            {
+              "status": 404
+            },
+            {
+              "status": 599
+            }
+          ]
+        },
+        "expected": {
+          "1xx": 1,
+          "3xx": 1,
+          "4xx": 1,
+          "5xx": 1
+        },
+        "example": false
+      }
+    ],
+    "situation": "Status codes land in dashboards as class counts. A wrong bucket makes a 5xx spike look like a 4xx or hides it.",
+    "guarantee": "Map each status into its hundred-class and count how many records fall in each class that appears.",
+    "edges": [
+      "Integer division by 100 is the class key.",
+      "Classes with zero count must not appear.",
+      "Do not mutate the input list."
+    ],
+    "failureGuide": "Confirm the class key is status // 100 and that unused classes are omitted.",
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "retry-backoff-complete-v1",
+    "title": "Retry delays, partly written",
+    "category": "Reliability algorithms",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "complete",
+    "prompt": "Prepare a deterministic exponential-backoff schedule. This function computes delays; it does not sleep or send requests.",
+    "signature": "retry_delays(attempts, base_ms, cap_ms)",
+    "entrypoint": "retry_delays",
+    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Finish the capped exponential schedule.\"\"\"\n    delays = []\n    # TODO 1: if attempts is 0, return [] without building delay.\n    delay = min(base_ms, cap_ms)\n    for _ in range(attempts):\n        # TODO 2: append the current delay, then double and cap for the next step.\n        pass\n    return delays\n",
+    "constraints": [
+      "attempts, base_ms and cap_ms are nonnegative integers. Attempt zero waits min(base_ms, cap_ms); each later delay doubles until capped. Return one delay per retry.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Each entry is how long to wait before that retry, not including the original try.",
+      "Start from base_ms, double after each entry, and replace any value above cap_ms with the cap before recording it.",
+      "delays = []; delay = base_ms; for _ in range(attempts): delay = min(delay, cap_ms); delays.append(delay); delay *= 2."
+    ],
+    "explanation": "Capping before the next iteration avoids ever-growing integers. Production clients also need jitter, a retry budget and an overall deadline.",
+    "complexity": "O(attempts) time and output space.",
+    "followUp": "When would retrying a failed request be unsafe even with backoff?",
+    "solution": "def retry_delays(attempts, base_ms, cap_ms):\n    delays = []\n    delay = min(base_ms, cap_ms)\n    for _ in range(attempts):\n        delays.append(delay)\n        delay = min(delay * 2, cap_ms)\n    return delays\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Cap reached",
+        "kwargs": {
+          "attempts": 5,
+          "base_ms": 100,
+          "cap_ms": 500
+        },
+        "expected": [
+          100,
+          200,
+          400,
+          500,
+          500
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No retries",
+        "kwargs": {
+          "attempts": 0,
+          "base_ms": 100,
+          "cap_ms": 500
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Base above cap",
+        "kwargs": {
+          "attempts": 3,
+          "base_ms": 900,
+          "cap_ms": 200
+        },
+        "expected": [
+          200,
+          200,
+          200
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Zero delay",
+        "kwargs": {
+          "attempts": 2,
+          "base_ms": 0,
+          "cap_ms": 500
+        },
+        "expected": [
+          0,
+          0
+        ],
+        "example": false
+      }
+    ],
+    "situation": "Retry delays shape client storms. An uncapped or off-by-one sequence either hammers a dependency or gives up too soon.",
+    "guarantee": "Return the delay before each retry attempt, doubling from base_ms and never exceeding cap_ms. Zero attempts means an empty list.",
+    "edges": [
+      "Carry the capped delay forward so the next doubling starts from the cap.",
+      "attempts == 0 yields [].",
+      "The list length equals attempts."
+    ],
+    "failureGuide": "Check length, doubling, and that the cap sticks on later attempts.",
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "retry-backoff-debug-v1",
+    "title": "Retry delays, with a bug",
+    "category": "Reliability algorithms",
+    "difficulty": "Intermediate",
+    "minutes": 20,
+    "format": "debug",
+    "prompt": "Prepare a deterministic exponential-backoff schedule. This function computes delays; it does not sleep or send requests.",
+    "signature": "retry_delays(attempts, base_ms, cap_ms)",
+    "entrypoint": "retry_delays",
+    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Existing schedule: tests report uncapped growth and an off-by-one length.\"\"\"\n    delays = []\n    delay = base_ms\n    # Bugs: starts uncapped, doubles before the first append, and loops attempts+1.\n    for _ in range(attempts + 1):\n        delay = delay * 2\n        delays.append(delay)\n    return delays\n",
+    "constraints": [
+      "attempts, base_ms and cap_ms are nonnegative integers. Attempt zero waits min(base_ms, cap_ms); each later delay doubles until capped. Return one delay per retry.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Each entry is how long to wait before that retry, not including the original try.",
+      "Start from base_ms, double after each entry, and replace any value above cap_ms with the cap before recording it.",
+      "delays = []; delay = base_ms; for _ in range(attempts): delay = min(delay, cap_ms); delays.append(delay); delay *= 2."
+    ],
+    "explanation": "Capping before the next iteration avoids ever-growing integers. Production clients also need jitter, a retry budget and an overall deadline.",
+    "complexity": "O(attempts) time and output space.",
+    "followUp": "When would retrying a failed request be unsafe even with backoff?",
+    "solution": "def retry_delays(attempts, base_ms, cap_ms):\n    delays = []\n    delay = min(base_ms, cap_ms)\n    for _ in range(attempts):\n        delays.append(delay)\n        delay = min(delay * 2, cap_ms)\n    return delays\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Cap reached",
+        "kwargs": {
+          "attempts": 5,
+          "base_ms": 100,
+          "cap_ms": 500
+        },
+        "expected": [
+          100,
+          200,
+          400,
+          500,
+          500
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No retries",
+        "kwargs": {
+          "attempts": 0,
+          "base_ms": 100,
+          "cap_ms": 500
+        },
+        "expected": [],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Base above cap",
+        "kwargs": {
+          "attempts": 3,
+          "base_ms": 900,
+          "cap_ms": 200
+        },
+        "expected": [
+          200,
+          200,
+          200
+        ],
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Zero delay",
+        "kwargs": {
+          "attempts": 2,
+          "base_ms": 0,
+          "cap_ms": 500
+        },
+        "expected": [
+          0,
+          0
+        ],
+        "example": false
+      }
+    ],
+    "situation": "Retry delays shape client storms. An uncapped or off-by-one sequence either hammers a dependency or gives up too soon.",
+    "guarantee": "Return the delay before each retry attempt, doubling from base_ms and never exceeding cap_ms. Zero attempts means an empty list.",
+    "edges": [
+      "Carry the capped delay forward so the next doubling starts from the cap.",
+      "attempts == 0 yields [].",
+      "The list length equals attempts."
+    ],
+    "failureGuide": "Check length, doubling, and that the cap sticks on later attempts.",
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "error-budget-complete-v1",
+    "title": "Remaining error budget, partly written",
+    "category": "Signals",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "complete",
+    "prompt": "Report how many additional failed requests fit into a request-based error budget.",
+    "signature": "remaining_budget(total, failures, slo_bps)",
+    "entrypoint": "remaining_budget",
+    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Finish the integer budget. Do not clamp negatives to zero.\"\"\"\n    # TODO 1: allowed = total * (10000 - slo_bps) // 10000\n    allowed = 0\n    # TODO 2: return allowed - failures\n    return allowed\n",
+    "constraints": [
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Budget remaining is allowed budget minus observed failures, expressed with the SLO in basis points.",
+      "Prefer integer math so floating point cannot nudge a boundary. A negative result means the budget is already spent.",
+      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, …)."
+    ],
+    "explanation": "Basis points make the contract exact. Integer floor prevents promising a fractional failed request.",
+    "complexity": "O(1) time and space.",
+    "followUp": "Why does a request-based budget differ from a time-based availability budget?",
+    "solution": "def remaining_budget(total, failures, slo_bps):\n    return total * (10000 - slo_bps) // 10000 - failures\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Budget remains",
+        "kwargs": {
+          "total": 10000,
+          "failures": 5,
+          "slo_bps": 9990
+        },
+        "expected": 5,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Budget exhausted",
+        "kwargs": {
+          "total": 10000,
+          "failures": 12,
+          "slo_bps": 9990
+        },
+        "expected": -2,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Rounding matters",
+        "kwargs": {
+          "total": 99,
+          "failures": 0,
+          "slo_bps": 9900
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "No traffic",
+        "kwargs": {
+          "total": 0,
+          "failures": 0,
+          "slo_bps": 9999
+        },
+        "expected": 0,
+        "example": false
+      }
+    ],
+    "situation": "Error budget is how much failure SLO still allows. Clamping or floating drift changes whether a release may ship.",
+    "guarantee": "Compute remaining budget in integers from total, failures, and slo_bps. Negative remainders are valid evidence.",
+    "edges": [
+      "Keep arithmetic in integers.",
+      "Do not clamp a negative budget to zero.",
+      "Basis points mean / 10000, not / 100."
+    ],
+    "failureGuide": "Re-check integer arithmetic and whether a negative remainder was clamped away.",
+    "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "error-budget-debug-v1",
+    "title": "Remaining error budget, with a bug",
+    "category": "Signals",
+    "difficulty": "Intermediate",
+    "minutes": 20,
+    "format": "debug",
+    "prompt": "Report how many additional failed requests fit into a request-based error budget.",
+    "signature": "remaining_budget(total, failures, slo_bps)",
+    "entrypoint": "remaining_budget",
+    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Existing budget math: tests report float drift and a clamped floor.\"\"\"\n    # Bugs: float ratio instead of integer bps, and max(..., 0) hides overspend.\n    allowed = total * (1 - slo_bps / 10000)\n    return max(int(allowed) - failures, 0)\n",
+    "constraints": [
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Budget remaining is allowed budget minus observed failures, expressed with the SLO in basis points.",
+      "Prefer integer math so floating point cannot nudge a boundary. A negative result means the budget is already spent.",
+      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, …)."
+    ],
+    "explanation": "Basis points make the contract exact. Integer floor prevents promising a fractional failed request.",
+    "complexity": "O(1) time and space.",
+    "followUp": "Why does a request-based budget differ from a time-based availability budget?",
+    "solution": "def remaining_budget(total, failures, slo_bps):\n    return total * (10000 - slo_bps) // 10000 - failures\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Budget remains",
+        "kwargs": {
+          "total": 10000,
+          "failures": 5,
+          "slo_bps": 9990
+        },
+        "expected": 5,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Budget exhausted",
+        "kwargs": {
+          "total": 10000,
+          "failures": 12,
+          "slo_bps": 9990
+        },
+        "expected": -2,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Rounding matters",
+        "kwargs": {
+          "total": 99,
+          "failures": 0,
+          "slo_bps": 9900
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "No traffic",
+        "kwargs": {
+          "total": 0,
+          "failures": 0,
+          "slo_bps": 9999
+        },
+        "expected": 0,
+        "example": false
+      }
+    ],
+    "situation": "Error budget is how much failure SLO still allows. Clamping or floating drift changes whether a release may ship.",
+    "guarantee": "Compute remaining budget in integers from total, failures, and slo_bps. Negative remainders are valid evidence.",
+    "edges": [
+      "Keep arithmetic in integers.",
+      "Do not clamp a negative budget to zero.",
+      "Basis points mean / 10000, not / 100."
+    ],
+    "failureGuide": "Re-check integer arithmetic and whether a negative remainder was clamped away.",
+    "origin": "Adapted from Baodium Interview Coach"
   }
 ]

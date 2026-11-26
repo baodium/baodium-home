@@ -7,9 +7,12 @@ export type LessonBeat = { title: string; body: string };
 export function LessonSteps({
   label = "Lesson",
   beats,
+  density = "default",
 }: {
   label?: string;
   beats: LessonBeat[];
+  /** Compact sits under a lesson H1 without competing with the workbench. */
+  density?: "default" | "compact";
 }) {
   const [index, setIndex] = useState(0);
   const startX = useRef<number | null>(null);
@@ -21,7 +24,10 @@ export function LessonSteps({
   };
 
   return (
-    <section className="lesson-steps" aria-label={label}>
+    <section
+      className={`lesson-steps${density === "compact" ? " lesson-steps-compact" : ""}`}
+      aria-label={label}
+    >
       <div
         className="lesson-step"
         key={`${beat.title}-${index}`}
@@ -42,6 +48,7 @@ export function LessonSteps({
       >
         <p className="lesson-step-count">
           {index + 1} of {beats.length}
+          {density === "compact" ? " · concept" : ""}
         </p>
         <h2>{beat.title}</h2>
         {beat.body ? <p aria-live="polite">{beat.body}</p> : null}

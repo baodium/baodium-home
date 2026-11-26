@@ -351,6 +351,14 @@ function AlertCard({
   );
 }
 
+function missCeilingFor(maxMiss: number): number {
+  // Zoom the copper axis when the window is thin so 1.7% spend reads as a line, not dust.
+  if (maxMiss <= 0.025) return 0.05;
+  if (maxMiss <= 0.08) return 0.1;
+  if (maxMiss <= 0.25) return 0.5;
+  return 1;
+}
+
 function SeriesChart({
   series,
   service,
@@ -363,52 +371,80 @@ function SeriesChart({
   const drawing = useMemo(() => {
     const width = 640;
     const height = 180;
-    const pad = { t: 12, r: 12, b: 22, l: 32 };
+    const pad = { t: 12, r: 36, b: 22, l: 32 };
     const rows =
       series.length > 0 ? series : [{ t: 0, errorRate: null, cpu: null }];
     const from = rows[0]!.t;
     const to = Math.max(from + 1, rows[rows.length - 1]!.t);
+    const missPeak = rows.reduce((max, row) => {
+      if (row.errorRate == null || !Number.isFinite(row.errorRate)) return max;
+      return Math.max(max, row.errorRate);
+    }, 0);
+    const missCeiling = missCeilingFor(missPeak);
     const x = (t: number) =>
       pad.l + ((t - from) / (to - from)) * (width - pad.l - pad.r);
-    const y = (value: number) =>
+    const yHost = (value: number) =>
       height - pad.b - value * (height - pad.t - pad.b);
-    // Sparse miss windows (challenge 17/1000) need copper ticks, not only a flat near-zero line.
+    const yMiss = (value: number) =>
+      height -
+      pad.b -
+      (value / missCeiling) * (height - pad.t - pad.b);
+    const yBase = height - pad.b;
     const missMarks = rows
       .filter((row) => row.errorRate != null && row.errorRate > 0)
       .map((row) => ({
         cx: x(row.t),
-        cy: y(Math.max(row.errorRate ?? 0, 0.04)),
+        cy: yMiss(row.errorRate ?? 0),
+        y0: yBase,
       }));
+    const missTicks =
+      missCeiling <= 0.05
+        ? [0, 0.025, 0.05]
+        : missCeiling <= 0.1
+          ? [0, 0.05, 0.1]
+          : missCeiling <= 0.5
+            ? [0, 0.25, 0.5]
+            : [0, 0.5, 1];
     return {
       width,
       height,
-      errors: seriesPath(rows, (row) => row.errorRate, x, y),
-      cpu: seriesPath(rows, (row) => row.cpu, x, y),
+      pad,
+      errors: seriesPath(rows, (row) => row.errorRate, x, yMiss),
+      cpu: seriesPath(rows, (row) => row.cpu, x, yHost),
       missMarks,
+      missCeiling,
+      missTicks,
       from,
       to,
-      y80: y(0.8),
+      y80: yHost(0.8),
+      zoomed: missCeiling < 1,
     };
   }, [series]);
+
+  const missScaleLabel =
+    drawing.missCeiling < 1
+      ? `Miss scale 0–${Math.round(drawing.missCeiling * 100)}% (copper, right)`
+      : "Miss scale 0–100% (copper)";
 
   return (
     <figure>
       <figcaption className="mt-3 text-xs text-[color:var(--exp-muted)]">
-        {service} SLI misses (copper) and {hostLabel.toLowerCase()} (teal), % ·
-        one-second samples. A late 200 counts as a miss when the line includes
-        latency. Gaps indicate missing measurements.
+        {service} SLI misses (copper) and {hostLabel.toLowerCase()} (teal).{" "}
+        {missScaleLabel}; host stays 0–100% (left). One-second samples. A late
+        200 counts as a miss when the line includes latency. Gaps indicate
+        missing measurements.
       </figcaption>
       <svg
         viewBox={`0 0 ${drawing.width} ${drawing.height}`}
         className="mt-3 h-auto w-full"
         role="img"
-        aria-label={`${service} SLI miss rate and ${hostLabel} over the last minute`}
+        aria-label={`${service} SLI miss rate on a ${Math.round(drawing.missCeiling * 100)} percent scale and ${hostLabel} over the last minute`}
       >
         {[0, 50, 100].map((value) => (
-          <g key={value}>
+          <g key={`host-${value}`}>
             <line
-              x1={32}
-              x2={628}
+              x1={drawing.pad.l}
+              x2={drawing.width - drawing.pad.r}
               y1={158 - (value / 100) * 146}
               y2={158 - (value / 100) * 146}
               stroke="var(--exp-line)"
@@ -423,11 +459,25 @@ function SeriesChart({
             </text>
           </g>
         ))}
-        <text x={32} y={178} fill="var(--exp-muted)" fontSize={10}>
+        {drawing.missTicks.map((tick) => (
+          <text
+            key={`miss-${tick}`}
+            x={drawing.width - 2}
+            y={162 - (tick / drawing.missCeiling) * 146}
+            textAnchor="end"
+            fill="var(--exp-accent)"
+            fontSize={10}
+          >
+            {tick < 0.1
+              ? `${(tick * 100).toFixed(1)}%`
+              : `${Math.round(tick * 100)}%`}
+          </text>
+        ))}
+        <text x={drawing.pad.l} y={178} fill="var(--exp-muted)" fontSize={10}>
           {drawing.from}s
         </text>
         <text
-          x={628}
+          x={drawing.width - drawing.pad.r}
           y={178}
           textAnchor="end"
           fill="var(--exp-muted)"
@@ -436,8 +486,8 @@ function SeriesChart({
           {drawing.to}s
         </text>
         <line
-          x1={32}
-          x2={628}
+          x1={drawing.pad.l}
+          x2={drawing.width - drawing.pad.r}
           y1={drawing.y80}
           y2={drawing.y80}
           stroke="var(--exp-line-strong)"
@@ -460,13 +510,25 @@ function SeriesChart({
           />
         ) : null}
         {drawing.missMarks.map((mark, index) => (
-          <circle
-            key={`${mark.cx}-${index}`}
-            cx={mark.cx}
-            cy={mark.cy}
-            r={2.4}
-            fill="var(--exp-accent)"
-          />
+          <g key={`${mark.cx}-${index}`}>
+            {drawing.zoomed ? (
+              <line
+                x1={mark.cx}
+                x2={mark.cx}
+                y1={mark.y0}
+                y2={mark.cy}
+                stroke="var(--exp-accent)"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+            ) : null}
+            <circle
+              cx={mark.cx}
+              cy={mark.cy}
+              r={drawing.zoomed ? 3.1 : 2.6}
+              fill="var(--exp-accent)"
+            />
+          </g>
         ))}
       </svg>
     </figure>

@@ -378,7 +378,7 @@ function CascadeSession({
               ? "Charge success collapsed."
               : lesson.title}
           </h1>
-          <LessonSteps beats={lessonBeats(lesson)} />
+          <LessonSteps beats={lessonBeats(lesson)} density="compact" />
           <p className="laboratory-status">
             {grade
               ? grade.ok
