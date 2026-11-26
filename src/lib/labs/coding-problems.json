@@ -4316,5 +4316,555 @@
     ],
     "failureGuide": "Re-check integer arithmetic and whether a negative remainder was clamped away.",
     "origin": "Adapted from Baodium Interview Coach"
+  },
+  {
+    "id": "heartbeat-gaps-complete-v1",
+    "title": "Heartbeat gaps, partly written",
+    "category": "Signals",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "complete",
+    "prompt": "Find gaps in scheduled heartbeat timestamps so an operator can inspect missing telemetry.",
+    "signature": "heartbeat_gaps(timestamps, start, end, interval)",
+    "entrypoint": "heartbeat_gaps",
+    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Finish the missing schedule. Include end when it lands on the grid.\"\"\"\n    received = set(timestamps)\n    missing = []\n    # TODO 1: walk t from start through end in steps of interval.\n    t = start\n    while False:\n        # TODO 2: append t when it is absent from received.\n        pass\n    return missing\n",
+    "constraints": [
+      "start <= end; interval > 0; all values are integer seconds. Return missing scheduled times start, start+interval, ... <= end. Duplicate or off-schedule timestamps do not create extra slots.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Gaps are expected ticks that never arrived, not the spaces between whatever you happened to receive.",
+      "Put received timestamps in a set. Walk the theoretical schedule from start through end by interval.",
+      "expected = start, start+interval, … while <= end; emit those missing from the received set, in schedule order."
+    ],
+    "explanation": "Comparing with an expected schedule detects absence. Only looking at received events cannot identify all missing data.",
+    "complexity": "O(n + k) time, O(n + k) space for n events and k slots.",
+    "followUp": "How would clock skew change the definition of a missed heartbeat?",
+    "solution": "def heartbeat_gaps(timestamps, start, end, interval):\n    received = set(timestamps)\n    return [t for t in range(start, end + 1, interval) if t not in received]\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Missing slots",
+        "kwargs": {
+          "timestamps": [
+            0,
+            20,
+            20,
+            31
+          ],
+          "start": 0,
+          "end": 40,
+          "interval": 10
+        },
+        "expected": [
+          10,
+          30,
+          40
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No received events",
+        "kwargs": {
+          "timestamps": [],
+          "start": 5,
+          "end": 15,
+          "interval": 5
+        },
+        "expected": [
+          5,
+          10,
+          15
+        ],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Complete schedule",
+        "kwargs": {
+          "timestamps": [
+            2,
+            4,
+            6
+          ],
+          "start": 2,
+          "end": 6,
+          "interval": 2
+        },
+        "expected": [],
+        "example": false
+      }
+    ],
+    "situation": "Missed heartbeats are the difference between a quiet host and a missing one. Inventing or dropping times hides outages.",
+    "guarantee": "Return the expected heartbeat timestamps in [start, end] that never appear in the received set.",
+    "edges": [
+      "Generate the schedule from start, end, and interval; do not infer it only from observations.",
+      "Membership checks belong on a set of received timestamps.",
+      "Do not mutate the input list."
+    ],
+    "failureGuide": "Build the expected schedule independently, then subtract what was received."
+  },
+  {
+    "id": "heartbeat-gaps-debug-v1",
+    "title": "Heartbeat gaps, with a bug",
+    "category": "Signals",
+    "difficulty": "Intermediate",
+    "minutes": 20,
+    "format": "debug",
+    "prompt": "Find gaps in scheduled heartbeat timestamps so an operator can inspect missing telemetry.",
+    "signature": "heartbeat_gaps(timestamps, start, end, interval)",
+    "entrypoint": "heartbeat_gaps",
+    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Existing scan: tests miss the final tick and invent extras.\"\"\"\n    # Bugs: range stops before end, and every received time is treated as a gap.\n    received = set(timestamps)\n    return [t for t in range(start, end, interval) if t in received]\n",
+    "constraints": [
+      "start <= end; interval > 0; all values are integer seconds. Return missing scheduled times start, start+interval, ... <= end. Duplicate or off-schedule timestamps do not create extra slots.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Gaps are expected ticks that never arrived, not the spaces between whatever you happened to receive.",
+      "Put received timestamps in a set. Walk the theoretical schedule from start through end by interval.",
+      "expected = start, start+interval, … while <= end; emit those missing from the received set, in schedule order."
+    ],
+    "explanation": "Comparing with an expected schedule detects absence. Only looking at received events cannot identify all missing data.",
+    "complexity": "O(n + k) time, O(n + k) space for n events and k slots.",
+    "followUp": "How would clock skew change the definition of a missed heartbeat?",
+    "solution": "def heartbeat_gaps(timestamps, start, end, interval):\n    received = set(timestamps)\n    return [t for t in range(start, end + 1, interval) if t not in received]\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Missing slots",
+        "kwargs": {
+          "timestamps": [
+            0,
+            20,
+            20,
+            31
+          ],
+          "start": 0,
+          "end": 40,
+          "interval": 10
+        },
+        "expected": [
+          10,
+          30,
+          40
+        ],
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No received events",
+        "kwargs": {
+          "timestamps": [],
+          "start": 5,
+          "end": 15,
+          "interval": 5
+        },
+        "expected": [
+          5,
+          10,
+          15
+        ],
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Complete schedule",
+        "kwargs": {
+          "timestamps": [
+            2,
+            4,
+            6
+          ],
+          "start": 2,
+          "end": 6,
+          "interval": 2
+        },
+        "expected": [],
+        "example": false
+      }
+    ],
+    "situation": "Missed heartbeats are the difference between a quiet host and a missing one. Inventing or dropping times hides outages.",
+    "guarantee": "Return the expected heartbeat timestamps in [start, end] that never appear in the received set.",
+    "edges": [
+      "Generate the schedule from start, end, and interval; do not infer it only from observations.",
+      "Membership checks belong on a set of received timestamps.",
+      "Do not mutate the input list."
+    ],
+    "failureGuide": "Build the expected schedule independently, then subtract what was received."
+  },
+  {
+    "id": "failure-streak-complete-v1",
+    "title": "Failure streak opening, partly written",
+    "category": "Reliability algorithms",
+    "difficulty": "Foundation",
+    "minutes": 15,
+    "format": "complete",
+    "prompt": "Locate the first point at which consecutive failures would open a simplified circuit breaker.",
+    "signature": "opening_index(outcomes, threshold)",
+    "entrypoint": "opening_index",
+    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Finish the consecutive-failure open index.\"\"\"\n    streak = 0\n    for index, success in enumerate(outcomes):\n        # TODO 1: reset streak on success; otherwise increment.\n        pass\n        # TODO 2: return index when streak first reaches threshold.\n    return None\n",
+    "constraints": [
+      "outcomes contains booleans: True is success, False is failure. threshold is a positive integer. Return the zero-based index of the first threshold-length failure streak, or None. Success resets the streak.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Opening is about a run of failures in a row, not how many failures exist in the whole list.",
+      "Scan left to right with a counter. Increment on failure, reset on success, and stop when the counter hits threshold.",
+      "streak = 0; for i, outcome in enumerate(...): streak = streak+1 if failure else 0; if streak == threshold: return i."
+    ],
+    "explanation": "A consecutive-failure policy is a simplified breaker trigger. A real breaker also needs an open duration and half-open probes.",
+    "complexity": "O(n) time and O(1) space.",
+    "followUp": "When might a rolling error ratio be a better trigger than consecutive failures?",
+    "solution": "def opening_index(outcomes, threshold):\n    streak = 0\n    for index, success in enumerate(outcomes):\n        streak = 0 if success else streak + 1\n        if streak >= threshold:\n            return index\n    return None\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Consecutive failures",
+        "kwargs": {
+          "outcomes": [
+            false,
+            true,
+            false,
+            false
+          ],
+          "threshold": 2
+        },
+        "expected": 3,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No opening",
+        "kwargs": {
+          "outcomes": [
+            false,
+            true,
+            false
+          ],
+          "threshold": 2
+        },
+        "expected": null,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Immediate",
+        "kwargs": {
+          "outcomes": [
+            false
+          ],
+          "threshold": 1
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Empty",
+        "kwargs": {
+          "outcomes": [],
+          "threshold": 3
+        },
+        "expected": null,
+        "example": false
+      }
+    ],
+    "situation": "Circuit breakers open on consecutive failures, not lifetime totals. Counting the wrong thing trips early or never.",
+    "guarantee": "Return the index where the consecutive failure streak first reaches threshold, or the refusal the examples use when it never does.",
+    "edges": [
+      "A success resets the streak to zero.",
+      "Total failure count is not the streak.",
+      "Threshold is consecutive outcomes."
+    ],
+    "failureGuide": "Reset on success. Compare the streak to threshold at each failure."
+  },
+  {
+    "id": "failure-streak-debug-v1",
+    "title": "Failure streak opening, with a bug",
+    "category": "Reliability algorithms",
+    "difficulty": "Intermediate",
+    "minutes": 20,
+    "format": "debug",
+    "prompt": "Locate the first point at which consecutive failures would open a simplified circuit breaker.",
+    "signature": "opening_index(outcomes, threshold)",
+    "entrypoint": "opening_index",
+    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Existing open check: tests open too late or on lifetime totals.\"\"\"\n    # Bugs: successes do not reset; returns the streak length instead of index.\n    streak = 0\n    for success in outcomes:\n        if not success:\n            streak += 1\n            if streak >= threshold:\n                return streak\n    return None\n",
+    "constraints": [
+      "outcomes contains booleans: True is success, False is failure. threshold is a positive integer. Return the zero-based index of the first threshold-length failure streak, or None. Success resets the streak.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Opening is about a run of failures in a row, not how many failures exist in the whole list.",
+      "Scan left to right with a counter. Increment on failure, reset on success, and stop when the counter hits threshold.",
+      "streak = 0; for i, outcome in enumerate(...): streak = streak+1 if failure else 0; if streak == threshold: return i."
+    ],
+    "explanation": "A consecutive-failure policy is a simplified breaker trigger. A real breaker also needs an open duration and half-open probes.",
+    "complexity": "O(n) time and O(1) space.",
+    "followUp": "When might a rolling error ratio be a better trigger than consecutive failures?",
+    "solution": "def opening_index(outcomes, threshold):\n    streak = 0\n    for index, success in enumerate(outcomes):\n        streak = 0 if success else streak + 1\n        if streak >= threshold:\n            return index\n    return None\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Consecutive failures",
+        "kwargs": {
+          "outcomes": [
+            false,
+            true,
+            false,
+            false
+          ],
+          "threshold": 2
+        },
+        "expected": 3,
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "No opening",
+        "kwargs": {
+          "outcomes": [
+            false,
+            true,
+            false
+          ],
+          "threshold": 2
+        },
+        "expected": null,
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Immediate",
+        "kwargs": {
+          "outcomes": [
+            false
+          ],
+          "threshold": 1
+        },
+        "expected": 0,
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Empty",
+        "kwargs": {
+          "outcomes": [],
+          "threshold": 3
+        },
+        "expected": null,
+        "example": false
+      }
+    ],
+    "situation": "Circuit breakers open on consecutive failures, not lifetime totals. Counting the wrong thing trips early or never.",
+    "guarantee": "Return the index where the consecutive failure streak first reaches threshold, or the refusal the examples use when it never does.",
+    "edges": [
+      "A success resets the streak to zero.",
+      "Total failure count is not the streak.",
+      "Threshold is consecutive outcomes."
+    ],
+    "failureGuide": "Reset on success. Compare the streak to threshold at each failure."
+  },
+  {
+    "id": "redact-secrets-complete-v1",
+    "title": "Secret redaction, partly written",
+    "category": "Automation",
+    "difficulty": "Foundation",
+    "minutes": 18,
+    "format": "complete",
+    "prompt": "Remove sensitive values from nested JSON logs before exporting them to an observability backend.",
+    "signature": "redact(value)",
+    "entrypoint": "redact",
+    "starter": "def redact(value):\n    \"\"\"Finish nested redaction for password, token, and authorization keys.\"\"\"\n    if isinstance(value, dict):\n        out = {}\n        for key, item in value.items():\n            # TODO 1: redact when key.lower() is password, token, or authorization.\n            # TODO 2: otherwise recurse into item.\n            out[key] = item\n        return out\n    if isinstance(value, list):\n        # TODO 3: recurse into each list item.\n        return value\n    return value\n",
+    "constraints": [
+      "Recursively handle dictionaries, lists and JSON scalars. Replace values of case-insensitive keys password, token and authorization with \"[REDACTED]\". Preserve key spelling and all other values. Input keys are strings.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Redaction is a structural walk: containers are rebuilt, scalars pass through, sensitive keys swap their values.",
+      "Branch on type. For mappings, decide per key whether to replace the value or recurse. For sequences, map redact over items.",
+      "if dict: {k: (\"[REDACTED]\" if k.lower() in sensitive else redact(v)) for k,v in ...}; if list: [redact(x) for x in ...]; else return value."
+    ],
+    "explanation": "Build new containers recursively. This policy is intentionally explicit; it does not detect secrets embedded in arbitrary free text.",
+    "complexity": "O(n) time and space for all visited values; O(depth) recursion stack.",
+    "followUp": "How would you test this policy against newly introduced credential fields without logging the credentials?",
+    "solution": "def redact(value):\n    if isinstance(value, dict):\n        return {key: \"[REDACTED]\" if key.lower() in {\"password\", \"token\", \"authorization\"} else redact(item) for key, item in value.items()}\n    if isinstance(value, list):\n        return [redact(item) for item in value]\n    return value\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Nested fields",
+        "kwargs": {
+          "value": {
+            "user": "a",
+            "Password": "secret",
+            "nested": [
+              {
+                "token": "x",
+                "ok": true
+              }
+            ]
+          }
+        },
+        "expected": {
+          "user": "a",
+          "Password": "[REDACTED]",
+          "nested": [
+            {
+              "token": "[REDACTED]",
+              "ok": true
+            }
+          ]
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Scalar",
+        "kwargs": {
+          "value": "unchanged"
+        },
+        "expected": "unchanged",
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Whole sensitive object",
+        "kwargs": {
+          "value": {
+            "AUTHORIZATION": {
+              "value": "x"
+            },
+            "tokens": [
+              "public"
+            ]
+          }
+        },
+        "expected": {
+          "AUTHORIZATION": "[REDACTED]",
+          "tokens": [
+            "public"
+          ]
+        },
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Null",
+        "kwargs": {
+          "value": null
+        },
+        "expected": null,
+        "example": false
+      }
+    ],
+    "situation": "Logs leaving the box can carry passwords. Missing a nested key leaks a secret; over-redacting hides useful fields.",
+    "guarantee": "Recursively copy structures, replacing values under case-insensitive keys password, token, and authorization with \"[REDACTED]\".",
+    "edges": [
+      "Handle dicts, lists, and scalars separately.",
+      "Redact on the key before recursing into that value.",
+      "Preserve key spelling for non-sensitive fields."
+    ],
+    "failureGuide": "Recurse into nested maps and lists. Compare keys case-insensitively only for the three sensitive names."
+  },
+  {
+    "id": "redact-secrets-debug-v1",
+    "title": "Secret redaction, with a bug",
+    "category": "Automation",
+    "difficulty": "Intermediate",
+    "minutes": 22,
+    "format": "debug",
+    "prompt": "Remove sensitive values from nested JSON logs before exporting them to an observability backend.",
+    "signature": "redact(value)",
+    "entrypoint": "redact",
+    "starter": "def redact(value):\n    \"\"\"Existing redactor: tests still leak nested and mixed-case secrets.\"\"\"\n    # Bugs: case-sensitive key match, no list recursion, mutates the input dict.\n    if isinstance(value, dict):\n        for key in list(value.keys()):\n            if key in {\"password\", \"token\", \"authorization\"}:\n                value[key] = \"[REDACTED]\"\n        return value\n    return value\n",
+    "constraints": [
+      "Recursively handle dictionaries, lists and JSON scalars. Replace values of case-insensitive keys password, token and authorization with \"[REDACTED]\". Preserve key spelling and all other values. Input keys are strings.",
+      "Do not mutate input values. Use the Python standard library only."
+    ],
+    "hints": [
+      "Redaction is a structural walk: containers are rebuilt, scalars pass through, sensitive keys swap their values.",
+      "Branch on type. For mappings, decide per key whether to replace the value or recurse. For sequences, map redact over items.",
+      "if dict: {k: (\"[REDACTED]\" if k.lower() in sensitive else redact(v)) for k,v in ...}; if list: [redact(x) for x in ...]; else return value."
+    ],
+    "explanation": "Build new containers recursively. This policy is intentionally explicit; it does not detect secrets embedded in arbitrary free text.",
+    "complexity": "O(n) time and space for all visited values; O(depth) recursion stack.",
+    "followUp": "How would you test this policy against newly introduced credential fields without logging the credentials?",
+    "solution": "def redact(value):\n    if isinstance(value, dict):\n        return {key: \"[REDACTED]\" if key.lower() in {\"password\", \"token\", \"authorization\"} else redact(item) for key, item in value.items()}\n    if isinstance(value, list):\n        return [redact(item) for item in value]\n    return value\n",
+    "cases": [
+      {
+        "id": "case-1",
+        "title": "Nested fields",
+        "kwargs": {
+          "value": {
+            "user": "a",
+            "Password": "secret",
+            "nested": [
+              {
+                "token": "x",
+                "ok": true
+              }
+            ]
+          }
+        },
+        "expected": {
+          "user": "a",
+          "Password": "[REDACTED]",
+          "nested": [
+            {
+              "token": "[REDACTED]",
+              "ok": true
+            }
+          ]
+        },
+        "example": true
+      },
+      {
+        "id": "case-2",
+        "title": "Scalar",
+        "kwargs": {
+          "value": "unchanged"
+        },
+        "expected": "unchanged",
+        "example": true
+      },
+      {
+        "id": "case-3",
+        "title": "Whole sensitive object",
+        "kwargs": {
+          "value": {
+            "AUTHORIZATION": {
+              "value": "x"
+            },
+            "tokens": [
+              "public"
+            ]
+          }
+        },
+        "expected": {
+          "AUTHORIZATION": "[REDACTED]",
+          "tokens": [
+            "public"
+          ]
+        },
+        "example": false
+      },
+      {
+        "id": "case-4",
+        "title": "Null",
+        "kwargs": {
+          "value": null
+        },
+        "expected": null,
+        "example": false
+      }
+    ],
+    "situation": "Logs leaving the box can carry passwords. Missing a nested key leaks a secret; over-redacting hides useful fields.",
+    "guarantee": "Recursively copy structures, replacing values under case-insensitive keys password, token, and authorization with \"[REDACTED]\".",
+    "edges": [
+      "Handle dicts, lists, and scalars separately.",
+      "Redact on the key before recursing into that value.",
+      "Preserve key spelling for non-sensitive fields."
+    ],
+    "failureGuide": "Recurse into nested maps and lists. Compare keys case-insensitively only for the three sensitive names."
   }
 ]

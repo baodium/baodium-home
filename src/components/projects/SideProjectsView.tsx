@@ -72,7 +72,7 @@ export function SideProjectsView() {
                   Labs
                 </span>
                 <span className="mt-4 block max-w-xl text-lg leading-relaxed text-[#5c514a]">
-                  Guided SRE walkthroughs, 30 coding exercises, and a real five-service observability lab with evidence checkpoints.
+                  Guided SRE walkthroughs, 36 coding exercises, and a real five-service observability lab with evidence checkpoints.
                 </span>
               </span>
               <span className="inline-flex items-center gap-2 text-base font-semibold text-[#8d3d2c] transition-transform duration-200 group-hover:translate-x-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">

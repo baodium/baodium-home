@@ -12,6 +12,10 @@
   --exp-accent: #1b6b62;
   --exp-accent-text: #1b6b62;
   --exp-amber-text: #3d5c56;
+  /* Chart series: miss stays copper; host util stays teal — never borrow button accent. */
+  --exp-miss: #b85a3a;
+  --exp-miss-text: #8d3d2c;
+  --exp-host: #1b6b62;
   background: var(--exp-panel);
   color: var(--exp-fg);
   color-scheme: light;
@@ -43,6 +47,9 @@
   --exp-accent: #dc9677;
   --exp-accent-text: #efb199;
   --exp-amber-text: #8ac8b8;
+  --exp-miss: #e09a78;
+  --exp-miss-text: #efb199;
+  --exp-host: #8ac8b8;
   color-scheme: dark;
 }
 .laboratory-bar {

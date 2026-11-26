@@ -1031,6 +1031,230 @@ func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
 }
 `,
   },
+  "heartbeat-gaps-complete-v1": {
+    typescript: `function heartbeatGaps(
+  timestamps: number[],
+  start: number,
+  end: number,
+  interval: number,
+): number[] {
+  // Finish the missing schedule. Include end when it lands on the grid.
+  const received = new Set(timestamps);
+  const missing: number[] = [];
+  // TODO 1: walk t from start through end in steps of interval.
+  let t = start;
+  while (false) {
+    // TODO 2: append t when it is absent from received.
+    void t;
+    void received;
+    break;
+  }
+  void end;
+  void interval;
+  return missing;
+}
+`,
+    go: `package solution
+
+// Finish the missing schedule. Include end when it lands on the grid.
+func HeartbeatGaps(timestamps []float64, start float64, end float64, interval float64) []float64 {
+	received := map[float64]bool{}
+	for _, t := range timestamps {
+		received[t] = true
+	}
+	missing := make([]float64, 0)
+	// TODO 1: walk t from start through end in steps of interval.
+	t := start
+	for false {
+		// TODO 2: append t when it is absent from received.
+		_ = t
+		_ = received
+		break
+	}
+	_ = end
+	_ = interval
+	return missing
+}
+`,
+  },
+  "heartbeat-gaps-debug-v1": {
+    typescript: `function heartbeatGaps(
+  timestamps: number[],
+  start: number,
+  end: number,
+  interval: number,
+): number[] {
+  // Existing scan: misses the final tick and invents extras.
+  // Bugs: stops before end, and treats every received time as a gap.
+  const received = new Set(timestamps);
+  const missing: number[] = [];
+  for (let t = start; t < end; t += interval) {
+    if (received.has(t)) missing.push(t);
+  }
+  return missing;
+}
+`,
+    go: `package solution
+
+// Existing scan: misses the final tick and invents extras.
+// Bugs: stops before end, and treats every received time as a gap.
+func HeartbeatGaps(timestamps []float64, start float64, end float64, interval float64) []float64 {
+	received := map[float64]bool{}
+	for _, t := range timestamps {
+		received[t] = true
+	}
+	missing := make([]float64, 0)
+	for t := start; t < end; t += interval {
+		if received[t] {
+			missing = append(missing, t)
+		}
+	}
+	return missing
+}
+`,
+  },
+  "failure-streak-complete-v1": {
+    typescript: `function openingIndex(
+  outcomes: boolean[],
+  threshold: number,
+): number | null {
+  // Finish the consecutive-failure open index.
+  let streak = 0;
+  for (let index = 0; index < outcomes.length; index += 1) {
+    // TODO 1: reset streak on success; otherwise increment.
+    void streak;
+    // TODO 2: return index when streak first reaches threshold.
+    void threshold;
+  }
+  return null;
+}
+`,
+    go: `package solution
+
+// Finish the consecutive-failure open index. No opening returns nil.
+func OpeningIndex(outcomes []bool, threshold float64) any {
+	streak := 0.0
+	for index := range outcomes {
+		// TODO 1: reset streak on success; otherwise increment.
+		_ = streak
+		// TODO 2: return index when streak first reaches threshold.
+		_ = index
+		_ = threshold
+	}
+	return nil
+}
+`,
+  },
+  "failure-streak-debug-v1": {
+    typescript: `function openingIndex(
+  outcomes: boolean[],
+  threshold: number,
+): number | null {
+  // Existing open check: opens too late or on lifetime totals.
+  // Bugs: successes do not reset; returns the streak length instead of index.
+  let streak = 0;
+  for (const success of outcomes) {
+    if (!success) {
+      streak += 1;
+      if (streak >= threshold) return streak;
+    }
+  }
+  return null;
+}
+`,
+    go: `package solution
+
+// Existing open check: opens too late or on lifetime totals.
+// Bugs: successes do not reset; returns the streak length instead of index.
+func OpeningIndex(outcomes []bool, threshold float64) any {
+	streak := 0.0
+	for _, success := range outcomes {
+		if !success {
+			streak++
+			if streak >= threshold {
+				return streak
+			}
+		}
+	}
+	return nil
+}
+`,
+  },
+  "redact-secrets-complete-v1": {
+    typescript: `function redact(value: unknown): unknown {
+  // Finish nested redaction for password, token, and authorization keys.
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+      // TODO 1: redact when key.toLowerCase() is password, token, or authorization.
+      // TODO 2: otherwise recurse into item.
+      out[key] = item;
+    }
+    return out;
+  }
+  if (Array.isArray(value)) {
+    // TODO 3: recurse into each list item.
+    return value;
+  }
+  return value;
+}
+`,
+    go: `package solution
+
+// Finish nested redaction for password, token, and authorization keys.
+func Redact(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		out := map[string]any{}
+		for key, item := range typed {
+			// TODO 1: redact when strings.ToLower(key) is password, token, or authorization.
+			// TODO 2: otherwise recurse into item.
+			out[key] = item
+		}
+		return out
+	case []any:
+		// TODO 3: recurse into each list item.
+		return typed
+	default:
+		return value
+	}
+}
+`,
+  },
+  "redact-secrets-debug-v1": {
+    typescript: `function redact(value: unknown): unknown {
+  // Existing redactor: still leaks nested and mixed-case secrets.
+  // Bugs: case-sensitive key match, no list recursion, mutates the input object.
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const record = value as Record<string, unknown>;
+    for (const key of Object.keys(record)) {
+      if (key === "password" || key === "token" || key === "authorization") {
+        record[key] = "[REDACTED]";
+      }
+    }
+    return record;
+  }
+  return value;
+}
+`,
+    go: `package solution
+
+// Existing redactor: still leaks nested and mixed-case secrets.
+// Bugs: case-sensitive key match, no list recursion, mutates the input map.
+func Redact(value any) any {
+	typed, ok := value.(map[string]any)
+	if !ok {
+		return value
+	}
+	for key := range typed {
+		if key == "password" || key == "token" || key == "authorization" {
+			typed[key] = "[REDACTED]"
+		}
+	}
+	return typed
+}
+`,
+  },
 };
 
 export function authoredStarter(

@@ -2117,6 +2117,10 @@ html[data-reader-theme="dark"] .book-interactive-concept {
   --exp-accent-text: #1b6b62;
   --exp-amber: var(--learn-signal, #1b6b62);
   --exp-signal: var(--learn-signal, #1b6b62);
+  /* Chart series only: miss copper vs host teal (do not reuse button accent). */
+  --exp-miss: #b85a3a;
+  --exp-miss-text: #8d3d2c;
+  --exp-host: #1b6b62;
   color-scheme: light;
   background: #f6f8f7;
   color: var(--exp-fg);
@@ -2131,6 +2135,9 @@ html[data-reader-theme="dark"] .book-interactive-concept {
     --exp-amber-text: #8fd0d0;
     --exp-on-fg: #12151a;
     --exp-accent-text: #f0b2a2;
+    --exp-miss: #e09a78;
+    --exp-miss-text: #f0b2a2;
+    --exp-host: #7dbebf;
     --exp-line: color-mix(in srgb, #e8edf4 12%, transparent);
     --exp-line-strong: color-mix(in srgb, #e8edf4 22%, transparent);
     --exp-panel: #12151a;

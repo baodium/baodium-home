@@ -465,7 +465,7 @@ function SeriesChart({
             x={drawing.width - 2}
             y={162 - (tick / drawing.missCeiling) * 146}
             textAnchor="end"
-            fill="var(--exp-accent)"
+            fill="var(--exp-miss, #b85a3a)"
             fontSize={10}
           >
             {tick < 0.1
@@ -497,7 +497,7 @@ function SeriesChart({
           <path
             d={drawing.cpu}
             fill="none"
-            stroke="var(--exp-amber-text)"
+            stroke="var(--exp-host, #1b6b62)"
             strokeWidth={1.6}
           />
         ) : null}
@@ -505,7 +505,7 @@ function SeriesChart({
           <path
             d={drawing.errors}
             fill="none"
-            stroke="var(--exp-accent)"
+            stroke="var(--exp-miss, #b85a3a)"
             strokeWidth={1.8}
           />
         ) : null}
@@ -517,7 +517,7 @@ function SeriesChart({
                 x2={mark.cx}
                 y1={mark.y0}
                 y2={mark.cy}
-                stroke="var(--exp-accent)"
+                stroke="var(--exp-miss, #b85a3a)"
                 strokeWidth={1.5}
                 strokeLinecap="round"
               />
@@ -526,7 +526,7 @@ function SeriesChart({
               cx={mark.cx}
               cy={mark.cy}
               r={drawing.zoomed ? 3.1 : 2.6}
-              fill="var(--exp-accent)"
+              fill="var(--exp-miss, #b85a3a)"
             />
           </g>
         ))}

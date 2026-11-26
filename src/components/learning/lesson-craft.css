@@ -174,6 +174,39 @@
   min-height: 1.85rem;
   font-size: 0.85rem;
 }
+.lesson-steps-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0;
+  padding: 0.35rem 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--lab-accent, #8d3d2c) 22%, transparent);
+  background: transparent;
+  color: var(--lab-muted, var(--exp-muted, #5c514a));
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+}
+.lesson-steps-toggle span:last-child {
+  color: var(--lab-accent, var(--exp-accent-text, #8d3d2c));
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.85rem;
+}
+.lesson-steps-collapsed {
+  margin-top: 0.45rem;
+}
+.lesson-steps-compact:not(.lesson-steps-collapsed) .lesson-steps-toggle {
+  margin-bottom: 0.35rem;
+}
 .lesson-step {
   touch-action: pan-y;
   cursor: grab;
