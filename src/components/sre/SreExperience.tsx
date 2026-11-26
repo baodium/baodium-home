@@ -45,8 +45,14 @@ import {
   type Scene,
 } from "@/lib/sre/model";
 import { serviceStory } from "@/lib/sre/stories";
+import {
+  articleFor,
+  articleLabel,
+  pedagogyOf,
+  type SreTelemetryLab,
+} from "@/lib/sre/pedagogy";
 
-export type SreLabId = "instrument" | "slo" | "alert";
+export type SreLabId = SreTelemetryLab;
 type Mode = "guided" | "practice" | "challenge";
 type PageScene =
   "cpu-spike" | "short-spike" | "sustained" | "missing-telemetry";
@@ -149,10 +155,11 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
   };
 
   const check = () => {
+    const pedagogy = pedagogyOf(lab);
     const result =
-      lab === "instrument"
+      pedagogy === "instrument"
         ? gradeInstrument({ controls, snapshot, trace, hop })
-        : lab === "slo"
+        : pedagogy === "slo"
           ? mode === "challenge"
             ? gradeSloChallenge(snapshot, controls, verdict)
             : gradeSlo(snapshot, controls)
@@ -214,7 +221,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
               hop={hop}
               onHop={setHop}
             />
-            {lab === "alert" && mode === "practice" ? (
+            {pedagogyOf(lab) === "alert" && mode === "practice" ? (
               <AlertRuleWorkbench
                 engine={engine}
                 controls={controls}
@@ -274,7 +281,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                   >
                     Continue
                   </button>
-                ) : lab !== "alert" ? (
+                ) : pedagogyOf(lab) !== "alert" ? (
                   <button
                     type="button"
                     className="exp-btn exp-btn-solid mt-4"
@@ -296,7 +303,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                 setPageChoice={setPageChoice}
                 decision={decision}
                 setDecision={setDecision}
-                onRun={() => runCheckout(lab === "instrument" ? 4 : 20)}
+                onRun={() => runCheckout(pedagogyOf(lab) === "instrument" ? 4 : 20)}
                 onSpend={() =>
                   runCheckout(20, { errorRate: 0.2, timeoutMs: 300, cpu: 0.35 })
                 }
@@ -366,17 +373,17 @@ function PracticeRail({
           {gettingStarted(lab, mode)}
         </p>
       </div>
-      {lab === "instrument" && mode === "practice" ? (
+      {pedagogyOf(lab) === "instrument" && mode === "practice" ? (
         <SignalToggles controls={controls} setControls={setControls} />
       ) : null}
-      {lab === "slo" && mode === "practice" ? (
+      {pedagogyOf(lab) === "slo" && mode === "practice" ? (
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className="exp-btn exp-btn-ghost"
             onClick={onRun}
           >
-            {serviceStory("slo").run}
+            {serviceStory(lab).run}
           </button>
           <button
             type="button"
@@ -387,7 +394,7 @@ function PracticeRail({
           </button>
         </div>
       ) : null}
-      {lab === "slo" && mode === "challenge" ? (
+      {pedagogyOf(lab) === "slo" && mode === "challenge" ? (
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -405,15 +412,16 @@ function PracticeRail({
           </button>
         </div>
       ) : null}
-      {lab === "alert" && mode === "practice" ? (
+      {pedagogyOf(lab) === "alert" && mode === "practice" ? (
         <AlertPicker
+          lab={lab}
           controls={controls}
           setControls={setControls}
           pageChoice={pageChoice}
           setPageChoice={setPageChoice}
         />
       ) : null}
-      {lab === "alert" && mode === "challenge" ? (
+      {pedagogyOf(lab) === "alert" && mode === "challenge" ? (
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <button
@@ -440,9 +448,9 @@ function PracticeRail({
           </button>
         </div>
       ) : null}
-      {lab === "instrument" ? (
+      {pedagogyOf(lab) === "instrument" ? (
         <button type="button" className="exp-btn exp-btn-ghost" onClick={onRun}>
-          {serviceStory("instrument").run}
+          {serviceStory(lab).run}
         </button>
       ) : null}
       <button type="button" className="exp-btn exp-btn-solid" onClick={onCheck}>
@@ -495,21 +503,24 @@ function SignalToggles({
 }
 
 function AlertPicker({
+  lab,
   controls,
   setControls,
   pageChoice,
   setPageChoice,
 }: {
+  lab: SreLabId;
   controls: Controls;
   setControls: (value: Controls) => void;
   pageChoice: PageScene | null;
   setPageChoice: (value: PageScene) => void;
 }) {
+  const story = serviceStory(lab);
   const rows = [
     ["cpu-spike", "CPU spike"],
     ["short-spike", "Short spike"],
-    ["sustained", "Sustained query failure"],
-    ["missing-telemetry", "Missing query metrics"],
+    ["sustained", `Sustained ${story.noun} failure`],
+    ["missing-telemetry", `Missing ${story.noun} metrics`],
   ] as const;
   return (
     <div className="space-y-3">
@@ -574,6 +585,7 @@ function choiceClass(on: boolean): string {
   return `exp-btn ${on ? "exp-btn-primary" : "exp-btn-ghost"} w-full justify-start`;
 }
 
+
 function withStory(lab: SreLabId, controls: Controls): Controls {
   const story = serviceStory(lab);
   return {
@@ -588,7 +600,7 @@ function withStory(lab: SreLabId, controls: Controls): Controls {
 }
 
 function initialControls(lab: SreLabId, mode: Mode): Controls {
-  if (lab === "instrument") {
+  if (pedagogyOf(lab) === "instrument") {
     return withStory(lab, defaultControls({
       instrumentation:
         mode === "challenge"
@@ -622,7 +634,8 @@ function initialControls(lab: SreLabId, mode: Mode): Controls {
 }
 
 function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
-  if (lab === "slo" && mode === "challenge") {
+  const pedagogy = pedagogyOf(lab);
+  if (pedagogy === "slo" && mode === "challenge") {
     return loadCheckoutWindow(seed, {
       total: 1000,
       bad: 17,
@@ -630,10 +643,10 @@ function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
       badMs: 800,
     });
   }
-  if (lab === "instrument" && mode !== "guided") {
+  if (pedagogy === "instrument" && mode !== "guided") {
     return runScene("slow-payment", seed, initialControls(lab, mode)).state;
   }
-  if (lab === "alert" && mode === "challenge") {
+  if (pedagogy === "alert" && mode === "challenge") {
     const scene = seed % 2 === 0 ? "cpu-spike" : "sustained";
     return runScene(scene, seed, initialControls(lab, mode)).state;
   }
@@ -656,8 +669,9 @@ function guidedStep(input: {
   actions: ReactNode;
   ready: boolean;
 } {
-  if (input.lab === "instrument") return instrumentGuided(input);
-  if (input.lab === "slo") return sloGuided(input);
+  const pedagogy = pedagogyOf(input.lab);
+  if (pedagogy === "instrument") return instrumentGuided(input);
+  if (pedagogy === "slo") return sloGuided(input);
   return alertGuided(input);
 }
 
@@ -665,7 +679,7 @@ type GuidedInput = Parameters<typeof guidedStep>[0];
 
 function instrumentGuided(input: GuidedInput) {
   const flags = input.controls.instrumentation;
-  const story = serviceStory("instrument");
+  const story = serviceStory(input.lab);
   const steps = [
     {
       title: "Playback, before any signal is on",
@@ -859,21 +873,23 @@ function instrumentGuided(input: GuidedInput) {
 }
 
 function sloGuided(input: GuidedInput) {
-  const story = serviceStory("slo");
+  const story = serviceStory(input.lab);
   const steps = [
     {
-      title: "A send is the journey, not the CPU",
+      title: `${articleLabel(story.noun)} is the journey, not the CPU`,
       ready: input.controls.journey === "checkout",
       body: (
         <>
           <p>
-            An SLO is a promise about a journey, not about a host. A message
-            send is the journey. CPU is a measurement of the machine. If you
-            aim the SLO at CPU, failed sends will not spend the budget.
+            An SLO is a promise about a journey, not about a host.{" "}
+            {articleLabel(story.noun)} is the journey. CPU is a measurement of
+            the machine. If you aim the SLO at CPU, failed {story.plural} will
+            not spend the budget.
           </p>
           <JourneyButtons
             controls={input.controls}
             setControls={input.setControls}
+            noun={story.noun}
           />
         </>
       ),
@@ -885,9 +901,10 @@ function sloGuided(input: GuidedInput) {
       body: (
         <>
           <p>
-            Count a send as good only when it succeeds in under 300 ms. A
-            fast 500 still fails the customer. A 200 that takes 800 ms still
-            spends the budget, because the recipient already waited.
+            Count {articleFor(story.noun)} {story.noun} as good only when it
+            succeeds in under 300 ms. A fast 500 still fails the customer. A 200
+            that takes 800 ms still spends the budget, because the{" "}
+            {story.client.toLowerCase()} already waited.
           </p>
           <GoodButtons
             controls={input.controls}
@@ -902,9 +919,9 @@ function sloGuided(input: GuidedInput) {
       ready: input.controls.target === DEFAULT_TARGET,
       body: (
         <p>
-          This SLO is 99.5%. In 1,000 sends the budget is 5 bad calls. 17
-          bad calls is 98.3% good. 98.3% does not meet 99.5%. The pass line is
-          the number you wrote down, not a nearby number.
+          This SLO is 99.5%. In 1,000 {story.plural} the budget is 5 bad calls.
+          17 bad calls is 98.3% good. 98.3% does not meet 99.5%. The pass line
+          is the number you wrote down, not a nearby number.
         </p>
       ),
       actions: (
@@ -921,9 +938,9 @@ function sloGuided(input: GuidedInput) {
         input.snapshot.window.meets === false,
       body: (
         <p>
-          Raise the failure rate and run the sends. The bad count, the
+          Raise the failure rate and run the {story.plural}. The bad count, the
           allowed count, and the budget meter all move from those calls. When
-          bad sends pass the allowance, the window has missed 99.5%.
+          bad {story.plural} pass the allowance, the window has missed 99.5%.
         </p>
       ),
       actions: (
@@ -949,18 +966,20 @@ function sloGuided(input: GuidedInput) {
 }
 
 function alertGuided(input: GuidedInput) {
+  const story = serviceStory(input.lab);
   const steps = [
     {
-      title: "A CPU alert pages with no failed query",
+      title: `A CPU alert pages with no failed ${story.noun}`,
       ready:
         input.situation === "cpu-spike" &&
         input.snapshot.cpuAlert.status === "paging" &&
         input.snapshot.window.meets === true,
       body: (
         <p>
-          This rule pages when CPU stays over 80%. Run the spike. Search queries
-          are still succeeding. The page fires because the host is busy, not
-          because a searcher is stuck.
+          This rule pages when CPU stays over 80%. Run the spike.{" "}
+          {story.plural[0].toUpperCase() + story.plural.slice(1)} are still
+          succeeding. The page fires because the host is busy, not because a{" "}
+          {story.client.toLowerCase()} is stuck.
         </p>
       ),
       actions: (
@@ -974,15 +993,16 @@ function alertGuided(input: GuidedInput) {
       ),
     },
     {
-      title: "The same alert misses query timeouts",
+      title: `The same alert misses ${story.noun} timeouts`,
       ready:
         input.situation === "sustained" &&
         input.snapshot.cpuAlert.status === "quiet" &&
         input.snapshot.window.bad > 0,
       body: (
         <p>
-          Now queries fail while CPU stays near 35%. The CPU alert is quiet.
-          Searchers are not. A threshold on the host cannot see this.
+          Now {story.plural} fail while CPU stays near 35%. The CPU alert is
+          quiet. {story.client}s are not. A threshold on the host cannot see
+          this.
         </p>
       ),
       actions: (
@@ -991,7 +1011,7 @@ function alertGuided(input: GuidedInput) {
           className="exp-btn exp-btn-primary"
           onClick={() => input.play("sustained", { alert: "cpu" })}
         >
-          {serviceStory("alert").runFailures}
+          {story.runFailures}
         </button>
       ),
     },
@@ -1028,8 +1048,8 @@ function alertGuided(input: GuidedInput) {
       body: (
         <p>
           Run a short burst of failures after a healthy hour. The short window
-          burns. The long window still contains the healthy queries, so the
-          alert stays quiet.
+          burns. The long window still contains the healthy {story.plural}, so
+          the alert stays quiet.
         </p>
       ),
       actions: (
@@ -1071,9 +1091,9 @@ function alertGuided(input: GuidedInput) {
         input.snapshot.burnAlert.status === "no-data",
       body: (
         <p>
-          Stop the query metrics while failures continue. The burn alert has
-          no samples. It does not draw a healthy 100%, and it does not page. You
-          cannot explain a page from a chart that is not there.
+          Stop the {story.noun} metrics while failures continue. The burn alert
+          has no samples. It does not draw a healthy 100%, and it does not page.
+          You cannot explain a page from a chart that is not there.
         </p>
       ),
       actions: (
@@ -1082,7 +1102,7 @@ function alertGuided(input: GuidedInput) {
           className="exp-btn exp-btn-primary"
           onClick={() => input.play("missing-telemetry", { alert: "burn" })}
         >
-          Stop query metrics
+          Stop {story.noun} metrics
         </button>
       ),
     },
@@ -1094,9 +1114,11 @@ function alertGuided(input: GuidedInput) {
 function JourneyButtons({
   controls,
   setControls,
+  noun,
 }: {
   controls: Controls;
   setControls: (value: Controls) => void;
+  noun: string;
 }) {
   const setJourney = (journey: Journey) =>
     setControls({ ...controls, journey });
@@ -1107,7 +1129,7 @@ function JourneyButtons({
         className={choiceClass(controls.journey === "checkout")}
         onClick={() => setJourney("checkout")}
       >
-        A send completes
+        {articleLabel(noun)} completes
       </button>
       <button
         type="button"
@@ -1180,30 +1202,34 @@ function TargetButtons({
 }
 
 function objective(lab: SreLabId, mode: Mode): string {
-  if (lab === "instrument") {
+  const pedagogy = pedagogyOf(lab);
+  const story = serviceStory(lab);
+  if (pedagogy === "instrument") {
     return mode === "challenge"
       ? "Playback is slow. Turn on the missing signal and name the hop that holds the time."
       : "Turn on HTTP metrics, the outbound span, trace context, and a structured log. Then show that the extra latency sits on the manifest fetch.";
   }
-  if (lab === "slo") {
+  if (pedagogy === "slo") {
     return mode === "challenge"
-      ? "The stated target is on the chart. Decide whether this window of sends meets that target."
-      : "Keep the messaging SLO at 99.5%, count only a send that succeeds under 300 ms, and raise failures until the window spends the budget.";
+      ? `The stated target is on the chart. Decide whether this window of ${story.plural} meets that target.`
+      : `Keep the ${story.product} SLO at 99.5%, count only a ${story.noun} that succeeds under 300 ms, and raise failures until the window spends the budget.`;
   }
   return mode === "challenge"
-    ? "Something paged. From the search telemetry, decide whether a searcher is failing badly enough to wake someone."
-    : "Choose the burn-rate alert, then name the situation that deserves a page: the sustained query failure.";
+    ? `Something paged. From the ${story.product.toLowerCase()} telemetry, decide whether a ${story.client.toLowerCase()} is failing badly enough to wake someone.`
+    : `Choose the burn-rate alert, then name the situation that deserves a page: the sustained ${story.noun} failure.`;
 }
 
 function gettingStarted(lab: SreLabId, mode: Mode): string {
-  if (lab === "instrument") {
+  const pedagogy = pedagogyOf(lab);
+  const story = serviceStory(lab);
+  if (pedagogy === "instrument") {
     return "Run a play start, turn the four signals on, open a trace, and choose the hop that holds the extra time.";
   }
-  if (lab === "slo" && mode === "challenge") {
+  if (pedagogy === "slo" && mode === "challenge") {
     return "Read the good count against the stated target. Then mark the window as meeting it or missing it.";
   }
-  if (lab === "slo") {
-    return "Run the sends, then raise failures. The allowed bad count is 0.5% of the window, because the target is 99.5%.";
+  if (pedagogy === "slo") {
+    return `Run the ${story.plural}, then raise failures. The allowed bad count is 0.5% of the window, because the target is 99.5%.`;
   }
   if (mode === "challenge") {
     return "Read the CPU line, the two burn windows, and a trace before you decide.";

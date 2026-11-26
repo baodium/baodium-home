@@ -44,9 +44,10 @@ export function TelemetryBoard({
           {story.service} calls {story.dependency}
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
-          A {story.noun} reaches {story.service}. {story.service} calls{" "}
-          {story.dependency}. The clock below is the only clock. The chart, the
-          trace, the log, and the alerts are that same minute.
+          {/^[aeiou]/i.test(story.noun) ? "An" : "A"} {story.noun} reaches{" "}
+          {story.service}. {story.service} calls {story.dependency}. The clock
+          below is the only clock. The chart, the trace, the log, and the alerts
+          are that same minute.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <ServiceCard label={story.client} detail={story.clientDetail} />

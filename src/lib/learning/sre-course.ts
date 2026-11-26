@@ -17,7 +17,7 @@ export type SreLessonCraft = {
 };
 
 const COURSE = "SRE path";
-const TOTAL = 6;
+const TOTAL = 8;
 
 export const SRE_COURSE: SreLessonCraft[] = [
   {
@@ -118,15 +118,67 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "If the next window is quiet, has the budget you already spent come back?",
     ],
     next: {
-      href: "/sre-labs/alert",
-      label: "Lesson 3, when to page",
+      href: "/sre-labs/api",
+      label: "Lesson 3, the API budget",
       bridge:
-        "This window already spent part of the budget. The next lesson is search: a busy host and a short spike sit beside queries that keep failing, and you choose which of those should wake someone.",
+        "This window already spent part of the budget. The next lesson keeps the same SLO math on an API platform: integrator calls through a gateway to a docs upstream, and a late 200 still spends the line.",
+    },
+  },
+  {
+    id: "api",
+    index: 3,
+    minutes: 12,
+    title: "Whether these API calls meet 99.5 percent",
+    outcomes: [
+      "Write the API promise as a fraction of calls that both succeed and return in time.",
+      "Count a slow success as a miss when the contract includes a latency line.",
+      "Say whether a window of gateway calls meets 99.5 percent.",
+    ],
+    paragraphs: [
+      "An API contract is a promise integrators can hold you to. Here the promise is 99.5 percent of gateway calls succeeding in under 300 milliseconds. The error budget is the half a percent you may miss. Spending the budget means those misses already happened in the window you are reading.",
+      "A 200 that arrives after the time limit still spends the budget, because the integrator already waited. Seventeen failures in a thousand calls is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
+    ],
+    concepts: [
+      {
+        name: "SLI",
+        body: "A good API call succeeds in under 300 milliseconds. A slow success is a miss.",
+      },
+      {
+        name: "SLO",
+        body: "The line is 99.5 percent of the events in the window.",
+      },
+      {
+        name: "Error budget",
+        body: "You may miss 5 events in 1,000. Past that, the window has spent the budget.",
+      },
+    ],
+    goal: "Mark this window as meeting 99.5 percent, or as missing it.",
+    steps: [
+      "Read the target on the chart before you change anything.",
+      "Raise failures or latency until good API calls fall below 99.5 percent.",
+      "Check a window of 17 misses in 1,000. That is 98.3 percent, and it does not meet the line.",
+      "In challenge mode, mark the window as meeting the target or missing it. The prompt does not tell you which.",
+    ],
+    takeaways: [
+      "The SLO here is 99.5 percent of API calls succeeding in under 300 milliseconds.",
+      "A slow success spends the budget. The status code alone is not the SLI.",
+      "Seventeen misses in a thousand is 98.3 percent. That window does not meet 99.5 percent.",
+    ],
+    reflection: [
+      "Which events in the window did you almost count as good, and why were they misses?",
+      "What would you tell an integrator who says the API is fine because most responses returned 200?",
+      "If the next window is quiet, has the budget you already spent come back?",
+    ],
+    next: {
+      href: "/sre-labs/alert",
+      label: "Lesson 4, when to page",
+      bridge:
+        "You can now read an API budget the same way you read a messaging budget. The next lesson is search: a busy host and a short spike sit beside queries that keep failing, and you choose which of those should wake someone.",
     },
   },
   {
     id: "alert",
-    index: 3,
+    index: 4,
     minutes: 15,
     title: "Whether this failure should page someone",
     outcomes: [
@@ -170,15 +222,67 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Who is woken by this page, and what do you expect them to do in the first five minutes?",
     ],
     next: {
-      href: "/sre-labs/cascade",
-      label: "Lesson 4, a slow provider",
+      href: "/sre-labs/analytics",
+      label: "Lesson 5, ingest paging",
       bridge:
-        "You know when to wake someone. Next is payments. A slow card provider holds its slots, retries request another slot, and charges fail for buyers whose own request was fine.",
+        "You know when to wake someone for search. The next lesson keeps the same burn-rate rule on analytics ingest: warehouse CPU can look busy while batches keep failing, and you choose which signal deserves a page.",
+    },
+  },
+  {
+    id: "analytics",
+    index: 5,
+    minutes: 15,
+    title: "Whether this ingest miss should page someone",
+    outcomes: [
+      "Separate a busy warehouse host from ingest batches failing for pipelines.",
+      "Explain why a burn-rate page waits for both the short window and the long window.",
+      "Choose which situation should wake someone, and say why the others should not.",
+    ],
+    paragraphs: [
+      "You interrupt a person only when the customer symptom is still true in more than one window. The warehouse can be busy while ingest still succeeds, and one slow batch can light a chart without starting an incident.",
+      "The burn-rate rule pages only when the 12-second window and the 60-second window are both spending the 99.5 percent budget at 14.4 times the allowed rate or faster, with enough batches in each window. A spike lights the short window and then fades. Both windows have to agree. In Challenge, you have the telemetry. The prompt does not say whether to page.",
+    ],
+    concepts: [
+      {
+        name: "Symptom",
+        body: "Ingest failures are what the pipeline hit. CPU is the warehouse host.",
+      },
+      {
+        name: "Burn rate",
+        body: "How fast the budget is spent. A page waits until both windows agree.",
+      },
+      {
+        name: "Page",
+        body: "Wake someone only while pipelines are still failing.",
+      },
+    ],
+    goal: "A page is for pipelines that are still failing, and only when both windows agree.",
+    steps: [
+      "Read the four scenes before you pick a rule. Note which ones are about a host, a short spike, missing data, or batches that keep failing.",
+      "Select a rule and run it against the scenes.",
+      "Page only when the rule you chose is still true after you look at both windows. Hold when it is not.",
+      "In challenge mode, decide from the telemetry whether ingest is failing badly enough to wake someone. The prompt does not tell you.",
+    ],
+    takeaways: [
+      "A page should describe pipelines that are still failing. A busy warehouse alone is not enough.",
+      "The burn-rate page in this lab needs both the 12-second window and the 60-second window.",
+      "A short spike that fades, and a scrape that stopped, still need follow-up. Neither should wake someone on this page.",
+    ],
+    reflection: [
+      "Which scene was easiest to mistake for an incident, and what record separated them?",
+      "What would go wrong if the short window could page by itself?",
+      "Who is woken by this page, and what do you expect them to do in the first five minutes?",
+    ],
+    next: {
+      href: "/sre-labs/cascade",
+      label: "Lesson 6, a slow provider",
+      bridge:
+        "You know when to wake someone for ingest. Next is payments. A slow card provider holds its slots, retries request another slot, and charges fail for buyers whose own request was fine.",
     },
   },
   {
     id: "cascade",
-    index: 4,
+    index: 6,
     minutes: 20,
     title: "A slow card provider fills its slots",
     outcomes: [
@@ -223,14 +327,14 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     next: {
       href: "/sre-labs/capacity",
-      label: "Lesson 5, the edge queue and the replicas",
+      label: "Lesson 7, the edge queue and the replicas",
       bridge:
         "The last lesson held a card provider that could not take more calls. This one is an edge POP under an origin surge. Cache misses arrive faster than edge workers finish them. Compare more workers with a utilization rule, and bring latency back without turning viewers away.",
     },
   },
   {
     id: "capacity",
-    index: 5,
+    index: 7,
     minutes: 15,
     title: "Origin misses fill the edge queue",
     outcomes: [
@@ -275,14 +379,14 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     next: {
       href: "/sre-labs/deployment",
-      label: "Lesson 6, a bad release",
+      label: "Lesson 8, a bad release",
       bridge:
         "The edge recovered when you matched workers to origin demand. Sign-in is next: a share of sessions lands on a bad release, and you choose when that share has to stop.",
     },
   },
   {
     id: "deployment",
-    index: 6,
+    index: 8,
     minutes: 12,
     title: "A bad sign-in release has some of the traffic",
     outcomes: [

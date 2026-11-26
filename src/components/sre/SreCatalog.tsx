@@ -16,26 +16,12 @@ import {
 import { OBSERVABILITY_COURSE } from "@/lib/sre/observability-course";
 import { ModeTrack } from "@/components/sre/ModeTrack";
 
-const PRODUCT_MOSAIC = [
-  ...SRE_LESSONS.map((lab) => ({
-    id: lab.id,
-    label: SERVICE_STORIES[lab.id].product,
-    href: `/sre-labs/${lab.id}` as const,
-    kind: "lab" as const,
-  })),
-  {
-    id: "analytics",
-    label: "Analytics",
-    href: "/sre-labs/coding" as const,
-    kind: "coding" as const,
-  },
-  {
-    id: "api-docs",
-    label: "API contracts",
-    href: "/sre-labs/coding/deployment-audit-implementation-v1" as const,
-    kind: "coding" as const,
-  },
-];
+const PRODUCT_MOSAIC = SRE_LESSONS.map((lab) => ({
+  id: lab.id,
+  label: SERVICE_STORIES[lab.id].product,
+  href: `/sre-labs/${lab.id}` as const,
+  kind: "lab" as const,
+}));
 
 export function SreCatalog() {
   const progress = useSyncExternalStore(
@@ -82,11 +68,11 @@ export function SreCatalog() {
           <p className="product-eyebrow">SRE labs</p>
           <h1>Practice reliability on real product surfaces.</h1>
           <p>
-            Browser lessons move across streaming, messaging, search, payments,
-            edge delivery, and sign-in. Coding practice adds analytics windows
-            and API contract checks. The optional local course runs Express and
-            FastAPI with Prometheus, Grafana, OpenTelemetry, and Jaeger when you
-            want Docker and Node.js 20 or newer.
+            Browser lessons move across streaming, messaging, API platforms,
+            search, analytics ingest, payments, edge delivery, and sign-in. The
+            optional local course runs Express and FastAPI with Prometheus,
+            Grafana, OpenTelemetry, and Jaeger when you want Docker and Node.js
+            20 or newer.
           </p>
           <ul className="product-mosaic" aria-label="Product surfaces">
             {PRODUCT_MOSAIC.map((item, index) => (
@@ -159,9 +145,8 @@ export function SreCatalog() {
         <h2>Write production-shaped functions in Go, TypeScript, or Python.</h2>
         <p>
           Implementation stages start from a blank return. Complete and debug
-          stages hand you a draft. Across fleet health, analytics windows, API
-          contract audits, retries, and delivery policy, the same checks run in
-          the browser for every language.
+          stages hand you a draft. Fleet health, signal windows, retries, and
+          delivery policy share the same checks in Go, TypeScript, and Python.
         </p>
         <Link href="/sre-labs/coding" className="product-button">Open the coding roadmap <ArrowRight size={16}/></Link>
         <Link href="/labs" className="product-text-link">All learning paths</Link>

@@ -1,5 +1,12 @@
 export type SreLabKey =
-  "instrument" | "slo" | "alert" | "cascade" | "capacity" | "deployment";
+  | "instrument"
+  | "slo"
+  | "api"
+  | "alert"
+  | "analytics"
+  | "cascade"
+  | "capacity"
+  | "deployment";
 export type SreMode = "guided" | "practice" | "challenge";
 export type SreLesson = {
   id: SreLabKey;
@@ -43,6 +50,18 @@ export const SRE_LESSONS: SreLesson[] = [
     prerequisites: ["instrument"],
   },
   {
+    id: "api",
+    title: "Whether these API calls meet 99.5 percent",
+    summary:
+      "An integrator call is good only when the gateway succeeds in time. Set 99.5 percent and watch slow 200s spend the budget.",
+    outcome:
+      "Treat a late success as a miss when the API contract includes a latency line.",
+    topic: "Service levels",
+    difficulty: "Beginner",
+    minutes: 12,
+    prerequisites: ["slo"],
+  },
+  {
     id: "alert",
     title: "Whether this failure should page someone",
     summary:
@@ -53,6 +72,18 @@ export const SRE_LESSONS: SreLesson[] = [
     difficulty: "Intermediate",
     minutes: 15,
     prerequisites: ["slo"],
+  },
+  {
+    id: "analytics",
+    title: "Whether this ingest miss should page someone",
+    summary:
+      "Compare a busy host, a short spike, sustained ingest failures, and missing pipeline telemetry.",
+    outcome:
+      "Page on customer-facing ingest burn, not on a busy warehouse host alone.",
+    topic: "Alerting",
+    difficulty: "Intermediate",
+    minutes: 15,
+    prerequisites: ["alert"],
   },
   {
     id: "cascade",

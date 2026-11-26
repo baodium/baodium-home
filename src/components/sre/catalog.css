@@ -151,8 +151,8 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem 0.65rem;
-  max-width: 36rem;
+  gap: 0.5rem 0.55rem;
+  max-width: 40rem;
 }
 .product-mosaic a {
   display: inline-flex;

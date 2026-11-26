@@ -101,7 +101,7 @@
           "records": [
             {
               "instance_id": "i-edge",
-              "cpu": 85.0,
+              "cpu": 85,
               "healthy": true,
               "last_heartbeat_seconds": 2
             },
@@ -577,7 +577,7 @@
           "records": [
             {
               "instance_id": "i-edge",
-              "cpu": 85.0,
+              "cpu": 85,
               "healthy": true,
               "last_heartbeat_seconds": 2
             },
@@ -1053,7 +1053,7 @@
           "records": [
             {
               "instance_id": "i-edge",
-              "cpu": 85.0,
+              "cpu": 85,
               "healthy": true,
               "last_heartbeat_seconds": 2
             },
@@ -1620,9 +1620,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or \u2264 0 \u2192 no_replicas.",
-      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
-      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
+      "replicas missing or ≤ 0 → no_replicas.",
+      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
+      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -1819,9 +1819,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or \u2264 0 \u2192 no_replicas.",
-      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
-      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
+      "replicas missing or ≤ 0 → no_replicas.",
+      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
+      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -2018,9 +2018,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or \u2264 0 \u2192 no_replicas.",
-      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
-      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
+      "replicas missing or ≤ 0 → no_replicas.",
+      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
+      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -2034,13 +2034,13 @@
     "prompt": "Summarize normalized access-log records for an incident report. Count records in each HTTP status class.",
     "signature": "count_statuses(records)",
     "entrypoint": "count_statuses",
-    "starter": "def count_statuses(records):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def count_statuses(records):\n    \"\"\"Count HTTP status classes that appear.\"\"\"\n    # Implementation: start from an empty map.\n    # TODO 1: map each status to a class key with integer division by 100.\n    # TODO 2: omit classes with zero count.\n    return {}\n",
     "constraints": [
       "Each record has integer status from 100 to 599. Return only observed classes as string keys such as \"2xx\".",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
-      "HTTP status classes are hundreds: 200\u2013299 share class 2, 500\u2013599 share class 5.",
+      "HTTP status classes are hundreds: 200–299 share class 2, 500–599 share class 5.",
       "One pass is enough. Use a dictionary from class to count, then return the structure the examples show.",
       "For each record, key = status // 100; counts[key] = counts.get(key, 0) + 1. Skip building entries for classes you never saw."
     ],
@@ -2127,9 +2127,9 @@
     "prompt": "Prioritize an incident by counting server errors per service. Rank the services with errors.",
     "signature": "rank_errors(records)",
     "entrypoint": "rank_errors",
-    "starter": "def rank_errors(records):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def rank_errors(records):\n    \"\"\"Rank services by 5xx volume.\"\"\"\n    # Implementation: start from an empty ranking.\n    # TODO 1: count only 5xx records.\n    # TODO 2: sort by descending count, then lexicographic name.\n    return []\n",
     "constraints": [
-      "Records have service (string) and status (integer). Count statuses 500\u2013599 only. Return service names by count descending, then name ascending for ties.",
+      "Records have service (string) and status (integer). Count statuses 500–599 only. Return service names by count descending, then name ascending for ties.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2222,7 +2222,7 @@
     "prompt": "Calculate a tail-latency statistic from a bounded batch of raw millisecond measurements.",
     "signature": "percentile(values, p)",
     "entrypoint": "percentile",
-    "starter": "def percentile(values, p):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def percentile(values, p):\n    \"\"\"Nearest-rank percentile; empty input is None.\"\"\"\n    # Implementation: do not sort the caller's list in place.\n    # TODO 1: return None when values is empty.\n    # TODO 2: copy, sort, pick the nearest-rank index.\n    return None\n",
     "constraints": [
       "Values are nonnegative numbers; 0 < p <= 100. Return sorted[ceil(p*n/100)-1]. Return None for no samples.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2310,9 +2310,9 @@
     "prompt": "Implement the event selection behind a rolling error counter.",
     "signature": "window_errors(events, now, window)",
     "entrypoint": "window_errors",
-    "starter": "def window_errors(events, now, window):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def window_errors(events, now, window):\n    \"\"\"Count failures inside the rolling window.\"\"\"\n    # Implementation: start from zero.\n    # TODO 1: keep only timestamps in [now - window, now].\n    # TODO 2: count failed events only.\n    return 0\n",
     "constraints": [
-      "Events contain timestamp (integer seconds) and status. Count 500\u2013599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
+      "Events contain timestamp (integer seconds) and status. Count 500–599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2408,15 +2408,15 @@
     "prompt": "Report how many additional failed requests fit into a request-based error budget.",
     "signature": "remaining_budget(total, failures, slo_bps)",
     "entrypoint": "remaining_budget",
-    "starter": "def remaining_budget(total, failures, slo_bps):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Integer budget left; do not clamp negatives.\"\"\"\n    # Implementation: keep arithmetic in integers.\n    # TODO 1: compute allowed failures from total and slo_bps.\n    # TODO 2: return allowed - failures.\n    return 0\n",
     "constraints": [
-      "total and failures are nonnegative integers; failures <= total. slo_bps is 0\u201310000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
       "Budget remaining is allowed budget minus observed failures, expressed with the SLO in basis points.",
       "Prefer integer math so floating point cannot nudge a boundary. A negative result means the budget is already spent.",
-      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, \u2026)."
+      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, …)."
     ],
     "explanation": "Basis points make the contract exact. Integer floor prevents promising a fractional failed request.",
     "complexity": "O(1) time and space.",
@@ -2495,7 +2495,7 @@
     "hints": [
       "Gaps are expected ticks that never arrived, not the spaces between whatever you happened to receive.",
       "Put received timestamps in a set. Walk the theoretical schedule from start through end by interval.",
-      "expected = start, start+interval, \u2026 while <= end; emit those missing from the received set, in schedule order."
+      "expected = start, start+interval, … while <= end; emit those missing from the received set, in schedule order."
     ],
     "explanation": "Comparing with an expected schedule detects absence. Only looking at received events cannot identify all missing data.",
     "complexity": "O(n + k) time, O(n + k) space for n events and k slots.",
@@ -2575,7 +2575,7 @@
     "prompt": "Prepare a deterministic exponential-backoff schedule. This function computes delays; it does not sleep or send requests.",
     "signature": "retry_delays(attempts, base_ms, cap_ms)",
     "entrypoint": "retry_delays",
-    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Capped exponential delays.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: attempts == 0 yields [].\n    # TODO 2: double, cap, and carry the capped value forward.\n    return []\n",
     "constraints": [
       "attempts, base_ms and cap_ms are nonnegative integers. Attempt zero waits min(base_ms, cap_ms); each later delay doubles until capped. Return one delay per retry.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2667,7 +2667,7 @@
     "prompt": "Decide whether each timestamped request is admitted by a per-process token bucket.",
     "signature": "admit_requests(timestamps, capacity, refill_per_second)",
     "entrypoint": "admit_requests",
-    "starter": "def admit_requests(timestamps, capacity, refill_per_second):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def admit_requests(timestamps, capacity, refill_per_second):\n    \"\"\"Admit or reject each arrival.\"\"\"\n    # Implementation: start from an empty decision list.\n    # TODO 1: refill from elapsed time up to capacity.\n    # TODO 2: consume a token only when admitting.\n    return []\n",
     "constraints": [
       "Timestamps are nonnegative seconds in nondecreasing order. capacity is a positive integer; refill_per_second is nonnegative. Start full at time 0. Refill to capacity before each request; admitting consumes one token. Return booleans.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2995,7 +2995,7 @@
     "prompt": "Plan startup for services whose dependencies must be ready first. Detect cycles rather than waiting forever.",
     "signature": "startup_order(dependencies)",
     "entrypoint": "startup_order",
-    "starter": "def startup_order(dependencies):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def startup_order(dependencies):\n    \"\"\"Kahn order with lexicographic tie-break; cycles return None.\"\"\"\n    # Implementation: start from an empty order.\n    # TODO 1: every dependency name is also a key.\n    # TODO 2: always emit the lexicographically smallest ready name.\n    # TODO 3: return None when a cycle remains.\n    return None\n",
     "constraints": [
       "Input maps every service name to a list of dependency names; every dependency is also a key. Lists have no duplicates. Choose the lexicographically smallest currently ready service at each step. Return None if there is a cycle.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3005,7 +3005,7 @@
       "Track how many dependencies each service still needs, plus reverse edges to decrement dependents. Use a min-structure for the ready set.",
       "While ready: pop the smallest name, append it, decrement dependents, and enqueue those that hit zero. If len(order) < len(services): return None."
     ],
-    "explanation": "Kahn\u2019s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
+    "explanation": "Kahn’s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
     "complexity": "O((V + E) log V) time, O(V + E) space.",
     "followUp": "How would you distinguish a dependency cycle from a service that is merely slow to become ready?",
     "solution": "import heapq\n\ndef startup_order(dependencies):\n    counts = {name: len(items) for name, items in dependencies.items()}\n    dependents = {name: [] for name in dependencies}\n    for name, items in dependencies.items():\n        for dependency in items:\n            dependents[dependency].append(name)\n    ready = [name for name, count in counts.items() if count == 0]\n    heapq.heapify(ready)\n    result = []\n    while ready:\n        name = heapq.heappop(ready)\n        result.append(name)\n        for dependent in dependents[name]:\n            counts[dependent] -= 1\n            if counts[dependent] == 0:\n                heapq.heappush(ready, dependent)\n    return result if len(result) == len(dependencies) else None\n",
@@ -3278,7 +3278,7 @@
       "Membership checks come before value compares.",
       "Do not mutate either mapping."
     ],
-    "failureGuide": "Walk desired \u222a actual. Absent on one side is drift even when the other value looks fine."
+    "failureGuide": "Walk desired ∪ actual. Absent on one side is drift even when the other value looks fine."
   },
   {
     "id": "deduplicate-events",
@@ -3597,7 +3597,7 @@
     "entrypoint": "pressured_disks",
     "starter": "def pressured_disks(disks, threshold_percent):\n    # Implement the operational policy described on the left.\n    pass\n",
     "constraints": [
-      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0\u2013100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
+      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0–100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [

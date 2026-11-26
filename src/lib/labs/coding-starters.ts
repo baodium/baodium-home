@@ -96,6 +96,222 @@ func AuditDeployments(deployments []Deployment) []Finding {
 }
 `,
   },
+  "status-counts": {
+    typescript: `type StatusRecord = {
+  status: number;
+};
+
+function countStatuses(records: StatusRecord[]): Record<string, number> {
+  // Implementation: build class counts from an empty map.
+  // TODO 1: map each status to a class key with integer division by 100 (2xx, 5xx, …).
+  // TODO 2: increment counts; omit classes that never appear.
+  // Do not mutate records.
+  void records;
+  return {};
+}
+`,
+    go: `package solution
+
+// Implementation: build class counts from an empty map.
+func CountStatuses(records []map[string]float64) map[string]float64 {
+	// TODO 1: map each status to a class key with integer division by 100.
+	// TODO 2: increment counts; omit classes that never appear.
+	_ = records
+	return map[string]float64{}
+}
+`,
+  },
+  "error-services": {
+    typescript: `type ErrorRecord = {
+  service: string;
+  status: number;
+};
+
+function rankErrors(records: ErrorRecord[]): string[] {
+  // Implementation: rank services by 5xx volume.
+  // TODO 1: count only records whose status is in the 5xx class.
+  // TODO 2: sort by descending count, then lexicographic service name.
+  // Do not mutate records.
+  void records;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: rank services by 5xx volume.
+func RankErrors(records []map[string]any) []string {
+	// TODO 1: count only records whose status is in the 5xx class.
+	// TODO 2: sort by descending count, then lexicographic service name.
+	_ = records
+	return []string{}
+}
+`,
+  },
+  "latency-percentile": {
+    typescript: `function percentile(values: number[], p: number): number | null {
+  // Implementation: nearest-rank percentile without sorting in place.
+  // TODO 1: return null when values is empty.
+  // TODO 2: copy, sort ascending, pick the nearest-rank index for p.
+  void values;
+  void p;
+  return null;
+}
+`,
+    go: `package solution
+
+// Implementation: nearest-rank percentile without sorting in place.
+// Empty input returns nil (JSON null).
+func Percentile(values []float64, p float64) any {
+	// TODO 1: return nil when values is empty.
+	// TODO 2: copy, sort ascending, pick the nearest-rank index for p.
+	_ = values
+	_ = p
+	return nil
+}
+`,
+  },
+  "rolling-errors": {
+    typescript: `type ErrorEvent = {
+  ts: number;
+  failed?: boolean;
+};
+
+function windowErrors(
+  events: ErrorEvent[],
+  now: number,
+  window: number,
+): number {
+  // Implementation: count failures inside [now - window, now].
+  // TODO 1: drop timestamps older than the window start or after now.
+  // TODO 2: count only events marked failed.
+  void events;
+  void now;
+  void window;
+  return 0;
+}
+`,
+    go: `package solution
+
+// Implementation: count failures inside [now - window, now].
+func WindowErrors(events []map[string]float64, now float64, window float64) float64 {
+	// TODO 1: drop timestamps older than the window start or after now.
+	// TODO 2: count only events marked failed.
+	_ = events
+	_ = now
+	_ = window
+	return 0
+}
+`,
+  },
+  "error-budget": {
+    typescript: `function remainingBudget(
+  total: number,
+  failures: number,
+  sloBps: number,
+): number {
+  // Implementation: integer budget left in basis points of total.
+  // TODO 1: allowed failures = floor(total * (10000 - slo_bps) / 10000).
+  // TODO 2: return allowed - failures without clamping negatives to zero.
+  void total;
+  void failures;
+  void sloBps;
+  return 0;
+}
+`,
+    go: `package solution
+
+// Implementation: integer budget left in basis points of total.
+func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
+	// TODO 1: allowed failures = floor(total * (10000 - sloBps) / 10000).
+	// TODO 2: return allowed - failures without clamping negatives to zero.
+	_ = total
+	_ = failures
+	_ = sloBps
+	return 0
+}
+`,
+  },
+  "retry-backoff": {
+    typescript: `function retryDelays(
+  attempts: number,
+  baseMs: number,
+  capMs: number,
+): number[] {
+  // Implementation: capped exponential delays for each attempt.
+  // TODO 1: attempts == 0 yields [].
+  // TODO 2: double from base, cap at capMs, and carry the capped value forward.
+  void attempts;
+  void baseMs;
+  void capMs;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: capped exponential delays for each attempt.
+func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
+	// TODO 1: attempts == 0 yields an empty slice.
+	// TODO 2: double from base, cap at capMs, and carry the capped value forward.
+	_ = attempts
+	_ = baseMs
+	_ = capMs
+	return []float64{}
+}
+`,
+  },
+  "token-bucket": {
+    typescript: `function admitRequests(
+  timestamps: number[],
+  capacity: number,
+  refillPerSecond: number,
+): boolean[] {
+  // Implementation: admit or reject each request in arrival order.
+  // TODO 1: refill from elapsed time, never above capacity.
+  // TODO 2: consume one token only when admitting; rejections spend none.
+  void timestamps;
+  void capacity;
+  void refillPerSecond;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: admit or reject each request in arrival order.
+func AdmitRequests(timestamps []float64, capacity float64, refillPerSecond float64) []bool {
+	// TODO 1: refill from elapsed time, never above capacity.
+	// TODO 2: consume one token only when admitting; rejections spend none.
+	_ = timestamps
+	_ = capacity
+	_ = refillPerSecond
+	return []bool{}
+}
+`,
+  },
+  "dependency-order": {
+    typescript: `function startupOrder(
+  dependencies: Record<string, string[]>,
+): string[] | null {
+  // Implementation: Kahn order with lexicographic ready-set tie-break.
+  // TODO 1: every dependency name is also a service key.
+  // TODO 2: emit the lexicographically smallest ready name each step.
+  // TODO 3: return null when a cycle remains.
+  void dependencies;
+  return null;
+}
+`,
+    go: `package solution
+
+// Implementation: Kahn order with lexicographic ready-set tie-break.
+// Cycles return nil (JSON null).
+func StartupOrder(dependencies map[string][]string) any {
+	// TODO 1: every dependency name is also a service key.
+	// TODO 2: emit the lexicographically smallest ready name each step.
+	// TODO 3: return nil when a cycle remains.
+	_ = dependencies
+	return nil
+}
+`,
+  },
   "unhealthy-instances-complete-v1": {
     typescript: `type Heartbeat = {
   instance_id: string;

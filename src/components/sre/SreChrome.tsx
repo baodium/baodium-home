@@ -14,10 +14,12 @@ import { SitePill } from "@/components/Navigation";
 const labs = [
   { href: "/sre-labs/coding", label: "Coding practice" },
   { href: "/sre-labs/observability", label: "Hands-on course" },
-  { href: "/sre-labs/cascade", label: "Card provider" },
   { href: "/sre-labs/instrument", label: "Playback" },
-  { href: "/sre-labs/slo", label: "99.5% budget" },
-  { href: "/sre-labs/alert", label: "Paging" },
+  { href: "/sre-labs/slo", label: "Messaging SLO" },
+  { href: "/sre-labs/api", label: "API budget" },
+  { href: "/sre-labs/alert", label: "Search paging" },
+  { href: "/sre-labs/analytics", label: "Ingest paging" },
+  { href: "/sre-labs/cascade", label: "Card provider" },
   { href: "/sre-labs/capacity", label: "Edge / CDN" },
   { href: "/sre-labs/deployment", label: "Sign-in" },
 ];
