@@ -9,6 +9,7 @@ import {
   budgetFraction,
   burnRate,
   defaultControls,
+  hostSignal,
   isCheckoutGood,
   meetsTarget,
   type AlertKind,
@@ -110,19 +111,65 @@ function clamp01(n: number): number {
 export function stepSre(state: EngineState, controls: Controls, dt = 1): EngineState {
   const seconds = Math.max(0, dt);
   const arrivals = Math.max(0, Math.round(controls.arrivalRate * seconds));
-  const cpu = clamp01(controls.cpu);
+  const signal = clamp01(hostSignal(controls));
   const requests = state.requests.slice();
   let nextId = state.nextId;
   const t = state.t + seconds;
 
   const failCount = Math.round(clamp01(controls.errorRate) * arrivals);
+  const mismatchCount =
+    controls.profile === "api"
+      ? Math.round(clamp01(controls.contractMismatchRate) * arrivals)
+      : 0;
+  const rejectCount =
+    controls.profile === "analytics"
+      ? Math.round(clamp01(controls.batchRejectRate) * arrivals)
+      : 0;
+
   for (let i = 0; i < arrivals; i += 1) {
-    const failed = i < failCount;
     const jitter = Math.floor(state.rng.next() * 8);
-    const attempted = controls.paymentBaseMs + controls.extraLatencyMs + jitter;
-    const timedOut = !failed && attempted > controls.timeoutMs;
-    const paymentMs = failed ? controls.paymentBaseMs : timedOut ? controls.timeoutMs : attempted;
-    const status = failed ? 500 : timedOut ? 504 : 200;
+    let status = 200;
+    let timedOut = false;
+    let paymentMs = controls.paymentBaseMs;
+    let checkoutMs = CHECKOUT_SELF_MS + paymentMs;
+
+    if (controls.profile === "api") {
+      const mismatch = i < mismatchCount;
+      const failed = !mismatch && i < mismatchCount + failCount;
+      const docsMs =
+        controls.paymentBaseMs + controls.docsLagMs + controls.extraLatencyMs + jitter;
+      timedOut = !mismatch && !failed && docsMs > controls.timeoutMs;
+      paymentMs = mismatch
+        ? Math.max(8, Math.floor(controls.paymentBaseMs * 0.4))
+        : failed
+          ? controls.paymentBaseMs
+          : timedOut
+            ? controls.timeoutMs
+            : docsMs;
+      status = mismatch ? 400 : failed ? 500 : timedOut ? 504 : 200;
+      checkoutMs = CHECKOUT_SELF_MS + paymentMs;
+    } else if (controls.profile === "analytics") {
+      const rejected = i < rejectCount;
+      const failed = !rejected && i < rejectCount + failCount;
+      const writeMs =
+        controls.paymentBaseMs + controls.lateBatchMs + controls.extraLatencyMs + jitter;
+      timedOut = !rejected && !failed && writeMs > controls.timeoutMs;
+      paymentMs = rejected || failed
+        ? controls.paymentBaseMs
+        : timedOut
+          ? controls.timeoutMs
+          : writeMs;
+      status = rejected ? 503 : failed ? 500 : timedOut ? 504 : 200;
+      checkoutMs = CHECKOUT_SELF_MS + paymentMs;
+    } else {
+      const failed = i < failCount;
+      const attempted = controls.paymentBaseMs + controls.extraLatencyMs + jitter;
+      timedOut = !failed && attempted > controls.timeoutMs;
+      paymentMs = failed ? controls.paymentBaseMs : timedOut ? controls.timeoutMs : attempted;
+      status = failed ? 500 : timedOut ? 504 : 200;
+      checkoutMs = CHECKOUT_SELF_MS + paymentMs;
+    }
+
     const id = `c-${nextId}`;
     nextId += 1;
     const request: RequestEvent = {
@@ -130,16 +177,16 @@ export function stepSre(state: EngineState, controls: Controls, dt = 1): EngineS
       id,
       traceId: `t-${id.slice(2)}`,
       status,
-      checkoutMs: CHECKOUT_SELF_MS + paymentMs,
+      checkoutMs,
       paymentMs,
-      cpu,
+      cpu: signal,
       bad: status !== 200,
       timedOut,
     };
     requests.push(request);
   }
 
-  const gauges = state.gauges.concat({ t, cpu });
+  const gauges = state.gauges.concat({ t, cpu: signal });
   const cutoff = t - RETAIN_SEC;
   return {
     ...state,
@@ -340,12 +387,27 @@ export function snapshotSre(state: EngineState, controls: Controls): Snapshot {
   const shortBurn = burnWindow(state.requests, controls, SHORT_WINDOW_SEC, state.t, visible);
   const longBurn = burnWindow(state.requests, controls, LONG_WINDOW_SEC, state.t, visible);
   const cpu = state.gauges.length === 0 ? null : state.gauges[state.gauges.length - 1]!.cpu;
+  const hostKind: AlertKind =
+    controls.profile === "analytics" ? "warehouse" : "cpu";
+  const hostLabel = controls.profile === "analytics" ? "Warehouse util" : "CPU";
   const cpuAlert: AlertView =
     cpu === null
-      ? { kind: "cpu", status: "no-data", detail: "No CPU sample has arrived." }
+      ? {
+          kind: hostKind,
+          status: "no-data",
+          detail: `No ${hostLabel.toLowerCase()} sample has arrived.`,
+        }
       : cpu > 0.8
-        ? { kind: "cpu", status: "paging", detail: `CPU is ${Math.round(cpu * 100)}%, over the 80% line.` }
-        : { kind: "cpu", status: "quiet", detail: `CPU is ${Math.round(cpu * 100)}%, under the 80% line.` };
+        ? {
+            kind: hostKind,
+            status: "paging",
+            detail: `${hostLabel} is ${Math.round(cpu * 100)}%, over the 80% line.`,
+          }
+        : {
+            kind: hostKind,
+            status: "quiet",
+            detail: `${hostLabel} is ${Math.round(cpu * 100)}%, under the 80% line.`,
+          };
   let burnAlert: AlertView;
   if (!visible || shortBurn.total < 20 || longBurn.total < 40) {
     burnAlert = {
@@ -392,22 +454,67 @@ export function snapshotSre(state: EngineState, controls: Controls): Snapshot {
 
 export function sceneControls(scene: Scene, base?: Partial<Controls>): Controls {
   const instrumentation = { ...FULL_INSTRUMENTATION, ...base?.instrumentation };
+  const profile = base?.profile ?? "default";
   if (scene === "healthy") {
-    return defaultControls({ ...base, instrumentation, errorRate: 0, cpu: 0.22, extraLatencyMs: 0, emitHttp: true, timeoutMs: 2000 });
+    return defaultControls({
+      ...base,
+      instrumentation,
+      profile,
+      errorRate: 0,
+      cpu: 0.22,
+      warehouseUtil: 0.22,
+      docsLagMs: 0,
+      lateBatchMs: 0,
+      contractMismatchRate: 0,
+      batchRejectRate: 0,
+      extraLatencyMs: 0,
+      emitHttp: true,
+      timeoutMs: 2000,
+    });
   }
-  if (scene === "cpu-spike") {
-    return defaultControls({ ...base, instrumentation, errorRate: 0, cpu: 0.92, extraLatencyMs: 0, emitHttp: true, arrivalRate: 10, timeoutMs: 2000 });
+  if (scene === "cpu-spike" || scene === "warehouse-busy") {
+    return defaultControls({
+      ...base,
+      instrumentation,
+      profile,
+      errorRate: 0,
+      batchRejectRate: 0,
+      contractMismatchRate: 0,
+      cpu: scene === "cpu-spike" ? 0.92 : 0.22,
+      warehouseUtil: scene === "warehouse-busy" || profile === "analytics" ? 0.92 : 0.22,
+      extraLatencyMs: 0,
+      docsLagMs: 0,
+      lateBatchMs: 0,
+      emitHttp: true,
+      arrivalRate: 10,
+      timeoutMs: 2000,
+    });
   }
   if (scene === "short-spike") {
-    return defaultControls({ ...base, instrumentation, emitHttp: true, arrivalRate: 10, timeoutMs: 300 });
+    return defaultControls({
+      ...base,
+      instrumentation,
+      profile,
+      emitHttp: true,
+      arrivalRate: 10,
+      timeoutMs: 300,
+      cpu: 0.35,
+      warehouseUtil: 0.35,
+    });
   }
   if (scene === "sustained") {
     return defaultControls({
       ...base,
       instrumentation,
-      errorRate: 0.2,
+      profile,
+      errorRate: profile === "analytics" ? 0 : 0.2,
+      batchRejectRate: profile === "analytics" ? 0.2 : 0,
+      contractMismatchRate: 0,
       cpu: 0.35,
+      warehouseUtil: 0.35,
       extraLatencyMs: 0,
+      docsLagMs: 0,
+      lateBatchMs: 0,
       emitHttp: true,
       arrivalRate: 10,
       timeoutMs: 300,
@@ -417,18 +524,67 @@ export function sceneControls(scene: Scene, base?: Partial<Controls>): Controls 
     return defaultControls({
       ...base,
       instrumentation,
-      errorRate: 0.2,
+      profile,
+      errorRate: profile === "analytics" ? 0 : 0.2,
+      batchRejectRate: profile === "analytics" ? 0.2 : 0,
       cpu: 0.35,
+      warehouseUtil: 0.35,
       emitHttp: false,
       arrivalRate: 10,
       timeoutMs: 300,
     });
   }
+  if (scene === "docs-lag") {
+    return defaultControls({
+      ...base,
+      instrumentation,
+      profile: "api",
+      errorRate: 0,
+      contractMismatchRate: 0,
+      docsLagMs: 520,
+      // Keep gateway timeout above docs lag so the miss is a late 200, not a 504.
+      timeoutMs: 2000,
+      arrivalRate: 10,
+      emitHttp: true,
+      cpu: 0.3,
+    });
+  }
+  if (scene === "contract-mismatch") {
+    return defaultControls({
+      ...base,
+      instrumentation,
+      profile: "api",
+      errorRate: 0,
+      contractMismatchRate: 0.25,
+      docsLagMs: 0,
+      timeoutMs: 300,
+      arrivalRate: 10,
+      emitHttp: true,
+      cpu: 0.3,
+    });
+  }
+  if (scene === "late-batches") {
+    return defaultControls({
+      ...base,
+      instrumentation,
+      profile: "analytics",
+      errorRate: 0,
+      batchRejectRate: 0,
+      lateBatchMs: 520,
+      // Keep warehouse write timeout above late-batch delay so the miss is a late 200.
+      timeoutMs: 2000,
+      warehouseUtil: 0.35,
+      arrivalRate: 10,
+      emitHttp: true,
+    });
+  }
   return defaultControls({
     ...base,
     instrumentation,
+    profile,
     errorRate: 0,
     cpu: 0.22,
+    warehouseUtil: 0.22,
     extraLatencyMs: 400,
     timeoutMs: 2000,
     arrivalRate: 4,
@@ -441,17 +597,33 @@ export function runScene(scene: Scene, seed = 7, base?: Partial<Controls>): { st
   const controls = sceneControls(scene, base);
   let state = createSreEngine(seed);
   if (scene === "short-spike") {
-    state = runSre(state, { ...controls, errorRate: 0 }, 54);
-    state = runSre(state, { ...controls, errorRate: 0.5 }, 6);
-    return { state, controls: { ...controls, errorRate: 0.5 } };
+    const quiet =
+      controls.profile === "analytics"
+        ? { batchRejectRate: 0, errorRate: 0 }
+        : { errorRate: 0, batchRejectRate: 0 };
+    const hot =
+      controls.profile === "analytics"
+        ? { batchRejectRate: 0.5, errorRate: 0 }
+        : { errorRate: 0.5, batchRejectRate: 0 };
+    state = runSre(state, { ...controls, ...quiet }, 54);
+    state = runSre(state, { ...controls, ...hot }, 6);
+    return { state, controls: { ...controls, ...hot } };
   }
   if (scene === "slow-payment") {
     state = runSre(state, controls, 4);
     return { state, controls };
   }
-  if (scene === "cpu-spike") {
-    state = runSre(state, { ...controls, cpu: 0.22, errorRate: 0 }, 40);
+  if (scene === "cpu-spike" || scene === "warehouse-busy") {
+    const quietSignal =
+      controls.profile === "analytics"
+        ? { warehouseUtil: 0.22, cpu: 0.22 }
+        : { cpu: 0.22, warehouseUtil: 0.22 };
+    state = runSre(state, { ...controls, ...quietSignal, errorRate: 0, batchRejectRate: 0 }, 40);
     state = runSre(state, controls, 20);
+    return { state, controls };
+  }
+  if (scene === "docs-lag" || scene === "contract-mismatch" || scene === "late-batches") {
+    state = runSre(state, controls, 60);
     return { state, controls };
   }
   const seconds = scene === "healthy" ? 8 : 60;
@@ -460,5 +632,6 @@ export function runScene(scene: Scene, seed = 7, base?: Partial<Controls>): { st
 }
 
 export function activeAlert(snapshot: Snapshot, kind: AlertKind): AlertView {
-  return kind === "cpu" ? snapshot.cpuAlert : snapshot.burnAlert;
+  if (kind === "burn") return snapshot.burnAlert;
+  return snapshot.cpuAlert;
 }

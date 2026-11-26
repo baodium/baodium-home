@@ -40,9 +40,27 @@ await shot(page, "sre-catalog-eight-surfaces.png");
 
 await waitReady(page, "/sre-labs/api");
 await shot(page, "sre-api-budget.png");
+const docsLag = page.getByRole("button", { name: /Raise docs lag/i });
+if (await docsLag.count()) {
+  await docsLag.first().click();
+  await settle(page, 1600);
+  await shot(page, "sre-api-docs-lag.png");
+}
+const mismatch = page.getByRole("button", { name: /Introduce contract mismatches/i });
+if (await mismatch.count()) {
+  await mismatch.first().click();
+  await settle(page, 1600);
+  await shot(page, "sre-api-contract-mismatch.png");
+}
 
 await waitReady(page, "/sre-labs/analytics");
 await shot(page, "sre-analytics-ingest.png");
+const warehouse = page.getByRole("button", { name: /Run the busy warehouse/i });
+if (await warehouse.count()) {
+  await warehouse.first().click();
+  await settle(page, 1600);
+  await shot(page, "sre-analytics-warehouse-busy.png");
+}
 
 await waitReady(page, "/labs");
 await shot(page, "labs-hub-eight-surfaces.png");
@@ -58,6 +76,14 @@ await shot(page, "coding-impl-dependency-order-go.png");
 await waitReady(page, "/sre-labs/coding/retry-backoff?lang=typescript");
 await settle(page, 1200);
 await shot(page, "coding-impl-retry-backoff-ts.png");
+
+await waitReady(page, "/sre-labs/coding/shard-routing?lang=go");
+await settle(page, 1200);
+await shot(page, "coding-impl-shard-routing-go.png");
+
+await waitReady(page, "/sre-labs/coding/redact-secrets?lang=typescript");
+await settle(page, 1200);
+await shot(page, "coding-impl-redact-secrets-ts.png");
 
 await desktop.close();
 await browser.close();

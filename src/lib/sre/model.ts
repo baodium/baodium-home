@@ -15,14 +15,19 @@ export const PAYMENT_BASE_MS = 40;
 
 export type Journey = "checkout" | "cpu";
 export type GoodWhen = "success" | "fast" | "both";
-export type AlertKind = "cpu" | "burn";
+export type AlertKind = "cpu" | "burn" | "warehouse";
+export type LabProfile = "default" | "api" | "analytics";
 export type Scene =
   | "healthy"
   | "cpu-spike"
   | "short-spike"
   | "sustained"
   | "missing-telemetry"
-  | "slow-payment";
+  | "slow-payment"
+  | "docs-lag"
+  | "contract-mismatch"
+  | "warehouse-busy"
+  | "late-batches";
 
 export type Instrumentation = {
   httpMetrics: boolean;
@@ -45,6 +50,18 @@ export type Controls = {
   latencyBudgetMs: number;
   target: number;
   alert: AlertKind;
+  /** Product-shaped failure model for the shared request engine. */
+  profile: LabProfile;
+  /** API platform: share of calls rejected as OpenAPI/contract mismatches (HTTP 400). */
+  contractMismatchRate: number;
+  /** API platform: extra docs-upstream lag in milliseconds. */
+  docsLagMs: number;
+  /** Analytics: share of ingest batches rejected by the warehouse (HTTP 503). */
+  batchRejectRate: number;
+  /** Analytics: extra warehouse write delay that makes successful batches late. */
+  lateBatchMs: number;
+  /** Analytics: warehouse utilization 0–1 (wrong paging signal vs ingest failures). */
+  warehouseUtil: number;
   handlerSpan: string;
   dependencySpan: string;
   requestLog: string;
@@ -99,6 +116,12 @@ export function defaultControls(patch?: Partial<Controls>): Controls {
     latencyBudgetMs: LATENCY_BUDGET_MS,
     target: DEFAULT_TARGET,
     alert: "burn",
+    profile: "default",
+    contractMismatchRate: 0,
+    docsLagMs: 0,
+    batchRejectRate: 0,
+    lateBatchMs: 0,
+    warehouseUtil: 0.22,
     handlerSpan: "checkout POST /checkout",
     dependencySpan: "payment charge",
     requestLog: "checkout_ms",
@@ -114,6 +137,15 @@ export function defaultControls(patch?: Partial<Controls>): Controls {
       ...patch?.instrumentation,
     },
   };
+}
+
+/** Host-shaped wrong signal: warehouse util for analytics, CPU otherwise. */
+export function hostSignal(controls: Controls): number {
+  return controls.profile === "analytics" ? controls.warehouseUtil : controls.cpu;
+}
+
+export function hostSignalLabel(controls: Controls): string {
+  return controls.profile === "analytics" ? "Warehouse util" : "CPU";
 }
 
 /** True only when the measured good rate reaches the stated target. */

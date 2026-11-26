@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { seriesPath } from "@/lib/sre/chart";
 import { ServiceMark } from "@/components/learning/ServiceMark";
 import type { Snapshot, TraceView } from "@/lib/sre/engine";
-import { targetLabel, type Controls } from "@/lib/sre/model";
+import { hostSignalLabel, targetLabel, type Controls } from "@/lib/sre/model";
 import type { ServiceStory } from "@/lib/sre/stories";
 
 export function TelemetryBoard({
@@ -35,6 +35,9 @@ export function TelemetryBoard({
       : `${(window.goodRate * 100).toFixed(1)}%`;
   const spentText =
     window.spent === null ? "no samples" : `${window.spent.toFixed(2)} budgets`;
+  const hostLabel = hostSignalLabel(controls);
+  const hostAlertTitle =
+    controls.profile === "analytics" ? "Warehouse util over 80%" : "CPU over 80%";
 
   return (
     <div className="space-y-4">
@@ -49,6 +52,20 @@ export function TelemetryBoard({
           below is the only clock. The chart, the trace, the log, and the alerts
           are that same minute.
         </p>
+        {controls.profile === "api" ? (
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
+            Failure knobs on this path: docs lag {controls.docsLagMs} ms, contract
+            mismatches {Math.round(controls.contractMismatchRate * 100)}%.
+          </p>
+        ) : null}
+        {controls.profile === "analytics" ? (
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
+            Failure knobs on this path: warehouse rejects{" "}
+            {Math.round(controls.batchRejectRate * 100)}%, late-batch delay{" "}
+            {controls.lateBatchMs} ms, warehouse util{" "}
+            {Math.round(controls.warehouseUtil * 100)}%.
+          </p>
+        ) : null}
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <ServiceCard label={story.client} detail={story.clientDetail} />
           <ServiceCard
@@ -80,10 +97,14 @@ export function TelemetryBoard({
             telemetry, not a perfect hour.
           </p>
         )}
-        <SeriesChart series={snapshot.series} service={story.service} />
+        <SeriesChart
+          series={snapshot.series}
+          service={story.service}
+          hostLabel={hostLabel}
+        />
         <dl className="mt-3 grid grid-cols-2 gap-2 font-mono text-[0.75rem] sm:grid-cols-4">
           <Stat
-            label="CPU"
+            label={hostLabel}
             value={
               snapshot.cpu === null
                 ? "no sample"
@@ -176,7 +197,7 @@ export function TelemetryBoard({
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        <AlertCard title="CPU over 80%" alert={snapshot.cpuAlert} />
+        <AlertCard title={hostAlertTitle} alert={snapshot.cpuAlert} />
         <AlertCard title={`${story.service} burn rate`} alert={snapshot.burnAlert} />
       </section>
     </div>
@@ -201,6 +222,8 @@ function ServiceCard({ label, detail }: { label: string; detail: string }) {
 
 const STAT_NOTES: Record<string, string> = {
   CPU: "CPU is how busy the host is. A high reading does not, by itself, mean customers are failing.",
+  "Warehouse util":
+    "Warehouse util is how busy the warehouse writers are. A high reading does not, by itself, mean ingest batches are failing.",
   "Short burn": "Short burn is the 12-second window against the 99.5 percent budget.",
   "Long burn": "Long burn is the 60-second window. A page waits until it agrees with the short window.",
   Clock: "Clock is simulation seconds, not wall time.",
@@ -331,9 +354,11 @@ function AlertCard({
 function SeriesChart({
   series,
   service,
+  hostLabel = "CPU",
 }: {
   series: Snapshot["series"];
   service: string;
+  hostLabel?: string;
 }) {
   const drawing = useMemo(() => {
     const width = 640;
@@ -361,14 +386,14 @@ function SeriesChart({
   return (
     <figure>
       <figcaption className="mt-3 text-xs text-[color:var(--exp-muted)]">
-        {service} errors (copper) and CPU (teal), % · one-second samples. Gaps
-        indicate missing measurements.
+        {service} errors (copper) and {hostLabel.toLowerCase()} (teal), % ·
+        one-second samples. Gaps indicate missing measurements.
       </figcaption>
       <svg
         viewBox={`0 0 ${drawing.width} ${drawing.height}`}
         className="mt-3 h-auto w-full"
         role="img"
-        aria-label={`${service} error rate and CPU over the last minute`}
+        aria-label={`${service} error rate and ${hostLabel} over the last minute`}
       >
         {[0, 50, 100].map((value) => (
           <g key={value}>

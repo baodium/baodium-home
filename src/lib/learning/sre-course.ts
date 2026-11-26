@@ -136,7 +136,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     paragraphs: [
       "An API contract is a promise integrators can hold you to. Here the promise is 99.5 percent of gateway calls succeeding in under 300 milliseconds. The error budget is the half a percent you may miss. Spending the budget means those misses already happened in the window you are reading.",
-      "A 200 that arrives after the time limit still spends the budget, because the integrator already waited. Seventeen failures in a thousand calls is 98.3 percent, and 98.3 does not meet 99.5. In Guided, you spend the budget on purpose. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
+      "This lesson has two knobs that messaging does not. Docs lag makes successful calls late without a 500. Contract mismatches return HTTP 400 and spend the success half of the SLI. In Guided, you spend the budget with each knob. In Challenge, you judge the window. The prompt does not say whether it meets the line.",
     ],
     concepts: [
       {
@@ -155,13 +155,13 @@ export const SRE_COURSE: SreLessonCraft[] = [
     goal: "Mark this window as meeting 99.5 percent, or as missing it.",
     steps: [
       "Read the target on the chart before you change anything.",
-      "Raise failures or latency until good API calls fall below 99.5 percent.",
-      "Check a window of 17 misses in 1,000. That is 98.3 percent, and it does not meet the line.",
+      "Raise docs lag until late 200s spend the latency half of the SLI.",
+      "Reset the lag, then introduce contract mismatches so HTTP 400s spend the success half.",
       "In challenge mode, mark the window as meeting the target or missing it. The prompt does not tell you which.",
     ],
     takeaways: [
       "The SLO here is 99.5 percent of API calls succeeding in under 300 milliseconds.",
-      "A slow success spends the budget. The status code alone is not the SLI.",
+      "Docs lag spends the budget with late 200s. Contract mismatches spend it with 400s.",
       "Seventeen misses in a thousand is 98.3 percent. That window does not meet 99.5 percent.",
     ],
     reflection: [
@@ -225,7 +225,7 @@ export const SRE_COURSE: SreLessonCraft[] = [
       href: "/sre-labs/analytics",
       label: "Lesson 5, ingest paging",
       bridge:
-        "You know when to wake someone for search. The next lesson keeps the same burn-rate rule on analytics ingest: warehouse CPU can look busy while batches keep failing, and you choose which signal deserves a page.",
+        "You know when to wake someone for search. The next lesson keeps the same burn-rate rule on analytics ingest: warehouse util can look busy while batches reject or arrive late, and you choose which signal deserves a page.",
     },
   },
   {
@@ -239,13 +239,13 @@ export const SRE_COURSE: SreLessonCraft[] = [
       "Choose which situation should wake someone, and say why the others should not.",
     ],
     paragraphs: [
-      "You interrupt a person only when the customer symptom is still true in more than one window. The warehouse can be busy while ingest still succeeds, and one slow batch can light a chart without starting an incident.",
-      "The burn-rate rule pages only when the 12-second window and the 60-second window are both spending the 99.5 percent budget at 14.4 times the allowed rate or faster, with enough batches in each window. A spike lights the short window and then fades. Both windows have to agree. In Challenge, you have the telemetry. The prompt does not say whether to page.",
+      "You interrupt a person only when the customer symptom is still true in more than one window. Warehouse util can look busy while ingest still succeeds. Warehouse rejects and late batches are different failure modes from a busy writer pool.",
+      "The burn-rate rule pages only when the 12-second window and the 60-second window are both spending the 99.5 percent budget at 14.4 times the allowed rate or faster. A short reject spike lights the short window and then fades. Late batches spend the latency half of the SLI without a hard reject. In Challenge, you have the telemetry. The prompt does not say whether to page.",
     ],
     concepts: [
       {
         name: "Symptom",
-        body: "Ingest failures are what the pipeline hit. CPU is the warehouse host.",
+        body: "Ingest failures and late batches are what the pipeline hit. Warehouse util is the writer pool.",
       },
       {
         name: "Burn rate",
@@ -265,12 +265,12 @@ export const SRE_COURSE: SreLessonCraft[] = [
     ],
     takeaways: [
       "A page should describe pipelines that are still failing. A busy warehouse alone is not enough.",
-      "The burn-rate page in this lab needs both the 12-second window and the 60-second window.",
-      "A short spike that fades, and a scrape that stopped, still need follow-up. Neither should wake someone on this page.",
+      "Warehouse rejects and late batches are different miss classes from a busy writer pool.",
+      "The burn-rate page still needs both the 12-second window and the 60-second window.",
     ],
     reflection: [
       "Which scene was easiest to mistake for an incident, and what record separated them?",
-      "What would go wrong if the short window could page by itself?",
+      "How would you tell a late-batch miss from a warehouse reject in the telemetry?",
       "Who is woken by this page, and what do you expect them to do in the first five minutes?",
     ],
     next: {

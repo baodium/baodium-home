@@ -55,7 +55,11 @@ import {
 export type SreLabId = SreTelemetryLab;
 type Mode = "guided" | "practice" | "challenge";
 type PageScene =
-  "cpu-spike" | "short-spike" | "sustained" | "missing-telemetry";
+  | "cpu-spike"
+  | "warehouse-busy"
+  | "short-spike"
+  | "sustained"
+  | "missing-telemetry";
 
 const MODES = [
   {
@@ -164,7 +168,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
             ? gradeSloChallenge(snapshot, controls, verdict)
             : gradeSlo(snapshot, controls)
           : mode === "challenge"
-            ? gradeAlertChallenge(snapshot, decision)
+            ? gradeAlertChallenge(snapshot, decision, controls)
             : gradeAlert({ controls, choice: pageChoice });
     setGrade(result);
     if (result.ok) recordSreProgress(lab, mode, result.reason);
@@ -305,7 +309,28 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                 setDecision={setDecision}
                 onRun={() => runCheckout(pedagogyOf(lab) === "instrument" ? 4 : 20)}
                 onSpend={() =>
-                  runCheckout(20, { errorRate: 0.2, timeoutMs: 300, cpu: 0.35 })
+                  lab === "api"
+                    ? runCheckout(20, {
+                        docsLagMs: 520,
+                        contractMismatchRate: 0,
+                        errorRate: 0,
+                        timeoutMs: 2000,
+                        cpu: 0.35,
+                      })
+                    : runCheckout(20, {
+                        errorRate: 0.2,
+                        timeoutMs: 300,
+                        cpu: 0.35,
+                      })
+                }
+                onMismatch={() =>
+                  runCheckout(20, {
+                    contractMismatchRate: 0.25,
+                    docsLagMs: 0,
+                    errorRate: 0,
+                    timeoutMs: 300,
+                    cpu: 0.35,
+                  })
                 }
                 onAnother={() => restart("challenge", seed + 1)}
                 onCheck={check}
@@ -337,6 +362,7 @@ function PracticeRail({
   setDecision,
   onRun,
   onSpend,
+  onMismatch,
   onAnother,
   onCheck,
 }: {
@@ -352,6 +378,7 @@ function PracticeRail({
   setDecision: (value: "page" | "hold") => void;
   onRun: () => void;
   onSpend: () => void;
+  onMismatch: () => void;
   onAnother: () => void;
   onCheck: () => void;
 }) {
@@ -385,13 +412,32 @@ function PracticeRail({
           >
             {serviceStory(lab).run}
           </button>
-          <button
-            type="button"
-            className="exp-btn exp-btn-primary"
-            onClick={onSpend}
-          >
-            Raise failures
-          </button>
+          {lab === "api" ? (
+            <>
+              <button
+                type="button"
+                className="exp-btn exp-btn-primary"
+                onClick={onSpend}
+              >
+                Raise docs lag
+              </button>
+              <button
+                type="button"
+                className="exp-btn exp-btn-ghost"
+                onClick={onMismatch}
+              >
+                Introduce contract mismatches
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="exp-btn exp-btn-primary"
+              onClick={onSpend}
+            >
+              Raise failures
+            </button>
+          )}
         </div>
       ) : null}
       {pedagogyOf(lab) === "slo" && mode === "challenge" ? (
@@ -516,22 +562,40 @@ function AlertPicker({
   setPageChoice: (value: PageScene) => void;
 }) {
   const story = serviceStory(lab);
-  const rows = [
-    ["cpu-spike", "CPU spike"],
-    ["short-spike", "Short spike"],
-    ["sustained", `Sustained ${story.noun} failure`],
-    ["missing-telemetry", `Missing ${story.noun} metrics`],
-  ] as const;
+  const rows =
+    lab === "analytics"
+      ? ([
+          ["warehouse-busy", "Warehouse busy"],
+          ["short-spike", "Short ingest spike"],
+          ["sustained", `Sustained ${story.noun} failure`],
+          ["missing-telemetry", `Missing ${story.noun} metrics`],
+        ] as const)
+      : ([
+          ["cpu-spike", "CPU spike"],
+          ["short-spike", "Short spike"],
+          ["sustained", `Sustained ${story.noun} failure`],
+          ["missing-telemetry", `Missing ${story.noun} metrics`],
+        ] as const);
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className={choiceClass(controls.alert === "cpu")}
-          onClick={() => setControls({ ...controls, alert: "cpu" })}
-        >
-          CPU over 80%
-        </button>
+        {lab === "analytics" ? (
+          <button
+            type="button"
+            className={choiceClass(controls.alert === "warehouse")}
+            onClick={() => setControls({ ...controls, alert: "warehouse" })}
+          >
+            Warehouse util over 80%
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={choiceClass(controls.alert === "cpu")}
+            onClick={() => setControls({ ...controls, alert: "cpu" })}
+          >
+            CPU over 80%
+          </button>
+        )}
         <button
           type="button"
           className={choiceClass(controls.alert === "burn")}
@@ -616,11 +680,52 @@ function initialControls(lab: SreLabId, mode: Mode): Controls {
       arrivalRate: 4,
       emitHttp: true,
       alert: "cpu",
+      profile: "default",
     }));
+  }
+  if (lab === "api") {
+    return withStory(
+      lab,
+      defaultControls({
+        profile: "api",
+        instrumentation: { ...FULL_INSTRUMENTATION },
+        timeoutMs: 300,
+        arrivalRate: 10,
+        target: DEFAULT_TARGET,
+        journey: "checkout",
+        goodWhen: "both",
+        alert: "burn",
+        emitHttp: true,
+        docsLagMs: mode === "challenge" ? 0 : 0,
+        contractMismatchRate: 0,
+        errorRate: 0,
+      }),
+    );
+  }
+  if (lab === "analytics") {
+    return withStory(
+      lab,
+      defaultControls({
+        profile: "analytics",
+        instrumentation: { ...FULL_INSTRUMENTATION },
+        timeoutMs: 300,
+        arrivalRate: 10,
+        target: DEFAULT_TARGET,
+        journey: "checkout",
+        goodWhen: "both",
+        alert: mode === "guided" ? "warehouse" : "burn",
+        emitHttp: true,
+        warehouseUtil: 0.22,
+        batchRejectRate: 0,
+        lateBatchMs: 0,
+        errorRate: 0,
+      }),
+    );
   }
   return withStory(
     lab,
     defaultControls({
+      profile: "default",
       instrumentation: { ...FULL_INSTRUMENTATION },
       timeoutMs: 300,
       arrivalRate: 10,
@@ -647,8 +752,22 @@ function initialEngine(lab: SreLabId, mode: Mode, seed: number): EngineState {
     return runScene("slow-payment", seed, initialControls(lab, mode)).state;
   }
   if (pedagogy === "alert" && mode === "challenge") {
-    const scene = seed % 2 === 0 ? "cpu-spike" : "sustained";
-    return runScene(scene, seed, initialControls(lab, mode)).state;
+    const base = initialControls(lab, mode);
+    const scene =
+      seed % 2 === 0
+        ? lab === "analytics"
+          ? "warehouse-busy"
+          : "cpu-spike"
+        : "sustained";
+    return runScene(scene, seed, base).state;
+  }
+  if (lab === "api" && mode === "challenge") {
+    return loadCheckoutWindow(seed, {
+      total: 1000,
+      bad: 17,
+      checkoutMs: 80,
+      badMs: 800,
+    });
   }
   return createSreEngine(seed);
 }
@@ -671,7 +790,9 @@ function guidedStep(input: {
 } {
   const pedagogy = pedagogyOf(input.lab);
   if (pedagogy === "instrument") return instrumentGuided(input);
+  if (input.lab === "api") return apiGuided(input);
   if (pedagogy === "slo") return sloGuided(input);
+  if (input.lab === "analytics") return analyticsGuided(input);
   return alertGuided(input);
 }
 
@@ -864,6 +985,274 @@ function instrumentGuided(input: GuidedInput) {
           }
         >
           Add manifest latency
+        </button>
+      ),
+    },
+  ];
+  const current = steps[Math.min(input.step, steps.length - 1)]!;
+  return { total: steps.length, ...current };
+}
+
+function apiGuided(input: GuidedInput) {
+  const story = serviceStory(input.lab);
+  const steps = [
+    {
+      title: `${articleLabel(story.noun)} is the journey, not the host`,
+      ready: input.controls.journey === "checkout",
+      body: (
+        <>
+          <p>
+            An API SLO is a promise about integrator calls through the gateway.
+            Host CPU is a different measurement. If you aim the line at CPU,
+            failed {story.plural} will not spend the budget.
+          </p>
+          <JourneyButtons
+            controls={input.controls}
+            setControls={input.setControls}
+            noun={story.noun}
+          />
+        </>
+      ),
+      actions: null,
+    },
+    {
+      title: "Good means success in under 300 ms",
+      ready: input.controls.goodWhen === "both",
+      body: (
+        <>
+          <p>
+            Count {articleFor(story.noun)} {story.noun} as good only when it
+            succeeds in under 300 ms. A contract mismatch (HTTP 400) fails the
+            integrator. A 200 that waits on a stale docs upstream still spends
+            the budget.
+          </p>
+          <GoodButtons
+            controls={input.controls}
+            setControls={input.setControls}
+          />
+        </>
+      ),
+      actions: null,
+    },
+    {
+      title: "Docs lag spends the budget without a 500",
+      ready:
+        input.controls.docsLagMs >= 400 &&
+        (input.snapshot.window.spent ?? 0) > 1 &&
+        input.snapshot.window.meets === false,
+      body: (
+        <p>
+          Raise docs-upstream lag and run the {story.plural}. The gateway still
+          returns 200 for many calls, but the latency line fails. That is a
+          different failure mode from hard 500s: the contract looked fine, and
+          the integrator still waited.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.runCheckout(20, {
+              docsLagMs: 520,
+              contractMismatchRate: 0,
+              errorRate: 0,
+              timeoutMs: 2000,
+              arrivalRate: 10,
+            })
+          }
+        >
+          Raise docs lag
+        </button>
+      ),
+    },
+    {
+      title: "Contract mismatches are a second miss class",
+      ready:
+        input.controls.contractMismatchRate >= 0.2 &&
+        input.snapshot.window.meets === false,
+      body: (
+        <p>
+          Reset the lag and introduce OpenAPI mismatches. Those calls return
+          400. They spend the success half of the SLI even when latency is fine.
+          Name which knob you moved before you read the budget meter.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.runCheckout(20, {
+              contractMismatchRate: 0.25,
+              docsLagMs: 0,
+              errorRate: 0,
+              timeoutMs: 300,
+              arrivalRate: 10,
+            })
+          }
+        >
+          Introduce contract mismatches
+        </button>
+      ),
+    },
+  ];
+  const current = steps[Math.min(input.step, steps.length - 1)]!;
+  return { total: steps.length, ...current };
+}
+
+function analyticsGuided(input: GuidedInput) {
+  const story = serviceStory(input.lab);
+  const steps = [
+    {
+      title: "A warehouse alert pages with no failed ingest",
+      ready:
+        input.situation === "warehouse-busy" &&
+        input.snapshot.cpuAlert.status === "paging" &&
+        input.snapshot.window.meets === true,
+      body: (
+        <p>
+          This rule pages when warehouse util stays over 80%. Run the busy
+          warehouse.{" "}
+          {story.plural[0]!.toUpperCase() + story.plural.slice(1)} are still
+          succeeding. The page fires because the warehouse is busy, not because
+          a pipeline is stuck.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.play("warehouse-busy", {
+              alert: "warehouse",
+              profile: "analytics",
+            })
+          }
+        >
+          Run the busy warehouse
+        </button>
+      ),
+    },
+    {
+      title: "The same alert misses warehouse rejects",
+      ready:
+        input.situation === "sustained" &&
+        input.snapshot.cpuAlert.status === "quiet" &&
+        input.snapshot.window.bad > 0,
+      body: (
+        <p>
+          Now ingest batches fail while warehouse util stays near 35%. The
+          warehouse alert is quiet. Pipelines are not. A threshold on warehouse
+          util cannot see a reject storm.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.play("sustained", { alert: "warehouse", profile: "analytics" })
+          }
+        >
+          {story.runFailures}
+        </button>
+      ),
+    },
+    {
+      title: "Late batches spend the budget without a reject",
+      ready:
+        input.situation === "late-batches" &&
+        input.snapshot.window.meets === false,
+      body: (
+        <p>
+          Raise warehouse write delay. Many batches still return 200, but they
+          miss the latency line. That is a third failure mode: not a busy host,
+          not a hard reject, a late success.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.play("late-batches", { alert: "burn", profile: "analytics" })
+          }
+        >
+          Raise late batches
+        </button>
+      ),
+    },
+    {
+      title: "The burn-rate rule, instead of warehouse util",
+      ready: input.controls.alert === "burn",
+      body: (
+        <p>
+          A multiwindow burn-rate alert pages only when the short window and the
+          long window both spend the 99.5% budget at 14.4 times the allowed rate
+          or faster. Warehouse util can look busy while ingest is fine. Both burn
+          windows have to agree before anyone is woken.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.setControls({ ...input.controls, alert: "burn" })
+          }
+        >
+          Use the burn-rate alert
+        </button>
+      ),
+    },
+    {
+      title: "A short ingest spike does not page",
+      ready:
+        input.situation === "short-spike" &&
+        input.snapshot.burnAlert.status === "quiet" &&
+        input.snapshot.shortBurn.hot,
+      body: (
+        <p>
+          Run a short burst of warehouse rejects after a healthy hour. The short
+          window burns. The long window still contains healthy {story.plural}, so
+          the alert stays quiet.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.play("short-spike", { alert: "burn", profile: "analytics" })
+          }
+        >
+          Run a short ingest spike
+        </button>
+      ),
+    },
+    {
+      title: "Sustained ingest rejects page",
+      ready:
+        input.situation === "sustained" &&
+        input.snapshot.burnAlert.status === "paging" &&
+        input.snapshot.cpuAlert.status !== "paging",
+      body: (
+        <p>
+          Keep the rejects going. Both windows burn, warehouse util stays under
+          80%, and the burn-rate alert pages. This is the page that matches the
+          pipeline.
+        </p>
+      ),
+      actions: (
+        <button
+          type="button"
+          className="exp-btn exp-btn-primary"
+          onClick={() =>
+            input.play("sustained", { alert: "burn", profile: "analytics" })
+          }
+        >
+          Run sustained rejects
         </button>
       ),
     },
@@ -1210,13 +1599,19 @@ function objective(lab: SreLabId, mode: Mode): string {
       : "Turn on HTTP metrics, the outbound span, trace context, and a structured log. Then show that the extra latency sits on the manifest fetch.";
   }
   if (pedagogy === "slo") {
-    return mode === "challenge"
-      ? `The stated target is on the chart. Decide whether this window of ${story.plural} meets that target.`
-      : `Keep the ${story.product} SLO at 99.5%, count only a ${story.noun} that succeeds under 300 ms, and raise failures until the window spends the budget.`;
+    if (mode === "challenge") {
+      return `The stated target is on the chart. Decide whether this window of ${story.plural} meets that target.`;
+    }
+    if (lab === "api") {
+      return `Keep the ${story.product} SLO at 99.5%, count only ${articleFor(story.noun)} ${story.noun} that succeeds under 300 ms, and spend the budget with docs lag or contract mismatches.`;
+    }
+    return `Keep the ${story.product} SLO at 99.5%, count only ${articleFor(story.noun)} ${story.noun} that succeeds under 300 ms, and raise failures until the window spends the budget.`;
   }
   return mode === "challenge"
     ? `Something paged. From the ${story.product.toLowerCase()} telemetry, decide whether a ${story.client.toLowerCase()} is failing badly enough to wake someone.`
-    : `Choose the burn-rate alert, then name the situation that deserves a page: the sustained ${story.noun} failure.`;
+    : lab === "analytics"
+      ? `Choose the burn-rate alert, then name the situation that deserves a page: sustained warehouse rejects, not a busy warehouse alone.`
+      : `Choose the burn-rate alert, then name the situation that deserves a page: the sustained ${story.noun} failure.`;
 }
 
 function gettingStarted(lab: SreLabId, mode: Mode): string {
@@ -1229,10 +1624,17 @@ function gettingStarted(lab: SreLabId, mode: Mode): string {
     return "Read the good count against the stated target. Then mark the window as meeting it or missing it.";
   }
   if (pedagogy === "slo") {
+    if (lab === "api") {
+      return `Run the ${story.plural}. Then raise docs lag or introduce contract mismatches. The allowed bad count is 0.5% of the window, because the target is 99.5%.`;
+    }
     return `Run the ${story.plural}, then raise failures. The allowed bad count is 0.5% of the window, because the target is 99.5%.`;
   }
   if (mode === "challenge") {
-    return "Read the CPU line, the two burn windows, and a trace before you decide.";
+    return lab === "analytics"
+      ? "Read the warehouse util line, the two burn windows, and a trace before you decide."
+      : "Read the CPU line, the two burn windows, and a trace before you decide.";
   }
-  return "Select the burn-rate alert. The CPU spike, the short spike, and the missing metrics do not deserve a page.";
+  return lab === "analytics"
+    ? "Select the burn-rate alert. A busy warehouse, a short ingest spike, and missing metrics do not deserve a page."
+    : "Select the burn-rate alert. The CPU spike, the short spike, and the missing metrics do not deserve a page.";
 }

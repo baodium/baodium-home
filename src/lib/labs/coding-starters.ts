@@ -312,6 +312,261 @@ func StartupOrder(dependencies map[string][]string) any {
 }
 `,
   },
+  "heartbeat-gaps": {
+    typescript: `function heartbeatGaps(
+  timestamps: number[],
+  start: number,
+  end: number,
+  interval: number,
+): number[] {
+  // Implementation: find missing scheduled heartbeats.
+  // TODO 1: generate the schedule from start, end, and interval.
+  // TODO 2: compare against a set of received timestamps.
+  // Do not mutate timestamps.
+  void timestamps;
+  void start;
+  void end;
+  void interval;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: find missing scheduled heartbeats.
+func HeartbeatGaps(timestamps []float64, start float64, end float64, interval float64) []float64 {
+	// TODO 1: generate the schedule from start, end, and interval.
+	// TODO 2: compare against a set of received timestamps.
+	_ = timestamps
+	_ = start
+	_ = end
+	_ = interval
+	return []float64{}
+}
+`,
+  },
+  "failure-streak": {
+    typescript: `function openingIndex(
+  outcomes: boolean[],
+  threshold: number,
+): number | null {
+  // Implementation: index where a consecutive failure streak opens.
+  // TODO 1: a success resets the streak to zero.
+  // TODO 2: return the index where the streak first reaches threshold, else null.
+  void outcomes;
+  void threshold;
+  return null;
+}
+`,
+    go: `package solution
+
+// Implementation: index where a consecutive failure streak opens.
+// No opening returns nil (JSON null).
+func OpeningIndex(outcomes []bool, threshold float64) any {
+	// TODO 1: a success resets the streak to zero.
+	// TODO 2: return the index where the streak first reaches threshold, else nil.
+	_ = outcomes
+	_ = threshold
+	return nil
+}
+`,
+  },
+  "maintenance-windows": {
+    typescript: `function mergeWindows(windows: number[][]): number[][] {
+  // Implementation: merge overlapping or touching [start, end] windows.
+  // TODO 1: sort a copy by start time.
+  // TODO 2: extend the current end when the next window overlaps or touches.
+  // Do not mutate the caller's list.
+  void windows;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: merge overlapping or touching [start, end] windows.
+func MergeWindows(windows [][]float64) [][]float64 {
+	// TODO 1: sort a copy by start time.
+	// TODO 2: extend the current end when the next window overlaps or touches.
+	_ = windows
+	return [][]float64{}
+}
+`,
+  },
+  "peak-concurrency": {
+    typescript: `function peakConcurrency(intervals: number[][]): number {
+  // Implementation: peak overlapping [start, end) intervals.
+  // TODO 1: turn intervals into start and end events.
+  // TODO 2: at equal timestamps, process ends before starts.
+  // Do not mutate intervals.
+  void intervals;
+  return 0;
+}
+`,
+    go: `package solution
+
+// Implementation: peak overlapping [start, end) intervals.
+func PeakConcurrency(intervals [][]float64) float64 {
+	// TODO 1: turn intervals into start and end events.
+	// TODO 2: at equal timestamps, process ends before starts.
+	_ = intervals
+	return 0
+}
+`,
+  },
+  "config-drift": {
+    typescript: `function configDrift(
+  desired: Record<string, unknown>,
+  actual: Record<string, unknown>,
+): string[] {
+  // Implementation: keys that drifted between desired and actual.
+  // TODO 1: inspect the union of keys.
+  // TODO 2: missing, extra, and value changes all count; null is not missing.
+  // Do not mutate either mapping.
+  void desired;
+  void actual;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: keys that drifted between desired and actual.
+func ConfigDrift(desired map[string]any, actual map[string]any) []string {
+	// TODO 1: inspect the union of keys.
+	// TODO 2: missing, extra, and value changes all count; null is not missing.
+	_ = desired
+	_ = actual
+	return []string{}
+}
+`,
+  },
+  "deduplicate-events": {
+    typescript: `type EventRow = {
+  id: string;
+  [key: string]: string;
+};
+
+function uniqueEvents(events: EventRow[]): EventRow[] {
+  // Implementation: keep first-seen id order.
+  // TODO 1: track seen ids separately from the output list.
+  // TODO 2: drop later duplicates entirely; do not sort.
+  // Do not mutate events.
+  void events;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: keep first-seen id order.
+func UniqueEvents(events []map[string]string) []map[string]string {
+	// TODO 1: track seen ids separately from the output list.
+	// TODO 2: drop later duplicates entirely; do not sort.
+	_ = events
+	return []map[string]string{}
+}
+`,
+  },
+  "shard-routing": {
+    typescript: `function routeKeys(
+  keys: number[],
+  shardCount: number,
+): Record<string, number[]> {
+  // Implementation: stable modulo routing into shard buckets.
+  // TODO 1: shard index is key % shardCount.
+  // TODO 2: preserve encounter order inside each shard; omit empty shards.
+  void keys;
+  void shardCount;
+  return {};
+}
+`,
+    go: `package solution
+
+// Implementation: stable modulo routing into shard buckets.
+func RouteKeys(keys []float64, shardCount float64) map[string][]float64 {
+	// TODO 1: shard index is int(key) % int(shardCount).
+	// TODO 2: preserve encounter order inside each shard; omit empty shards.
+	_ = keys
+	_ = shardCount
+	return map[string][]float64{}
+}
+`,
+  },
+  "rollout-batches": {
+    typescript: `function rolloutBatches(
+  hosts: string[],
+  batchSize: number,
+): string[][] {
+  // Implementation: split hosts into rollout batches.
+  // TODO 1: advance the start index by batchSize each step.
+  // TODO 2: the final batch may be shorter; empty hosts yield [].
+  // Do not mutate hosts.
+  void hosts;
+  void batchSize;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: split hosts into rollout batches.
+func RolloutBatches(hosts []string, batchSize float64) [][]string {
+	// TODO 1: advance the start index by batchSize each step.
+	// TODO 2: the final batch may be shorter; empty hosts yield an empty slice.
+	_ = hosts
+	_ = batchSize
+	return [][]string{}
+}
+`,
+  },
+  "disk-pressure": {
+    typescript: `type DiskRow = {
+  name: string;
+  used?: number;
+  capacity?: number;
+};
+
+function pressuredDisks(
+  disks: DiskRow[],
+  thresholdPercent: number,
+): string[] {
+  // Implementation: names at or above utilization threshold.
+  // TODO 1: skip rows with missing or non-positive capacity.
+  // TODO 2: compare used*100 with capacity*threshold without float traps.
+  // Do not mutate disks.
+  void disks;
+  void thresholdPercent;
+  return [];
+}
+`,
+    go: `package solution
+
+// Implementation: names at or above utilization threshold.
+func PressuredDisks(disks []map[string]any, thresholdPercent float64) []string {
+	// TODO 1: skip rows with missing or non-positive capacity.
+	// TODO 2: compare used*100 with capacity*threshold without float traps.
+	_ = disks
+	_ = thresholdPercent
+	return []string{}
+}
+`,
+  },
+  "redact-secrets": {
+    typescript: `function redact(value: unknown): unknown {
+  // Implementation: redact sensitive keys in nested structures.
+  // TODO 1: handle objects, arrays, and scalars separately.
+  // TODO 2: redact on the key before recursing into that value.
+  // Preserve key spelling for non-sensitive fields.
+  void value;
+  return value;
+}
+`,
+    go: `package solution
+
+// Implementation: redact sensitive keys in nested structures.
+func Redact(value any) any {
+	// TODO 1: handle maps, slices, and scalars separately.
+	// TODO 2: redact on the key before recursing into that value.
+	return value
+}
+`,
+  },
   "unhealthy-instances-complete-v1": {
     typescript: `type Heartbeat = {
   instance_id: string;

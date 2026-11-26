@@ -1620,9 +1620,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or ≤ 0 → no_replicas.",
-      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
-      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
+      "replicas missing or \u2264 0 \u2192 no_replicas.",
+      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
+      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -1819,9 +1819,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or ≤ 0 → no_replicas.",
-      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
-      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
+      "replicas missing or \u2264 0 \u2192 no_replicas.",
+      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
+      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -2018,9 +2018,9 @@
     "situation": "This offline checker runs before a batch rollout. A miss lets an unsafe Deployment ship; a false positive blocks a safe one.",
     "guarantee": "Return only deployments that fail at least one rule, each as {name, issues}, keeping input order and the fixed issue order: replicas, readiness, memory.",
     "edges": [
-      "replicas missing or ≤ 0 → no_replicas.",
-      "readiness_probe must be exactly True; anything else → no_readiness_probe.",
-      "memory_limit_mib missing or ≤ 0 → no_memory_limit."
+      "replicas missing or \u2264 0 \u2192 no_replicas.",
+      "readiness_probe must be exactly True; anything else \u2192 no_readiness_probe.",
+      "memory_limit_mib missing or \u2264 0 \u2192 no_memory_limit."
     ],
     "failureGuide": "Check issue codes and order. Safe deployments must be absent from the result entirely."
   },
@@ -2040,7 +2040,7 @@
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
-      "HTTP status classes are hundreds: 200–299 share class 2, 500–599 share class 5.",
+      "HTTP status classes are hundreds: 200\u2013299 share class 2, 500\u2013599 share class 5.",
       "One pass is enough. Use a dictionary from class to count, then return the structure the examples show.",
       "For each record, key = status // 100; counts[key] = counts.get(key, 0) + 1. Skip building entries for classes you never saw."
     ],
@@ -2129,7 +2129,7 @@
     "entrypoint": "rank_errors",
     "starter": "def rank_errors(records):\n    \"\"\"Rank services by 5xx volume.\"\"\"\n    # Implementation: start from an empty ranking.\n    # TODO 1: count only 5xx records.\n    # TODO 2: sort by descending count, then lexicographic name.\n    return []\n",
     "constraints": [
-      "Records have service (string) and status (integer). Count statuses 500–599 only. Return service names by count descending, then name ascending for ties.",
+      "Records have service (string) and status (integer). Count statuses 500\u2013599 only. Return service names by count descending, then name ascending for ties.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2312,7 +2312,7 @@
     "entrypoint": "window_errors",
     "starter": "def window_errors(events, now, window):\n    \"\"\"Count failures inside the rolling window.\"\"\"\n    # Implementation: start from zero.\n    # TODO 1: keep only timestamps in [now - window, now].\n    # TODO 2: count failed events only.\n    return 0\n",
     "constraints": [
-      "Events contain timestamp (integer seconds) and status. Count 500–599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
+      "Events contain timestamp (integer seconds) and status. Count 500\u2013599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -2410,13 +2410,13 @@
     "entrypoint": "remaining_budget",
     "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Integer budget left; do not clamp negatives.\"\"\"\n    # Implementation: keep arithmetic in integers.\n    # TODO 1: compute allowed failures from total and slo_bps.\n    # TODO 2: return allowed - failures.\n    return 0\n",
     "constraints": [
-      "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
+      "total and failures are nonnegative integers; failures <= total. slo_bps is 0\u201310000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
       "Budget remaining is allowed budget minus observed failures, expressed with the SLO in basis points.",
       "Prefer integer math so floating point cannot nudge a boundary. A negative result means the budget is already spent.",
-      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, …)."
+      "allowed = total * slo_bps // 10000; return allowed - failures without max(0, \u2026)."
     ],
     "explanation": "Basis points make the contract exact. Integer floor prevents promising a fractional failed request.",
     "complexity": "O(1) time and space.",
@@ -2487,7 +2487,7 @@
     "prompt": "Find gaps in scheduled heartbeat timestamps so an operator can inspect missing telemetry.",
     "signature": "heartbeat_gaps(timestamps, start, end, interval)",
     "entrypoint": "heartbeat_gaps",
-    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Return missing scheduled heartbeat times.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: generate the schedule from start, end, and interval.\n    # TODO 2: compare against a set of received timestamps.\n    return []\n",
     "constraints": [
       "start <= end; interval > 0; all values are integer seconds. Return missing scheduled times start, start+interval, ... <= end. Duplicate or off-schedule timestamps do not create extra slots.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2495,7 +2495,7 @@
     "hints": [
       "Gaps are expected ticks that never arrived, not the spaces between whatever you happened to receive.",
       "Put received timestamps in a set. Walk the theoretical schedule from start through end by interval.",
-      "expected = start, start+interval, … while <= end; emit those missing from the received set, in schedule order."
+      "expected = start, start+interval, \u2026 while <= end; emit those missing from the received set, in schedule order."
     ],
     "explanation": "Comparing with an expected schedule detects absence. Only looking at received events cannot identify all missing data.",
     "complexity": "O(n + k) time, O(n + k) space for n events and k slots.",
@@ -2776,7 +2776,7 @@
     "prompt": "Locate the first point at which consecutive failures would open a simplified circuit breaker.",
     "signature": "opening_index(outcomes, threshold)",
     "entrypoint": "opening_index",
-    "starter": "def opening_index(outcomes, threshold):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Index where a consecutive failure streak opens, else None.\"\"\"\n    # Implementation: start from no opening.\n    # TODO 1: a success resets the streak.\n    # TODO 2: return the index when the streak reaches threshold.\n    return None\n",
     "constraints": [
       "outcomes contains booleans: True is success, False is failure. threshold is a positive integer. Return the zero-based index of the first threshold-length failure streak, or None. Success resets the streak.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2862,7 +2862,7 @@
     "prompt": "Combine overlapping or touching maintenance windows into a minimal list for a status page.",
     "signature": "merge_windows(windows)",
     "entrypoint": "merge_windows",
-    "starter": "def merge_windows(windows):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def merge_windows(windows):\n    \"\"\"Merge overlapping or touching windows.\"\"\"\n    # Implementation: start from an empty merge.\n    # TODO 1: sort a copy by start.\n    # TODO 2: extend when the next window overlaps or touches.\n    return []\n",
     "constraints": [
       "Each window is [start, end] with start <= end. Input may be unsorted. Touching windows merge. Return merged windows in ascending start order.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3005,7 +3005,7 @@
       "Track how many dependencies each service still needs, plus reverse edges to decrement dependents. Use a min-structure for the ready set.",
       "While ready: pop the smallest name, append it, decrement dependents, and enqueue those that hit zero. If len(order) < len(services): return None."
     ],
-    "explanation": "Kahn’s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
+    "explanation": "Kahn\u2019s algorithm repeatedly removes a ready vertex. Counting all emitted vertices detects cycles even when a different component can start.",
     "complexity": "O((V + E) log V) time, O(V + E) space.",
     "followUp": "How would you distinguish a dependency cycle from a service that is merely slow to become ready?",
     "solution": "import heapq\n\ndef startup_order(dependencies):\n    counts = {name: len(items) for name, items in dependencies.items()}\n    dependents = {name: [] for name in dependencies}\n    for name, items in dependencies.items():\n        for dependency in items:\n            dependents[dependency].append(name)\n    ready = [name for name, count in counts.items() if count == 0]\n    heapq.heapify(ready)\n    result = []\n    while ready:\n        name = heapq.heappop(ready)\n        result.append(name)\n        for dependent in dependents[name]:\n            counts[dependent] -= 1\n            if counts[dependent] == 0:\n                heapq.heappush(ready, dependent)\n    return result if len(result) == len(dependencies) else None\n",
@@ -3095,7 +3095,7 @@
     "prompt": "Estimate the maximum simultaneously active requests from completed request intervals.",
     "signature": "peak_concurrency(intervals)",
     "entrypoint": "peak_concurrency",
-    "starter": "def peak_concurrency(intervals):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def peak_concurrency(intervals):\n    \"\"\"Peak overlapping concurrency.\"\"\"\n    # Implementation: start from zero.\n    # TODO 1: convert to start/end events.\n    # TODO 2: at equal timestamps, process ends before starts.\n    return 0\n",
     "constraints": [
       "Each interval is [start, end) with start <= end. Zero-length intervals count as no work. An end at time t is processed before a start at t. Return the maximum active count.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3197,7 +3197,7 @@
     "prompt": "Compare two flat configuration maps before reconciling a service.",
     "signature": "config_drift(desired, actual)",
     "entrypoint": "config_drift",
-    "starter": "def config_drift(desired, actual):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def config_drift(desired, actual):\n    \"\"\"Keys that drifted between desired and actual.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: inspect the union of keys.\n    # TODO 2: missing, extra, and value changes count; None is not missing.\n    return []\n",
     "constraints": [
       "Return sorted keys that are missing on either side or have unequal JSON scalar values. Missing is different from a present None. Values have consistent types when a key exists in both maps.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3278,7 +3278,7 @@
       "Membership checks come before value compares.",
       "Do not mutate either mapping."
     ],
-    "failureGuide": "Walk desired ∪ actual. Absent on one side is drift even when the other value looks fine."
+    "failureGuide": "Walk desired \u222a actual. Absent on one side is drift even when the other value looks fine."
   },
   {
     "id": "deduplicate-events",
@@ -3290,7 +3290,7 @@
     "prompt": "Keep the first delivery of each incident event so repeated webhook delivery does not duplicate notifications.",
     "signature": "unique_events(events)",
     "entrypoint": "unique_events",
-    "starter": "def unique_events(events):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def unique_events(events):\n    \"\"\"First-seen id order; drop later duplicates.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: track seen ids separately.\n    # TODO 2: do not sort; keep encounter order.\n    return []\n",
     "constraints": [
       "Each event has a string id and arbitrary JSON fields. Return complete first-seen records in input order. Later copies of an id are ignored even if their payload differs.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3391,7 +3391,7 @@
     "prompt": "Build a deterministic modulo router for a batch of integer tenant IDs.",
     "signature": "route_keys(keys, shard_count)",
     "entrypoint": "route_keys",
-    "starter": "def route_keys(keys, shard_count):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def route_keys(keys, shard_count):\n    \"\"\"Route integer keys into shard buckets.\"\"\"\n    # Implementation: start from an empty map.\n    # TODO 1: shard index is key % shard_count.\n    # TODO 2: preserve order inside each shard; omit empty shards.\n    return {}\n",
     "constraints": [
       "shard_count is positive; keys are nonnegative integers. Return a mapping with string shard indexes for nonempty shards only. Assign key % shard_count and preserve key order within each shard. Keep duplicates.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3484,7 +3484,7 @@
     "prompt": "Split an ordered host list into rollout waves without exceeding the specified batch size.",
     "signature": "rollout_batches(hosts, batch_size)",
     "entrypoint": "rollout_batches",
-    "starter": "def rollout_batches(hosts, batch_size):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def rollout_batches(hosts, batch_size):\n    \"\"\"Split hosts into rollout batches.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: advance by batch_size each step.\n    # TODO 2: allow a shorter final batch.\n    return []\n",
     "constraints": [
       "batch_size is a positive integer. Preserve order and duplicates. Every batch except the last must contain batch_size hosts. Empty input returns an empty list.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3595,9 +3595,9 @@
     "prompt": "Evaluate normalized disk usage without dividing by an unknown capacity.",
     "signature": "pressured_disks(disks, threshold_percent)",
     "entrypoint": "pressured_disks",
-    "starter": "def pressured_disks(disks, threshold_percent):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def pressured_disks(disks, threshold_percent):\n    \"\"\"Disk names at or above utilization threshold.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: skip missing or non-positive capacity.\n    # TODO 2: compare used against threshold without float traps.\n    return []\n",
     "constraints": [
-      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0–100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
+      "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0\u2013100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
       "Do not mutate input values. Use the Python standard library only."
     ],
     "hints": [
@@ -3692,7 +3692,7 @@
     "prompt": "Remove sensitive values from nested JSON logs before exporting them to an observability backend.",
     "signature": "redact(value)",
     "entrypoint": "redact",
-    "starter": "def redact(value):\n    # Implement the operational policy described on the left.\n    pass\n",
+    "starter": "def redact(value):\n    \"\"\"Redact sensitive keys in nested structures.\"\"\"\n    # Implementation: return scalars unchanged.\n    # TODO 1: handle dicts, lists, and scalars separately.\n    # TODO 2: redact on the key before recursing.\n    return value\n",
     "constraints": [
       "Recursively handle dictionaries, lists and JSON scalars. Replace values of case-insensitive keys password, token and authorization with \"[REDACTED]\". Preserve key spelling and all other values. Input keys are strings.",
       "Do not mutate input values. Use the Python standard library only."

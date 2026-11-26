@@ -67,10 +67,28 @@ export function gradeSlo(snapshot: Snapshot, controls: Controls): Grade {
     return { ok: false, reason: `Run the ${controls.workPlural} until the window has samples.` };
   }
   if (snapshot.window.meets) {
+    if (controls.profile === "api") {
+      return {
+        ok: false,
+        reason:
+          "The window still meets 99.5%. Raise docs lag or introduce contract mismatches until the budget is spent.",
+      };
+    }
     return { ok: false, reason: "The window still meets 99.5%. Raise failures until the budget is spent." };
   }
   if ((snapshot.window.spent ?? 0) <= 1) {
     return { ok: false, reason: `Bad ${controls.workPlural} have not used more than the allowed budget yet.` };
+  }
+  if (controls.profile === "api") {
+    const usedLag = controls.docsLagMs >= 400;
+    const usedMismatch = controls.contractMismatchRate >= 0.15;
+    if (!usedLag && !usedMismatch && controls.errorRate < 0.1) {
+      return {
+        ok: false,
+        reason:
+          "Spend the budget with docs lag or contract mismatches so the failure mode is visible on the API path.",
+      };
+    }
   }
   return {
     ok: true,
@@ -113,8 +131,12 @@ export type SceneVerdict = {
   deservesPage: boolean;
 };
 
-export function sceneVerdict(scene: Scene, seed = 7): SceneVerdict {
-  const { state, controls } = runScene(scene, seed);
+export function sceneVerdict(
+  scene: Scene,
+  seed = 7,
+  base?: Partial<Controls>,
+): SceneVerdict {
+  const { state, controls } = runScene(scene, seed, base);
   const snapshot = snapshotSre(state, controls);
   const sustained = scene === "sustained";
   return {
@@ -127,29 +149,53 @@ export function sceneVerdict(scene: Scene, seed = 7): SceneVerdict {
 
 export function gradeAlert(input: {
   controls: Controls;
-  choice: "cpu-spike" | "short-spike" | "sustained" | "missing-telemetry" | null;
+  choice:
+    | "cpu-spike"
+    | "warehouse-busy"
+    | "short-spike"
+    | "sustained"
+    | "missing-telemetry"
+    | null;
 }): Grade {
+  const analytics = input.controls.profile === "analytics";
+  const hostLabel = analytics ? "warehouse util" : "CPU";
   if (input.controls.alert !== "burn") {
-    return { ok: false, reason: `A CPU threshold is the alert that pages with no failed ${input.controls.workNoun}.` };
+    return {
+      ok: false,
+      reason: `A ${hostLabel} threshold is the alert that pages with no failed ${input.controls.workNoun}.`,
+    };
   }
   if (input.choice !== "sustained") {
-    return { ok: false, reason: `The page belongs on the sustained ${input.controls.workNoun} failure. A CPU spike, a short spike, and missing metrics do not.` };
+    return {
+      ok: false,
+      reason: `The page belongs on the sustained ${input.controls.workNoun} failure. A ${hostLabel} spike, a short spike, and missing metrics do not.`,
+    };
   }
-  const sustained = sceneVerdict("sustained");
-  const spike = sceneVerdict("cpu-spike");
-  const brief = sceneVerdict("short-spike");
-  const missing = sceneVerdict("missing-telemetry");
+  const profile = { profile: input.controls.profile } as Partial<Controls>;
+  const sustained = sceneVerdict("sustained", 7, profile);
+  const spike = sceneVerdict(analytics ? "warehouse-busy" : "cpu-spike", 7, profile);
+  const brief = sceneVerdict("short-spike", 7, profile);
+  const missing = sceneVerdict("missing-telemetry", 7, profile);
   if (sustained.burn !== "paging" || sustained.cpu === "paging") {
-    return { ok: false, reason: "The sustained failure should page the burn alert while CPU stays under 80%." };
+    return {
+      ok: false,
+      reason: `The sustained failure should page the burn alert while ${hostLabel} stays under 80%.`,
+    };
   }
   if (spike.cpu !== "paging" || spike.burn === "paging") {
-    return { ok: false, reason: "The CPU spike should page only the CPU alert." };
+    return {
+      ok: false,
+      reason: `The ${hostLabel} spike should page only the ${hostLabel} alert.`,
+    };
   }
   if (brief.burn === "paging") {
     return { ok: false, reason: "The short spike should trip the short window only." };
   }
   if (missing.burn !== "no-data") {
-    return { ok: false, reason: `Missing ${input.controls.workNoun} metrics should leave the burn alert with no samples.` };
+    return {
+      ok: false,
+      reason: `Missing ${input.controls.workNoun} metrics should leave the burn alert with no samples.`,
+    };
   }
   return {
     ok: true,
@@ -157,9 +203,14 @@ export function gradeAlert(input: {
   };
 }
 
-export function gradeAlertChallenge(snapshot: Snapshot, decision: "page" | "hold" | null): Grade {
+export function gradeAlertChallenge(
+  snapshot: Snapshot,
+  decision: "page" | "hold" | null,
+  controls?: Pick<Controls, "profile">,
+): Grade {
   if (decision === null) return { ok: false, reason: "Decide whether this page matches a customer who is still failing." };
   const customersFailing = snapshot.burnAlert.status === "paging";
+  const hostLabel = controls?.profile === "analytics" ? "Warehouse util" : "CPU";
   if (decision === "page" && customersFailing) {
     return { ok: true, reason: "Both burn windows agree. The SLO is being missed, so the page matches the customer." };
   }
@@ -168,7 +219,7 @@ export function gradeAlertChallenge(snapshot: Snapshot, decision: "page" | "hold
       ok: true,
       reason:
         snapshot.cpuAlert.status === "paging"
-          ? "CPU is hot and the SLO is still being met. This page does not deserve a wake-up."
+          ? `${hostLabel} is hot and the SLO is still being met. This page does not deserve a wake-up.`
           : "The SLO is not burning in both windows, so there is nothing to page.",
     };
   }
