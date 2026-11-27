@@ -250,12 +250,12 @@ export function CodingWorkspace({
   const story =
     result && !stale
       ? passed === result.results.length && fullSuite
-        ? `The full suite passed in ${languageLabel(language)}. ${problem.category} has ${stagePassed} of ${stageProblems.length} exercises saved on this device.`
+        ? ""
         : passed === result.results.length
-          ? "The examples passed. Run the full suite if you want this exercise to count."
+          ? "The examples pass. Run all checks to mark this exercise passed."
           : firstMiss
-            ? `${passed} of ${result.results.length} checks passed. ${firstMiss.title} still does not match. ${failureCoach(problem, firstMiss)}`
-            : `${passed} of ${result.results.length} checks passed.`
+            ? `${firstMiss.title} does not match yet. ${failureCoach(problem, firstMiss)}`
+            : ""
       : "";
   const craft = codingLesson(problem, next?.title);
   const hintsUnlocked = hintStep;
@@ -263,13 +263,9 @@ export function CodingWorkspace({
   return (
     <div className="coding-ide" data-layout={layout}>
       <div className="coding-ide-chrome" role="toolbar" aria-label="Workspace layout">
-        <p>
-          {layout === "maximized"
-            ? "Full workspace"
-            : layout === "editor"
-              ? "Editor focus"
-              : "Split workspace"}
-        </p>
+        <Link href="/sre-labs/coding" className="coding-ide-back">
+          ← All exercises
+        </Link>
         <div>
           <button
             type="button"
@@ -296,21 +292,14 @@ export function CodingWorkspace({
         </div>
       </div>
       <section className="coding-description" aria-label="Problem description">
-        <Link href="/sre-labs/coding" className="labs-back">
-          ← Coding roadmap
-        </Link>
-        <p className="coding-progress">
-          {craft.index} of {craft.total} · {problem.category} · {problem.minutes}{" "}
-          min
-        </p>
+        <p className="coding-progress">{problem.category}</p>
         <h1>{problem.title}</h1>
         <p className="coding-lead">{problem.prompt}</p>
-        <p className="coding-framing">{craft.paragraphs[0]}</p>
 
         <h2>In production</h2>
         <p className="coding-framing">{framing.situation}</p>
 
-        <h2>What the function must guarantee</h2>
+        <h2>What it must return</h2>
         <p className="coding-framing">{framing.guarantee}</p>
         <ul>
           {problem.constraints.map((rule) => (
@@ -318,69 +307,31 @@ export function CodingWorkspace({
           ))}
         </ul>
 
-        <h2>Watch these edges</h2>
+        <h2>Edge cases</h2>
         <ul>
           {framing.edges.map((edge) => (
             <li key={edge}>{edge}</li>
           ))}
         </ul>
 
-        <details className="coding-detail coding-lesson-quiet">
-          <summary>Ideas that travel with this stage</summary>
-          <dl className="coding-concepts">
-            {craft.concepts.map((concept) => (
-              <div key={concept.name}>
-                <dt>{concept.name}</dt>
-                <dd>{concept.body}</dd>
-              </div>
-            ))}
-          </dl>
-        </details>
-
-        <details className="coding-detail coding-lesson-quiet">
-          <summary>Getting started</summary>
-          <p className="coding-note">{craft.stageLabel}</p>
-          <ol className="coding-steps">
-            {craft.steps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-          <ul className="coding-steps" aria-label="By the end">
-            {craft.outcomes.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </details>
-
         <h2>Signature</h2>
         <code className="coding-signature">
           {languageSignature(problem, language)}
         </code>
-        {problem.format === "implementation" ? (
-          <p className="coding-note">
-            This is an implementation stage. The starter returns an empty
-            answer on purpose. Name the contract, walk one example, then fill
-            the function until the suite passes in {languageLabel(language)}.
-          </p>
-        ) : null}
         {problem.format === "complete" ? (
           <p className="coding-note">
-            The starter already has structure. Fill the TODOs so the suite
-            passes in {languageLabel(language)}.
+            Part of this function is already written. The TODO comments mark
+            what is left.
           </p>
         ) : null}
         {problem.format === "debug" ? (
           <p className="coding-note">
-            The starter is a buggy draft. Repair it until the suite passes in{" "}
-            {languageLabel(language)}.
+            This version runs but gets some cases wrong. Run the examples
+            first to see which case fails.
           </p>
         ) : null}
 
-        <h2>When you are stuck</h2>
-        <p className="coding-note">
-          Hints open one step at a time: concept, then approach, then a partial
-          sketch. The reference stays closed until you have seen each step.
-        </p>
+        <h2>Hints</h2>
         <ol className="coding-hints">
           {hints.map((hint, index) => {
             const unlocked = index < hintsUnlocked;
@@ -396,10 +347,7 @@ export function CodingWorkspace({
                       else if (openHint === index) setOpenHint(null);
                     }}
                   >
-                    <summary>
-                      {hint.label}
-                      <span className="coding-hint-meta">{hint.summary}</span>
-                    </summary>
+                    <summary>{hint.label}</summary>
                     <p>{hint.text}</p>
                   </details>
                 ) : isNext ? (
@@ -411,16 +359,10 @@ export function CodingWorkspace({
                       setOpenHint(index);
                     }}
                   >
-                    Reveal {hint.label.toLowerCase()}
-                    <span className="coding-hint-meta">{hint.summary}</span>
+                    Show {hint.label.toLowerCase()}
                   </button>
                 ) : (
-                  <p className="coding-hint-locked">
-                    {hint.label}
-                    <span className="coding-hint-meta">
-                      Opens after the previous step
-                    </span>
-                  </p>
+                  <p className="coding-hint-locked">{hint.label}</p>
                 )}
               </li>
             );
@@ -432,36 +374,26 @@ export function CodingWorkspace({
             className="coding-detail"
             onToggle={(event) => setSolutionOpen(event.currentTarget.open)}
           >
-            <summary>Why this shape, and a reference</summary>
+            <summary>Reference solution</summary>
             {solutionOpen ? (
               <>
                 <p>{pattern.why}</p>
                 <p>
                   <strong>Cost:</strong> {pattern.cost}
                 </p>
-                <p>The reference below is Python.</p>
+                {language === "python" ? null : <p>The reference is written in Python.</p>}
                 <pre tabIndex={0}>{problem.solution}</pre>
-                <p>Opening it does not record a pass.</p>
               </>
             ) : null}
           </details>
         ) : (
-          <p className="coding-note">
-            Reveal each hint step before the reference solution unlocks.
-          </p>
+          <p className="coding-note">The reference solution opens after the last hint.</p>
         )}
 
         {passed === result?.results.length && fullSuite && !stale ? (
           <div className="coding-reflection">
+            <h2>A question to take further</h2>
             <p className="coding-lead">{problem.followUp}</p>
-            <ul>
-              {craft.reflection.slice(1).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            {craft.next.bridge ? (
-              <p className="coding-note">{craft.next.bridge}</p>
-            ) : null}
           </div>
         ) : null}
         {problem.origin ? <p className="coding-note">{problem.origin}.</p> : null}
@@ -628,9 +560,8 @@ export function CodingWorkspace({
               ) : null}
               {!busy && !result && !error ? (
                 <p>
-                  Run the examples for feedback, then run all{" "}
-                  {problem.cases.length} checks. Only a complete passing suite
-                  records completion.
+                  Run the examples, or run all {problem.cases.length} checks to
+                  mark this exercise passed.
                 </p>
               ) : null}
               {result ? (

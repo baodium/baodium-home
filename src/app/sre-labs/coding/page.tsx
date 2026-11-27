@@ -18,16 +18,11 @@ export default function CodingPage() {
         </Link>
         <h1>Write reliability functions in Go, TypeScript, or Python.</h1>
         <p>
-          Each exercise is one function, such as a retry delay, a token bucket,
-          or a deploy check, with tests that run in your browser. The tests are
-          the same in each language. A stage is complete when every exercise in
-          it passes its full suite, and progress is saved in this browser for
-          each language separately.
-        </p>
-        <p className="lesson-next">
-          <Link href="/sre-labs/coding/unhealthy-instances-v1">
-            Start with unhealthy instances
-          </Link>
+          Each exercise is one function from the tooling around a production
+          service, such as the filter behind a fleet health page, a latency
+          percentile, a retry schedule, or the check that stops an unsafe
+          deploy. The same tests run in your browser in each language, and an
+          exercise counts once its full suite passes.
         </p>
       </header>
       <CodingRoadmap

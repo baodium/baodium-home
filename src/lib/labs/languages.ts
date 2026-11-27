@@ -368,13 +368,8 @@ export function starterFor(
   const title = problem.title.replace(/\s+/g, " ").trim();
   const implementation =
     problem.format === "implementation"
-      ? [
-          `// Implementation: start from the empty return and satisfy the checks.`,
-          `// TODO 1: Name the value this function must return for “${title}”.`,
-          `// TODO 2: Walk one example by hand, then code that shape.`,
-          `// TODO 3: Cover the edges the examples skip before you trust the suite.`,
-        ]
-      : [`// TODO: ${title} — return value must satisfy the checks.`];
+      ? [`// TODO: return the value described for “${title}”.`]
+      : [`// TODO: finish this function so every check passes.`];
 
   if (language === "typescript") {
     const args = params

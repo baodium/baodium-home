@@ -12,7 +12,7 @@ import {
   subscribeCodingProgress,
   subscribePracticeLanguage,
 } from "@/lib/labs/coding-progress";
-import { languageLabel, PRACTICE_LANGUAGES } from "@/lib/labs/languages";
+import { languageEntrypoint, languageLabel, PRACTICE_LANGUAGES } from "@/lib/labs/languages";
 export function CodingRoadmap({
   problems,
   categories,
@@ -36,7 +36,6 @@ export function CodingRoadmap({
     progress[progressKey(id, language)]?.status === "attempted";
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All topics");
-  const [difficulty, setDifficulty] = useState("All levels");
   const [status, setStatus] = useState("All exercises");
   const complete = problems.filter((problem) => passedIn(problem.id)).length;
   const next =
@@ -47,7 +46,6 @@ export function CodingRoadmap({
         .toLowerCase()
         .includes(query.toLowerCase()) &&
       (category === "All topics" || category === problem.category) &&
-      (difficulty === "All levels" || difficulty === problem.difficulty) &&
       (status === "All exercises" ||
         (status === "Passed"
           ? passedIn(problem.id)
@@ -61,7 +59,7 @@ export function CodingRoadmap({
             {complete}
             <span> / {problems.length}</span>
           </strong>
-          <p>Full suites passed on this device</p>
+          <p>Passed in {languageLabel(language)} on this device</p>
         </div>
         <progress
           aria-label="Coding exercises completed"
@@ -141,19 +139,6 @@ export function CodingRoadmap({
           </select>
         </label>
         <label>
-          Level
-          <select
-            value={difficulty}
-            onChange={(event) => setDifficulty(event.target.value)}
-          >
-            {["All levels", "Foundation", "Intermediate", "Advanced"].map(
-              (value) => (
-                <option key={value}>{value}</option>
-              ),
-            )}
-          </select>
-        </label>
-        <label>
           Progress
           <select
             aria-label="Progress"
@@ -167,8 +152,9 @@ export function CodingRoadmap({
         </label>
       </div>
       <p className="coding-note" role="status">
-        {filtered.length} exercises shown. Passing examples alone does not
-        complete an exercise. Progress is local to this browser.
+        {filtered.length === problems.length
+          ? ""
+          : `${filtered.length} of ${problems.length} exercises match.`}
       </p>
       {filtered.length === 0 ? (
         <div className="labs-empty">
@@ -178,7 +164,6 @@ export function CodingRoadmap({
             onClick={() => {
               setQuery("");
               setCategory("All topics");
-              setDifficulty("All levels");
               setStatus("All exercises");
             }}
           >
@@ -186,14 +171,11 @@ export function CodingRoadmap({
           </button>
         </div>
       ) : (
-        categories.map((group, index) => {
+        categories.map((group) => {
           const rows = filtered.filter((problem) => problem.category === group);
           return rows.length ? (
             <section className="coding-roadmap-group" key={group}>
               <header>
-                <span className="labs-step">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
                 <div>
                   <h2>{group}</h2>
                   <p>
@@ -204,12 +186,12 @@ export function CodingRoadmap({
                           passedIn(problem.id),
                       ).length
                     }{" "}
-                    /{" "}
+                    of{" "}
                     {
                       problems.filter((problem) => problem.category === group)
                         .length
                     }{" "}
-                    completed
+                    passed
                   </p>
                 </div>
               </header>
@@ -234,10 +216,9 @@ export function CodingRoadmap({
                             : "○"}
                       </span>
                       <strong>{problem.title}</strong>
-                      <span className="coding-row-meta">
-                        {problem.format} · {problem.difficulty} ·{" "}
-                        {problem.minutes} min
-                      </span>
+                      <code className="coding-row-meta">
+                        {languageEntrypoint(problem.entrypoint, language)}
+                      </code>
                       <span aria-hidden="true">↗</span>
                     </Link>
                   </li>

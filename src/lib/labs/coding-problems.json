@@ -9,7 +9,7 @@
     "prompt": "You are given heartbeat records from production instances. Return the unique instance ids that are unhealthy, in the order they first appear. An instance is unhealthy if any of its records has healthy=False, cpu at or above the threshold, or last_heartbeat_seconds greater than 120. Missing optional fields are not enough to mark it unhealthy. Ignore unknown keys.",
     "signature": "get_unhealthy_instances(records, cpu_threshold=85.0) -> list[str]",
     "entrypoint": "get_unhealthy_instances",
-    "starter": "def get_unhealthy_instances(\n    records: list[dict[str, object]],\n    cpu_threshold: float = 85.0,\n) -> list[str]:\n    \"\"\"Return unique unhealthy instance ids in first-seen order.\"\"\"\n    # Implementation: start from the empty return.\n    # TODO 1: remember first-seen order for every instance id.\n    # TODO 2: mark an id unhealthy when any record fails a policy.\n    # TODO 3: emit ordered ids that are unhealthy. Do not mutate records.\n    return []\n",
+    "starter": "def get_unhealthy_instances(\n    records: list[dict[str, object]],\n    cpu_threshold: float = 85.0,\n) -> list[str]:\n    \"\"\"Return unique unhealthy instance ids in first-seen order.\"\"\"\n    # TODO 1: remember first-seen order for every instance id.\n    # TODO 2: mark an id unhealthy when any record fails a policy.\n    # TODO 3: emit ordered ids that are unhealthy. Do not mutate records.\n    return []\n",
     "constraints": [
       "Return unique instance ids in the order they first appear.",
       "An instance is unhealthy if any record has healthy=False, CPU at or above the threshold, or last_heartbeat_seconds greater than 120.",
@@ -1437,7 +1437,7 @@
     "prompt": "Your platform team runs an offline check before a batch rollout. Work on the Python checker using normalized deployment records. Report unsafe defaults without changing the input. This exercise runs against fixtures, not a live cluster. Treat each deployment record as an API contract the platform must refuse when defaults are unsafe.",
     "signature": "audit_deployments(deployments) -> list[dict]",
     "entrypoint": "audit_deployments",
-    "starter": "def audit_deployments(deployments):\n    \"\"\"Return deployment names and missing safeguards; do not modify the input.\"\"\"\n    # Implementation: start from the empty return.\n    # TODO 1: collect issue codes in order: replicas, readiness, memory.\n    # TODO 2: append a finding only when issues is non-empty.\n    return []\n",
+    "starter": "def audit_deployments(deployments):\n    \"\"\"Return deployment names and missing safeguards; do not modify the input.\"\"\"\n    # TODO 1: collect issue codes in order: replicas, readiness, memory.\n    # TODO 2: append a finding only when issues is non-empty.\n    return []\n",
     "constraints": [
       "Each record has a unique name. Other fields may be missing; numeric fields contain numbers when present.",
       "Report no_replicas when replicas is missing or at most zero.",
@@ -2034,7 +2034,7 @@
     "prompt": "Summarize normalized access-log records for an incident report. Count records in each HTTP status class.",
     "signature": "count_statuses(records)",
     "entrypoint": "count_statuses",
-    "starter": "def count_statuses(records):\n    \"\"\"Count HTTP status classes that appear.\"\"\"\n    # Implementation: start from an empty map.\n    # TODO 1: map each status to a class key with integer division by 100.\n    # TODO 2: omit classes with zero count.\n    return {}\n",
+    "starter": "def count_statuses(records):\n    \"\"\"Count HTTP status classes that appear.\"\"\"\n    # TODO 1: map each status to a class key with integer division by 100.\n    # TODO 2: omit classes with zero count.\n    return {}\n",
     "constraints": [
       "Each record has integer status from 100 to 599. Return only observed classes as string keys such as \"2xx\".",
       "Do not mutate input values. Use the Python standard library only."
@@ -2127,7 +2127,7 @@
     "prompt": "Prioritize an incident by counting server errors per service. Rank the services with errors.",
     "signature": "rank_errors(records)",
     "entrypoint": "rank_errors",
-    "starter": "def rank_errors(records):\n    \"\"\"Rank services by 5xx volume.\"\"\"\n    # Implementation: start from an empty ranking.\n    # TODO 1: count only 5xx records.\n    # TODO 2: sort by descending count, then lexicographic name.\n    return []\n",
+    "starter": "def rank_errors(records):\n    \"\"\"Rank services by 5xx volume.\"\"\"\n    # TODO 1: count only 5xx records.\n    # TODO 2: sort by descending count, then lexicographic name.\n    return []\n",
     "constraints": [
       "Records have service (string) and status (integer). Count statuses 500–599 only. Return service names by count descending, then name ascending for ties.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2222,7 +2222,7 @@
     "prompt": "Calculate a tail-latency statistic from a bounded batch of raw millisecond measurements.",
     "signature": "percentile(values, p)",
     "entrypoint": "percentile",
-    "starter": "def percentile(values, p):\n    \"\"\"Nearest-rank percentile; empty input is None.\"\"\"\n    # Implementation: do not sort the caller's list in place.\n    # TODO 1: return None when values is empty.\n    # TODO 2: copy, sort, pick the nearest-rank index.\n    return None\n",
+    "starter": "def percentile(values, p):\n    \"\"\"Nearest-rank percentile; empty input is None.\"\"\"\n    # Do not sort the caller's list in place.\n    # TODO 1: return None when values is empty.\n    # TODO 2: copy, sort, pick the nearest-rank index.\n    return None\n",
     "constraints": [
       "Values are nonnegative numbers; 0 < p <= 100. Return sorted[ceil(p*n/100)-1]. Return None for no samples.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2310,7 +2310,7 @@
     "prompt": "Implement the event selection behind a rolling error counter.",
     "signature": "window_errors(events, now, window)",
     "entrypoint": "window_errors",
-    "starter": "def window_errors(events, now, window):\n    \"\"\"Count failures inside the rolling window.\"\"\"\n    # Implementation: start from zero.\n    # TODO 1: keep only timestamps in [now - window, now].\n    # TODO 2: count failed events only.\n    return 0\n",
+    "starter": "def window_errors(events, now, window):\n    \"\"\"Count failures inside the rolling window.\"\"\"\n    # TODO 1: keep only timestamps in [now - window, now].\n    # TODO 2: count failed events only.\n    return 0\n",
     "constraints": [
       "Events contain timestamp (integer seconds) and status. Count 500–599 when now-window < timestamp <= now. Events may be unsorted. window is positive.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2408,7 +2408,7 @@
     "prompt": "Report how many additional failed requests fit into a request-based error budget.",
     "signature": "remaining_budget(total, failures, slo_bps)",
     "entrypoint": "remaining_budget",
-    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Integer budget left; do not clamp negatives.\"\"\"\n    # Implementation: keep arithmetic in integers.\n    # TODO 1: compute allowed failures from total and slo_bps.\n    # TODO 2: return allowed - failures.\n    return 0\n",
+    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Integer budget left; do not clamp negatives.\"\"\"\n    # Keep arithmetic in integers.\n    # TODO 1: compute allowed failures from total and slo_bps.\n    # TODO 2: return allowed - failures.\n    return 0\n",
     "constraints": [
       "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2487,7 +2487,7 @@
     "prompt": "Find gaps in scheduled heartbeat timestamps so an operator can inspect missing telemetry.",
     "signature": "heartbeat_gaps(timestamps, start, end, interval)",
     "entrypoint": "heartbeat_gaps",
-    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Return missing scheduled heartbeat times.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: generate the schedule from start, end, and interval.\n    # TODO 2: compare against a set of received timestamps.\n    return []\n",
+    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Return missing scheduled heartbeat times.\"\"\"\n    # TODO 1: generate the schedule from start, end, and interval.\n    # TODO 2: compare against a set of received timestamps.\n    return []\n",
     "constraints": [
       "start <= end; interval > 0; all values are integer seconds. Return missing scheduled times start, start+interval, ... <= end. Duplicate or off-schedule timestamps do not create extra slots.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2575,7 +2575,7 @@
     "prompt": "Prepare a deterministic exponential-backoff schedule. This function computes delays; it does not sleep or send requests.",
     "signature": "retry_delays(attempts, base_ms, cap_ms)",
     "entrypoint": "retry_delays",
-    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Capped exponential delays.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: attempts == 0 yields [].\n    # TODO 2: double, cap, and carry the capped value forward.\n    return []\n",
+    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Capped exponential delays.\"\"\"\n    # TODO 1: attempts == 0 yields [].\n    # TODO 2: double, cap, and carry the capped value forward.\n    return []\n",
     "constraints": [
       "attempts, base_ms and cap_ms are nonnegative integers. Attempt zero waits min(base_ms, cap_ms); each later delay doubles until capped. Return one delay per retry.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2667,7 +2667,7 @@
     "prompt": "Decide whether each timestamped request is admitted by a per-process token bucket.",
     "signature": "admit_requests(timestamps, capacity, refill_per_second)",
     "entrypoint": "admit_requests",
-    "starter": "def admit_requests(timestamps, capacity, refill_per_second):\n    \"\"\"Admit or reject each arrival.\"\"\"\n    # Implementation: start from an empty decision list.\n    # TODO 1: refill from elapsed time up to capacity.\n    # TODO 2: consume a token only when admitting.\n    return []\n",
+    "starter": "def admit_requests(timestamps, capacity, refill_per_second):\n    \"\"\"Admit or reject each arrival.\"\"\"\n    # TODO 1: refill from elapsed time up to capacity.\n    # TODO 2: consume a token only when admitting.\n    return []\n",
     "constraints": [
       "Timestamps are nonnegative seconds in nondecreasing order. capacity is a positive integer; refill_per_second is nonnegative. Start full at time 0. Refill to capacity before each request; admitting consumes one token. Return booleans.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2776,7 +2776,7 @@
     "prompt": "Locate the first point at which consecutive failures would open a simplified circuit breaker.",
     "signature": "opening_index(outcomes, threshold)",
     "entrypoint": "opening_index",
-    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Index where a consecutive failure streak opens, else None.\"\"\"\n    # Implementation: start from no opening.\n    # TODO 1: a success resets the streak.\n    # TODO 2: return the index when the streak reaches threshold.\n    return None\n",
+    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Index where a consecutive failure streak opens, else None.\"\"\"\n    # TODO 1: a success resets the streak.\n    # TODO 2: return the index when the streak reaches threshold.\n    return None\n",
     "constraints": [
       "outcomes contains booleans: True is success, False is failure. threshold is a positive integer. Return the zero-based index of the first threshold-length failure streak, or None. Success resets the streak.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2862,7 +2862,7 @@
     "prompt": "Combine overlapping or touching maintenance windows into a minimal list for a status page.",
     "signature": "merge_windows(windows)",
     "entrypoint": "merge_windows",
-    "starter": "def merge_windows(windows):\n    \"\"\"Merge overlapping or touching windows.\"\"\"\n    # Implementation: start from an empty merge.\n    # TODO 1: sort a copy by start.\n    # TODO 2: extend when the next window overlaps or touches.\n    return []\n",
+    "starter": "def merge_windows(windows):\n    \"\"\"Merge overlapping or touching windows.\"\"\"\n    # TODO 1: sort a copy by start.\n    # TODO 2: extend when the next window overlaps or touches.\n    return []\n",
     "constraints": [
       "Each window is [start, end] with start <= end. Input may be unsorted. Touching windows merge. Return merged windows in ascending start order.",
       "Do not mutate input values. Use the Python standard library only."
@@ -2995,7 +2995,7 @@
     "prompt": "Plan startup for services whose dependencies must be ready first. Detect cycles rather than waiting forever.",
     "signature": "startup_order(dependencies)",
     "entrypoint": "startup_order",
-    "starter": "def startup_order(dependencies):\n    \"\"\"Kahn order with lexicographic tie-break; cycles return None.\"\"\"\n    # Implementation: start from an empty order.\n    # TODO 1: every dependency name is also a key.\n    # TODO 2: always emit the lexicographically smallest ready name.\n    # TODO 3: return None when a cycle remains.\n    return None\n",
+    "starter": "def startup_order(dependencies):\n    \"\"\"Kahn order with lexicographic tie-break; cycles return None.\"\"\"\n    # TODO 1: every dependency name is also a key.\n    # TODO 2: always emit the lexicographically smallest ready name.\n    # TODO 3: return None when a cycle remains.\n    return None\n",
     "constraints": [
       "Input maps every service name to a list of dependency names; every dependency is also a key. Lists have no duplicates. Choose the lexicographically smallest currently ready service at each step. Return None if there is a cycle.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3095,7 +3095,7 @@
     "prompt": "Estimate the maximum simultaneously active requests from completed request intervals.",
     "signature": "peak_concurrency(intervals)",
     "entrypoint": "peak_concurrency",
-    "starter": "def peak_concurrency(intervals):\n    \"\"\"Peak overlapping concurrency.\"\"\"\n    # Implementation: start from zero.\n    # TODO 1: convert to start/end events.\n    # TODO 2: at equal timestamps, process ends before starts.\n    return 0\n",
+    "starter": "def peak_concurrency(intervals):\n    \"\"\"Peak overlapping concurrency.\"\"\"\n    # TODO 1: convert to start/end events.\n    # TODO 2: at equal timestamps, process ends before starts.\n    return 0\n",
     "constraints": [
       "Each interval is [start, end) with start <= end. Zero-length intervals count as no work. An end at time t is processed before a start at t. Return the maximum active count.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3197,7 +3197,7 @@
     "prompt": "Compare two flat configuration maps before reconciling a service.",
     "signature": "config_drift(desired, actual)",
     "entrypoint": "config_drift",
-    "starter": "def config_drift(desired, actual):\n    \"\"\"Keys that drifted between desired and actual.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: inspect the union of keys.\n    # TODO 2: missing, extra, and value changes count; None is not missing.\n    return []\n",
+    "starter": "def config_drift(desired, actual):\n    \"\"\"Keys that drifted between desired and actual.\"\"\"\n    # TODO 1: inspect the union of keys.\n    # TODO 2: missing, extra, and value changes count; None is not missing.\n    return []\n",
     "constraints": [
       "Return sorted keys that are missing on either side or have unequal JSON scalar values. Missing is different from a present None. Values have consistent types when a key exists in both maps.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3290,7 +3290,7 @@
     "prompt": "Keep the first delivery of each incident event so repeated webhook delivery does not duplicate notifications.",
     "signature": "unique_events(events)",
     "entrypoint": "unique_events",
-    "starter": "def unique_events(events):\n    \"\"\"First-seen id order; drop later duplicates.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: track seen ids separately.\n    # TODO 2: do not sort; keep encounter order.\n    return []\n",
+    "starter": "def unique_events(events):\n    \"\"\"First-seen id order; drop later duplicates.\"\"\"\n    # TODO 1: track seen ids separately.\n    # TODO 2: do not sort; keep encounter order.\n    return []\n",
     "constraints": [
       "Each event has a string id and arbitrary JSON fields. Return complete first-seen records in input order. Later copies of an id are ignored even if their payload differs.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3391,7 +3391,7 @@
     "prompt": "Build a deterministic modulo router for a batch of integer tenant IDs.",
     "signature": "route_keys(keys, shard_count)",
     "entrypoint": "route_keys",
-    "starter": "def route_keys(keys, shard_count):\n    \"\"\"Route integer keys into shard buckets.\"\"\"\n    # Implementation: start from an empty map.\n    # TODO 1: shard index is key % shard_count.\n    # TODO 2: preserve order inside each shard; omit empty shards.\n    return {}\n",
+    "starter": "def route_keys(keys, shard_count):\n    \"\"\"Route integer keys into shard buckets.\"\"\"\n    # TODO 1: shard index is key % shard_count.\n    # TODO 2: preserve order inside each shard; omit empty shards.\n    return {}\n",
     "constraints": [
       "shard_count is positive; keys are nonnegative integers. Return a mapping with string shard indexes for nonempty shards only. Assign key % shard_count and preserve key order within each shard. Keep duplicates.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3484,7 +3484,7 @@
     "prompt": "Split an ordered host list into rollout waves without exceeding the specified batch size.",
     "signature": "rollout_batches(hosts, batch_size)",
     "entrypoint": "rollout_batches",
-    "starter": "def rollout_batches(hosts, batch_size):\n    \"\"\"Split hosts into rollout batches.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: advance by batch_size each step.\n    # TODO 2: allow a shorter final batch.\n    return []\n",
+    "starter": "def rollout_batches(hosts, batch_size):\n    \"\"\"Split hosts into rollout batches.\"\"\"\n    # TODO 1: advance by batch_size each step.\n    # TODO 2: allow a shorter final batch.\n    return []\n",
     "constraints": [
       "batch_size is a positive integer. Preserve order and duplicates. Every batch except the last must contain batch_size hosts. Empty input returns an empty list.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3595,7 +3595,7 @@
     "prompt": "Evaluate normalized disk usage without dividing by an unknown capacity.",
     "signature": "pressured_disks(disks, threshold_percent)",
     "entrypoint": "pressured_disks",
-    "starter": "def pressured_disks(disks, threshold_percent):\n    \"\"\"Disk names at or above utilization threshold.\"\"\"\n    # Implementation: start from an empty list.\n    # TODO 1: skip missing or non-positive capacity.\n    # TODO 2: compare used against threshold without float traps.\n    return []\n",
+    "starter": "def pressured_disks(disks, threshold_percent):\n    \"\"\"Disk names at or above utilization threshold.\"\"\"\n    # TODO 1: skip missing or non-positive capacity.\n    # TODO 2: compare used against threshold without float traps.\n    return []\n",
     "constraints": [
       "Each disk has name, used and capacity (nonnegative integers). threshold_percent is 0–100. Include disks with positive capacity and used/capacity*100 >= threshold. Preserve input order. Zero capacity is unknown and excluded.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3692,7 +3692,7 @@
     "prompt": "Remove sensitive values from nested JSON logs before exporting them to an observability backend.",
     "signature": "redact(value)",
     "entrypoint": "redact",
-    "starter": "def redact(value):\n    \"\"\"Redact sensitive keys in nested structures.\"\"\"\n    # Implementation: return scalars unchanged.\n    # TODO 1: handle dicts, lists, and scalars separately.\n    # TODO 2: redact on the key before recursing.\n    return value\n",
+    "starter": "def redact(value):\n    \"\"\"Redact sensitive keys in nested structures.\"\"\"\n    # Return scalars unchanged.\n    # TODO 1: handle dicts, lists, and scalars separately.\n    # TODO 2: redact on the key before recursing.\n    return value\n",
     "constraints": [
       "Recursively handle dictionaries, lists and JSON scalars. Replace values of case-insensitive keys password, token and authorization with \"[REDACTED]\". Preserve key spelling and all other values. Input keys are strings.",
       "Do not mutate input values. Use the Python standard library only."
@@ -3887,7 +3887,7 @@
     "prompt": "Summarize normalized access-log records for an incident report. Count records in each HTTP status class.",
     "signature": "count_statuses(records)",
     "entrypoint": "count_statuses",
-    "starter": "def count_statuses(records):\n    \"\"\"Existing map: tests report wrong keys and inflated totals.\"\"\"\n    counts = {}\n    for row in records:\n        # Bugs: float division, string without xx, and counting every row twice.\n        key = str(row[\"status\"] / 100) + \"x\"\n        counts[key] = counts.get(key, 0) + 2\n    return counts\n",
+    "starter": "def count_statuses(records):\n    \"\"\"Existing map: tests report wrong keys and inflated totals.\"\"\"\n    counts = {}\n    for row in records:\n        key = str(row[\"status\"] / 100) + \"x\"\n        counts[key] = counts.get(key, 0) + 2\n    return counts\n",
     "constraints": [
       "Each record has integer status from 100 to 599. Return only observed classes as string keys such as \"2xx\".",
       "Do not mutate input values. Use the Python standard library only."
@@ -4074,7 +4074,7 @@
     "prompt": "Prepare a deterministic exponential-backoff schedule. This function computes delays; it does not sleep or send requests.",
     "signature": "retry_delays(attempts, base_ms, cap_ms)",
     "entrypoint": "retry_delays",
-    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Existing schedule: tests report uncapped growth and an off-by-one length.\"\"\"\n    delays = []\n    delay = base_ms\n    # Bugs: starts uncapped, doubles before the first append, and loops attempts+1.\n    for _ in range(attempts + 1):\n        delay = delay * 2\n        delays.append(delay)\n    return delays\n",
+    "starter": "def retry_delays(attempts, base_ms, cap_ms):\n    \"\"\"Existing schedule: tests report uncapped growth and an off-by-one length.\"\"\"\n    delays = []\n    delay = base_ms\n    for _ in range(attempts + 1):\n        delay = delay * 2\n        delays.append(delay)\n    return delays\n",
     "constraints": [
       "attempts, base_ms and cap_ms are nonnegative integers. Attempt zero waits min(base_ms, cap_ms); each later delay doubles until capped. Return one delay per retry.",
       "Do not mutate input values. Use the Python standard library only."
@@ -4247,7 +4247,7 @@
     "prompt": "Report how many additional failed requests fit into a request-based error budget.",
     "signature": "remaining_budget(total, failures, slo_bps)",
     "entrypoint": "remaining_budget",
-    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Existing budget math: tests report float drift and a clamped floor.\"\"\"\n    # Bugs: float ratio instead of integer bps, and max(..., 0) hides overspend.\n    allowed = total * (1 - slo_bps / 10000)\n    return max(int(allowed) - failures, 0)\n",
+    "starter": "def remaining_budget(total, failures, slo_bps):\n    \"\"\"Existing budget math: tests report float drift and a clamped floor.\"\"\"\n    allowed = total * (1 - slo_bps / 10000)\n    return max(int(allowed) - failures, 0)\n",
     "constraints": [
       "total and failures are nonnegative integers; failures <= total. slo_bps is 0–10000 basis points. Allowed failures = floor(total*(10000-slo_bps)/10000). Return allowed minus failures, including negative values.",
       "Do not mutate input values. Use the Python standard library only."
@@ -4415,7 +4415,7 @@
     "prompt": "Find gaps in scheduled heartbeat timestamps so an operator can inspect missing telemetry.",
     "signature": "heartbeat_gaps(timestamps, start, end, interval)",
     "entrypoint": "heartbeat_gaps",
-    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Existing scan: tests miss the final tick and invent extras.\"\"\"\n    # Bugs: range stops before end, and every received time is treated as a gap.\n    received = set(timestamps)\n    return [t for t in range(start, end, interval) if t in received]\n",
+    "starter": "def heartbeat_gaps(timestamps, start, end, interval):\n    \"\"\"Existing scan: tests miss the final tick and invent extras.\"\"\"\n    received = set(timestamps)\n    return [t for t in range(start, end, interval) if t in received]\n",
     "constraints": [
       "start <= end; interval > 0; all values are integer seconds. Return missing scheduled times start, start+interval, ... <= end. Duplicate or off-schedule timestamps do not create extra slots.",
       "Do not mutate input values. Use the Python standard library only."
@@ -4589,7 +4589,7 @@
     "prompt": "Locate the first point at which consecutive failures would open a simplified circuit breaker.",
     "signature": "opening_index(outcomes, threshold)",
     "entrypoint": "opening_index",
-    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Existing open check: tests open too late or on lifetime totals.\"\"\"\n    # Bugs: successes do not reset; returns the streak length instead of index.\n    streak = 0\n    for success in outcomes:\n        if not success:\n            streak += 1\n            if streak >= threshold:\n                return streak\n    return None\n",
+    "starter": "def opening_index(outcomes, threshold):\n    \"\"\"Existing open check: tests open too late or on lifetime totals.\"\"\"\n    streak = 0\n    for success in outcomes:\n        if not success:\n            streak += 1\n            if streak >= threshold:\n                return streak\n    return None\n",
     "constraints": [
       "outcomes contains booleans: True is success, False is failure. threshold is a positive integer. Return the zero-based index of the first threshold-length failure streak, or None. Success resets the streak.",
       "Do not mutate input values. Use the Python standard library only."
@@ -4776,7 +4776,7 @@
     "prompt": "Remove sensitive values from nested JSON logs before exporting them to an observability backend.",
     "signature": "redact(value)",
     "entrypoint": "redact",
-    "starter": "def redact(value):\n    \"\"\"Existing redactor: tests still leak nested and mixed-case secrets.\"\"\"\n    # Bugs: case-sensitive key match, no list recursion, mutates the input dict.\n    if isinstance(value, dict):\n        for key in list(value.keys()):\n            if key in {\"password\", \"token\", \"authorization\"}:\n                value[key] = \"[REDACTED]\"\n        return value\n    return value\n",
+    "starter": "def redact(value):\n    \"\"\"Existing redactor: tests still leak nested and mixed-case secrets.\"\"\"\n    if isinstance(value, dict):\n        for key in list(value.keys()):\n            if key in {\"password\", \"token\", \"authorization\"}:\n                value[key] = \"[REDACTED]\"\n        return value\n    return value\n",
     "constraints": [
       "Recursively handle dictionaries, lists and JSON scalars. Replace values of case-insensitive keys password, token and authorization with \"[REDACTED]\". Preserve key spelling and all other values. Input keys are strings.",
       "Do not mutate input values. Use the Python standard library only."

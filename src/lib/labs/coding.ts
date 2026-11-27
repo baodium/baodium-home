@@ -39,7 +39,7 @@ export type CodingProblem = {
 };
 export type ProblemSummary = Pick<
   CodingProblem,
-  "id" | "title" | "category" | "difficulty" | "minutes" | "format"
+  "id" | "title" | "category" | "difficulty" | "minutes" | "format" | "entrypoint"
 >;
 export const CODING_PROBLEMS = data as unknown as CodingProblem[];
 export const CODING_CATEGORIES = [
@@ -52,12 +52,13 @@ export const CODING_CATEGORIES = [
 export function codingSummaries(): ProblemSummary[] {
   return CODING_CATEGORIES.flatMap((category) =>
     CODING_PROBLEMS.filter((problem) => problem.category === category),
-  ).map(({ id, title, category, difficulty, minutes, format }) => ({
+  ).map(({ id, title, category, difficulty, minutes, format, entrypoint }) => ({
     id,
     title,
     category,
     difficulty,
     minutes,
     format,
+    entrypoint,
   }));
 }

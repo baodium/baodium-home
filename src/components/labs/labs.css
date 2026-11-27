@@ -607,7 +607,7 @@
 }
 .coding-filters {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 15px;
   margin: 32px 0 15px;
 }
@@ -701,7 +701,8 @@
   color: #146a51;
 }
 .coding-row-meta {
-  font-size: 11px;
+  font-family: var(--font-lab-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
   color: var(--lab-muted);
   white-space: nowrap;
 }
@@ -736,11 +737,14 @@
   border-bottom: 1px solid var(--lab-line);
   background: #f3f7f5;
 }
-.coding-ide-chrome p {
-  margin: 0;
+.coding-ide-back {
   font-size: 0.82rem;
   font-weight: 550;
   color: var(--lab-muted);
+}
+.coding-ide-back:hover {
+  color: var(--lab-ink);
+  text-decoration: underline;
 }
 .coding-ide-chrome div {
   display: flex;

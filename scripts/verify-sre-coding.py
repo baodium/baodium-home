@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 problems = json.loads(Path('src/lib/labs/coding-problems.json').read_text())
-assert len({item['id'] for item in problems}) == len(problems) == 24
+assert len({item['id'] for item in problems}) == len(problems) == 36
 count = 0
 for problem in problems:
     assert any(case['example'] for case in problem['cases'])

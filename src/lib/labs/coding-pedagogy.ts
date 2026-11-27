@@ -2,21 +2,9 @@ import type { CodingCase, CodingProblem } from "./coding";
 
 /** Hint steps are always concept → approach → partial sketch. */
 export const HINT_STEPS = [
-  {
-    id: "concept",
-    label: "Concept",
-    summary: "What this problem is really asking",
-  },
-  {
-    id: "approach",
-    label: "Approach",
-    summary: "How to structure the work",
-  },
-  {
-    id: "sketch",
-    label: "Partial sketch",
-    summary: "A shape to fill in, not the finished answer",
-  },
+  { id: "concept", label: "First hint" },
+  { id: "approach", label: "Second hint" },
+  { id: "sketch", label: "A partial sketch" },
 ] as const;
 
 export type HintStepId = (typeof HINT_STEPS)[number]["id"];

@@ -19,7 +19,7 @@ function getUnhealthyInstances(
   records: Heartbeat[],
   cpuThreshold = 85.0,
 ): string[] {
-  // Implementation: build the answer from an empty return.
+  // Build the answer from an empty return.
   // TODO 1: remember first-seen order for every instance id.
   // TODO 2: mark an id unhealthy when any record fails a policy.
   // TODO 3: emit ordered ids that are unhealthy. Do not mutate records.
@@ -37,7 +37,7 @@ type Heartbeat struct {
 	LastHeartbeatSeconds *float64 \`json:"last_heartbeat_seconds"\`
 }
 
-// Implementation: build the answer from an empty return.
+// Build the answer from an empty return.
 func GetUnhealthyInstances(records []Heartbeat, cpuThreshold float64) []string {
 	// TODO 1: remember first-seen order for every instance id.
 	// TODO 2: mark an id unhealthy when any record fails a policy.
@@ -62,7 +62,7 @@ type Finding = {
 };
 
 function auditDeployments(deployments: Deployment[]): Finding[] {
-  // Implementation: build findings from an empty list.
+  // Build findings from an empty list.
   // TODO 1: for each deployment, collect issue codes in order:
   //         no_replicas, no_readiness_probe, no_memory_limit.
   // TODO 2: append a finding only when issues is non-empty.
@@ -85,7 +85,7 @@ type Finding struct {
 	Issues []string \`json:"issues"\`
 }
 
-// Implementation: build findings from an empty list.
+// Build findings from an empty list.
 func AuditDeployments(deployments []Deployment) []Finding {
 	// TODO 1: for each deployment, collect issue codes in order:
 	//         no_replicas, no_readiness_probe, no_memory_limit.
@@ -102,7 +102,7 @@ func AuditDeployments(deployments []Deployment) []Finding {
 };
 
 function countStatuses(records: StatusRecord[]): Record<string, number> {
-  // Implementation: build class counts from an empty map.
+  // Build class counts from an empty map.
   // TODO 1: map each status to a class key with integer division by 100 (2xx, 5xx, …).
   // TODO 2: increment counts; omit classes that never appear.
   // Do not mutate records.
@@ -112,7 +112,7 @@ function countStatuses(records: StatusRecord[]): Record<string, number> {
 `,
     go: `package solution
 
-// Implementation: build class counts from an empty map.
+// Build class counts from an empty map.
 func CountStatuses(records []map[string]float64) map[string]float64 {
 	// TODO 1: map each status to a class key with integer division by 100.
 	// TODO 2: increment counts; omit classes that never appear.
@@ -128,7 +128,7 @@ func CountStatuses(records []map[string]float64) map[string]float64 {
 };
 
 function rankErrors(records: ErrorRecord[]): string[] {
-  // Implementation: rank services by 5xx volume.
+  // Rank services by 5xx volume.
   // TODO 1: count only records whose status is in the 5xx class.
   // TODO 2: sort by descending count, then lexicographic service name.
   // Do not mutate records.
@@ -138,7 +138,7 @@ function rankErrors(records: ErrorRecord[]): string[] {
 `,
     go: `package solution
 
-// Implementation: rank services by 5xx volume.
+// Rank services by 5xx volume.
 func RankErrors(records []map[string]any) []string {
 	// TODO 1: count only records whose status is in the 5xx class.
 	// TODO 2: sort by descending count, then lexicographic service name.
@@ -149,7 +149,7 @@ func RankErrors(records []map[string]any) []string {
   },
   "latency-percentile": {
     typescript: `function percentile(values: number[], p: number): number | null {
-  // Implementation: nearest-rank percentile without sorting in place.
+  // Nearest-rank percentile without sorting in place.
   // TODO 1: return null when values is empty.
   // TODO 2: copy, sort ascending, pick the nearest-rank index for p.
   void values;
@@ -159,7 +159,7 @@ func RankErrors(records []map[string]any) []string {
 `,
     go: `package solution
 
-// Implementation: nearest-rank percentile without sorting in place.
+// Nearest-rank percentile without sorting in place.
 // Empty input returns nil (JSON null).
 func Percentile(values []float64, p float64) any {
 	// TODO 1: return nil when values is empty.
@@ -181,7 +181,7 @@ function windowErrors(
   now: number,
   window: number,
 ): number {
-  // Implementation: count failures inside [now - window, now].
+  // Count failures inside [now - window, now].
   // TODO 1: drop timestamps older than the window start or after now.
   // TODO 2: count only events marked failed.
   void events;
@@ -192,7 +192,7 @@ function windowErrors(
 `,
     go: `package solution
 
-// Implementation: count failures inside [now - window, now].
+// Count failures inside [now - window, now].
 func WindowErrors(events []map[string]float64, now float64, window float64) float64 {
 	// TODO 1: drop timestamps older than the window start or after now.
 	// TODO 2: count only events marked failed.
@@ -209,7 +209,7 @@ func WindowErrors(events []map[string]float64, now float64, window float64) floa
   failures: number,
   sloBps: number,
 ): number {
-  // Implementation: integer budget left in basis points of total.
+  // Integer budget left in basis points of total.
   // TODO 1: allowed failures = floor(total * (10000 - slo_bps) / 10000).
   // TODO 2: return allowed - failures without clamping negatives to zero.
   void total;
@@ -220,7 +220,7 @@ func WindowErrors(events []map[string]float64, now float64, window float64) floa
 `,
     go: `package solution
 
-// Implementation: integer budget left in basis points of total.
+// Integer budget left in basis points of total.
 func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
 	// TODO 1: allowed failures = floor(total * (10000 - sloBps) / 10000).
 	// TODO 2: return allowed - failures without clamping negatives to zero.
@@ -237,7 +237,7 @@ func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
   baseMs: number,
   capMs: number,
 ): number[] {
-  // Implementation: capped exponential delays for each attempt.
+  // Capped exponential delays for each attempt.
   // TODO 1: attempts == 0 yields [].
   // TODO 2: double from base, cap at capMs, and carry the capped value forward.
   void attempts;
@@ -248,7 +248,7 @@ func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
 `,
     go: `package solution
 
-// Implementation: capped exponential delays for each attempt.
+// Capped exponential delays for each attempt.
 func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
 	// TODO 1: attempts == 0 yields an empty slice.
 	// TODO 2: double from base, cap at capMs, and carry the capped value forward.
@@ -265,7 +265,7 @@ func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
   capacity: number,
   refillPerSecond: number,
 ): boolean[] {
-  // Implementation: admit or reject each request in arrival order.
+  // Admit or reject each request in arrival order.
   // TODO 1: refill from elapsed time, never above capacity.
   // TODO 2: consume one token only when admitting; rejections spend none.
   void timestamps;
@@ -276,7 +276,7 @@ func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
 `,
     go: `package solution
 
-// Implementation: admit or reject each request in arrival order.
+// Admit or reject each request in arrival order.
 func AdmitRequests(timestamps []float64, capacity float64, refillPerSecond float64) []bool {
 	// TODO 1: refill from elapsed time, never above capacity.
 	// TODO 2: consume one token only when admitting; rejections spend none.
@@ -291,7 +291,7 @@ func AdmitRequests(timestamps []float64, capacity float64, refillPerSecond float
     typescript: `function startupOrder(
   dependencies: Record<string, string[]>,
 ): string[] | null {
-  // Implementation: Kahn order with lexicographic ready-set tie-break.
+  // Kahn order with lexicographic ready-set tie-break.
   // TODO 1: every dependency name is also a service key.
   // TODO 2: emit the lexicographically smallest ready name each step.
   // TODO 3: return null when a cycle remains.
@@ -301,7 +301,7 @@ func AdmitRequests(timestamps []float64, capacity float64, refillPerSecond float
 `,
     go: `package solution
 
-// Implementation: Kahn order with lexicographic ready-set tie-break.
+// Kahn order with lexicographic ready-set tie-break.
 // Cycles return nil (JSON null).
 func StartupOrder(dependencies map[string][]string) any {
 	// TODO 1: every dependency name is also a service key.
@@ -319,7 +319,7 @@ func StartupOrder(dependencies map[string][]string) any {
   end: number,
   interval: number,
 ): number[] {
-  // Implementation: find missing scheduled heartbeats.
+  // Find missing scheduled heartbeats.
   // TODO 1: generate the schedule from start, end, and interval.
   // TODO 2: compare against a set of received timestamps.
   // Do not mutate timestamps.
@@ -332,7 +332,7 @@ func StartupOrder(dependencies map[string][]string) any {
 `,
     go: `package solution
 
-// Implementation: find missing scheduled heartbeats.
+// Find missing scheduled heartbeats.
 func HeartbeatGaps(timestamps []float64, start float64, end float64, interval float64) []float64 {
 	// TODO 1: generate the schedule from start, end, and interval.
 	// TODO 2: compare against a set of received timestamps.
@@ -349,7 +349,7 @@ func HeartbeatGaps(timestamps []float64, start float64, end float64, interval fl
   outcomes: boolean[],
   threshold: number,
 ): number | null {
-  // Implementation: index where a consecutive failure streak opens.
+  // Index where a consecutive failure streak opens.
   // TODO 1: a success resets the streak to zero.
   // TODO 2: return the index where the streak first reaches threshold, else null.
   void outcomes;
@@ -359,7 +359,7 @@ func HeartbeatGaps(timestamps []float64, start float64, end float64, interval fl
 `,
     go: `package solution
 
-// Implementation: index where a consecutive failure streak opens.
+// Index where a consecutive failure streak opens.
 // No opening returns nil (JSON null).
 func OpeningIndex(outcomes []bool, threshold float64) any {
 	// TODO 1: a success resets the streak to zero.
@@ -372,7 +372,7 @@ func OpeningIndex(outcomes []bool, threshold float64) any {
   },
   "maintenance-windows": {
     typescript: `function mergeWindows(windows: number[][]): number[][] {
-  // Implementation: merge overlapping or touching [start, end] windows.
+  // Merge overlapping or touching [start, end] windows.
   // TODO 1: sort a copy by start time.
   // TODO 2: extend the current end when the next window overlaps or touches.
   // Do not mutate the caller's list.
@@ -382,7 +382,7 @@ func OpeningIndex(outcomes []bool, threshold float64) any {
 `,
     go: `package solution
 
-// Implementation: merge overlapping or touching [start, end] windows.
+// Merge overlapping or touching [start, end] windows.
 func MergeWindows(windows [][]float64) [][]float64 {
 	// TODO 1: sort a copy by start time.
 	// TODO 2: extend the current end when the next window overlaps or touches.
@@ -393,7 +393,7 @@ func MergeWindows(windows [][]float64) [][]float64 {
   },
   "peak-concurrency": {
     typescript: `function peakConcurrency(intervals: number[][]): number {
-  // Implementation: peak overlapping [start, end) intervals.
+  // Peak overlapping [start, end) intervals.
   // TODO 1: turn intervals into start and end events.
   // TODO 2: at equal timestamps, process ends before starts.
   // Do not mutate intervals.
@@ -403,7 +403,7 @@ func MergeWindows(windows [][]float64) [][]float64 {
 `,
     go: `package solution
 
-// Implementation: peak overlapping [start, end) intervals.
+// Peak overlapping [start, end) intervals.
 func PeakConcurrency(intervals [][]float64) float64 {
 	// TODO 1: turn intervals into start and end events.
 	// TODO 2: at equal timestamps, process ends before starts.
@@ -417,7 +417,7 @@ func PeakConcurrency(intervals [][]float64) float64 {
   desired: Record<string, unknown>,
   actual: Record<string, unknown>,
 ): string[] {
-  // Implementation: keys that drifted between desired and actual.
+  // Keys that drifted between desired and actual.
   // TODO 1: inspect the union of keys.
   // TODO 2: missing, extra, and value changes all count; null is not missing.
   // Do not mutate either mapping.
@@ -428,7 +428,7 @@ func PeakConcurrency(intervals [][]float64) float64 {
 `,
     go: `package solution
 
-// Implementation: keys that drifted between desired and actual.
+// Keys that drifted between desired and actual.
 func ConfigDrift(desired map[string]any, actual map[string]any) []string {
 	// TODO 1: inspect the union of keys.
 	// TODO 2: missing, extra, and value changes all count; null is not missing.
@@ -445,7 +445,7 @@ func ConfigDrift(desired map[string]any, actual map[string]any) []string {
 };
 
 function uniqueEvents(events: EventRow[]): EventRow[] {
-  // Implementation: keep first-seen id order.
+  // Keep first-seen id order.
   // TODO 1: track seen ids separately from the output list.
   // TODO 2: drop later duplicates entirely; do not sort.
   // Do not mutate events.
@@ -455,7 +455,7 @@ function uniqueEvents(events: EventRow[]): EventRow[] {
 `,
     go: `package solution
 
-// Implementation: keep first-seen id order.
+// Keep first-seen id order.
 func UniqueEvents(events []map[string]string) []map[string]string {
 	// TODO 1: track seen ids separately from the output list.
 	// TODO 2: drop later duplicates entirely; do not sort.
@@ -469,7 +469,7 @@ func UniqueEvents(events []map[string]string) []map[string]string {
   keys: number[],
   shardCount: number,
 ): Record<string, number[]> {
-  // Implementation: stable modulo routing into shard buckets.
+  // Stable modulo routing into shard buckets.
   // TODO 1: shard index is key % shardCount.
   // TODO 2: preserve encounter order inside each shard; omit empty shards.
   void keys;
@@ -479,7 +479,7 @@ func UniqueEvents(events []map[string]string) []map[string]string {
 `,
     go: `package solution
 
-// Implementation: stable modulo routing into shard buckets.
+// Stable modulo routing into shard buckets.
 func RouteKeys(keys []float64, shardCount float64) map[string][]float64 {
 	// TODO 1: shard index is int(key) % int(shardCount).
 	// TODO 2: preserve encounter order inside each shard; omit empty shards.
@@ -494,7 +494,7 @@ func RouteKeys(keys []float64, shardCount float64) map[string][]float64 {
   hosts: string[],
   batchSize: number,
 ): string[][] {
-  // Implementation: split hosts into rollout batches.
+  // Split hosts into rollout batches.
   // TODO 1: advance the start index by batchSize each step.
   // TODO 2: the final batch may be shorter; empty hosts yield [].
   // Do not mutate hosts.
@@ -505,7 +505,7 @@ func RouteKeys(keys []float64, shardCount float64) map[string][]float64 {
 `,
     go: `package solution
 
-// Implementation: split hosts into rollout batches.
+// Split hosts into rollout batches.
 func RolloutBatches(hosts []string, batchSize float64) [][]string {
 	// TODO 1: advance the start index by batchSize each step.
 	// TODO 2: the final batch may be shorter; empty hosts yield an empty slice.
@@ -526,7 +526,7 @@ function pressuredDisks(
   disks: DiskRow[],
   thresholdPercent: number,
 ): string[] {
-  // Implementation: names at or above utilization threshold.
+  // Names at or above utilization threshold.
   // TODO 1: skip rows with missing or non-positive capacity.
   // TODO 2: compare used*100 with capacity*threshold without float traps.
   // Do not mutate disks.
@@ -537,7 +537,7 @@ function pressuredDisks(
 `,
     go: `package solution
 
-// Implementation: names at or above utilization threshold.
+// Names at or above utilization threshold.
 func PressuredDisks(disks []map[string]any, thresholdPercent float64) []string {
 	// TODO 1: skip rows with missing or non-positive capacity.
 	// TODO 2: compare used*100 with capacity*threshold without float traps.
@@ -549,7 +549,7 @@ func PressuredDisks(disks []map[string]any, thresholdPercent float64) []string {
   },
   "redact-secrets": {
     typescript: `function redact(value: unknown): unknown {
-  // Implementation: redact sensitive keys in nested structures.
+  // Redact sensitive keys in nested structures.
   // TODO 1: handle objects, arrays, and scalars separately.
   // TODO 2: redact on the key before recursing into that value.
   // Preserve key spelling for non-sensitive fields.
@@ -559,7 +559,7 @@ func PressuredDisks(disks []map[string]any, thresholdPercent float64) []string {
 `,
     go: `package solution
 
-// Implementation: redact sensitive keys in nested structures.
+// Redact sensitive keys in nested structures.
 func Redact(value any) any {
 	// TODO 1: handle maps, slices, and scalars separately.
 	// TODO 2: redact on the key before recursing into that value.
@@ -647,9 +647,6 @@ function getUnhealthyInstances(
   cpuThreshold = 85.0,
 ): string[] {
   // Live check: pages healthy hosts and duplicates the same id.
-  // Bugs to find: strict > on CPU (threshold equality should page),
-  // >= 120 on heartbeat (policy is > 120), missing cpu treated as 0,
-  // and every failing record appends again instead of unique first-seen order.
   const result: string[] = [];
   for (const row of records) {
     if (
@@ -673,8 +670,6 @@ type Heartbeat struct {
 }
 
 // Live check: pages healthy hosts and duplicates the same id.
-// Bugs to find: strict > on CPU, >= 120 on heartbeat, missing CPU as 0,
-// and appending every failing record instead of unique first-seen order.
 func GetUnhealthyInstances(records []Heartbeat, cpuThreshold float64) []string {
 	result := make([]string, 0)
 	for _, row := range records {
@@ -770,8 +765,6 @@ type Finding = {
 
 function auditDeployments(deployments: Deployment[]): Finding[] {
   // Live check: marks healthy services and misses unsafe defaults.
-  // Bugs: defaults of 1 / true / 512 hide missing fields; readiness true
-  // is treated as a finding; every service gets a finding even with no issues.
   const findings: Finding[] = [];
   for (const deployment of deployments) {
     const issues: string[] = [];
@@ -804,8 +797,6 @@ type Finding struct {
 }
 
 // Live check: marks healthy services and misses unsafe defaults.
-// Bugs: defaults hide missing fields; readiness true is treated as a finding;
-// every service gets a finding even with no issues.
 func AuditDeployments(deployments []Deployment) []Finding {
 	findings := make([]Finding, 0)
 	for _, deployment := range deployments {
@@ -878,7 +869,6 @@ func CountStatuses(records []map[string]float64) map[string]float64 {
 
 function countStatuses(records: StatusRecord[]): Record<string, number> {
   // Existing map: tests report wrong keys and inflated totals.
-  // Bugs: float division, "x" instead of "xx", and +2 per row.
   const counts: Record<string, number> = {};
   for (const row of records) {
     const key = String(row.status / 100) + "x";
@@ -892,7 +882,6 @@ function countStatuses(records: StatusRecord[]): Record<string, number> {
 import "strconv"
 
 // Existing map: tests report wrong keys and inflated totals.
-// Bugs: float division path, "x" instead of "xx", and +2 per row.
 func CountStatuses(records []map[string]float64) map[string]float64 {
 	counts := map[string]float64{}
 	for _, row := range records {
@@ -946,7 +935,6 @@ func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
   capMs: number,
 ): number[] {
   // Existing schedule: uncapped growth and an off-by-one length.
-  // Bugs: doubles before the first append, ignores the cap, loops attempts+1.
   const delays: number[] = [];
   let delay = baseMs;
   for (let i = 0; i < attempts + 1; i += 1) {
@@ -960,7 +948,6 @@ func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
     go: `package solution
 
 // Existing schedule: uncapped growth and an off-by-one length.
-// Bugs: doubles before the first append, ignores the cap, loops attempts+1.
 func RetryDelays(attempts float64, baseMs float64, capMs float64) []float64 {
 	delays := make([]float64, 0)
 	delay := baseMs
@@ -1010,7 +997,6 @@ func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
   sloBps: number,
 ): number {
   // Existing budget math: float drift and a clamped floor.
-  // Bugs: float ratio instead of integer bps math, and Math.max hides overspend.
   const allowed = total * (1 - sloBps / 10000);
   return Math.max(Math.trunc(allowed) - failures, 0);
 }
@@ -1020,7 +1006,6 @@ func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
 import "math"
 
 // Existing budget math: float drift and a clamped floor.
-// Bugs: float ratio instead of integer bps math, and a floor at zero.
 func RemainingBudget(total float64, failures float64, sloBps float64) float64 {
 	allowed := total * (1 - sloBps/10000)
 	out := math.Trunc(allowed) - failures
@@ -1085,7 +1070,6 @@ func HeartbeatGaps(timestamps []float64, start float64, end float64, interval fl
   interval: number,
 ): number[] {
   // Existing scan: misses the final tick and invents extras.
-  // Bugs: stops before end, and treats every received time as a gap.
   const received = new Set(timestamps);
   const missing: number[] = [];
   for (let t = start; t < end; t += interval) {
@@ -1097,7 +1081,6 @@ func HeartbeatGaps(timestamps []float64, start float64, end float64, interval fl
     go: `package solution
 
 // Existing scan: misses the final tick and invents extras.
-// Bugs: stops before end, and treats every received time as a gap.
 func HeartbeatGaps(timestamps []float64, start float64, end float64, interval float64) []float64 {
 	received := map[float64]bool{}
 	for _, t := range timestamps {
@@ -1151,7 +1134,6 @@ func OpeningIndex(outcomes []bool, threshold float64) any {
   threshold: number,
 ): number | null {
   // Existing open check: opens too late or on lifetime totals.
-  // Bugs: successes do not reset; returns the streak length instead of index.
   let streak = 0;
   for (const success of outcomes) {
     if (!success) {
@@ -1165,7 +1147,6 @@ func OpeningIndex(outcomes []bool, threshold float64) any {
     go: `package solution
 
 // Existing open check: opens too late or on lifetime totals.
-// Bugs: successes do not reset; returns the streak length instead of index.
 func OpeningIndex(outcomes []bool, threshold float64) any {
 	streak := 0.0
 	for _, success := range outcomes {
@@ -1224,7 +1205,6 @@ func Redact(value any) any {
   "redact-secrets-debug-v1": {
     typescript: `function redact(value: unknown): unknown {
   // Existing redactor: still leaks nested and mixed-case secrets.
-  // Bugs: case-sensitive key match, no list recursion, mutates the input object.
   if (value && typeof value === "object" && !Array.isArray(value)) {
     const record = value as Record<string, unknown>;
     for (const key of Object.keys(record)) {
@@ -1240,7 +1220,6 @@ func Redact(value any) any {
     go: `package solution
 
 // Existing redactor: still leaks nested and mixed-case secrets.
-// Bugs: case-sensitive key match, no list recursion, mutates the input map.
 func Redact(value any) any {
 	typed, ok := value.(map[string]any)
 	if !ok {
