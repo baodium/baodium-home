@@ -32,9 +32,9 @@ test("guided workspace preserves notes, exports them, and rejects invalid eviden
 test("learning modes and project discovery work on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/labs");
-  await expect(page.getByRole("region", { name: "Choose your learning mode" }).getByRole("link")).toHaveCount(3);
+  await expect(page.getByRole("region", { name: "More practice" }).getByRole("link")).toHaveCount(4);
   await expect(page.getByText("Cybersecurity", { exact: true })).toHaveCount(0);
-  await page.getByRole("link", { name: /03 \/ REAL STACK/ }).click();
+  await page.getByRole("link", { name: /The payments stack/ }).click();
   await expect(page.getByRole("link", { name: "Create a Codespace" })).toHaveAttribute("href", "https://codespaces.new/baodium/baodium-home?ref=main");
   await expect(page.getByRole("textbox", { name: "Your lab notebook" })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);

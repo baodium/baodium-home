@@ -6,7 +6,7 @@ test("labs domain serves the hub while the main homepage stays separate", async 
 }) => {
   const hub = await request.get("/", { headers: { host: "labs.baodium.com" } });
   expect(hub.ok()).toBe(true);
-  expect(await hub.text()).toContain("Playback, search, dispatch, and a payments stack.");
+  expect(await hub.text()).toContain("Practice production engineering on three working products.");
   const redirect = await request.get("/sre-labs/coding", {
     headers: { host: "baodium.com" },
     maxRedirects: 0,
