@@ -87,12 +87,13 @@ export default function CourseOverview() {
           ))}
         </ol>
         <aside className="course-boundary">
-          <h2>The six browser lessons need nothing installed.</h2>
+          <h2>Prefer to stay in the browser?</h2>
           <p>
-            These eight exercises need Codespaces or Docker.
+            These eight exercises run real services in Codespaces or Docker. The product labs run Larder, Northlight, and Porch in the page, with incidents to
+            investigate through the same logs, metrics, and traces.
           </p>
-          <Link href="/sre-labs#practice-labs" className="product-text-link">
-            Explore the six browser exercises <ArrowRight size={16} />
+          <Link href="/labs" className="product-text-link">
+            Open the product labs <ArrowRight size={16} />
           </Link>
         </aside>
       </section>

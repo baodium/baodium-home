@@ -313,13 +313,6 @@
   color: var(--exp-muted);
   margin-top: 1rem;
 }
-.course-execution {
-  margin-top: 1.5rem;
-  padding: 0.8rem 0;
-  border-block: 1px solid var(--exp-line);
-  font: 10px/1.8 var(--font-mono);
-  color: var(--exp-signal);
-}
 .course-objective {
   margin-top: 2rem;
   padding: 1rem 1.2rem;

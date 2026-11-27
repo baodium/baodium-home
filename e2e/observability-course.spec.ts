@@ -21,7 +21,7 @@ test("hands-on course has eight actionable, independently reachable exercises", 
     const response = await page.goto(`/sre-labs/observability/${slug}`);
     expect(response?.ok()).toBe(true);
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Make a prediction first" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Before you run it" })).toBeVisible();
     await expect(page.locator(".course-rubric > div")).toHaveCount(3);
     await expect(page.getByRole("navigation", { name: "Walkthrough steps" }).getByRole("button")).toHaveCount(4);
     await page.getByRole("button", { name: /Check the evidence/ }).click();

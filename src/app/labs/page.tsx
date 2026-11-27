@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LabsShell } from "@/components/labs/LabsShell";
 import { ProductShowcase } from "@/components/labs/ProductShowcase";
+import { CHAPTERS } from "@/lib/learning/registry";
 import { SRE_LESSONS } from "@/lib/sre/catalog";
 import "@/components/labs/labs-hub.css";
 
@@ -35,7 +36,7 @@ const MORE = [
   {
     href: "/system-design/experience",
     title: "Labs from the book",
-    body: "The recommendation pool and the charge that may have been sent twice, following the chapters of the book.",
+    body: `${CHAPTERS.filter((chapter) => chapter.labKind !== "book").length} labs on the incidents in the book’s chapters, among them the recommendation pool that runs dry and the payment charged twice after a timeout.`,
     action: "Open the chapter labs",
   },
 ];

@@ -44,9 +44,9 @@ export function ExperienceHub() {
           Chapter labs that follow the manuscript’s incidents.
         </h1>
         <p className="mt-5 max-w-[40rem] text-[1.125rem] leading-[1.7] text-[color:var(--exp-muted)]">
-          Across {CHAPTERS.length} chapters you will find {full} full incidents and {short}{" "}
-          shorter labs that teach the same failure modes. {book} chapters are still reading-only
-          until their labs ship.
+          Of the book’s {CHAPTERS.length} chapters, {full} open as full incidents on a shared clock
+          and {short} as shorter labs built around one failure. The other {book} link to the
+          chapter itself, or to a product lab or guided lesson that practices the same idea.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-[color:var(--exp-faint)]">
           Progress is saved in this browser. No sign-in.
@@ -159,7 +159,13 @@ function ChapterCard({
             <span aria-hidden="true">→</span>
           </Link>
         ) : (
-          <p className="mt-4 text-sm text-[color:var(--exp-faint)]">{status}</p>
+          <Link
+            href={chapter.practice?.href ?? chapter.bookHref}
+            className="mt-4 inline-flex items-center gap-2 text-sm text-[color:var(--exp-accent-text)]"
+          >
+            {chapter.practice?.label ?? "Read the chapter"}
+            <span aria-hidden="true">→</span>
+          </Link>
         )}
       </div>
     </article>

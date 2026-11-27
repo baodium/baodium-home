@@ -27,12 +27,14 @@ export type ChapterRecord = {
   labHref: string | null;
   labKind: LabKind;
   labStatus: "ready" | "soon" | "none";
-  /** Honest one-line status for the directory. */
+  /** One sentence on the chapter's incident, or on the chapter itself when it has no lab. */
   statusLine: string;
   /** One-line lab subtitle when a lab exists. */
   labSubtitle: string;
   /** Play drills that deepen this chapter (implemented only). */
   drills: DrillLink[];
+  /** A lab elsewhere in Labs that practices a book-only chapter. */
+  practice?: { label: string; href: string };
 };
 
 /** Canonical chapter list aligned with Practical System Design manuscript. */
@@ -47,7 +49,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-1",
     labKind: "full",
     labStatus: "ready",
-    statusLine: "Full incident. Recommendations, a feature flag, and a 40-slot pool.",
+    statusLine: "A recommendations feature flag fills the 40-connection database pool, and the product page starts timing out.",
     labSubtitle: "Recommendations, a feature flag, and a 40-slot pool",
     drills: [{ slug: "slo-watch", title: "SLO Watch", href: "/play/slo-watch" }],
   },
@@ -61,7 +63,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-2",
     labKind: "short",
     labStatus: "ready",
-    statusLine: "Short lab. Build the payload before the connection is acquired.",
+    statusLine: "Checkout holds a database connection while it builds its payload, and the pool runs dry under ordinary load.",
     labSubtitle: "Build the payload before the connection is acquired",
     drills: [
       { slug: "traffic-surge", title: "Traffic Surge", href: "/play/traffic-surge" },
@@ -78,7 +80,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-3",
     labKind: "full",
     labStatus: "ready",
-    statusLine: "Full incident. One charge when the provider answers after the timeout.",
+    statusLine: "The payment provider answers after the client has given up, and the retry charges the card a second time.",
     labSubtitle: "One charge when the provider answers after the client has given up",
     drills: [],
   },
@@ -92,7 +94,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-4",
     labKind: "short",
     labStatus: "ready",
-    statusLine: "Short lab. A child deadline and a permit on the fraud call.",
+    statusLine: "A slow fraud check holds every checkout request until the whole service stops answering.",
     labSubtitle: "A child deadline and a permit on the fraud call",
     drills: [{ slug: "cascade", title: "Cascade", href: "/play/cascade" }],
   },
@@ -106,7 +108,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-5",
     labKind: "short",
     labStatus: "ready",
-    statusLine: "Short lab. One catalog read when product metadata misses.",
+    statusLine: "When product metadata falls out of the cache, every page view reads the catalog at the same moment.",
     labSubtitle: "One catalog read when product metadata misses",
     drills: [{ slug: "cache-roulette", title: "Cache Roulette", href: "/play/cache-roulette" }],
   },
@@ -120,8 +122,8 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labKind: "book",
     labStatus: "none",
-    statusLine: "In the book. No lab yet.",
-    labSubtitle: "In the book. No lab yet.",
+    statusLine: "How a container image pins the runtime and every dependency, so the build that passed its tests is the build that runs in production.",
+    labSubtitle: "",
     drills: [],
   },
   {
@@ -134,7 +136,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-7",
     labKind: "short",
     labStatus: "ready",
-    statusLine: "Short lab. choose_read_target for the address just saved.",
+    statusLine: "A customer saves a new address, and the next page, read from a replica, still shows the old one.",
     labSubtitle: "choose_read_target for the address just saved",
     drills: [],
   },
@@ -148,8 +150,9 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labKind: "book",
     labStatus: "none",
-    statusLine: "In the book. No lab yet.",
-    labSubtitle: "In the book. No lab yet.",
+    statusLine: "How to measure a request path with logs, metrics, and traces, and how to decide which of those signals should page someone.",
+    labSubtitle: "",
+    practice: { label: "Practice in Larder: Checkout became slow", href: "/sre-labs/larder/slow-checkout" },
     drills: [],
   },
   {
@@ -162,8 +165,9 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labKind: "book",
     labStatus: "none",
-    statusLine: "In the book. No lab yet.",
-    labSubtitle: "In the book. No lab yet.",
+    statusLine: "How timeouts, retry budgets, and bulkheads stop one failing dependency from taking its callers down with it.",
+    labSubtitle: "",
+    practice: { label: "Practice: A slow card provider fills its slots", href: "/sre-labs/cascade" },
     drills: [],
   },
   {
@@ -176,8 +180,9 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labKind: "book",
     labStatus: "none",
-    statusLine: "In the book. No lab yet.",
-    labSubtitle: "In the book. No lab yet.",
+    statusLine: "How canaries, feature flags, and staged rollouts make each deployment a measured change you can stop partway.",
+    labSubtitle: "",
+    practice: { label: "Practice in Porch: Some neighbors are sent back to sign-in", href: "/sre-labs/porch/signin" },
     drills: [],
   },
   {
@@ -190,8 +195,8 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labKind: "book",
     labStatus: "none",
-    statusLine: "In the book. No lab yet.",
-    labSubtitle: "In the book. No lab yet.",
+    statusLine: "Where to draw service boundaries, and the network, data, and ownership costs each new boundary adds.",
+    labSubtitle: "",
     drills: [],
   },
   {
@@ -204,7 +209,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-12",
     labKind: "short",
     labStatus: "ready",
-    statusLine: "Short lab. Claim the message, then commit the offset.",
+    statusLine: "A consumer stops between taking a message and finishing it, and the order is lost or handled twice.",
     labSubtitle: "Claim the message, then commit the offset",
     drills: [],
   },
@@ -218,8 +223,8 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: null,
     labKind: "book",
     labStatus: "none",
-    statusLine: "In the book. No lab yet.",
-    labSubtitle: "In the book. No lab yet.",
+    statusLine: "Running models in production: fresh features, skew between training and serving, and rolling back when predictions drift.",
+    labSubtitle: "",
     drills: [],
   },
   {
@@ -232,7 +237,7 @@ export const CHAPTERS: ChapterRecord[] = [
     labHref: "/system-design/experience/chapter-14",
     labKind: "short",
     labStatus: "ready",
-    statusLine: "Short lab. European Catalog pools when one instance is down.",
+    statusLine: "One European catalog instance goes down, and the connection pools on the others run out.",
     labSubtitle: "European Catalog pools when one instance is down",
     drills: [],
   },

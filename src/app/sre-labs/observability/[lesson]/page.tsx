@@ -70,9 +70,6 @@ export default async function LessonPage({
             </p>
             <h1>{item.title}</h1>
             <p>{item.outcome}</p>
-            <div className="course-execution">
-              Guided walkthrough · real services · checkpoint evidence
-            </div>
           </header>
           <nav className="course-tool-links" aria-label="Local tool shortcuts">
             <span>Local Docker shortcuts:</span>
@@ -107,10 +104,8 @@ export default async function LessonPage({
             </p>
           </section>
           <section className="course-objective" aria-labelledby="prediction-title">
-            <p className="product-eyebrow">Before the experiment</p>
-            <h2 id="prediction-title">Make a prediction first</h2>
+            <h2 id="prediction-title">Before you run it</h2>
             <p>{teaching.prediction}</p>
-            <p>Write your prediction in your lab notes. After the experiment, compare it with what actually happened.</p>
           </section>
           <CourseWalkthrough key={item.slug} lesson={item} />
           <details className="course-hint">
@@ -122,14 +117,12 @@ export default async function LessonPage({
             <p>{teaching.misconception}</p>
           </details>
           <section className="course-challenge" aria-labelledby="debrief-title">
-            <p className="product-eyebrow">After the exercise</p>
-            <h2 id="debrief-title">Check your notes against these three.</h2>
+            <h2 id="debrief-title">Before you move on</h2>
             <dl className="course-rubric">
-              <div><dt>Evidence</dt><dd>{teaching.evidence}</dd></div>
-              <div><dt>Reasoning</dt><dd>{teaching.explanation}</dd></div>
-              <div><dt>Transfer</dt><dd>{teaching.transfer}</dd></div>
+              <div><dt>What to keep</dt><dd>{teaching.evidence}</dd></div>
+              <div><dt>What to explain</dt><dd>{teaching.explanation}</dd></div>
+              <div><dt>A question to take further</dt><dd>{teaching.transfer}</dd></div>
             </dl>
-            <p>Use these criteria to review your notes. Automated system checks do not assess your explanation.</p>
           </section>
           <section className="course-challenge">
             <h2>Write what you found</h2>

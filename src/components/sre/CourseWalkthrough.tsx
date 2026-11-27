@@ -46,8 +46,8 @@ export function CourseWalkthrough({ lesson }: { lesson: CourseLesson }) {
   };
   const current = lesson.steps[step];
   return (
-    <section className="course-workspace" aria-label="Guided hands-on walkthrough">
-      <div className="course-workspace-top"><span>GUIDED WORKSPACE</span><span>{step + 1} / {lesson.steps.length + 1}</span></div>
+    <section className="course-workspace" aria-label="Exercise steps">
+      <div className="course-workspace-top"><span>{lesson.tool}</span><span>Step {step + 1} of {lesson.steps.length + 1}</span></div>
       <nav className="course-step-tabs" aria-label="Walkthrough steps">
         {[...lesson.steps.map(item => item.title), "Check the evidence"].map((title, index) => (
           <button type="button" key={title} aria-current={step === index ? "step" : undefined} onClick={() => changeStep(index)} disabled={!loaded}><span>{index + 1}</span>{title}</button>
@@ -64,7 +64,7 @@ export function CourseWalkthrough({ lesson }: { lesson: CourseLesson }) {
               <p>Codespaces opens a real workspace in GitHub. Sign-in is required; account quotas and billing apply. Wait for “Workspace ready”, then return here. Keep forwarded ports private. Stop or delete the Codespace when finished.</p>
             </div>}
             {current.command && <CourseCommand key={current.command} command={current.command} />}
-            <div className="course-expect"><strong>Expected observation</strong><p>{current.expect}</p></div>
+            <div className="course-expect"><strong>What you should see</strong><p>{current.expect}</p></div>
           </> : <>
             <p>Run this checkpoint against your running stack, then import its JSON report.</p>
             <CourseCommand command={lesson.checkpoint} />
@@ -83,14 +83,14 @@ export function CourseWalkthrough({ lesson }: { lesson: CourseLesson }) {
             </label>
             {error && <p role="alert" className="course-report-error">{error}</p>}
             {evidence && <div className="course-report-result" role="status"><strong>Passing report imported</strong><p>Checkpoint recorded at {evidence.checkedAt}</p><ul>{evidence.checks.map((check, index) => <li key={index}>{check}</li>)}</ul></div>}
-            <p className="course-workspace-caption">Reports are read only in this browser. They are editable local files, not independently verified certificates. Importing a report does not monitor the current health of your stack.</p>
+            <p className="course-workspace-caption">The report stays in this browser. It records the checkpoint run, not the current health of your stack.</p>
           </>}
           <details className="course-hint"><summary>Help with this exercise</summary><p>{lesson.hint}</p></details>
         </div>
         <aside className="course-notebook">
           <label htmlFor="course-notes">Your lab notebook</label>
-          <p>Predict the result. Record what you saw. Explain the difference.</p>
-          <textarea id="course-notes" value={notes} disabled={!loaded} maxLength={12000} onChange={event => setNotes(event.target.value)} placeholder="Prediction…\n\nObserved evidence…\n\nWhat I would try next…" />
+          <p>Write down what you expect before each step, then what you saw and how it differed.</p>
+          <textarea id="course-notes" value={notes} disabled={!loaded} maxLength={12000} onChange={event => setNotes(event.target.value)} placeholder={"What I expect…\n\nWhat I saw…\n\nWhat I would try next…"} />
           <span>Saved on this browser when storage is available. Export to keep a copy.</span>
           <button type="button" disabled={!loaded} onClick={() => {
             const url = URL.createObjectURL(new Blob([`# ${lesson.title}\n\n${notes}\n`], { type: "text/markdown" }));
@@ -100,7 +100,6 @@ export function CourseWalkthrough({ lesson }: { lesson: CourseLesson }) {
       </div>
       <div className="course-workspace-controls">
         <button type="button" disabled={!loaded || step === 0} onClick={() => changeStep(step - 1)}>← Previous task</button>
-        <span>Navigation does not mark a checkpoint as passed.</span>
         <button type="button" disabled={!loaded || step === lesson.steps.length} onClick={() => changeStep(step + 1)}>Next task →</button>
       </div>
     </section>

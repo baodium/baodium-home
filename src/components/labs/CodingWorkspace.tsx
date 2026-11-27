@@ -123,11 +123,13 @@ export function CodingWorkspace({
       storePracticeLanguage(value);
     }
   }, []);
-  useEffect(() => {
+  const [shownProblem, setShownProblem] = useState(problem.id);
+  if (shownProblem !== problem.id) {
+    setShownProblem(problem.id);
     setHintStep(0);
     setOpenHint(null);
     setSolutionOpen(false);
-  }, [problem.id]);
+  }
   useEffect(() => {
     if (layout === "split") return;
     const onKey = (event: KeyboardEvent) => {
