@@ -25,24 +25,23 @@ test("homepage preserves the portrait introduction and direct reading links", as
   ).toHaveCount(0);
 });
 
-test("SRE catalog filters intersect and an empty result can be cleared", async ({
+test("guided lessons list all eight lessons and link each to a product incident", async ({
   page,
 }) => {
   await page.goto("/sre-labs");
-  await expect(page.locator(".catalog-lesson")).toHaveCount(6);
-  await page.getByLabel("Topic", { exact: true }).selectOption("Capacity");
-  await expect(page.locator(".catalog-lesson")).toHaveCount(1);
-  await page.getByLabel("Difficulty", { exact: true }).selectOption("Beginner");
-  await expect(page.getByText("No labs match these filters.")).toBeVisible();
-  await page.getByRole("button", { name: "Show all labs" }).click();
-  await expect(page.locator(".catalog-lesson")).toHaveCount(6);
-  await page
-    .getByLabel("Prerequisites", { exact: true })
-    .selectOption("No prerequisites");
-  await expect(page.locator(".catalog-lesson")).toHaveCount(1);
-  await expect(page.locator(".catalog-lesson")).toContainText(
-    "Which call made playback slow",
+  await expect(page.locator(".guided-list > li")).toHaveCount(8);
+  await expect(page.locator(".guided-progress")).toContainText(
+    "No lessons passed on this device yet.",
   );
+  await expect(page.locator(".guided-related")).toHaveCount(8);
+  await page
+    .locator(".guided-related a[href='/sre-labs/northlight/cache-key']")
+    .click();
+  await expect(page).toHaveURL(/\/sre-labs\/northlight\/cache-key$/);
+  await page.goto("/sre-labs/instrument");
+  await expect(
+    page.getByRole("navigation", { name: "Breadcrumb" }),
+  ).toContainText("Labs/Guided lessons");
 });
 
 test("guided cascade recovers, replays the same evidence and records assessed completion", async ({
@@ -76,7 +75,9 @@ test("guided cascade recovers, replays the same evidence and records assessed co
     page.getByRole("region", { name: "Incident review" }),
   ).toBeVisible();
   await page.goto("/sre-labs");
-  await expect(page.locator(".catalog-progress")).toContainText("1 of 6");
+  await expect(page.locator(".guided-progress")).toContainText(
+    "1 of 8 lessons passed",
+  );
 });
 
 for (const kind of ["capacity", "deployment"] as const) {
@@ -89,7 +90,7 @@ for (const kind of ["capacity", "deployment"] as const) {
       .getByRole("button", {
         name:
           kind === "capacity"
-            ? "Introduce traffic surge"
+            ? "Introduce origin surge"
             : "Deploy canary to 50%",
         exact: true,
       })
@@ -139,7 +140,7 @@ test("alert rule rejects invalid config and responds to failure and missing meas
   await page.goto("/sre-labs/alert");
   await page.getByRole("button", { name: "Practice", exact: true }).click();
   const workbench = page.getByRole("region", {
-    name: "Test an alert before it pages.",
+    name: "Test an alert rule before it pages someone.",
   });
   await workbench
     .getByLabel("Rule configuration (JSON)")
@@ -208,8 +209,7 @@ test("beginner instruments a trace, assesses it, then completes an SLO experimen
     .click();
   await expect(page.getByRole("status")).toContainText("Completion saved");
   await page
-    .getByRole("navigation", { name: "SRE labs" })
-    .getByRole("link", { name: "99.5% budget", exact: true })
+    .getByRole("link", { name: /Lesson 2, the error budget/ })
     .click();
   await expect(page).toHaveURL(/sre-labs\/slo$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("99.5");
@@ -225,7 +225,9 @@ test("beginner instruments a trace, assesses it, then completes an SLO experimen
     .click();
   await expect(page.getByRole("status")).toContainText("Completion saved");
   await page.goto("/sre-labs");
-  await expect(page.locator(".catalog-progress")).toContainText("2 of 6");
+  await expect(page.locator(".guided-progress")).toContainText(
+    "2 of 8 lessons passed",
+  );
 });
 
 test("book keeps the seven free chapters and the full-edition boundary", async ({

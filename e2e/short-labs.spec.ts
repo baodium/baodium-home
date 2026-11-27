@@ -23,7 +23,7 @@ test.describe("short chapter labs", () => {
 
   test("labs index lists the later chapters", async ({ page }) => {
     await page.goto("/system-design/experience");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/production scenario/i);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/chapter labs/i);
     await expect(page.getByRole("link", { name: /Replicas, Partitions, and Shards/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Event-Driven Systems/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Designing From Production Experience/i })).toBeVisible();

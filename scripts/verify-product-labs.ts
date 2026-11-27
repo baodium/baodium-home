@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
-import { LarderRuntime, LARDER_INCIDENTS } from "../src/lib/products/larder";
-import { NorthlightRuntime, NORTHLIGHT_INCIDENTS, PlaybackSession } from "../src/lib/products/northlight";
+import { LarderRuntime, LARDER_INCIDENTS, RUTH_CART, TEST_CARD } from "../src/lib/products/larder";
+import { cacheKey, NorthlightRuntime, NORTHLIGHT_INCIDENTS, PlaybackSession, type CacheRule } from "../src/lib/products/northlight";
 import { PorchRuntime, PORCH_INCIDENTS, POSTS, ROSA_POST } from "../src/lib/products/porch";
-import { PRICING_TESTS, PRICING_V142, RESERVE_TESTS, RESERVE_V151 } from "../src/lib/products/larder-code";
+import { CHARGE_TESTS, CHARGE_V158, PRICING_TESTS, PRICING_V142, RESERVE_TESTS, RESERVE_V151 } from "../src/lib/products/larder-code";
 import { ABR_TESTS, ABR_V380 } from "../src/lib/products/northlight-code";
 import { PAGINATE_TESTS, PAGINATE_V31 } from "../src/lib/products/porch-code";
+import type { IncidentDef } from "../src/lib/products/types";
 import type { LabRuntime } from "../src/lib/products/runtime";
-import { ABR_FIX, PAGINATE_FIX, PRICING_FIX, RESERVE_FIX } from "../e2e/fixtures/product-fixes";
+import { ABR_FIX, CHARGE_FIX, PAGINATE_FIX, PRICING_FIX, RESERVE_FIX } from "../e2e/fixtures/product-fixes";
 
 type Row = { title: string; passed: boolean; detail: string };
 const workerSource = readFileSync(new URL("../public/workers/product-checks.js", import.meta.url), "utf8");
@@ -38,13 +39,13 @@ function run(runtime: LabRuntime, seconds: number) {
 
 const PRICING_HALF_FIX = PRICING_V142.replace("Math.floor(", "Math.round(");
 
-function testFile(name: string, broken: string, fixed: string, exports: string[], tests: string, half?: string) {
+function testFile(name: string, broken: string, fixed: string, exports: string[], tests: string, halves: string[] = []) {
   console.log(`\n${name} tests`);
   const before = runWorker(broken, exports, tests);
   expect(!before.compileError && before.results.some((row) => !row.passed), `shipped code fails ${before.results.filter((row) => !row.passed).length} of ${before.results.length}`);
-  if (half) {
+  for (const half of halves) {
     const partial = runWorker(half, exports, tests);
-    expect(partial.results.some((row) => !row.passed), `half fix still fails: ${partial.results.filter((row) => !row.passed).map((row) => row.title).join("; ")}`);
+    expect(!partial.compileError && partial.results.some((row) => !row.passed), `half fix still fails: ${partial.results.filter((row) => !row.passed).map((row) => row.title).join("; ")}`);
   }
   const after = runWorker(fixed, exports, tests);
   expect(!after.compileError && after.results.every((row) => row.passed), `fixed code passes ${after.results.filter((row) => row.passed).length} of ${after.results.length}${after.compileError ? ` (${after.compileError})` : ""}`);
@@ -52,10 +53,16 @@ function testFile(name: string, broken: string, fixed: string, exports: string[]
   expect(Boolean(syntax.compileError), "syntax error reported as a compile error");
 }
 
-testFile("pricing", PRICING_V142, PRICING_FIX, ["orderTotalCents"], PRICING_TESTS, PRICING_HALF_FIX);
+testFile("pricing", PRICING_V142, PRICING_FIX, ["orderTotalCents"], PRICING_TESTS, [PRICING_HALF_FIX]);
 testFile("reserve", RESERVE_V151, RESERVE_FIX, ["reserveStock"], RESERVE_TESTS);
 testFile("abr", ABR_V380, ABR_FIX, ["chooseRendition"], ABR_TESTS);
 testFile("paginate", PAGINATE_V31, PAGINATE_FIX, ["feedPage"], PAGINATE_TESTS);
+
+const CHARGE_NO_RETRY = CHARGE_FIX.replace("const ATTEMPTS = 2;", "const ATTEMPTS = 1;");
+const CHARGE_KEY_PER_CALL = CHARGE_FIX.replace('"checkout-" + checkout.id', "processor.newIdempotencyKey()");
+const CHARGE_KEY_PER_CARD = CHARGE_FIX.replace('"checkout-" + checkout.id', '"card-" + checkout.card');
+expect(CHARGE_NO_RETRY !== CHARGE_FIX && CHARGE_KEY_PER_CALL !== CHARGE_FIX && CHARGE_KEY_PER_CARD !== CHARGE_FIX, "charge half fixes differ from the fix");
+testFile("charge", CHARGE_V158, CHARGE_FIX, ["chargeCheckout"], CHARGE_TESTS, [CHARGE_NO_RETRY, CHARGE_KEY_PER_CALL, CHARGE_KEY_PER_CARD]);
 
 {
   console.log("\nLarder: checkout fails for some carts");
@@ -201,6 +208,127 @@ function watch(lab: NorthlightRuntime, network: "broadband" | "fiber", bps: numb
   expect(after.length === POSTS.length && after.includes(ROSA_POST), `feed shows ${after.length} of ${POSTS.length}, with Rosa's post`);
   run(lab, 45);
   expect(lab.checks().every((check) => check.done), `all checks pass: ${lab.checks().map((c) => c.detail).join(" | ")}`);
+}
+
+const byId = (incidents: IncidentDef[], id: string) => incidents.find((incident) => incident.id === id)!;
+const status = (runtime: LabRuntime) => runtime.checks().map((check) => `${check.done ? "ok" : "no"} ${check.detail}`).join(" | ");
+const check = (runtime: LabRuntime, id: string) => runtime.checks().find((item) => item.id === id)!;
+const recent = (runtime: LabRuntime, chart: string, series = 0, count = 3) => {
+  const points = runtime.charts().find((item) => item.id === chart)!.series[series].points.filter((point) => point.v !== null).slice(-count);
+  return points.reduce((sum, point) => sum + point.v!, 0) / Math.max(1, points.length);
+};
+
+{
+  console.log("\nLarder: some customers were charged twice");
+  const incident = byId(LARDER_INCIDENTS, "double-charge");
+  const lab = new LarderRuntime(incident).boot();
+  const extra = lab.charts()[1].series[0].points.map((point) => point.v ?? 0);
+  const total = (values: number[]) => values.reduce((sum, value) => sum + value, 0);
+  expect(total(extra.slice(0, 15)) === 0 && total(extra.slice(-15)) > 30, `duplicate charges appear only after release 158 (${total(extra.slice(-15)).toFixed(0)} in the last 15 buckets)`);
+  expect(lab.ruthOrder?.ok && lab.ruthOrder.chargeIds.length === 2, `Ruth's order ${lab.ruthOrder?.orderId} carries ${lab.ruthOrder?.chargeIds.length} charges`);
+  const broken = lab.placeOrder(RUTH_CART, "", TEST_CARD);
+  expect(!broken.ok && broken.chargeIds.length === 2, `test card checkout fails with ${broken.chargeIds.length} charges taken (${broken.code})`);
+
+  const rollback = new LarderRuntime(incident).boot();
+  rollback.rollback(rollback.releases.find((release) => release.version === "157")!.id);
+  const afterRollback = rollback.placeOrder(RUTH_CART, "", TEST_CARD);
+  expect(!afterRollback.ok && afterRollback.chargeIds.length === 1, `rollback to 157 takes one charge but still fails the checkout (${afterRollback.code})`);
+  run(rollback, 40);
+  expect(!rollback.checks().every((item) => item.done), `rollback alone does not resolve: ${status(rollback)}`);
+
+  lab.ship(CHARGE_FIX, "Reuse one idempotency key per checkout");
+  const fixed = lab.placeOrder(RUTH_CART, "", TEST_CARD);
+  expect(fixed.ok && fixed.chargeIds.length === 1, `after the fix the test card checkout succeeds with one charge (${fixed.orderId})`);
+  run(lab, 5);
+  expect(lab.outstanding().count > 0 && !check(lab, "refunds").done, `the code fix alone leaves ${lab.outstanding().count} extra charges to refund`);
+  lab.refundExtras();
+  run(lab, 5);
+  lab.refundExtras();
+  run(lab, 31);
+  expect(lab.checks().every((item) => item.done), `fix and refunds resolve: ${status(lab)}`);
+  expect(Boolean(lab.resolvedAt), "incident resolved");
+}
+
+{
+  console.log("\nNorthlight: films take seconds to start and some fail");
+  const incident = byId(NORTHLIGHT_INCIDENTS, "cache-key");
+  const vod: CacheRule = { path: "/vod/*", key: "path", ttl: 604_800 };
+  const all: CacheRule = { path: "/*", key: "path", ttl: 3600 };
+  const play = (lab: NorthlightRuntime, report: boolean) => {
+    const session = lab.session(() => 4_200_000, () => "Chicago", () => undefined, "night-market");
+    for (let i = 0; i < 48; i++) {
+      session.step(250);
+      if (i % 4 === 3) lab.advance(1000);
+      if (report) lab.reportMine(session, "broadband", "Chicago");
+    }
+    return session;
+  };
+  const scenario = (rules: CacheRule[] | "rollback-player") => {
+    const lab = new NorthlightRuntime(incident).boot();
+    if (rules === "rollback-player") lab.rollback("web-player-3.8.1");
+    else lab.deployRules(rules);
+    run(lab, 75);
+    play(lab, true);
+    return lab;
+  };
+
+  const lab = new NorthlightRuntime(incident).boot();
+  console.log(`  hit ratio ${recent(lab, "hit-ratio").toFixed(1)}%, origin ${recent(lab, "origin").toFixed(1)}/s, start p95 ${Math.round(recent(lab, "startup"))} ms, failed ${recent(lab, "failed").toFixed(1)}%`);
+  expect(recent(lab, "hit-ratio") < 10 && recent(lab, "origin") > 6, "cache misses send origin past its capacity");
+  expect(recent(lab, "startup") > 2000 && recent(lab, "failed") > 2, "starts are slow and some fail");
+  expect(cacheKey(lab.rules, "/vod/night-market/720p/seg_00041.m4s?sid=4be07a").key?.includes("sid="), "film segment keys carry the session id under rules r91");
+  const mine = play(lab, false);
+  expect(mine.error === "NL-503" || mine.startupMs > 2000, `your film start is slow or fails (${mine.error ?? `${Math.round(mine.startupMs)} ms`})`);
+
+  const scoped = scenario([{ path: "/live/*", key: "query", ttl: 10 }, vod, all]);
+  expect(scoped.checks().every((item) => item.done) && Boolean(scoped.resolvedAt), `scoping the 10 s rule to /live/* resolves: ${status(scoped)}`);
+  const below = scenario([vod, { path: "/*", key: "query", ttl: 10 }, all]);
+  expect(below.checks().every((item) => item.done), `moving the rule below /vod/* resolves: ${status(below)}`);
+  const pathOnly = scenario([{ path: "/*", key: "path", ttl: 10 }, vod, all]);
+  expect(!check(pathOnly, "live").done, `a path-only key shares live segments between viewers: ${check(pathOnly, "live").detail}`);
+  const deleted = scenario([vod, all]);
+  expect(!check(deleted, "live").done, `deleting the rule caches live segments by path: ${check(deleted, "live").detail}`);
+  const bypass = scenario([{ path: "/*", key: "bypass", ttl: 10 }, vod, all]);
+  expect(!check(bypass, "start").done, `bypassing the cache for everything keeps starts slow: ${check(bypass, "start").detail}`);
+  const token = scenario([{ path: "/*", key: "token", ttl: 10 }, vod, all]);
+  expect(!check(token, "start").done, `a token key with a 10 s TTL keeps origin overloaded: ${check(token, "start").detail}`);
+  const player = scenario("rollback-player");
+  expect(!check(player, "start").done, `rolling back the player leaves the 10 s TTL in place: ${check(player, "start").detail}`);
+}
+
+{
+  console.log("\nPorch: a gas leak warning never reached the neighbors");
+  const incident = byId(PORCH_INCIDENTS, "slow-posts");
+  const scenario = (change: (lab: PorchRuntime) => void) => {
+    const lab = new PorchRuntime(incident).boot();
+    change(lab);
+    run(lab, 5);
+    lab.post("theo", "Testing delivery from Theo");
+    run(lab, 60);
+    return lab;
+  };
+  const lab = new PorchRuntime(incident).boot();
+  console.log(`  partition 3 lag ${Math.round(recent(lab, "lag"))} s, others ${Math.round(recent(lab, "lag", 1))} s`);
+  expect(recent(lab, "lag") > 300 && recent(lab, "lag", 1) < 60, "only partition 3 lags");
+  const june = lab.timeline("june").slice(0, 8);
+  expect(!june.some((item) => item.kind === "post" && item.post.id === "p_0443"), "Hal's warning is not in June's feed yet");
+
+  for (const [label, change] of [
+    ["16 consumers", (rt: PorchRuntime) => rt.setConsumers(16)],
+    ["pausing the import", (rt: PorchRuntime) => rt.setImportPaused(true)],
+    ["fan-out on read over 100,000", (rt: PorchRuntime) => rt.setReadThreshold(100_000)],
+  ] as const) {
+    const attempt = scenario(change);
+    expect(!check(attempt, "late").done, `${label} leaves partition 3 behind: ${check(attempt, "late").detail}`);
+  }
+  const tooLow = scenario((rt) => rt.setReadThreshold(1_000));
+  expect(!check(tooLow, "reads").done, `fan-out on read over 1,000 slows feed reads: ${check(tooLow, "reads").detail}`);
+  for (const threshold of [25_000, 10_000]) {
+    const fixed = scenario((rt) => rt.setReadThreshold(threshold));
+    expect(fixed.checks().every((item) => item.done) && Boolean(fixed.resolvedAt), `fan-out on read over ${threshold.toLocaleString("en-US")} resolves: ${status(fixed)}`);
+  }
+  const rolledBack = scenario((rt) => rt.rollback("feed-fanout-5.1.4"));
+  expect(!check(rolledBack, "late").done, `rolling back to 5.1.4 leaves queued posts waiting: ${check(rolledBack, "late").detail}`);
 }
 
 console.log(failures ? `\n${failures} failed` : "\nAll product lab checks passed");

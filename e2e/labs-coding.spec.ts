@@ -21,7 +21,7 @@ test("labs domain serves the hub while the main homepage stays separate", async 
 
 test("coding roadmap filters and links to real exercises", async ({ page }) => {
   await page.goto("/sre-labs/coding");
-  await expect(page.locator(".coding-roadmap-group li")).toHaveCount(24);
+  await expect(page.locator(".coding-roadmap-group li")).toHaveCount(36);
   await page.getByLabel("Find an exercise").fill("token");
   await expect(page.locator(".coding-roadmap-group li")).toHaveCount(1);
   await page.getByRole("link", { name: /A token bucket/ }).click();

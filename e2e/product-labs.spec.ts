@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { PAGINATE_FIX, PRICING_FIX } from "./fixtures/product-fixes";
+import { CHARGE_FIX, PAGINATE_FIX, PRICING_FIX } from "./fixtures/product-fixes";
 
 async function deploy(page: Page, source: string) {
   await page.getByRole("tab", { name: "Code" }).click();
@@ -97,9 +97,88 @@ test("Northlight: the player reports what it is playing, and steering drains an 
   await expect(page.locator(".pl-release-list li").filter({ hasText: "Drain fra-2" })).toBeVisible();
 });
 
+test("Larder: one idempotency key per checkout stops double charges, and refunds clear the rest", async ({ page }) => {
+  test.setTimeout(150_000);
+  await page.goto("/sre-labs/larder/double-charge");
+  const shop = page.locator(".pl-product-pane");
+  await page.getByRole("tab", { name: "Code" }).click();
+  await page.getByRole("button", { name: "Run tests" }).click();
+  await expect(page.locator('.pl-tests li[data-passed="false"]').first()).toBeVisible();
+
+  await deploy(page, CHARGE_FIX);
+  await page.getByRole("tab", { name: "Releases and config" }).click();
+  await page.getByRole("button", { name: /Refund \d+ extra/ }).click();
+  await shop.getByRole("button", { name: /Cart, 2 items/ }).click();
+  await shop.getByRole("button", { name: "Check out" }).click();
+  await shop.getByLabel(/Processor test card/).check();
+  await shop.getByRole("button", { name: /^Pay/ }).click();
+  await expect(shop.getByRole("heading", { name: /Your order is confirmed/ })).toBeVisible({ timeout: 15_000 });
+  await expect(async () => {
+    const refund = page.getByRole("button", { name: /Refund \d+ extra/ });
+    if (await refund.count()) await refund.click();
+    await expect(page.getByRole("heading", { name: /Resolved at/ })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 90_000, intervals: [3_000] });
+});
+
+test("Northlight: scoping the short cache rule to live URLs brings film starts back", async ({ page }) => {
+  test.setTimeout(150_000);
+  await page.goto("/sre-labs/northlight/cache-key");
+  const app = page.locator(".pl-product-pane");
+  await app.getByRole("button", { name: "Play", exact: true }).click();
+  await page.getByRole("tab", { name: "Releases and config" }).click();
+  const check = page.locator(".pl-url-check");
+  await check.getByRole("button", { name: /film segment/ }).click();
+  await expect(check.locator("code")).toContainText("sid=");
+
+  const live = page.locator(".pl-resolution li").filter({ hasText: "Live URLs signed" });
+  await expect(live).toHaveAttribute("data-done", "true");
+  await page.getByRole("button", { name: "Delete rule 1" }).click();
+  await check.getByRole("button", { name: "Live, viewer A" }).click();
+  await expect(check).toContainText("Matches rule 2 (/*)");
+  await page.getByRole("button", { name: "Deploy rules" }).click();
+  await expect(live).toHaveAttribute("data-done", "false");
+
+  await page.getByRole("button", { name: /Roll back to r91/ }).click();
+  await page.getByLabel("Rule 1 path").selectOption("/live/*");
+  await page.getByRole("button", { name: "Deploy rules" }).click();
+  const fleet = page.locator(".pl-resolution li").filter({ hasText: "films start within 2 seconds" });
+  await expect(fleet).toHaveAttribute("data-done", "true", { timeout: 90_000 });
+  await page.getByRole("button", { name: "Reload the page" }).click();
+  const play = app.getByRole("button", { name: "Play", exact: true });
+  if (await play.isVisible()) await play.click();
+  await expect(page.getByRole("heading", { name: /Resolved at/ })).toBeVisible({ timeout: 30_000 });
+});
+
+test("Porch: reading large accounts at read time drains the hot partition", async ({ page }) => {
+  test.setTimeout(150_000);
+  await page.goto("/sre-labs/porch/slow-posts");
+  const app = page.locator(".pl-product-pane");
+  await page.getByRole("tab", { name: "Releases and config" }).click();
+  await expect(page.locator(".pl-config-table tr[data-hot]")).toHaveCount(1);
+  await page.getByLabel("Consumers in the group").selectOption("16");
+  await expect(page.getByText("Idle, no partition assigned")).toHaveCount(8);
+  await expect(page.locator(".pl-config-table tr[data-hot]")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Over 25,000" }).click();
+  await app.getByLabel("New post").fill("Thanks Hal. We are keeping the kids inside until the gas company clears the block.");
+  await app.getByRole("button", { name: "Post", exact: true }).click();
+  await app.getByLabel("Viewing as").selectOption("june");
+  await expect(app.locator('[data-post="p_0443"]')).toBeAttached({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: /Resolved at/ })).toBeVisible({ timeout: 100_000 });
+});
+
 test("product labs fit a phone screen", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ["/labs", "/sre-labs/larder/checkout-errors", "/sre-labs/northlight/stalls", "/sre-labs/porch/missing-posts"]) {
+  for (const route of [
+    "/labs",
+    "/sre-labs",
+    "/sre-labs/larder/checkout-errors",
+    "/sre-labs/larder/double-charge",
+    "/sre-labs/northlight/stalls",
+    "/sre-labs/northlight/cache-key",
+    "/sre-labs/porch/missing-posts",
+    "/sre-labs/porch/slow-posts",
+  ]) {
     await page.goto(route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), route).toBe(true);
