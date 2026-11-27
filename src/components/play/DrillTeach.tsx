@@ -185,7 +185,7 @@ export function DrillProseHeader({
             ) : null}
 
             <section>
-              <h2 className="drill-section-title">What you&apos;ll explore</h2>
+              <h2 className="drill-section-title">Technologies</h2>
               <ul className="mt-3 flex flex-wrap gap-2" aria-label="Topics">
                 {prose.explore.map((topic) => (
                   <li
@@ -234,10 +234,7 @@ export function DrillPanelHeading({
 /** Closing takeaway under the controls: calm sentence, not a stage label. */
 export function DrillTakeaway({ children }: { children: ReactNode }) {
   return (
-    <p className="mt-2 text-sm leading-relaxed text-[color:var(--drill-muted)]">
-      <span className="text-[color:var(--drill-fg)]">Something to keep in mind. </span>
-      {children}
-    </p>
+    <p className="mt-2 text-sm leading-relaxed text-[color:var(--drill-muted)]">{children}</p>
   );
 }
 

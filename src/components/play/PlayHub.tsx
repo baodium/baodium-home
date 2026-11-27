@@ -5,11 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { useRef } from "react";
 import { DrillPreview } from "@/components/play/DrillPreview";
-import {
-  difficultyLabel,
-  playGames,
-  type PlayGame,
-} from "@/data/play-games";
+import { playGames, type PlayGame } from "@/data/play-games";
 import { figureForHref } from "@/lib/learning/chapter-figures";
 import { usePrefersReducedMotion } from "@/lib/motion-prefs";
 
@@ -52,15 +48,22 @@ export function PlayHub() {
             <h1 className="mt-5 max-w-3xl text-balance font-serif text-[clamp(2.4rem,5.6vw,4rem)] leading-[1.02] tracking-[-0.04em] text-ink">
               Reliability drills from the book.
             </h1>
-            <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">
-              Short SRE drills from{" "}
-              <em className="text-ink">Practical System Design</em>. Each one
-              states a measurable challenge, defines the metrics in plain
-              English, and lets you change the controls. The{" "}
+            <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-muted">
+              Five failures from{" "}
+              <em className="text-ink">Practical System Design</em>, each
+              running on a small simulated service you can change while it
+              runs. A connection pool fills during a burst, a load test runs
+              past its last passing stage, a fraud call outlives checkout, one
+              cache miss sends every reader to Catalog, and acquire wait climbs
+              while the query stays flat. The{" "}
               <Link href="/system-design/experience" className="text-ink underline decoration-ink/20 underline-offset-4 hover:decoration-ink/50">
                 chapter labs
               </Link>{" "}
-              cover the same ideas with a longer incident walkthrough.
+              and the{" "}
+              <Link href="/labs" className="text-ink underline decoration-ink/20 underline-offset-4 hover:decoration-ink/50">
+                product labs
+              </Link>{" "}
+              go through the same ideas with logs, traces, and code.
             </p>
           </motion.div>
 
@@ -80,12 +83,7 @@ export function PlayHub() {
                     index % 2 === 0 ? "lg:col-span-7" : "lg:col-span-5"
                   }
                 >
-                  <HubBand
-                    game={game}
-                    index={index + 1}
-                    reduce={reduce}
-                    accent={game.difficulty === "spicy"}
-                  />
+                  <HubBand game={game} index={index + 1} reduce={reduce} />
                 </li>
               ))}
             </ul>
@@ -114,22 +112,13 @@ function HubFeatured({
         className="lift-card group relative grid overflow-hidden border border-ink/12 bg-[#f7faf8] no-underline hover:border-[color-mix(in_srgb,#1b6b62_45%,transparent)] md:grid-cols-12 [&_*]:no-underline"
       >
         <div className="relative z-[1] border-b border-ink/8 bg-[#eef3f1] p-5 md:col-span-5 md:border-b-0 md:border-r md:p-7">
-          <span className="mb-3 block font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[color:var(--drill-kicker,#1b6b62)]">
-            Featured · 01
-          </span>
           <ChapterFigure href={game.chapterHref} className="play-chapter-plate mb-3 h-24" />
           <div className="h-[11.5rem] md:h-[14.5rem]">
             <DrillPreview game={game} size="lg" />
           </div>
         </div>
         <div className="relative z-[1] flex flex-col justify-center p-6 md:col-span-7 md:p-9">
-          <div className="flex flex-wrap items-center gap-2 text-[0.68rem] uppercase tracking-[0.16em] text-muted">
-            <span className="text-[color:var(--drill-kicker,#1b6b62)]">{difficultyLabel(game.difficulty)}</span>
-            <span aria-hidden="true">·</span>
-            <span>{game.minutes}</span>
-            <span aria-hidden="true">·</span>
-            <span>{game.chapterLabel}</span>
-          </div>
+          <HubMeta game={game} />
           <h2 className="mt-3 font-serif text-[clamp(1.9rem,3.2vw,2.6rem)] leading-[1.05] tracking-[-0.03em] text-ink">
             {game.title}
           </h2>
@@ -142,10 +131,6 @@ function HubFeatured({
           <p className="mt-4 max-w-xl border-t border-ink/8 pt-4 text-[0.92rem] leading-relaxed text-ink/75">
             {game.takeaway}
           </p>
-          <span className="mt-6 inline-flex items-center gap-2 text-[0.92rem] text-[color:var(--drill-kicker,#1b6b62)] transition-transform duration-300 group-hover:translate-x-1">
-            Run this drill
-            <span aria-hidden="true">→</span>
-          </span>
         </div>
       </Link>
     </motion.div>
@@ -156,12 +141,10 @@ function HubBand({
   game,
   index,
   reduce,
-  accent,
 }: {
   game: PlayGame;
   index: number;
   reduce: boolean;
-  accent: boolean;
 }) {
   return (
     <motion.div
@@ -176,45 +159,16 @@ function HubBand({
     >
       <Link
         href={`/play/${game.slug}`}
-        className={`lift-card group relative flex h-full flex-col overflow-hidden border bg-[#f7faf8] no-underline sm:flex-row [&_*]:no-underline ${
-          accent
-            ? "border-[color-mix(in_srgb,#1b6b62_35%,transparent)] hover:border-[color-mix(in_srgb,#1b6b62_55%,transparent)]"
-            : "border-ink/10 hover:border-[color-mix(in_srgb,#1b6b62_40%,transparent)]"
-        }`}
+        className="lift-card group relative flex h-full flex-col overflow-hidden border border-ink/10 bg-[#f7faf8] no-underline hover:border-[color-mix(in_srgb,#1b6b62_40%,transparent)] sm:flex-row [&_*]:no-underline"
       >
-        {accent ? (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-[color:var(--drill-signal,#1b6b62)]"
-          />
-        ) : null}
-        <div
-          className={`relative z-[1] flex min-h-[10rem] flex-[0.95] flex-col justify-center border-b border-ink/8 p-4 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-5 ${
-            accent ? "bg-[color-mix(in_srgb,#1b6b62_7%,#eef3f1)]" : "bg-[#eef3f1]"
-          }`}
-        >
-          <span className="mb-2.5 font-mono text-[0.72rem] tracking-[0.12em] text-muted">
-            0{index + 1}
-          </span>
+        <div className="relative z-[1] flex min-h-[10rem] flex-[0.95] flex-col justify-center border-b border-ink/8 bg-[#eef3f1] p-4 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-5">
           <ChapterFigure href={game.chapterHref} className="play-chapter-plate mb-2.5 h-16" />
           <div className="h-[7.5rem] w-full sm:h-[9rem]">
             <DrillPreview game={game} size="sm" />
           </div>
         </div>
         <div className="relative z-[1] flex flex-[1.2] flex-col justify-center gap-2.5 p-5 sm:p-6 md:p-7">
-          <div className="flex flex-wrap items-center gap-2 text-[0.66rem] uppercase tracking-[0.16em] text-muted">
-            <span
-              className={
-                accent
-                  ? "text-[color:var(--drill-kicker,#1b6b62)]"
-                  : "text-[color-mix(in_srgb,#1b6b62_90%,#18201c)]"
-              }
-            >
-              {difficultyLabel(game.difficulty)}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>{game.minutes}</span>
-          </div>
+          <HubMeta game={game} />
           <h2 className="font-serif text-[1.4rem] leading-tight tracking-[-0.02em] text-ink md:text-[1.55rem]">
             {game.title}
           </h2>
@@ -223,6 +177,15 @@ function HubBand({
         </div>
       </Link>
     </motion.div>
+  );
+}
+
+function HubMeta({ game }: { game: PlayGame }) {
+  return (
+    <p className="flex flex-col gap-1 text-[0.68rem] uppercase tracking-[0.16em] text-muted">
+      <span className="text-[color:var(--drill-kicker,#1b6b62)]">{game.system}</span>
+      <span>{game.chapterLabel.replace(/^Ch\.(\d+) · /, "Chapter $1: ")}</span>
+    </p>
   );
 }
 

@@ -44,7 +44,6 @@ export function LearningWorkbench({
     >
       {expandable ? (
         <div className="learn-workbench-chrome" role="toolbar" aria-label={label}>
-          <p>{expanded ? "Full workspace" : "Split workspace"}</p>
           <button
             type="button"
             aria-pressed={expanded}

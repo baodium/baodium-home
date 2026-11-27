@@ -1545,17 +1545,10 @@ html[data-reader-theme="dark"] .book-interactive-concept {
 .learn-workbench-chrome {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
   margin-bottom: 1rem;
   padding: 0.55rem 0.15rem;
-}
-
-.learn-workbench-chrome p {
-  margin: 0;
-  font-size: 0.82rem;
-  font-weight: 550;
-  color: var(--learn-muted, #5a6762);
 }
 
 .learn-workbench-chrome button {

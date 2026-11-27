@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Drills · Baodium",
     description:
-      "Pick a drill. Tune the levers, watch the meters, and leave with a production takeaway.",
+      "Five reliability drills from Practical System Design, each running on a simulated service you can change while it runs.",
     url: `${site.url}/play`,
   },
 };

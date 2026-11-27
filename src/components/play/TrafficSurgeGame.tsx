@@ -153,7 +153,7 @@ export function TrafficSurgeGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/traffic-surge`;
-    const text = `Traffic Surge on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Traffic Surge on Baodium. ${result.takeaway} ${url}`;
     setShareError(false);
     const outcome = await shareResult({ title: "Traffic Surge · Baodium", text, url });
     setCopied(outcome === "copied");
@@ -355,7 +355,6 @@ export function TrafficSurgeGame() {
             <DrillSuccessCriteria
               items={criteria}
               windowSec={DRILL_WINDOWS["traffic-surge"]}
-              running={phase === "running"}
             />
             {controlsPanel}
             <DrillTakeaway>{takeaway}</DrillTakeaway>
@@ -487,7 +486,6 @@ export function TrafficSurgeGame() {
               {(phase === "won" || phase === "lost") && result ? (
                 <GameResultPanel
                   outcome={result.outcome}
-                  score={result.score}
                   reason={result.reason}
                   takeaway={result.takeaway}
                   debrief={result.debrief}

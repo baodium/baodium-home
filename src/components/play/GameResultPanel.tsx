@@ -11,11 +11,10 @@ export type DebriefMetric = {
 };
 
 /**
- * End-of-drill debrief — before/after + so-what, not empty scoreboard motion.
+ * End-of-run summary: what held, what changed, and where the chapter covers it.
  */
 export function GameResultPanel({
   outcome,
-  score,
   reason,
   takeaway,
   debrief,
@@ -31,7 +30,6 @@ export function GameResultPanel({
   shareError,
 }: {
   outcome: "won" | "lost";
-  score: number;
   reason: string;
   takeaway: string;
   /** Legacy free-text metrics line — used when `metrics` is absent. */
@@ -63,14 +61,9 @@ export function GameResultPanel({
       transition={{ duration: reduced ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
       {shareError ? <p role="alert" className="mb-3 text-sm text-[color:var(--drill-accent-text)]">Could not share this result. Check your browser permissions and try again.</p> : null}
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <p className="text-[0.72rem] uppercase tracking-[0.18em] text-[color:var(--drill-signal)]">
-          {held ? "Passed" : "Missed"}
-        </p>
-        <p className="font-serif text-2xl tracking-[-0.02em] text-[color:var(--drill-fg)]">
-          Score {score}
-        </p>
-      </div>
+      <p className="font-serif text-2xl tracking-[-0.02em] text-[color:var(--drill-fg)]">
+        {held ? "Objective met" : "Objective missed"}
+      </p>
 
       <p className="mt-3 text-[0.98rem] leading-relaxed text-[color:var(--drill-fg)]">
         {reason}
@@ -132,7 +125,7 @@ export function GameResultPanel({
           href={chapterHref}
           className="text-[color:var(--drill-signal)] underline-offset-2 hover:underline"
         >
-          {chapterLabel}
+          {chapterLabel.replace(/^Ch\.(\d+) · /, "Chapter $1: ")}
         </Link>
       </p>
       <div className="mt-5 flex flex-wrap gap-3">

@@ -150,7 +150,7 @@ export function TailLatencyGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/tail-latency`;
-    const text = `Tail Latency on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Tail Latency on Baodium. ${result.takeaway} ${url}`;
     setShareError(false);
     const outcome = await shareResult({ title: "Tail Latency · Baodium", text, url });
     setCopied(outcome === "copied");
@@ -356,7 +356,6 @@ export function TailLatencyGame() {
             <DrillSuccessCriteria
               items={criteria}
               windowSec={DRILL_WINDOWS["tail-latency"]}
-              running={phase === "running"}
             />
             {controlsPanel}
             <DrillTakeaway>{takeaway}</DrillTakeaway>
@@ -483,7 +482,6 @@ export function TailLatencyGame() {
               {(phase === "won" || phase === "lost") && result ? (
                 <GameResultPanel
                   outcome={result.outcome}
-                  score={result.score}
                   reason={result.reason}
                   takeaway={result.takeaway}
                   debrief={result.debrief}

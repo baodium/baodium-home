@@ -8,11 +8,9 @@ import type { CriterionLive } from "@/lib/play/success-criteria";
 export function DrillSuccessCriteria({
   items,
   windowSec,
-  running = false,
 }: {
   items: CriterionLive[];
   windowSec: number;
-  running?: boolean;
 }) {
   return (
     <section
@@ -20,9 +18,9 @@ export function DrillSuccessCriteria({
       aria-label="Success criteria"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="drill-section-title">Pass / fail</h2>
+        <h2 className="drill-section-title">Resolution</h2>
         <p className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-[color:var(--drill-faint)]">
-          {running ? "Live" : "Exact"} · {windowSec}s window
+          Measured over {windowSec} s
         </p>
       </div>
       <ul className="mt-4 space-y-3">
@@ -34,7 +32,7 @@ export function DrillSuccessCriteria({
                 ? "border-[color-mix(in_srgb,var(--drill-accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--drill-accent)_8%,var(--drill-panel))]"
                 : "border-[color:var(--drill-line)] bg-[color:var(--drill-panel-soft)]";
           const mark =
-            item.met === true ? "Pass" : item.met === false ? "Fail" : "pending";
+            item.met === true ? "Met" : item.met === false ? "Not met" : "Waiting";
           const markColor =
             item.met === true
               ? "text-[color:var(--drill-signal)]"

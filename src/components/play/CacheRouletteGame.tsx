@@ -176,7 +176,7 @@ export function CacheRouletteGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/cache-roulette`;
-    const text = `Cache Roulette on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Cache Roulette on Baodium. ${result.takeaway} ${url}`;
     setShareError(false);
     const outcome = await shareResult({ title: "Cache Roulette · Baodium", text, url });
     setCopied(outcome === "copied");
@@ -281,7 +281,6 @@ export function CacheRouletteGame() {
             <DrillSuccessCriteria
               items={criteria}
               windowSec={DRILL_WINDOWS["cache-roulette"]}
-              running={running}
             />
 
             <div className="drill-panel flex flex-col gap-5 p-5 md:p-6">
@@ -515,7 +514,6 @@ export function CacheRouletteGame() {
               {(phase === "won" || phase === "lost") && result ? (
                 <GameResultPanel
                   outcome={result.outcome}
-                  score={result.score}
                   reason={result.reason}
                   takeaway={result.takeaway}
                   debrief={result.debrief}

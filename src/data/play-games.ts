@@ -2,8 +2,6 @@
 
 import { drillChapterMeta } from "@/lib/learning/registry";
 
-export type PlayDifficulty = "easy" | "medium" | "spicy";
-
 export type PlayGame = {
   slug: string;
   title: string;
@@ -14,8 +12,7 @@ export type PlayGame = {
   changed: string;
   matters: string;
   technologies: string[];
-  difficulty: PlayDifficulty;
-  minutes: string;
+  system: string;
   chapterHref: string;
   chapterLabel: string;
   takeaway: string;
@@ -40,8 +37,7 @@ export const playGames: PlayGame[] = [
     changed: "Lower exposure, or a flag that is off for new traffic, drops new demand immediately. Connections already held still finish on their own clock.",
     matters: "Acquire wait near 600 ms while the query stays near baseline means the time is spent waiting for a free connection, not running SQL.",
     technologies: ["Feature flags", "Connection pools", "Little's Law", "Acquire wait"],
-    difficulty: "medium",
-    minutes: "~1 min",
+    system: "Recommendation Service",
     chapterHref: drillChapterMeta("slo-watch")?.chapterHref ?? "/system-design/chapter-1",
     chapterLabel: drillChapterMeta("slo-watch")?.chapterLabel ?? "Ch.1 · Resource contention",
     takeaway:
@@ -64,8 +60,7 @@ export const playGames: PlayGame[] = [
     changed: "Stopping the walk at 400 lookups a second keeps the run on the passing rows. A higher limit includes a stage the table already marks as failed.",
     matters: "At 480 lookups a second the chapter records about 2 percent rejected, even while acquire p95 is still about 25 ms.",
     technologies: ["Little's Law", "Load tests", "Admission limits", "Acquire p95"],
-    difficulty: "easy",
-    minutes: "~45s",
+    system: "Recommendation load test",
     chapterHref: drillChapterMeta("traffic-surge")?.chapterHref ?? "/system-design/chapter-2",
     chapterLabel: drillChapterMeta("traffic-surge")?.chapterLabel ?? "Ch.2 · Requests, latency, throughput",
     takeaway:
@@ -88,8 +83,7 @@ export const playGames: PlayGame[] = [
     changed: "When evaluate_risk receives request.cancellation with the deadline, provider work ends when checkout is out of time. Without that signal, the provider keeps running after the caller returns.",
     matters: "A missing outbound permit defers the assessment instead of starting the provider. That is a separate path from cancelling an in-flight call.",
     technologies: ["Deadlines", "Cancellation", "Outbound permits", "Fraud provider"],
-    difficulty: "spicy",
-    minutes: "~1 min",
+    system: "Checkout and Fraud Service",
     chapterHref: drillChapterMeta("cascade")?.chapterHref ?? "/system-design/chapter-4",
     chapterLabel: drillChapterMeta("cascade")?.chapterLabel ?? "Ch.4 · Cascading failure",
     takeaway:
@@ -112,8 +106,7 @@ export const playGames: PlayGame[] = [
     changed: "Sharing the loader drops catalog reads from one-per-reader down to a single fetch for the miss.",
     matters: "When the source permit is missing, the loader returns TemporarilyUnavailable(source_read_limit) instead of opening another catalog query.",
     technologies: ["Cache-aside", "TTL", "Shared loader", "Source permits"],
-    difficulty: "medium",
-    minutes: "~50s",
+    system: "Catalog cache",
     chapterHref: drillChapterMeta("cache-roulette")?.chapterHref ?? "/system-design/chapter-5",
     chapterLabel: drillChapterMeta("cache-roulette")?.chapterLabel ?? "Ch.5 · Caching",
     takeaway:
@@ -136,8 +129,7 @@ export const playGames: PlayGame[] = [
     changed: "Lowering the offered lookup rate brings acquire p95 back under 50 ms. The query stays at 70 ms either way.",
     matters: "At 400 lookups a second, acquire p95 is about 8 ms. At 560 it is about 80 ms, which is past the pass bar.",
     technologies: ["Acquire p95", "Query time", "Little's Law", "The 40-connection pool"],
-    difficulty: "medium",
-    minutes: "~45s",
+    system: "Recommendation Service",
     chapterHref: drillChapterMeta("tail-latency")?.chapterHref ?? "/system-design/chapter-2",
     chapterLabel: drillChapterMeta("tail-latency")?.chapterLabel ?? "Ch.2 · Requests, latency, throughput",
     takeaway: "The query stays near its baseline. Acquire p95 is the tail the pass bar measures.",
@@ -152,10 +144,4 @@ export const playGames: PlayGame[] = [
 
 export function getPlayGame(slug: string): PlayGame | undefined {
   return playGames.find((g) => g.slug === slug);
-}
-
-export function difficultyLabel(d: PlayDifficulty): string {
-  if (d === "easy") return "Easy";
-  if (d === "medium") return "Medium";
-  return "Spicy";
 }

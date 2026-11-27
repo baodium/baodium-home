@@ -176,7 +176,7 @@ export function CascadeGame() {
   const share = async () => {
     if (!result) return;
     const url = `${typeof window !== "undefined" ? window.location.origin : "https://baodium.com"}/play/cascade`;
-    const text = `Cascade on Baodium. score ${result.score}. ${result.takeaway} ${url}`;
+    const text = `Cascade on Baodium. ${result.takeaway} ${url}`;
     setShareError(false);
     const outcome = await shareResult({ title: "Cascade · Baodium", text, url });
     setCopied(outcome === "copied");
@@ -275,7 +275,6 @@ export function CascadeGame() {
             <DrillSuccessCriteria
               items={criteria}
               windowSec={DRILL_WINDOWS.cascade}
-              running={running}
             />
 
             <div className="drill-panel flex flex-col gap-5 p-5 md:p-6">
@@ -512,7 +511,6 @@ export function CascadeGame() {
               {(phase === "won" || phase === "lost") && result ? (
                 <GameResultPanel
                   outcome={result.outcome}
-                  score={result.score}
                   reason={result.reason}
                   takeaway={result.takeaway}
                   debrief={result.debrief}

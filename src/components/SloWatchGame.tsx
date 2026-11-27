@@ -536,7 +536,6 @@ export function SloWatchGame({
       {(phase === "won" || phase === "lost") && result ? (
         <GameResultPanel
           outcome={result.outcome}
-          score={result.score}
           reason={result.reason}
           takeaway={result.takeaway || takeaway}
           debrief={result.debrief}
@@ -617,7 +616,6 @@ export function SloWatchGame({
             <DrillSuccessCriteria
               items={criteria}
               windowSec={DRILL_WINDOWS["slo-watch"]}
-              running={phase === "running"}
             />
             <ControlsPanel
               {...controlsProps}
