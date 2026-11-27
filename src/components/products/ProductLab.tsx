@@ -9,19 +9,20 @@ import { clock } from "@/lib/products/telemetry";
 import { PRODUCTS, findIncident } from "@/lib/products/registry";
 import { LarderRuntime } from "@/lib/products/larder";
 import { NorthlightRuntime } from "@/lib/products/northlight";
+import { NorthlightResumeRuntime } from "@/lib/products/northlight-resume";
 import { PorchRuntime } from "@/lib/products/porch";
 import { loadProductProgress, productProgressServer, subscribeProductProgress } from "@/lib/products/progress";
 import type { ProductId } from "@/lib/products/types";
 import { OpsConsole } from "./OpsConsole";
 import { LarderApp, PaymentsConfig } from "./larder/LarderApp";
-import { CacheRulesConfig, NorthlightApp, SteeringConfig } from "./northlight/NorthlightApp";
+import { CacheRulesConfig, DatabaseConfig, NorthlightApp, SteeringConfig } from "./northlight/NorthlightApp";
 import { PorchApp, AuthConfig, FanoutConfig } from "./porch/PorchApp";
 import "./product-labs.css";
 
 function create(product: ProductId, incident: string): LabRuntime {
   const def = findIncident(product, incident)!;
   if (product === "larder") return new LarderRuntime(def).boot();
-  if (product === "northlight") return new NorthlightRuntime(def).boot();
+  if (product === "northlight") return (incident === "resume" ? new NorthlightResumeRuntime(def) : new NorthlightRuntime(def)).boot();
   return new PorchRuntime(def).boot();
 }
 
@@ -81,6 +82,7 @@ export function ProductLab({ product, incident }: { product: ProductId; incident
     app = <NorthlightApp key={generation} runtime={runtime} />;
     if (current.id === "frankfurt") config = <SteeringConfig runtime={runtime} />;
     if (current.id === "cache-key") config = <CacheRulesConfig runtime={runtime} />;
+    if (runtime instanceof NorthlightResumeRuntime) config = <DatabaseConfig runtime={runtime} />;
   }
   if (runtime instanceof PorchRuntime) {
     app = <PorchApp key={generation} runtime={runtime} />;

@@ -171,7 +171,154 @@ Live
   (INC-2291).
 `;
 
-export function northlightFiles(incident: "stalls" | "frankfurt" | "cache-key"): CodeFile[] {
+const PROGRESS_HEADER = `// Reads a viewer's saved position in one film.
+//
+// db.primary()
+//   pg-main, which takes every write.
+// db.replica(viewerId)
+//   The read replica assigned to this viewer, or
+//   pg-main when the read pool is empty.
+//
+// Both return a node with:
+//   node.read("progress", viewerId, titleId)
+//     The newest row the node holds, as
+//     { positionS, savedAt, lsn }, or null.
+//   node.replayedLsn()
+//     The LSN of the newest write the node has
+//     applied.
+//
+// viewer.lastProgressLsn
+//   The LSN pg-main returned for the viewer's most
+//   recent progress save, from any device and for
+//   any film, or null if the viewer has never saved.
+//
+// LSNs are numbers. A larger LSN is a later write.
+`;
+
+export const PROGRESS_V732 = `${PROGRESS_HEADER}
+export function readProgress(db, viewer, titleId) {
+  return db.primary().read("progress", viewer.id, titleId);
+}
+`;
+
+export const PROGRESS_V740 = `${PROGRESS_HEADER}
+export function readProgress(db, viewer, titleId) {
+  return db.replica(viewer.id).read("progress", viewer.id, titleId);
+}
+`;
+
+export const PROGRESS_TESTS = `import { readProgress } from "./progress.js";
+
+// A primary and one replica over the same progress rows. The replica
+// holds only the rows up to the LSN it has replayed.
+function fakeDb({ replicaLsn, rows }) {
+  const reads = [];
+  const node = (name, replayed) => ({
+    replayedLsn: () => replayed,
+    read: () => {
+      reads.push(name);
+      return rows.filter((row) => row.lsn <= replayed).at(-1) ?? null;
+    },
+  });
+  return {
+    reads,
+    primary: () => node("primary", Number.MAX_SAFE_INTEGER),
+    replica: () => node("replica", replicaLsn),
+  };
+}
+
+const saves = [
+  { positionS: 610, savedAt: "10:20:00", lsn: 4100 },
+  { positionS: 1830, savedAt: "10:40:20", lsn: 5260 },
+];
+
+test("returns the latest save when the replica has not replayed it", () => {
+  const db = fakeDb({ replicaLsn: 4800, rows: saves });
+  const row = readProgress(db, { id: "v_1", lastProgressLsn: 5260 }, "ice-road");
+  assert.equal(row?.positionS, 1830);
+});
+
+test("reads from the replica once it has replayed the latest save", () => {
+  const db = fakeDb({ replicaLsn: 5300, rows: saves });
+  const row = readProgress(db, { id: "v_1", lastProgressLsn: 5260 }, "ice-road");
+  assert.equal(row?.positionS, 1830);
+  assert.equal(db.reads.join(", "), "replica");
+});
+
+test("a viewer who has never saved reads from the replica", () => {
+  const db = fakeDb({ replicaLsn: 4800, rows: [] });
+  const row = readProgress(db, { id: "v_2", lastProgressLsn: null }, "ice-road");
+  assert.equal(row, null);
+  assert.equal(db.reads.join(", "), "replica");
+});
+`;
+
+export const CONTINUE_ROUTE_JS = `// Read-only here: the routes that save progress and fill the
+// Continue watching row and the resume prompt.
+import { readProgress } from "./progress.js";
+
+export async function saveProgress(req, db, accounts) {
+  const { lsn } = await db.primary().write("progress", req.viewerId, req.titleId, {
+    positionS: req.positionS,
+    device: req.device,
+  });
+  await accounts.setLastProgressLsn(req.viewerId, lsn);
+}
+
+export async function continueWatching(req, db, accounts) {
+  const viewer = await accounts.viewer(req.viewerId);
+  const titles = await accounts.recentTitles(req.viewerId);
+  return titles.map((titleId) => ({
+    titleId,
+    progress: readProgress(db, viewer, titleId),
+  }));
+}
+`;
+
+export const PROGRESS_DB_DOC = `# Progress database
+
+Playback progress lives in Postgres. The player saves the viewer's
+position every 10 seconds while a film plays, and once more when the
+viewer leaves the player.
+
+  pg-main     primary. Every progress save is written here.
+  pg-read-1   streaming replica
+  pg-read-2   streaming replica, also used for analytics exports
+  pg-read-3   streaming replica
+
+Replicas apply the primary's write-ahead log in order and answer reads
+from what they have applied so far. Replication lag is how far a
+replica's applied log trails the primary.
+
+Read routing (api 7.4.0 and later)
+  Each viewer is assigned one replica in the read pool by a hash of
+  the viewer id, so all of a viewer's reads go to the same replica.
+  Taking a replica out of the pool moves its viewers to the others.
+  With an empty pool, reads go to pg-main.
+
+Capacity
+  pg-main runs at about 40 percent CPU from writes alone. Progress
+  reads add about 105 percent of one instance at today's traffic,
+  which is why api 7.4.0 moved them off the primary (DB-311). Above
+  70 percent, saves slow down; saves that take longer than a second
+  time out and the position is lost.
+
+Standby delay
+  When applying the log would remove row versions that a running
+  query on the replica still needs, the replica waits up to
+  max_standby_streaming_delay for that query, then cancels it.
+  -1 means wait for as long as the query runs.
+`;
+
+export function northlightFiles(incident: "stalls" | "frankfurt" | "cache-key" | "resume"): CodeFile[] {
+  if (incident === "resume") {
+    return [
+      { path: "api/src/progress.js", source: PROGRESS_V740, language: "javascript", editable: true },
+      { path: "api/src/progress.test.js", source: PROGRESS_TESTS, language: "javascript" },
+      { path: "api/src/routes/progress.js", source: CONTINUE_ROUTE_JS, language: "javascript" },
+      { path: "docs/progress-database.md", source: PROGRESS_DB_DOC, language: "markdown" },
+    ];
+  }
   if (incident === "cache-key") {
     return [
       { path: "docs/cdn-cache-rules.md", source: CACHE_RULES_DOC, language: "markdown" },

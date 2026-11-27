@@ -3,11 +3,12 @@ import { LarderRuntime, LARDER_INCIDENTS, RUTH_CART, TEST_CARD } from "../src/li
 import { cacheKey, NorthlightRuntime, NORTHLIGHT_INCIDENTS, PlaybackSession, type CacheRule } from "../src/lib/products/northlight";
 import { PorchRuntime, PORCH_INCIDENTS, POSTS, ROSA_POST } from "../src/lib/products/porch";
 import { CHARGE_TESTS, CHARGE_V158, PRICING_TESTS, PRICING_V142, RESERVE_TESTS, RESERVE_V151 } from "../src/lib/products/larder-code";
-import { ABR_TESTS, ABR_V380 } from "../src/lib/products/northlight-code";
+import { ABR_TESTS, ABR_V380, PROGRESS_TESTS, PROGRESS_V740 } from "../src/lib/products/northlight-code";
+import { NorthlightResumeRuntime } from "../src/lib/products/northlight-resume";
 import { PAGINATE_TESTS, PAGINATE_V31 } from "../src/lib/products/porch-code";
 import type { IncidentDef } from "../src/lib/products/types";
 import type { LabRuntime } from "../src/lib/products/runtime";
-import { ABR_FIX, CHARGE_FIX, PAGINATE_FIX, PRICING_FIX, RESERVE_FIX } from "../e2e/fixtures/product-fixes";
+import { ABR_FIX, CHARGE_FIX, PAGINATE_FIX, PRICING_FIX, PROGRESS_FIX, PROGRESS_HALF_FIXES, RESERVE_FIX } from "../e2e/fixtures/product-fixes";
 
 type Row = { title: string; passed: boolean; detail: string };
 const workerSource = readFileSync(new URL("../public/workers/product-checks.js", import.meta.url), "utf8");
@@ -57,6 +58,7 @@ testFile("pricing", PRICING_V142, PRICING_FIX, ["orderTotalCents"], PRICING_TEST
 testFile("reserve", RESERVE_V151, RESERVE_FIX, ["reserveStock"], RESERVE_TESTS);
 testFile("abr", ABR_V380, ABR_FIX, ["chooseRendition"], ABR_TESTS);
 testFile("paginate", PAGINATE_V31, PAGINATE_FIX, ["feedPage"], PAGINATE_TESTS);
+testFile("progress", PROGRESS_V740, PROGRESS_FIX, ["readProgress"], PROGRESS_TESTS, [PROGRESS_HALF_FIXES.primary, PROGRESS_HALF_FIXES.fallback]);
 
 const CHARGE_NO_RETRY = CHARGE_FIX.replace("const ATTEMPTS = 2;", "const ATTEMPTS = 1;");
 const CHARGE_KEY_PER_CALL = CHARGE_FIX.replace('"checkout-" + checkout.id', "processor.newIdempotencyKey()");
@@ -329,6 +331,49 @@ const recent = (runtime: LabRuntime, chart: string, series = 0, count = 3) => {
   }
   const rolledBack = scenario((rt) => rt.rollback("feed-fanout-5.1.4"));
   expect(!check(rolledBack, "late").done, `rolling back to 5.1.4 leaves queued posts waiting: ${check(rolledBack, "late").detail}`);
+}
+
+{
+  console.log("\nNorthlight: films resume from an old position on another device");
+  const incident = byId(NORTHLIGHT_INCIDENTS, "resume");
+  const crossDevice = (lab: NorthlightResumeRuntime) => {
+    lab.saveMine("night-market", 600, "laptop");
+    run(lab, 10);
+    lab.saveMine("night-market", 610, "laptop");
+    run(lab, 1);
+    return lab.readMine("tv").find((read) => read.titleId === "night-market");
+  };
+  const scenario = (change: (lab: NorthlightResumeRuntime) => void) => {
+    const lab = new NorthlightResumeRuntime(incident).boot();
+    change(lab);
+    run(lab, 45);
+    crossDevice(lab);
+    run(lab, 35);
+    return lab;
+  };
+  const lab = new NorthlightResumeRuntime(incident).boot();
+  const lag = (id: string) => lab.lagSeconds(lab.instances.find((instance) => instance.id === id)!);
+  console.log(`  stale reads ${recent(lab, "stale").toFixed(1)}%, pg-read-2 lag ${Math.round(lag("pg-read-2"))} s, pg-read-1 ${lag("pg-read-1").toFixed(1)} s, pg-main ${Math.round(lab.primaryCpu())}% CPU`);
+  expect(recent(lab, "stale") > 5 && lag("pg-read-2") > 600 && lag("pg-read-1") < 1, "pg-read-2 has stopped replaying and serves old positions");
+  expect(lab.assign("v_c41e09").id === "pg-read-2", "your viewer reads from pg-read-2");
+  const before = crossDevice(lab);
+  expect(before?.row === null, `Night Market resumes from the beginning on the TV (${before?.row?.positionS ?? "no position"})`);
+  for (const [label, change] of [
+    ["taking pg-read-2 out of the read pool", (rt: NorthlightResumeRuntime) => rt.setReadPool("pg-read-2", false)],
+    ["cancelling the export", (rt: NorthlightResumeRuntime) => rt.cancelQuery(48211)],
+    ["rolling pg-config back to c41", (rt: NorthlightResumeRuntime) => rt.rollback("pg-config-c41")],
+    ["a 30 s standby delay on pg-read-2", (rt: NorthlightResumeRuntime) => rt.setStandbyDelay("pg-read-2", 30)],
+    ["reading from pg-main when the replica is behind the viewer", (rt: NorthlightResumeRuntime) => rt.ship(PROGRESS_FIX, "fix")],
+  ] as const) {
+    const fixed = scenario(change);
+    expect(fixed.checks().every((item) => item.done) && Boolean(fixed.resolvedAt), `${label} resolves: ${status(fixed)}`);
+  }
+  const rolledBack = scenario((rt) => rt.rollback("api-7.3.2"));
+  expect(check(rolledBack, "stale").done && !check(rolledBack, "primary").done, `rolling api back to 7.3.2 overloads pg-main: ${check(rolledBack, "primary").detail}`);
+  const empty = scenario((rt) => ["pg-read-1", "pg-read-2", "pg-read-3"].forEach((id) => rt.setReadPool(id, false)));
+  expect(!check(empty, "primary").done, `an empty read pool overloads pg-main: ${check(empty, "primary").detail}`);
+  const fallback = scenario((rt) => rt.ship(PROGRESS_HALF_FIXES.fallback, "fallback"));
+  expect(!check(fallback, "stale").done, `falling back only on a missing row still serves old positions: ${check(fallback, "stale").detail}`);
 }
 
 console.log(failures ? `\n${failures} failed` : "\nAll product lab checks passed");

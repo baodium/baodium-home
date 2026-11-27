@@ -18,25 +18,132 @@ import {
   type NorthlightRuntime,
   type Title,
 } from "@/lib/products/northlight";
+import { DEVICES, NorthlightResumeRuntime, delayLabel, titleSeconds, type Device, type MineRead } from "@/lib/products/northlight-resume";
 import { BrowserFrame } from "../BrowserFrame";
 import { drawScene } from "./scenes";
 import { Still } from "./Still";
 import "./northlight.css";
 
-type View = { name: "home" } | { name: "watch"; title: Title };
+type View = { name: "home" } | { name: "watch"; title: Title; start?: number; prompt?: number };
+type Spot = { positionS: number; savedAt: number };
+type Memory = Record<Device, Record<string, Spot>>;
+
+function seedMemory(runtime: NorthlightResumeRuntime | null): Memory {
+  const memory: Memory = { laptop: {}, tv: {}, phone: {} };
+  for (const id of ["ice-road", "glasswork"]) {
+    const row = runtime?.latestMine(id);
+    if (row?.device) memory[row.device][id] = { positionS: row.positionS, savedAt: row.savedAt };
+  }
+  return memory;
+}
+
+function continueList(reads: MineRead[], spots: Record<string, Spot>) {
+  const items = new Map<string, Spot>();
+  for (const read of reads) if (read.row) items.set(read.titleId, { positionS: read.row.positionS, savedAt: read.row.savedAt });
+  for (const [id, spot] of Object.entries(spots)) {
+    const current = items.get(id);
+    if (!current || spot.savedAt > current.savedAt) items.set(id, spot);
+  }
+  return [...items.entries()]
+    .map(([id, spot]) => ({ title: TITLES.find((title) => title.id === id)!, ...spot }))
+    .filter((item) => item.title && item.positionS >= 15 && item.positionS < titleSeconds(item.title) - 60)
+    .sort((a, b) => b.savedAt - a.savedAt);
+}
 
 export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
   const stalls = runtime.incident.id === "stalls";
-  const featured = TITLES.find((title) => title.id === (stalls ? "long-coast" : "night-market"))!;
+  const resume = runtime instanceof NorthlightResumeRuntime ? runtime : null;
+  const featured = TITLES.find((title) => title.id === (stalls ? "long-coast" : resume ? "lowlands" : "night-market"))!;
   const [view, setView] = useState<View>({ name: "home" });
   const frankfurt = runtime.incident.id === "frankfurt";
   const [network, setNetwork] = useState(frankfurt ? "fiber" : "broadband");
   const [metro, setMetro] = useState<Metro>(frankfurt ? "Frankfurt" : "Chicago");
   const [playerKey, setPlayerKey] = useState(0);
+  const [device, setDevice] = useState<Device>("laptop");
+  const [memory, setMemory] = useState<Memory>(() => seedMemory(resume));
+  const [reads, setReads] = useState<MineRead[]>(() => resume?.readMine("laptop") ?? []);
+  const playing = useRef<{ titleId: string; positionS: number; savedS: number } | null>(null);
+
+  const persist = (titleId: string, positionS: number) => {
+    if (!resume) return;
+    resume.saveMine(titleId, positionS, device);
+    const savedAt = resume.now;
+    setMemory((current) => ({ ...current, [device]: { ...current[device], [titleId]: { positionS: Math.round(positionS), savedAt } } }));
+  };
+
+  const leave = () => {
+    const current = playing.current;
+    playing.current = null;
+    if (current && current.positionS >= 5 && Math.abs(current.positionS - current.savedS) >= 1) persist(current.titleId, current.positionS);
+  };
+
+  const onPosition = (positionS: number) => {
+    const current = playing.current;
+    if (!current) return;
+    current.positionS = positionS;
+    if (positionS - current.savedS >= 10) {
+      current.savedS = positionS;
+      persist(current.titleId, positionS);
+    }
+  };
+
+  const play = (title: Title, start: number) => {
+    playing.current = { titleId: title.id, positionS: start, savedS: start };
+    setView({ name: "watch", title, start });
+  };
+
+  const open = (title: Title) => {
+    if (resume) leave();
+    if (!resume || title.id === LIVE_TITLE.id) {
+      setView({ name: "watch", title });
+      return;
+    }
+    const [fresh] = resume.readMine(device, [title.id]);
+    const [spot] = continueList(fresh ? [fresh] : [], memory[device][title.id] ? { [title.id]: memory[device][title.id] } : {});
+    if (spot) setView({ name: "watch", title, prompt: spot.positionS });
+    else play(title, 0);
+  };
+
+  const home = () => {
+    if (resume) {
+      leave();
+      setReads(resume.readMine(device));
+    }
+    setView({ name: "home" });
+  };
+
+  const switchDevice = (next: Device) => {
+    if (!resume) return;
+    leave();
+    setDevice(next);
+    setReads(resume.readMine(next));
+    setView({ name: "home" });
+  };
+
+  const reload = () => {
+    if (resume && view.name === "watch" && view.title.id !== LIVE_TITLE.id) {
+      open(view.title);
+      return;
+    }
+    if (resume && view.name === "home") setReads(resume.readMine(device));
+    setPlayerKey((value) => value + 1);
+  };
 
   const tools = (
     <>
       <span className="pl-tools-label">Viewer</span>
+      {resume ? (
+        <label>
+          <span>Device</span>
+          <select value={device} onChange={(event) => switchDevice(event.target.value as Device)}>
+            {DEVICES.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <label>
         <span>Connection</span>
         <select value={network} onChange={(event) => setNetwork(event.target.value)}>
@@ -47,14 +154,16 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
           ))}
         </select>
       </label>
-      <label>
-        <span>Location</span>
-        <select value={metro} onChange={(event) => setMetro(event.target.value as Metro)}>
-          {(["Chicago", "Frankfurt", "London"] as Metro[]).map((item) => (
-            <option key={item}>{item}</option>
-          ))}
-        </select>
-      </label>
+      {resume ? null : (
+        <label>
+          <span>Location</span>
+          <select value={metro} onChange={(event) => setMetro(event.target.value as Metro)}>
+            {(["Chicago", "Frankfurt", "London"] as Metro[]).map((item) => (
+              <option key={item}>{item}</option>
+            ))}
+          </select>
+        </label>
+      )}
     </>
   );
 
@@ -63,12 +172,12 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
       dark
       domain="northlight.tv"
       path={view.name === "watch" ? `/watch/${view.title.id}` : "/"}
-      onReload={() => setPlayerKey((value) => value + 1)}
+      onReload={reload}
       tools={tools}
     >
-      <div className="nl-app">
+      <div className="nl-app" data-device={resume ? device : undefined}>
         {view.name === "home" ? (
-          <Home featured={featured} onPlay={(title) => setView({ name: "watch", title })} />
+          <Home featured={featured} onPlay={open} continueWatching={resume ? continueList(reads, memory[device]) : undefined} />
         ) : (
           <Watch
             playerKey={playerKey}
@@ -76,9 +185,13 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
             title={view.title}
             network={network}
             metro={metro}
-            onBack={() => setView({ name: "home" })}
-            onReload={() => setPlayerKey((value) => value + 1)}
-            onPick={(title) => setView({ name: "watch", title })}
+            start={view.start}
+            prompt={view.prompt}
+            onStart={(start) => play(view.title, start)}
+            onPosition={resume ? onPosition : undefined}
+            onBack={home}
+            onReload={reload}
+            onPick={open}
           />
         )}
       </div>
@@ -86,7 +199,15 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
   );
 }
 
-function Home({ featured, onPlay }: { featured: Title; onPlay: (title: Title) => void }) {
+function Home({
+  featured,
+  onPlay,
+  continueWatching,
+}: {
+  featured: Title;
+  onPlay: (title: Title) => void;
+  continueWatching?: { title: Title; positionS: number }[];
+}) {
   const rest = TITLES.filter((title) => title.id !== featured.id);
   return (
     <div className="nl-home">
@@ -122,6 +243,31 @@ function Home({ featured, onPlay }: { featured: Title; onPlay: (title: Title) =>
           </div>
         </div>
       </section>
+      {continueWatching?.length ? (
+        <section className="nl-row nl-continue" aria-labelledby="nl-continue">
+          <h3 id="nl-continue">Continue watching</h3>
+          <ul>
+            {continueWatching.map(({ title, positionS }) => {
+              const length = titleSeconds(title);
+              const left = Math.max(1, Math.round((length - positionS) / 60));
+              return (
+                <li key={title.id}>
+                  <button type="button" onClick={() => onPlay(title)} aria-label={`Continue ${title.name} from ${fmt(positionS)}`}>
+                    <Still title={title} t={Math.max(14, positionS % 90)} className="nl-poster" />
+                    <span className="nl-poster-title">{title.name}</span>
+                    <span className="nl-continue-bar" aria-hidden="true">
+                      <span style={{ width: `${Math.min(100, (positionS / length) * 100)}%` }} />
+                    </span>
+                  </button>
+                  <p>
+                    {fmt(positionS)} watched · {left} min left
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
       <section className="nl-row nl-live-row" aria-labelledby="nl-live">
         <h3 id="nl-live">Live now</h3>
         <button type="button" className="nl-live-card" onClick={() => onPlay(LIVE_TITLE)} aria-label={`Watch ${LIVE_TITLE.name} live`}>
@@ -166,17 +312,51 @@ function Watch(props: {
   title: Title;
   network: string;
   metro: Metro;
+  start?: number;
+  prompt?: number;
+  onStart: (start: number) => void;
+  onPosition?: (positionS: number) => void;
   onBack: () => void;
   onReload: () => void;
   onPick: (title: Title) => void;
   playerKey: number;
 }) {
-  const { title, onPick, playerKey, ...rest } = props;
+  const { title, onPick, playerKey, prompt, onStart, ...rest } = props;
   const next = TITLES.filter((item) => item.id !== title.id).slice(0, 3);
   const live = title.id === LIVE_TITLE.id;
+  const length = titleSeconds(title);
   return (
     <div className="nl-watch">
-      <Player key={`${title.id}-${playerKey}`} title={title} {...rest} />
+      {prompt !== undefined && rest.start === undefined ? (
+        <div className="nl-player nl-resume">
+          <Still title={title} t={22} className="nl-resume-still" />
+          <div className="nl-player-top">
+            <button type="button" onClick={rest.onBack} aria-label="Back to browse">
+              <ArrowLeft size={18} aria-hidden="true" />
+            </button>
+            <p>{title.name}</p>
+          </div>
+          <div className="nl-resume-card" role="group" aria-label={`Resume ${title.name}`}>
+            <h3>{title.name}</h3>
+            <div className="nl-continue-bar" aria-hidden="true">
+              <span style={{ width: `${Math.min(100, (prompt / length) * 100)}%` }} />
+            </div>
+            <p>
+              {fmt(prompt)} of {fmt(length)} · {Math.max(1, Math.round((length - prompt) / 60))} min left
+            </p>
+            <div className="nl-hero-actions">
+              <button type="button" className="nl-play" onClick={() => onStart(prompt)}>
+                <Play size={16} aria-hidden="true" fill="currentColor" /> Resume from {fmt(prompt)}
+              </button>
+              <button type="button" className="nl-secondary" onClick={() => onStart(0)}>
+                Start from the beginning
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <Player key={`${title.id}-${playerKey}-${rest.start ?? 0}`} title={title} {...rest} />
+      )}
       <section className="nl-details" aria-label={`About ${title.name}`}>
         <div>
           <p className="nl-meta">{live ? "Live · Bridge camera, MS Lofoten" : `${title.kind} · ${title.year} · ${title.length}`}</p>
@@ -211,6 +391,8 @@ function Player({
   title,
   network,
   metro,
+  start = 0,
+  onPosition,
   onBack,
   onReload,
 }: {
@@ -218,12 +400,15 @@ function Player({
   title: Title;
   network: string;
   metro: Metro;
+  start?: number;
+  onPosition?: (positionS: number) => void;
   onBack: () => void;
   onReload: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const netRef = useRef(network);
   const metroRef = useRef(metro);
+  const positionRef = useRef(onPosition);
   const [session, setSession] = useState<ReturnType<NorthlightRuntime["session"]> | null>(null);
   const [, setFrame] = useState(0);
   const [menu, setMenu] = useState(false);
@@ -232,7 +417,8 @@ function Player({
   useEffect(() => {
     netRef.current = network;
     metroRef.current = metro;
-  }, [network, metro]);
+    positionRef.current = onPosition;
+  }, [network, metro, onPosition]);
 
   const live = title.id === LIVE_TITLE.id;
 
@@ -243,6 +429,7 @@ function Player({
       () => undefined,
       title.id,
       title.id === LIVE_TITLE.id,
+      start,
     );
     setSession(created);
     const canvas = canvasRef.current!;
@@ -277,20 +464,19 @@ function Player({
       if (now - report > 200) {
         report = now;
         runtime.reportMine(created, netRef.current, metroRef.current);
+        if (created.started) positionRef.current?.(created.position);
         setFrame((value) => value + 1);
       }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [runtime, title]);
+  }, [runtime, title, start]);
 
   const waiting = !session || (!session.started && !session.error) || session.stalled;
   const rendition = session?.renditionAt();
   const lastSegment = session?.segments[session.segments.length - 1];
-  const hours = title.length.match(/(\d+) h/);
-  const minutes = title.length.match(/(\d+) min/);
-  const length = (hours ? Number(hours[1]) * 3600 : 0) + (minutes ? Number(minutes[1]) * 60 : 0) || 52 * 60;
+  const length = titleSeconds(title);
   const outdated = session && runtime.playerVersion !== session.version;
   const edge = session?.segments[session.segments.length - 1]?.edge;
   const profile = NETWORKS.find((item) => item.id === network)!;
@@ -626,6 +812,107 @@ export function CacheRulesConfig({ runtime }: { runtime: NorthlightRuntime }) {
           )}
         </p>
       </div>
+    </section>
+  );
+}
+
+const STANDBY_DELAYS: { value: string; seconds: number | null }[] = [
+  { value: "30", seconds: 30 },
+  { value: "300", seconds: 300 },
+  { value: "-1", seconds: null },
+];
+
+function lagText(seconds: number) {
+  if (seconds < 10) return `${seconds.toFixed(1)} s`;
+  const total = Math.round(seconds);
+  if (total < 60) return `${total} s`;
+  return `${Math.floor(total / 60)} min ${String(total % 60).padStart(2, "0")} s`;
+}
+
+export function DatabaseConfig({ runtime }: { runtime: NorthlightResumeRuntime }) {
+  const pool = runtime.pool();
+  return (
+    <section className="pl-config" aria-labelledby="db-title">
+      <h3 id="db-title">Progress database</h3>
+      <p>
+        Every progress save goes to pg-main. Since api 7.4.0, the Continue watching row and the resume prompt read from the replica each viewer is assigned in the
+        read pool{pool.length ? "" : ", and with the pool empty they read from pg-main"}.
+      </p>
+      <div className="pl-table-scroll">
+        <table className="pl-config-table pl-db">
+          <thead>
+            <tr>
+              <th scope="col">Instance</th>
+              <th scope="col">Replication lag</th>
+              <th scope="col">CPU</th>
+              <th scope="col">Standby delay</th>
+              <th scope="col">Read pool</th>
+            </tr>
+          </thead>
+          <tbody>
+            {runtime.instances.map((instance) => {
+              const primary = instance.role === "primary";
+              const share = primary ? (pool.length ? 0 : 100) : instance.inPool ? Math.round(100 / pool.length) : 0;
+              const delay = STANDBY_DELAYS.find((item) => item.seconds === instance.standbyDelayS)?.value ?? "30";
+              return (
+                <tr key={instance.id} data-drained={(!primary && !instance.inPool) || undefined}>
+                  <td>
+                    <strong>{instance.id}</strong>
+                    <small>{primary ? "Primary" : "Streaming replica"}</small>
+                  </td>
+                  <td className="pl-num">{primary ? "none" : lagText(runtime.lagSeconds(instance))}</td>
+                  <td className="pl-num">{Math.round(Math.min(100, Math.max(0, instance.cpu)))}%</td>
+                  <td>
+                    {primary ? (
+                      "none"
+                    ) : (
+                      <select
+                        aria-label={`${instance.id} standby delay`}
+                        value={delay}
+                        onChange={(event) => runtime.setStandbyDelay(instance.id, STANDBY_DELAYS.find((item) => item.value === event.target.value)!.seconds)}
+                      >
+                        {STANDBY_DELAYS.map((item) => (
+                          <option key={item.value} value={item.value}>
+                            {delayLabel(item.seconds)}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </td>
+                  <td>
+                    {primary ? (
+                      pool.length ? "Writes only" : "All reads"
+                    ) : (
+                      <label className="pl-pool">
+                        <input type="checkbox" checked={instance.inPool} onChange={(event) => runtime.setReadPool(instance.id, event.target.checked)} />
+                        <span>{instance.inPool ? `${share}% of viewers` : "Out of the pool"}</span>
+                      </label>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <h4 className="pl-config-sub">Queries running on the replicas</h4>
+      {runtime.queries.length ? (
+        <ul className="pl-queries">
+          {runtime.queries.map((query) => (
+            <li key={query.pid}>
+              <div>
+                <strong>{query.pid}</strong> on {query.instance} as {query.user}, running for {lagText((runtime.now - query.startedAt) / 1000)}
+                <code>{query.query}</code>
+              </div>
+              <button type="button" className="pl-ghost" onClick={() => runtime.cancelQuery(query.pid)}>
+                Cancel query
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="pl-config-note">No queries are running on the replicas.</p>
+      )}
     </section>
   );
 }

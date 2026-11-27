@@ -1,4 +1,4 @@
-import { ABR_V380 } from "../../src/lib/products/northlight-code";
+import { ABR_V380, PROGRESS_V740 } from "../../src/lib/products/northlight-code";
 
 export const PRICING_FIX = `export function orderTotalCents(lines, promoCode) {
   let subtotal = 0;
@@ -52,3 +52,20 @@ export const PAGINATE_FIX = `export function feedPage(posts, cursor, limit) {
   };
 }
 `;
+
+export const PROGRESS_FIX = PROGRESS_V740.replace(
+  `  return db.replica(viewer.id).read("progress", viewer.id, titleId);`,
+  `  const replica = db.replica(viewer.id);
+  if (viewer.lastProgressLsn !== null && replica.replayedLsn() < viewer.lastProgressLsn) {
+    return db.primary().read("progress", viewer.id, titleId);
+  }
+  return replica.read("progress", viewer.id, titleId);`,
+);
+
+export const PROGRESS_HALF_FIXES = {
+  primary: PROGRESS_V740.replace(`db.replica(viewer.id).read`, `db.primary().read`),
+  fallback: PROGRESS_V740.replace(
+    `  return db.replica(viewer.id).read("progress", viewer.id, titleId);`,
+    `  return db.replica(viewer.id).read("progress", viewer.id, titleId) ?? db.primary().read("progress", viewer.id, titleId);`,
+  ),
+};

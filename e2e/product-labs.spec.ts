@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { CHARGE_FIX, PAGINATE_FIX, PRICING_FIX } from "./fixtures/product-fixes";
+import { CHARGE_FIX, PAGINATE_FIX, PRICING_FIX, PROGRESS_FIX } from "./fixtures/product-fixes";
 
 async function deploy(page: Page, source: string) {
   await page.getByRole("tab", { name: "Code" }).click();
@@ -167,6 +167,41 @@ test("Porch: reading large accounts at read time drains the hot partition", asyn
   await expect(page.getByRole("heading", { name: /Resolved at/ })).toBeVisible({ timeout: 100_000 });
 });
 
+test("Northlight: resume reads follow the viewer’s last save once the replica falls behind", async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.goto("/sre-labs/northlight/resume");
+  const app = page.locator(".pl-product-pane");
+  const continueRow = app.getByRole("region", { name: "Continue watching" });
+  await expect(continueRow).toContainText("Ice Road");
+  await app.getByRole("button", { name: "Play Night Market" }).click();
+  await expect(app.locator(".nl-time")).toHaveText(/^0:(1[89]|2\d)/, { timeout: 40_000 });
+  await app.getByRole("button", { name: "Back to browse" }).click();
+  await expect(continueRow).toContainText("Night Market");
+  await page.getByLabel("Device").selectOption("tv");
+  await expect(continueRow).toContainText("Ice Road");
+  await expect(continueRow).not.toContainText("Night Market");
+
+  await page.getByRole("tab", { name: "Releases and config" }).click();
+  await expect(page.getByLabel("pg-read-2 standby delay")).toHaveValue("-1");
+  await expect(page.locator(".pl-queries")).toContainText("analytics_export");
+  await page.getByRole("tab", { name: "Code" }).click();
+  await page.getByRole("button", { name: "Run tests" }).click();
+  await expect(page.locator('.pl-tests li[data-passed="false"]')).toHaveCount(1);
+  await deploy(page, PROGRESS_FIX);
+
+  await page.getByRole("button", { name: "Reload the page" }).click();
+  await expect(continueRow).toContainText("Night Market");
+  await continueRow.getByRole("button", { name: /Continue Night Market/ }).click();
+  await app.getByRole("button", { name: /Resume from 0:/ }).click();
+  await page.waitForTimeout(12_000);
+  await app.getByRole("button", { name: "Back to browse" }).click();
+  await page.getByLabel("Device").selectOption("phone");
+  await expect(continueRow).toContainText("Night Market");
+  const mine = page.locator(".pl-resolution li").filter({ hasText: "on another device" });
+  await expect(mine).toHaveAttribute("data-done", "true");
+  await expect(page.getByRole("heading", { name: /Resolved at/ })).toBeVisible({ timeout: 60_000 });
+});
+
 test("product labs fit a phone screen", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const route of [
@@ -176,6 +211,7 @@ test("product labs fit a phone screen", async ({ page }) => {
     "/sre-labs/larder/double-charge",
     "/sre-labs/northlight/stalls",
     "/sre-labs/northlight/cache-key",
+    "/sre-labs/northlight/resume",
     "/sre-labs/porch/missing-posts",
     "/sre-labs/porch/slow-posts",
   ]) {

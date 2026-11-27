@@ -1,7 +1,7 @@
 import type { Point } from "./telemetry";
 
 export type ProductId = "larder" | "northlight" | "porch";
-export type IncidentKind = "Programming" | "Observability" | "Release" | "Configuration" | "Capacity";
+export type IncidentKind = "Programming" | "Observability" | "Release" | "Configuration" | "Capacity" | "Data";
 
 export type CodeFile = {
   path: string;

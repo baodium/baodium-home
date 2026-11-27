@@ -31,7 +31,7 @@ export const TITLES: Title[] = [
   { id: "long-coast", name: "The Long Coast", year: 2026, kind: "Documentary", length: "1 h 32 min", scene: "coast", blurb: "A winter with the ferry crews who still run the outer routes of the Norwegian coast.", palette: ["#0f1d2b", "#c7d6dc", "#e0a458"] },
   { id: "ice-road", name: "Ice Road", year: 2025, kind: "Documentary", length: "58 min", scene: "ice", blurb: "Drivers on the frozen lakes of the Northwest Territories, through a seven-week season.", palette: ["#0b1220", "#9fb7d9", "#f2f5f8"] },
   { id: "night-market", name: "Night Market", year: 2026, kind: "Drama", length: "1 h 47 min", scene: "market", blurb: "Two sisters run their mother’s noodle stall in Taichung and disagree about selling it.", palette: ["#1a0f14", "#f0a35e", "#d9475b"] },
-  { id: "glasswork", name: "Glasswork", year: 2024, kind: "Series, 6 episodes", length: "6 episodes", scene: "glass", blurb: "A Murano workshop takes on one commission too many.", palette: ["#0d1a1a", "#5fc4b8", "#e8f1ef"] },
+  { id: "glasswork", name: "Glasswork", year: 2024, kind: "Series", length: "6 episodes", scene: "glass", blurb: "A Murano workshop takes on one commission too many.", palette: ["#0d1a1a", "#5fc4b8", "#e8f1ef"] },
   { id: "lowlands", name: "Lowlands", year: 2025, kind: "Drama", length: "1 h 39 min", scene: "fields", blurb: "A tulip grower’s son comes home for the spring that decides the farm.", palette: ["#14180f", "#a9c46c", "#e46a4b"] },
   { id: "foundry", name: "Salt and Iron", year: 2023, kind: "Documentary", length: "1 h 21 min", scene: "foundry", blurb: "The last bell foundry in the Midwest casts its final order.", palette: ["#140e0b", "#e2763a", "#f3d9b1"] },
 ];
@@ -371,6 +371,45 @@ export const NORTHLIGHT_INCIDENTS: IncidentDef[] = [
     runs: "Northlight runs in this page. Your player and the simulated viewers request every manifest and segment through the CDN rules shown in Releases and config, with a shared cache in front of an origin that serves about 6 requests per second. The charts, logs, and traces come from those requests.",
     files: northlightFiles("cache-key"),
   },
+  {
+    id: "resume",
+    product: "northlight",
+    title: "Films resume from an old position on another device",
+    kind: "Data",
+    skills: ["Replication lag", "Reading your own writes", "Read routing", "Database capacity"],
+    summary: "Since 10:31, about a third of viewers who switch devices resume a film from an older position or from the beginning.",
+    lead:
+      "Northlight saves each viewer’s position every 10 seconds, so a film stopped on the TV picks up at the same place on a phone. Since about 10:31, support has heard from viewers whose films resumed minutes or hours back, or from the beginning. Playback, sign-in, and every database health check are normal.",
+    ticket: {
+      from: "Mei Tanaka",
+      role: "Support lead",
+      at: "10:44",
+      body: "Thirty-one contacts in the last ten minutes with the same story: they stopped a film on one device, and the next device offered to resume from much earlier or not at all. Two say the first device still remembered the right place. One viewer has hit it on every film she opened this morning, and her neighbor, who also watches on Northlight, hasn’t seen it once. NL-SUP-7710.",
+    },
+    objective:
+      "Find out why resume reads return positions viewers have already watched past, and make every resume return the latest save without pushing the primary database over 70 percent CPU. The incident closes when no resume read has returned an older position for 30 seconds, the primary stays under 70 percent with every save succeeding, and a film you stop on one device resumes at the same position on another.",
+    steps: [
+      "Play a film on the Laptop for 20 seconds or more and go back to Home. Switch the device to Living room TV and compare Continue watching with where you stopped.",
+      "In Logs, show only your requests and line up progress saved with progress read. Note which database instance answered each read and the LSN it had replayed.",
+      "Open Releases and config. The database panel shows each instance’s replication lag, CPU, read pool membership, and the long queries running on it.",
+      "Fix it with a database change, a release, or a change to api/src/progress.js. Then stop a film on one device and resume it on another.",
+    ],
+    checks: [
+      { id: "stale", label: `For ${CLEAN_WINDOW_S} seconds, no resume read returns a position older than the viewer’s latest save` },
+      { id: "primary", label: "pg-main stays under 70 percent CPU and every progress save succeeds" },
+      { id: "mine", label: "A film you stop on one device resumes at the same position on another device, after your change" },
+    ],
+    review: {
+      cause:
+        "At 10:31 the data team started a 40-minute export of watch_events on pg-read-2. Two days earlier, DATA-88 had set that replica’s max_standby_streaming_delay to -1 so long exports would stop being cancelled. Applying the primary’s log would have removed row versions the export still needed, so pg-read-2 stopped applying it and waited, and its replication lag grew by a second every second. The health checks run select 1 and kept passing. Since api 7.4.0 moved progress reads to the replicas yesterday, the third of viewers assigned to pg-read-2 read their progress as it stood at 10:31: an older position, or nothing for a film started since.",
+      fix:
+        "Taking pg-read-2 out of the read pool, cancelling the export, or restoring the 30-second standby delay stops the old reads once the replica catches up or its viewers move to the other replicas. The lasting fix is in readProgress: when the replica’s replayed LSN is behind the viewer’s lastProgressLsn, read from pg-main. Almost every read stays on the replicas, and a viewer who has just saved gets that save back on any device, whichever replica falls behind next. Rolling api back to 7.3.2 also returns correct positions, but every read lands on pg-main, which runs past its capacity and starts timing out saves. Falling back to pg-main only when the replica returns no row still serves old positions for films the viewer had already started.",
+      practice:
+        "Decide for each read whether it has to see the caller’s own writes. Playback positions, carts, and settings usually do, and an LSN or commit time kept with the account is a cheap way to route those reads. Alert on replication lag for every replica that serves user reads, keep exports and other long queries on a replica outside the read pool, and review a standby delay of -1 like any other production change.",
+    },
+    runs: "Northlight runs in this page. Simulated viewers save their positions to pg-main and read them back through api/src/progress.js from replicas that apply pg-main’s log as the simulation runs. Your player saves and reads through the same code, and the charts, logs, and traces come from those requests.",
+    files: northlightFiles("resume"),
+  },
 ];
 
 export const NORTHLIGHT: ProductDef = {
@@ -401,7 +440,7 @@ export class NorthlightRuntime extends LabRuntime {
   private degradedAt: number;
   private nextSession?: number;
   readonly drained = new Set<string>();
-  private changeAt?: number;
+  protected changeAt?: number;
   private recent: { t: number; metro: Metro; watch: number; stall: number }[] = [];
   rules: CacheRule[] = RULES_R91;
   lastFilmUrl?: string;
@@ -469,12 +508,13 @@ export class NorthlightRuntime extends LabRuntime {
         }
       }
     } else {
+      const frankfurt = incident.id === "frankfurt";
       const fixed = ABR_V380.replace("rendition.kbps <= throughputBps * SAFETY", "rendition.kbps * 1000 <= throughputBps * SAFETY");
       this.abr = compileModule<Abr>(fixed, ["chooseRendition"]);
-      this.addRelease({ service: "web-player", version: "3.8.1", t: at(16, 45) - day, author: "omar.h", note: "Compare throughput and bitrate in the same unit", state: "live", source: fixed, rollback: { allowed: false, reason: "The previous build stalls viewers below 6 Mbps." } });
-      this.addRelease({ service: "cdn-config", version: "r88", t: at(8, 5), author: "cdn-team", note: "Add ord-2 to Chicago at 50 percent", state: "live" });
+      this.addRelease({ service: "web-player", version: "3.8.1", t: at(16, 45) - (frankfurt ? day : 4 * day), author: "omar.h", note: "Compare throughput and bitrate in the same unit", state: "live", source: fixed, rollback: { allowed: false, reason: "The previous build stalls viewers below 6 Mbps." } });
+      if (frankfurt) this.addRelease({ service: "cdn-config", version: "r88", t: at(8, 5), author: "cdn-team", note: "Add ord-2 to Chicago at 50 percent", state: "live" });
       this.cutover = 0;
-      this.degradedAt = at(10, 32);
+      this.degradedAt = frankfurt ? at(10, 32) : Infinity;
       this.code = undefined;
     }
     this.playerVersion = this.live("web-player")?.version ?? "3.8.0";
@@ -589,7 +629,7 @@ export class NorthlightRuntime extends LabRuntime {
     this.touch();
   }
 
-  session(network: () => number, metro: () => Metro, onEvent: () => void, title = "long-coast", live = false) {
+  session(network: () => number, metro: () => Metro, onEvent: () => void, title = "long-coast", live = false, startAt = 0) {
     const abr = this.abr;
     const unit = this.playerVersion.startsWith("3.7") ? "kbps" : "bps";
     const version = this.playerVersion;
@@ -664,6 +704,10 @@ export class NorthlightRuntime extends LabRuntime {
       fetcher,
     );
     spans.push({ id: root, service: "player", name: "play session", start: 0, duration: 0 });
+    if (startAt > 0 && !live) {
+      session.position = startAt;
+      session.nextIndex = Math.floor(startAt / SEGMENT_S);
+    }
     return Object.assign(session, { version, startedAt, traceId, live, sid });
   }
 
