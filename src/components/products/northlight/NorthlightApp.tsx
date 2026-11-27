@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowLeft, ArrowUp, Pause, Play, Plus, Settings, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ArrowDown, ArrowLeft, ArrowUp, CloudOff, Pause, Play, Plus, Settings, Trash2, X } from "lucide-react";
 import {
   EDGES,
   KEY_MODES,
@@ -27,6 +27,7 @@ import "./northlight.css";
 type View = { name: "home" } | { name: "watch"; title: Title; start?: number; prompt?: number };
 type Spot = { positionS: number; savedAt: number };
 type Memory = Record<Device, Record<string, Spot>>;
+type SaveStatus = { titleId: string; positionS: number; ok: boolean; dismissed: boolean };
 
 function seedMemory(runtime: NorthlightResumeRuntime | null): Memory {
   const memory: Memory = { laptop: {}, tv: {}, phone: {} };
@@ -62,14 +63,29 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
   const [device, setDevice] = useState<Device>("laptop");
   const [memory, setMemory] = useState<Memory>(() => seedMemory(resume));
   const [reads, setReads] = useState<MineRead[]>(() => resume?.readMine("laptop") ?? []);
+  const [saves, setSaves] = useState<Partial<Record<Device, SaveStatus>>>({});
   const playing = useRef<{ titleId: string; positionS: number; savedS: number } | null>(null);
 
   const persist = (titleId: string, positionS: number) => {
     if (!resume) return;
-    resume.saveMine(titleId, positionS, device);
+    const ok = resume.saveMine(titleId, positionS, device);
     const savedAt = resume.now;
-    setMemory((current) => ({ ...current, [device]: { ...current[device], [titleId]: { positionS: Math.round(positionS), savedAt } } }));
+    const position = Math.round(positionS);
+    setMemory((current) => ({ ...current, [device]: { ...current[device], [titleId]: { positionS: position, savedAt } } }));
+    setSaves((current) => ({ ...current, [device]: { titleId, positionS: position, ok, dismissed: false } }));
   };
+
+  const lastSave = saves[device];
+  const dismissNotice = () => setSaves((current) => (lastSave ? { ...current, [device]: { ...lastSave, dismissed: true } } : current));
+  const notice =
+    lastSave && !lastSave.ok && !lastSave.dismissed ? (
+      <SaveNotice title={TITLES.find((item) => item.id === lastSave.titleId)!} positionS={lastSave.positionS} onDismiss={dismissNotice} />
+    ) : null;
+  const progressStat = lastSave
+    ? lastSave.ok
+      ? `Saved at ${fmt(lastSave.positionS)}`
+      : `Save at ${fmt(lastSave.positionS)} timed out after 1 s`
+    : "Not saved yet";
 
   const leave = () => {
     const current = playing.current;
@@ -177,7 +193,7 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
     >
       <div className="nl-app" data-device={resume ? device : undefined}>
         {view.name === "home" ? (
-          <Home featured={featured} onPlay={open} continueWatching={resume ? continueList(reads, memory[device]) : undefined} />
+          <Home featured={featured} onPlay={open} continueWatching={resume ? continueList(reads, memory[device]) : undefined} notice={notice} />
         ) : (
           <Watch
             playerKey={playerKey}
@@ -189,6 +205,8 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
             prompt={view.prompt}
             onStart={(start) => play(view.title, start)}
             onPosition={resume ? onPosition : undefined}
+            notice={notice}
+            progressStat={resume ? progressStat : undefined}
             onBack={home}
             onReload={reload}
             onPick={open}
@@ -199,14 +217,33 @@ export function NorthlightApp({ runtime }: { runtime: NorthlightRuntime }) {
   );
 }
 
+function SaveNotice({ title, positionS, onDismiss }: { title: Title; positionS: number; onDismiss: () => void }) {
+  return (
+    <div className="nl-save-notice" role="status">
+      <CloudOff size={18} aria-hidden="true" />
+      <div>
+        <strong>Your place in {title.name} was not saved</strong>
+        <p>
+          This device still has {fmt(positionS)}, but your other devices may start {title.name} from an earlier point until a save goes through.
+        </p>
+      </div>
+      <button type="button" onClick={onDismiss} aria-label="Dismiss">
+        <X size={16} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
 function Home({
   featured,
   onPlay,
   continueWatching,
+  notice,
 }: {
   featured: Title;
   onPlay: (title: Title) => void;
   continueWatching?: { title: Title; positionS: number }[];
+  notice?: ReactNode;
 }) {
   const rest = TITLES.filter((title) => title.id !== featured.id);
   return (
@@ -243,6 +280,7 @@ function Home({
           </div>
         </div>
       </section>
+      {notice ? <div className="nl-home-notice">{notice}</div> : null}
       {continueWatching?.length ? (
         <section className="nl-row nl-continue" aria-labelledby="nl-continue">
           <h3 id="nl-continue">Continue watching</h3>
@@ -316,6 +354,8 @@ function Watch(props: {
   prompt?: number;
   onStart: (start: number) => void;
   onPosition?: (positionS: number) => void;
+  notice?: ReactNode;
+  progressStat?: string;
   onBack: () => void;
   onReload: () => void;
   onPick: (title: Title) => void;
@@ -393,6 +433,8 @@ function Player({
   metro,
   start = 0,
   onPosition,
+  notice,
+  progressStat,
   onBack,
   onReload,
 }: {
@@ -402,6 +444,8 @@ function Player({
   metro: Metro;
   start?: number;
   onPosition?: (positionS: number) => void;
+  notice?: ReactNode;
+  progressStat?: string;
   onBack: () => void;
   onReload: () => void;
 }) {
@@ -498,6 +542,7 @@ function Player({
         </button>
         <p>{title.name}</p>
       </div>
+      {notice ? <div className="nl-player-notice">{notice}</div> : null}
       {session?.error ? (
         <div className="nl-error" role="alert">
           <p>Something went wrong while loading {title.name}.</p>
@@ -570,6 +615,12 @@ function Player({
                 {lastSegment.cache === "HIT" ? "HIT, served by the edge" : lastSegment.cache === "MISS" ? "MISS, fetched from origin" : "Not cached"}
                 {lastSegment.failed ? ", origin returned 503" : ""}
               </dd>
+            </div>
+          ) : null}
+          {progressStat ? (
+            <div>
+              <dt>Progress</dt>
+              <dd>{progressStat}</dd>
             </div>
           ) : null}
         </dl>
@@ -860,9 +911,13 @@ export function DatabaseConfig({ runtime }: { runtime: NorthlightResumeRuntime }
                     <strong>{instance.id}</strong>
                     <small>{primary ? "Primary" : "Streaming replica"}</small>
                   </td>
-                  <td className="pl-num">{primary ? "none" : lagText(runtime.lagSeconds(instance))}</td>
-                  <td className="pl-num">{Math.round(Math.min(100, Math.max(0, instance.cpu)))}%</td>
-                  <td>
+                  <td className="pl-num" data-label="Replication lag">
+                    {primary ? "none" : lagText(runtime.lagSeconds(instance))}
+                  </td>
+                  <td className="pl-num" data-label="CPU">
+                    {Math.round(Math.min(100, Math.max(0, instance.cpu)))}%
+                  </td>
+                  <td data-label="Standby delay">
                     {primary ? (
                       "none"
                     ) : (
@@ -879,7 +934,7 @@ export function DatabaseConfig({ runtime }: { runtime: NorthlightResumeRuntime }
                       </select>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Read pool">
                     {primary ? (
                       pool.length ? "Writes only" : "All reads"
                     ) : (

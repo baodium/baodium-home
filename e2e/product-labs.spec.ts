@@ -202,6 +202,22 @@ test("Northlight: resume reads follow the viewer’s last save once the replica 
   await expect(page.getByRole("heading", { name: /Resolved at/ })).toBeVisible({ timeout: 60_000 });
 });
 
+test("Northlight: the player says when a progress save times out on an overloaded primary", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.goto("/sre-labs/northlight/resume");
+  const app = page.locator(".pl-product-pane");
+  await page.getByRole("tab", { name: "Releases and config" }).click();
+  await page.getByRole("button", { name: "Roll back to 7.3.2" }).click();
+  await app.getByRole("button", { name: "Play Night Market" }).click();
+  const notice = app.locator(".nl-save-notice");
+  await expect(notice).toContainText("Your place in Night Market was not saved", { timeout: 180_000 });
+  await app.getByRole("button", { name: "Settings" }).click();
+  await app.getByRole("menuitemcheckbox", { name: /Playback stats/ }).click();
+  await expect(app.locator(".nl-stats")).toContainText(/Progress\s*Save at \d+:\d\d timed out after 1 s/);
+  await notice.getByRole("button", { name: "Dismiss" }).click();
+  await expect(notice).toHaveCount(0);
+});
+
 test("product labs fit a phone screen", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const route of [
