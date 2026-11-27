@@ -1,0 +1,453 @@
+.nl-app {
+  --nl-bg: #0b0d10;
+  --nl-ink: #eceff2;
+  --nl-muted: #9aa3ad;
+  --nl-amber: #e7a85a;
+  min-height: 100%;
+  background: var(--nl-bg);
+  color: var(--nl-ink);
+  font-family: var(--font-geist), system-ui, sans-serif;
+  font-size: 14px;
+}
+.nl-app button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.nl-nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 16px 26px;
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+}
+.nl-wordmark {
+  font-weight: 650;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.nl-wordmark span {
+  color: var(--nl-amber);
+  font-size: 14px;
+}
+.nl-nav nav {
+  display: flex;
+  gap: 18px;
+  margin-right: auto;
+}
+.nl-nav nav button {
+  color: var(--nl-muted);
+  font-size: 13.5px;
+  padding: 4px 0;
+}
+.nl-nav nav button[aria-current="page"],
+.nl-nav nav button:hover {
+  color: var(--nl-ink);
+}
+.nl-profile {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #3d5a73;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.nl-home {
+  position: relative;
+}
+.nl-hero {
+  position: relative;
+  aspect-ratio: 16 / 8.2;
+  min-height: 300px;
+  overflow: hidden;
+}
+.nl-hero-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.nl-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(11 13 16 / 0.88) 0%, rgb(11 13 16 / 0.45) 45%, transparent 75%),
+    linear-gradient(0deg, var(--nl-bg) 0%, transparent 30%);
+}
+.nl-hero-copy {
+  position: absolute;
+  z-index: 1;
+  left: 26px;
+  bottom: 34px;
+  max-width: 24rem;
+}
+.nl-meta {
+  margin: 0 0 6px;
+  color: var(--nl-muted);
+  font-size: 12.5px;
+}
+.nl-hero-copy h2 {
+  margin: 0 0 10px;
+  font-size: 36px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.nl-hero-copy p:not(.nl-meta) {
+  margin: 0;
+  color: #cfd5db;
+  line-height: 1.5;
+}
+.nl-hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.nl-app .nl-play,
+.nl-app .nl-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.nl-app .nl-play {
+  background: var(--nl-ink);
+  color: #0b0d10;
+}
+.nl-app .nl-play:hover {
+  background: #fff;
+}
+.nl-app .nl-secondary {
+  background: rgb(255 255 255 / 0.14);
+}
+.nl-row {
+  padding: 8px 26px 34px;
+}
+.nl-row h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.nl-row ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+.nl-row li > button {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.nl-poster {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform 300ms ease;
+}
+.nl-row li > button:hover .nl-poster {
+  transform: scale(1.04);
+}
+.nl-poster-title {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font-weight: 650;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.7);
+}
+.nl-row p {
+  margin: 6px 0 0;
+  color: var(--nl-muted);
+  font-size: 12px;
+}
+.nl-player {
+  position: relative;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  min-height: 280px;
+  overflow: hidden;
+}
+.nl-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.nl-player-top {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.55), transparent);
+}
+.nl-player-top p {
+  margin: 0;
+  font-weight: 600;
+}
+.nl-player-top button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.nl-player-top button:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+.nl-buffering {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.35);
+}
+.nl-spinner {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid rgb(255 255 255 / 0.2);
+  border-top-color: #fff;
+  animation: nl-spin 800ms linear infinite;
+}
+@keyframes nl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.nl-update {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 14px;
+  border-radius: 8px;
+  background: #eceff2;
+  color: #0b0d10;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.4);
+}
+.nl-app .nl-update button {
+  background: #0b0d10;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.nl-stats {
+  position: absolute;
+  top: 58px;
+  left: 14px;
+  z-index: 2;
+  margin: 0;
+  padding: 10px 12px;
+  background: rgb(8 10 12 / 0.82);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 6px;
+  font-family: var(--font-lab-mono), ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  min-width: 290px;
+}
+.nl-stats div {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+}
+.nl-stats dt {
+  color: #8b96a1;
+}
+.nl-stats dd {
+  margin: 0;
+}
+.nl-controls {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 26px 16px 10px;
+  background: linear-gradient(0deg, rgb(0 0 0 / 0.65), transparent);
+}
+.nl-progress {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.2);
+  overflow: hidden;
+}
+.nl-buffered,
+.nl-played {
+  position: absolute;
+  inset: 0 auto 0 0;
+  min-width: 2px;
+}
+.nl-buffered {
+  background: rgb(255 255 255 / 0.45);
+}
+.nl-played {
+  background: var(--nl-amber);
+}
+.nl-control-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+.nl-control-row > button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+}
+.nl-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: #d9dee3;
+}
+.nl-quality {
+  margin-left: auto;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.nl-settings {
+  position: relative;
+}
+.nl-settings > button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+}
+.nl-menu {
+  position: absolute;
+  right: 0;
+  bottom: 40px;
+  min-width: 220px;
+  background: rgb(20 23 27 / 0.96);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 8px;
+  padding: 6px;
+}
+.nl-menu p,
+.nl-app .nl-menu button {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  text-align: left;
+}
+.nl-app .nl-menu button:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+.nl-menu span {
+  color: var(--nl-muted);
+}
+.nl-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 28px;
+  padding: 22px 24px 30px;
+}
+.nl-details h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+.nl-details p:not(.nl-meta) {
+  margin: 0;
+  color: #cfd5db;
+  line-height: 1.55;
+}
+.nl-up-next h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nl-muted);
+}
+.nl-up-next ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.nl-app .nl-up-next button {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 4px;
+  border-radius: 6px;
+  text-align: left;
+}
+.nl-app .nl-up-next button:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+.nl-thumb {
+  width: 96px;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  display: block;
+}
+.nl-up-next span {
+  font-weight: 600;
+  font-size: 13px;
+}
+.nl-up-next small {
+  display: block;
+  font-weight: 400;
+  color: var(--nl-muted);
+  font-size: 12px;
+}
+@container product (max-width: 620px) {
+  .nl-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .nl-nav nav {
+    display: none;
+  }
+  .nl-hero-copy h2 {
+    font-size: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nl-spinner {
+    animation-duration: 2.4s;
+  }
+  .nl-poster {
+    transition: none;
+  }
+}
