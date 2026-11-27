@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function ApiPage() {
   return (
-    <SreChrome crumb="API budget">
+    <SreChrome>
       <SreExperience lab="api" />
     </SreChrome>
   );

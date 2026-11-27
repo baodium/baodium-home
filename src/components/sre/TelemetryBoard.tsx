@@ -44,13 +44,14 @@ export function TelemetryBoard({
       <section className="exp-panel">
         <p className="exp-kicker">{story.product}</p>
         <h2 className="mt-1 font-serif text-2xl text-[color:var(--exp-fg)]">
-          {story.service} calls {story.dependency}
+          The {story.noun} path
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
-          {/^[aeiou]/i.test(story.noun) ? "An" : "A"} {story.noun} reaches{" "}
-          {story.service}. {story.service} calls {story.dependency}. The clock
-          below is the only clock. The chart, the trace, the log, and the alerts
-          are that same minute.
+          The {story.client.toLowerCase()} {story.clientDetail.charAt(0).toLowerCase()}
+          {story.clientDetail.slice(1)} with {story.path}, and the{" "}
+          {story.service.toLowerCase()} service waits on the {story.dependencySpan}{" "}
+          before it answers. The chart, trace, log, and alerts below all read from
+          the same simulated minute.
         </p>
         {controls.profile === "api" ? (
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[color:var(--exp-muted)]">
@@ -102,7 +103,7 @@ export function TelemetryBoard({
           service={story.service}
           hostLabel={hostLabel}
         />
-        <dl className="mt-3 grid grid-cols-2 gap-2 font-mono text-[0.75rem] sm:grid-cols-4">
+        <dl className="exp-stats mt-3 grid grid-cols-2 gap-2 font-mono text-[0.75rem] sm:grid-cols-4">
           <Stat
             label={hostLabel}
             value={

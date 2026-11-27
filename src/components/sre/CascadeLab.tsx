@@ -14,7 +14,7 @@ import { CascadePortrait } from "@/components/sre/CascadePortrait";
 import { LaboratoryShell } from "@/components/sre/LaboratoryShell";
 import { LessonPlace } from "@/components/learning/LessonCraft";
 import { LessonSteps } from "@/components/learning/LessonSteps";
-import { lessonAfter, lessonBeats, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import { lessonAfter, lessonBeats, SRE_COURSE_NAME, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
 import {
   advanceEngine,
   DEFAULT_TICK_SEC,
@@ -368,7 +368,7 @@ function CascadeSession({
       mission={
         <div className="cascade-mast">
           <LessonPlace
-            course="SRE path"
+            course={SRE_COURSE_NAME}
             index={lesson.index}
             total={SRE_COURSE_TOTAL}
             minutes={lesson.minutes}
@@ -970,7 +970,7 @@ function CascadeSession({
                 elapsed clock time and resulting evidence are reproduced.
               </p>
               <Link href="/sre-labs" className="product-text-link">
-                Return to your learning path →
+                Back to guided lessons →
               </Link>
             </section>
           ) : null}

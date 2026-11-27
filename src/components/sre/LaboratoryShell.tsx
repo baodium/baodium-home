@@ -74,7 +74,7 @@ export function LaboratoryShell({
       style={{ "--lab-rail-width": `${width}%` } as CSSProperties}
     >
       <div className="laboratory-bar">
-        <Link href="/sre-labs">← SRE curriculum</Link>
+        <Link href="/sre-labs">← Guided lessons</Link>
         <span>Intermediate · Browser simulation</span>
         <div>
           <button

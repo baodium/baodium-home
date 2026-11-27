@@ -37,7 +37,7 @@ export default async function LessonPage({
   const next = OBSERVABILITY_COURSE[index + 1];
   const previous = OBSERVABILITY_COURSE[index - 1];
   return (
-    <SreChrome showSections={false}>
+    <SreChrome>
       <div className="course-layout">
         <aside className="course-syllabus">
           <Link href="/sre-labs/observability" className="course-back">
@@ -163,8 +163,8 @@ export default async function LessonPage({
                 <ArrowRight size={16} />
               </Link>
             ) : (
-              <Link href="/sre-labs">
-                Try an independent browser incident <ArrowRight size={16} />
+              <Link href="/labs">
+                Try an incident in a product lab <ArrowRight size={16} />
               </Link>
             )}
           </nav>

@@ -16,7 +16,7 @@ export type SreLessonCraft = {
   next?: LessonLink;
 };
 
-const COURSE = "SRE path";
+const COURSE = "Guided lessons";
 const TOTAL = 8;
 
 export const SRE_COURSE: SreLessonCraft[] = [

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function SloPage() {
   return (
-    <SreChrome crumb="99.5% budget">
+    <SreChrome>
       <SreExperience lab="slo" />
     </SreChrome>
   );

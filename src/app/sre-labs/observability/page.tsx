@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 };
 export default function CourseOverview() {
   return (
-    <SreChrome showSections={false}>
+    <SreChrome>
       <section className="course-overview">
         <header>
           <p className="product-eyebrow">Hands-on course</p>
-          <h1>The payments stack, on your machine.</h1>
+          <h1>Run the payments stack on your own machine.</h1>
           <p>
             Generate requests, inspect the signals, introduce a fault, then
             confirm recovery in the numbers.

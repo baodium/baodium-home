@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function AnalyticsPage() {
   return (
-    <SreChrome crumb="Ingest paging">
+    <SreChrome>
       <SreExperience lab="analytics" />
     </SreChrome>
   );

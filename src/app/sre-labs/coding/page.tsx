@@ -14,13 +14,15 @@ export default function CodingPage() {
     <LabsShell>
       <header className="coding-roadmap-hero">
         <Link href="/labs" className="labs-back">
-          ← All learning paths
+          ← Labs
         </Link>
-        <h1>Functions from fleet health to a release.</h1>
+        <h1>Write reliability functions in Go, TypeScript, or Python.</h1>
         <p>
-          Go, TypeScript, or Python. The checks are the same in each language,
-          and a stage moves only when every exercise in it has a passing full
-          suite. Progress stays in this browser, separately for each language.
+          Each exercise is one function, such as a retry delay, a token bucket,
+          or a deploy check, with tests that run in your browser. The tests are
+          the same in each language. A stage is complete when every exercise in
+          it passes its full suite, and progress is saved in this browser for
+          each language separately.
         </p>
         <p className="lesson-next">
           <Link href="/sre-labs/coding/unhealthy-instances-v1">

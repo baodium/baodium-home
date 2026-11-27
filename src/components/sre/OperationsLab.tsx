@@ -23,7 +23,7 @@ import {
 import { recordSreProgress } from "@/lib/sre/progress";
 import { LessonPlace } from "@/components/learning/LessonCraft";
 import { LessonSteps } from "@/components/learning/LessonSteps";
-import { lessonAfter, lessonBeats, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import { lessonAfter, lessonBeats, SRE_COURSE_NAME, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
 import { seriesPath } from "@/lib/sre/chart";
 
 type Command =
@@ -126,7 +126,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
       <header className="ops-mast">
         <div>
           <LessonPlace
-            course="SRE path"
+            course={SRE_COURSE_NAME}
             index={lesson.index}
             total={SRE_COURSE_TOTAL}
             minutes={lesson.minutes}
@@ -249,7 +249,7 @@ export function OperationsLab({ kind }: { kind: OperationsKind }) {
             </p>
           )}
           <Link href="/sre-labs" className="product-text-link">
-            Back to the curriculum →
+            Back to guided lessons →
           </Link>
         </aside>
         <div className="ops-environment">

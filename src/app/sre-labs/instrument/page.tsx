@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function InstrumentPage() {
   return (
-    <SreChrome crumb="Playback">
+    <SreChrome>
       <SreExperience lab="instrument" />
     </SreChrome>
   );

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 export default function DeploymentPage() {
   return (
-    <SreChrome showSections={false}>
+    <SreChrome>
       <OperationsLab kind="deployment" />
     </SreChrome>
   );

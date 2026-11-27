@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } fr
 import { motion, useReducedMotion } from "motion/react";
 import { LessonPlace } from "@/components/learning/LessonCraft";
 import { LessonSteps } from "@/components/learning/LessonSteps";
-import { lessonAfter, lessonBeats, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
+import { lessonAfter, lessonBeats, SRE_COURSE_NAME, SRE_COURSE_TOTAL, sreLesson } from "@/lib/learning/sre-course";
 import {
   loadSreProgress,
   recordSreProgress,
@@ -208,7 +208,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
       <header className="sre-lesson-mast">
         <div>
           <LessonPlace
-            course="SRE path"
+            course={SRE_COURSE_NAME}
             index={lesson.index}
             total={SRE_COURSE_TOTAL}
             minutes={lesson.minutes}
@@ -268,7 +268,7 @@ export function SreExperience({ lab }: { lab: SreLabId }) {
                   <>
                     {" "}
                     Completion saved in this browser.{" "}
-                    <Link href="/sre-labs">View your learning path →</Link>
+                    <Link href="/sre-labs">Back to guided lessons →</Link>
                   </>
                 ) : null}
               </motion.p>

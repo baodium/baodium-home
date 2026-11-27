@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function CascadeLabPage() {
   return (
-    <SreChrome crumb="Slow provider" showSections={false}>
+    <SreChrome>
       <CascadeLab />
     </SreChrome>
   );

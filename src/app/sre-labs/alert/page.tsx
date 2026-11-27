@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function AlertPage() {
   return (
-    <SreChrome crumb="When to page">
+    <SreChrome>
       <SreExperience lab="alert" />
     </SreChrome>
   );

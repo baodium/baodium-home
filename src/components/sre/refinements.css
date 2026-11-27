@@ -152,6 +152,23 @@
 .mode-track {
   margin-top: 0.9rem;
 }
+.exp-stats > div:last-child .hint-bubble {
+  left: auto;
+  right: 0;
+}
+@media (max-width: 639px) {
+  .exp-stats > div:nth-child(even) .hint-bubble {
+    left: auto;
+    right: 0;
+  }
+}
+.sre-lesson-modes .hint-bubble,
+.ops-mode .hint-bubble {
+  top: calc(100% + 0.55rem);
+  bottom: auto;
+  left: auto;
+  right: 0;
+}
 .mode-track-count {
   margin: 0 0 0.45rem;
   font: 500 0.68rem/1.4 var(--font-mono);
@@ -160,6 +177,7 @@
   color: var(--exp-faint, #6f625a);
 }
 .mode-track ol {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -167,8 +185,15 @@
   padding: 0;
   list-style: none;
 }
+.mode-track .hint {
+  position: static;
+}
+.mode-track .hint-bubble {
+  left: 0;
+  right: auto;
+  width: min(18rem, 100%);
+}
 .mode-track li {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -234,6 +259,25 @@
   .step-meter span {
     transition: none;
   }
+}
+
+.sre-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1.5rem;
+  font-size: 0.85rem;
+  color: var(--exp-faint);
+}
+.sre-crumbs a {
+  color: var(--exp-faint);
+  text-decoration: none;
+}
+.sre-crumbs a:hover {
+  color: var(--exp-fg);
+}
+.sre-crumbs [aria-current="page"] {
+  color: var(--exp-fg);
 }
 
 /* A consistent interface typeface across the SRE course and simulations. */

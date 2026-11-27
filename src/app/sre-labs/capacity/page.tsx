@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 export default function CapacityPage() {
   return (
-    <SreChrome showSections={false}>
+    <SreChrome>
       <OperationsLab kind="capacity" />
     </SreChrome>
   );

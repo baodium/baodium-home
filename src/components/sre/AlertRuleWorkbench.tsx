@@ -60,7 +60,7 @@ export function AlertRuleWorkbench({
       aria-labelledby="rule-workbench-title"
     >
       <p className="exp-kicker">Rule experiment, outside the graded lab</p>
-      <h2 id="rule-workbench-title">The rule, on one scene.</h2>
+      <h2 id="rule-workbench-title">Test an alert rule before it pages someone.</h2>
       <p>
         Evaluate this rule against the retained scenario.{" "}
         {profile === "analytics"
