@@ -13,9 +13,9 @@ import { PorchRuntime } from "@/lib/products/porch";
 import { loadProductProgress, productProgressServer, subscribeProductProgress } from "@/lib/products/progress";
 import type { ProductId } from "@/lib/products/types";
 import { OpsConsole } from "./OpsConsole";
-import { LarderApp } from "./larder/LarderApp";
-import { NorthlightApp, SteeringConfig } from "./northlight/NorthlightApp";
-import { PorchApp, AuthConfig } from "./porch/PorchApp";
+import { LarderApp, PaymentsConfig } from "./larder/LarderApp";
+import { CacheRulesConfig, NorthlightApp, SteeringConfig } from "./northlight/NorthlightApp";
+import { PorchApp, AuthConfig, FanoutConfig } from "./porch/PorchApp";
 import "./product-labs.css";
 
 function create(product: ProductId, incident: string): LabRuntime {
@@ -73,14 +73,19 @@ export function ProductLab({ product, incident }: { product: ProductId; incident
 
   let app: ReactNode = <div className="pl-booting">Starting {def.name}…</div>;
   let config: ReactNode = null;
-  if (runtime instanceof LarderRuntime) app = <LarderApp key={generation} runtime={runtime} />;
+  if (runtime instanceof LarderRuntime) {
+    app = <LarderApp key={generation} runtime={runtime} />;
+    if (current.id === "double-charge") config = <PaymentsConfig runtime={runtime} />;
+  }
   if (runtime instanceof NorthlightRuntime) {
     app = <NorthlightApp key={generation} runtime={runtime} />;
     if (current.id === "frankfurt") config = <SteeringConfig runtime={runtime} />;
+    if (current.id === "cache-key") config = <CacheRulesConfig runtime={runtime} />;
   }
   if (runtime instanceof PorchRuntime) {
     app = <PorchApp key={generation} runtime={runtime} />;
     if (current.id === "signin") config = <AuthConfig runtime={runtime} />;
+    if (current.id === "slow-posts") config = <FanoutConfig runtime={runtime} />;
   }
 
   return (

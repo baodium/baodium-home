@@ -66,6 +66,7 @@
 }
 .nl-hero {
   position: relative;
+  width: 100%;
   aspect-ratio: 16 / 8.2;
   min-height: 300px;
   overflow: hidden;
@@ -450,4 +451,91 @@
   .nl-poster {
     transition: none;
   }
+}
+.nl-live-row {
+  padding-bottom: 22px;
+}
+.nl-app .nl-live-card {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) 1fr;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #14181d;
+  border: 1px solid rgb(255 255 255 / 0.06);
+}
+.nl-app .nl-live-card:hover {
+  border-color: rgb(255 255 255 / 0.18);
+}
+.nl-live-still {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.nl-live-copy {
+  display: grid;
+  gap: 6px;
+  padding: 14px 18px 14px 0;
+}
+.nl-live-copy strong {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.nl-live-copy span:not(.nl-live-badge) {
+  color: #cfd5db;
+  line-height: 1.45;
+}
+.nl-live-copy small {
+  color: var(--nl-muted);
+  font-size: 12px;
+}
+.nl-live-badge {
+  justify-self: start;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #c8342b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.nl-control-row .nl-live-badge {
+  margin-right: auto;
+}
+.nl-error {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  background: rgb(8 10 12 / 0.92);
+}
+.nl-error p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 550;
+}
+.nl-error .nl-error-code {
+  color: var(--nl-muted);
+  font-size: 13px;
+  font-weight: 400;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+.nl-app .nl-error button {
+  margin-top: 10px;
+  padding: 7px 16px;
+  border-radius: 6px;
+  background: #eceff2;
+  color: #0b0d10;
+  font-weight: 600;
 }

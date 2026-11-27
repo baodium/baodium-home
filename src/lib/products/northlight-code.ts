@@ -129,7 +129,55 @@ Real user monitoring (RUM) reports time to first byte and
 rebuffering from every player session, grouped by edge.
 `;
 
-export function northlightFiles(incident: "stalls" | "frankfurt"): CodeFile[] {
+export const CACHE_RULES_DOC = `# CDN cache rules
+
+The CDN checks the rules from the top and uses the first rule whose
+path pattern matches the request. Rules further down are never read
+for that request.
+
+The cache key decides which requests share one cached copy:
+
+  Path only                    /vod/long-coast/720p/seg_00012.m4s
+  Path and full query string   the path plus everything after the ?
+  Path and token parameter     the path plus ?token=..., other
+                               parameters ignored
+  Do not cache                 every request goes to origin (films)
+                               or to the live packager (live)
+
+The rules editor adds a new rule at the top of the list, with the
+pattern /*. Use Check a URL to see which rule a request matches and
+the key it gets.
+
+Origin serves about 6 film requests per second. Above that it queues
+requests, and past about 8 per second it starts returning 503.
+`;
+
+export const URLS_DOC = `# Northlight request URLs
+
+Films
+  /vod/{title}/master.m3u8?sid={session}
+  /vod/{title}/{rendition}/seg_{index}.m4s?sid={session}
+
+  A film segment is the same file for every viewer. sid is a random
+  id for each play session. Web player 3.8.2 added it so playback
+  analytics can group a session's requests; the CDN does not use it.
+
+Live
+  /live/{channel}/{rendition}/seg_{index}.m4s?token={token}&sid={session}
+
+  token is signed for one viewer and expires after 60 seconds. A live
+  response fetched with one viewer's token must never be served to
+  another viewer. That happened on Monday under cdn-config r89
+  (INC-2291).
+`;
+
+export function northlightFiles(incident: "stalls" | "frankfurt" | "cache-key"): CodeFile[] {
+  if (incident === "cache-key") {
+    return [
+      { path: "docs/cdn-cache-rules.md", source: CACHE_RULES_DOC, language: "markdown" },
+      { path: "docs/request-urls.md", source: URLS_DOC, language: "markdown" },
+    ];
+  }
   if (incident === "stalls") {
     return [
       { path: "player/src/abr.js", source: ABR_V380, language: "javascript", editable: true },

@@ -2,7 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Bell, CalendarDays, Heart, Home, Mail, MessageCircle, Users } from "lucide-react";
-import { NEIGHBORS, POSTS, type Post, type PorchRuntime } from "@/lib/products/porch";
+import {
+  ACCOUNTS,
+  IMPORT_TOTAL,
+  NEIGHBORS,
+  PARTITIONS,
+  POSTS,
+  READ_THRESHOLDS,
+  largeAccounts,
+  type LivePost,
+  type Post,
+  type PorchRuntime,
+} from "@/lib/products/porch";
 import { BrowserFrame } from "../BrowserFrame";
 import "./porch.css";
 
@@ -17,6 +28,8 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function PorchApp({ runtime }: { runtime: PorchRuntime }) {
   const signin = runtime.incident.id === "signin";
+  const fanout = runtime.incident.id === "slow-posts";
+  const [viewer, setViewer] = useState<"theo" | "june">("theo");
   const [signedIn, setSignedIn] = useState(!signin);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -106,10 +119,10 @@ export function PorchApp({ runtime }: { runtime: PorchRuntime }) {
             </button>
           </nav>
           <div className="pc-me">
-            <Avatar id="theo" />
+            <Avatar id={viewer} />
             <span>
-              Theo Park
-              <small>Winchester Ave</small>
+              {NEIGHBORS[viewer].name}
+              <small>{NEIGHBORS[viewer].street}</small>
             </span>
           </div>
         </aside>
@@ -124,7 +137,7 @@ export function PorchApp({ runtime }: { runtime: PorchRuntime }) {
                 </div>
               </header>
               <ul className="pc-feed">
-                {POSTS.filter((post) => post.author === profile.id).map((post) => (
+                {(fanout ? runtime.postsBy(profile.id) : POSTS.filter((post) => post.author === profile.id)).map((post) => (
                   <PostCard key={post.id} post={post} open={(id) => setView({ name: "profile", id })} exact />
                 ))}
               </ul>
@@ -136,17 +149,22 @@ export function PorchApp({ runtime }: { runtime: PorchRuntime }) {
                 onSubmit={(event) => {
                   event.preventDefault();
                   if (!draft.trim()) return;
-                  setMine((items) => [{ id: `local-${items.length}`, author: "theo", createdAt: "", body: draft.trim(), thanks: 0, replies: 0 }, ...items]);
+                  if (fanout) runtime.post(viewer, draft.trim());
+                  else setMine((items) => [{ id: `local-${items.length}`, author: "theo", createdAt: "", body: draft.trim(), thanks: 0, replies: 0 }, ...items]);
                   setDraft("");
                 }}
               >
-                <Avatar id="theo" />
+                <Avatar id={viewer} />
                 <textarea value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Share something with Ravenswood" rows={2} aria-label="New post" />
                 <button type="submit" className="pc-primary" disabled={!draft.trim()}>
                   Post
                 </button>
               </form>
-              <Feed key={generation} runtime={runtime} mine={mine} open={(id) => setView({ name: "profile", id })} />
+              {fanout ? (
+                <Timeline key={`${viewer}-${generation}`} runtime={runtime} viewer={viewer} open={(id) => setView({ name: "profile", id })} />
+              ) : (
+                <Feed key={generation} runtime={runtime} mine={mine} open={(id) => setView({ name: "profile", id })} />
+              )}
             </>
           )}
         </div>
@@ -178,6 +196,26 @@ export function PorchApp({ runtime }: { runtime: PorchRuntime }) {
         setGeneration((value) => value + 1);
         setNotice(null);
       }}
+      tools={
+        fanout ? (
+          <>
+            <span className="pl-tools-label">Support view</span>
+            <label>
+              <span>Viewing as</span>
+              <select
+                value={viewer}
+                onChange={(event) => {
+                  setViewer(event.target.value as "theo" | "june");
+                  setView({ name: "home" });
+                }}
+              >
+                <option value="theo">Theo Park, Winchester Ave</option>
+                <option value="june">June Whitaker, Hermitage Ave</option>
+              </select>
+            </label>
+          </>
+        ) : undefined
+      }
     >
       <div className="pc-app">{body}</div>
     </BrowserFrame>
@@ -254,13 +292,75 @@ function Avatar({ id, size = 36 }: { id: string; size?: number }) {
     <span className="pc-avatar" style={{ background: person.tone, width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">
       {person.name
         .split(" ")
+        .slice(0, 2)
         .map((part) => part[0])
         .join("")}
     </span>
   );
 }
 
-function PostCard({ post, open, exact = false }: { post: Post; open: (id: string) => void; exact?: boolean }) {
+function Timeline({ runtime, viewer, open }: { runtime: PorchRuntime; viewer: string; open: (id: string) => void }) {
+  const [limit, setLimit] = useState(8);
+  const items = runtime.timeline(viewer);
+  const note = (post: Post | LivePost) => {
+    if (!("mine" in post) || !post.mine || post.author !== viewer) return undefined;
+    const count = post.followers.toLocaleString();
+    return post.deliveredAt !== undefined && post.deliveredAt <= runtime.now ? `Shared with ${count} neighbors` : `Sharing with ${count} neighbors…`;
+  };
+  return (
+    <>
+      <ul className="pc-feed" aria-label="Home feed">
+        {items.slice(0, limit).map((item) =>
+          item.kind === "events" ? (
+            <EventsCard key="events" events={item.events} open={open} />
+          ) : (
+            <PostCard key={item.post.id} post={item.post} open={open} note={note(item.post)} />
+          ),
+        )}
+      </ul>
+      {limit < items.length ? (
+        <button type="button" className="pc-more" onClick={() => setLimit(limit + 8)}>
+          Show more posts
+        </button>
+      ) : (
+        <p className="pc-end">You’re all caught up. That’s everything from the last day.</p>
+      )}
+    </>
+  );
+}
+
+function EventsCard({ events, open }: { events: LivePost[]; open: (id: string) => void }) {
+  const latest = events[0];
+  return (
+    <li className="pc-post pc-events" data-post="chamber-events">
+      <header>
+        <Avatar id="chamber" />
+        <div>
+          <button type="button" className="pc-name" onClick={() => open("chamber")}>
+            {NEIGHBORS.chamber.name}
+          </button>
+          <p className="pc-muted">
+            Organization · <time dateTime={latest.createdAt}>{timeOf(latest.createdAt)}</time>
+          </p>
+        </div>
+        <span className="pc-topic">Events</span>
+      </header>
+      <p className="pc-body">
+        Added {events.length} holiday {events.length === 1 ? "event" : "events"} to the Ravenswood calendar.
+      </p>
+      <ul className="pc-event-list">
+        {events.slice(0, 3).map((event) => (
+          <li key={event.id}>
+            <CalendarDays size={14} aria-hidden="true" /> {event.body}
+          </li>
+        ))}
+      </ul>
+      {events.length > 3 ? <p className="pc-muted pc-event-more">and {events.length - 3} more on the calendar</p> : null}
+    </li>
+  );
+}
+
+function PostCard({ post, open, exact = false, note }: { post: Post; open: (id: string) => void; exact?: boolean; note?: string }) {
   const person = NEIGHBORS[post.author];
   return (
     <li className="pc-post" data-post={post.id}>
@@ -285,6 +385,7 @@ function PostCard({ post, open, exact = false }: { post: Post; open: (id: string
       </header>
       <p className="pc-body">{post.body}</p>
       {post.photo ? <PostPhoto kind={post.photo} /> : null}
+      {note ? <p className="pc-delivery">{note}</p> : null}
       <footer>
         <button type="button">
           <Heart size={14} aria-hidden="true" /> Thank · {post.thanks}
@@ -403,6 +504,93 @@ export function AuthConfig({ runtime }: { runtime: PorchRuntime }) {
             </tr>
           </tbody>
         </table>
+      </section>
+    </>
+  );
+}
+
+export function FanoutConfig({ runtime }: { runtime: PorchRuntime }) {
+  const stats = runtime.partitionStats();
+  const idle = Math.max(0, runtime.consumers - PARTITIONS);
+  const accounts = largeAccounts(runtime.readThreshold);
+  const named = Object.entries(ACCOUNTS)
+    .filter(([, account]) => runtime.readThreshold > 0 && account.followers > runtime.readThreshold)
+    .map(([id, account]) => `${NEIGHBORS[id].name} (${account.followers.toLocaleString()})`);
+  const wait = (seconds: number) => (seconds < 1 ? "none" : seconds >= 120 ? `${Math.round(seconds / 60)} min` : `${Math.round(seconds)} s`);
+  return (
+    <>
+      <section className="pl-config" aria-labelledby="fanout-title">
+        <h3 id="fanout-title">Feed fanout</h3>
+        <p>Fanout workers copy each new post into its followers’ feeds. Jobs are split across {PARTITIONS} partitions by author, and each partition is read by one consumer at a time.</p>
+        <table className="pl-config-table">
+          <thead>
+            <tr>
+              <th scope="col">Partition</th>
+              <th scope="col">Consumer</th>
+              <th scope="col">Writes waiting</th>
+              <th scope="col">Oldest wait</th>
+              <th scope="col">Writes per second</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.map((stat) => (
+              <tr key={stat.partition} data-hot={stat.oldest > 60 || undefined}>
+                <td className="pl-num">{stat.partition}</td>
+                <td>{stat.consumer}</td>
+                <td className="pl-num">{Math.round(stat.waiting).toLocaleString()}</td>
+                <td className="pl-num">{wait(stat.oldest)}</td>
+                <td className="pl-num">{Math.round(stat.rate).toLocaleString()}</td>
+              </tr>
+            ))}
+            {Array.from({ length: idle }, (_, index) => (
+              <tr key={`idle-${index}`} data-drained>
+                <td className="pl-num">none</td>
+                <td>fanout-{PARTITIONS + index}</td>
+                <td colSpan={3}>Idle, no partition assigned</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="pl-config-actions">
+          <label className="pl-inline-field">
+            <span>Consumers in the group</span>
+            <select value={runtime.consumers} onChange={(event) => runtime.setConsumers(Number(event.target.value))}>
+              {[8, 12, 16].map((count) => (
+                <option key={count} value={count}>
+                  {count}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+      <section className="pl-config" aria-labelledby="import-title">
+        <h3 id="import-title">Events import</h3>
+        <p>
+          {runtime.imported >= IMPORT_TOTAL ? "Finished" : runtime.importPaused ? "Paused" : "Running"}: {runtime.imported} of {IMPORT_TOTAL} Chamber events posted, one every 4.5
+          seconds, each to {ACCOUNTS.chamber.followers.toLocaleString()} followers.
+        </p>
+        {runtime.imported < IMPORT_TOTAL ? (
+          <button type="button" className="pl-ghost" onClick={() => runtime.setImportPaused(!runtime.importPaused)}>
+            {runtime.importPaused ? "Resume import" : "Pause import"}
+          </button>
+        ) : null}
+      </section>
+      <section className="pl-config" aria-labelledby="read-title">
+        <h3 id="read-title">Fan out on read</h3>
+        <p>Accounts above the threshold skip the fanout. Feed-api merges their posts in when a feed loads, which adds about 12 ms per account to each feed page.</p>
+        <div className="pl-segmented" role="group" aria-label="Fan out on read for accounts with more followers than">
+          {READ_THRESHOLDS.map((value) => (
+            <button key={value} type="button" aria-pressed={runtime.readThreshold === value} onClick={() => runtime.setReadThreshold(value)}>
+              {value ? `Over ${value.toLocaleString()}` : "Off"}
+            </button>
+          ))}
+        </div>
+        <p className="pl-config-note">
+          {runtime.readThreshold
+            ? `${accounts.toLocaleString()} ${accounts === 1 ? "account is" : "accounts are"} read at request time${named.length && accounts <= 4 ? `: ${named.join(", ")}` : ""}.`
+            : "Every post is copied into followers’ feeds."}
+        </p>
       </section>
     </>
   );

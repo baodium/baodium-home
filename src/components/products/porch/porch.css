@@ -345,3 +345,36 @@
     display: none;
   }
 }
+.pc-events .pc-body {
+  margin-bottom: 8px;
+}
+.pc-event-list {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.pc-event-list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f6f4ef;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.pc-event-list svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--pc-green);
+}
+.pc-event-more {
+  margin: 0 0 10px;
+}
+.pc-delivery {
+  margin: -2px 0 8px;
+  font-size: 12px;
+  color: var(--pc-muted);
+}

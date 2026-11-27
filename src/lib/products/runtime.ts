@@ -167,7 +167,11 @@ export abstract class LabRuntime {
   nextVersion(service: string) {
     const current = this.live(service)?.version ?? "0";
     const match = current.match(/^(.*?)(\d+)$/);
-    return match ? `${match[1]}${Number(match[2]) + 1}` : `${current}.1`;
+    if (!match) return `${current}.1`;
+    const taken = new Set(this.releases.filter((release) => release.service === service).map((release) => release.version));
+    let next = Number(match[2]) + 1;
+    while (taken.has(`${match[1]}${next}`)) next += 1;
+    return `${match[1]}${next}`;
   }
 
   ship(source: string, note: string) {

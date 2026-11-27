@@ -214,7 +214,174 @@ export function handleCheckout(cart, deps) {
 }
 `;
 
-export function larderFiles(incident: "checkout-errors" | "slow-checkout"): CodeFile[] {
+export const CHARGE_V157 = `// Charges the card for a checkout.
+// See docs/payments-api.md for the processor client.
+
+const TIMEOUT_MS = 2000;
+
+export function chargeCheckout(processor, checkout) {
+  return processor.charge({
+    amountCents: checkout.amountCents,
+    card: checkout.card,
+    idempotencyKey: processor.newIdempotencyKey(),
+    timeoutMs: TIMEOUT_MS,
+  });
+}
+`;
+
+export const CHARGE_V158 = `// Charges the card for a checkout.
+// See docs/payments-api.md for the processor client.
+
+const TIMEOUT_MS = 2000;
+const ATTEMPTS = 2;
+
+// Release 158: the processor sometimes takes longer than our timeout.
+// Retry once instead of failing the checkout.
+export function chargeCheckout(processor, checkout) {
+  let result;
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    result = processor.charge({
+      amountCents: checkout.amountCents,
+      card: checkout.card,
+      idempotencyKey: processor.newIdempotencyKey(),
+      timeoutMs: TIMEOUT_MS,
+    });
+    if (result.status !== "timeout") return result;
+  }
+  return result;
+}
+`;
+
+export const CHARGE_TESTS = `import { chargeCheckout } from "./charge.js";
+
+// Behaves like the real processor (docs/payments-api.md): one charge per
+// idempotency key, and a repeated key gets the first charge back.
+// script lists what happens to each request in turn: "ok", "lost" (the
+// processor charges the card but the response never arrives), or
+// "declined".
+function fakeProcessor(script) {
+  const charges = new Map();
+  const requests = [];
+  let keys = 0;
+  return {
+    charges,
+    requests,
+    newIdempotencyKey: () => "key_" + ++keys,
+    charge(request) {
+      const step = script[requests.length] ?? "ok";
+      requests.push(request);
+      if (step === "declined") return { status: "declined", reason: "do_not_honor" };
+      if (!charges.has(request.idempotencyKey)) {
+        charges.set(request.idempotencyKey, {
+          id: "ch_" + (charges.size + 1),
+          amountCents: request.amountCents,
+        });
+      }
+      if (step === "lost") return { status: "timeout" };
+      return { status: "succeeded", chargeId: charges.get(request.idempotencyKey).id };
+    },
+  };
+}
+
+const ruth = { id: "chk_5e01a7", amountCents: 4170, card: "card_visa_4242" };
+
+test("a prompt answer charges the card once", () => {
+  const processor = fakeProcessor(["ok"]);
+  const result = chargeCheckout(processor, ruth);
+  assert.equal(result.status, "succeeded", "status");
+  assert.equal(processor.charges.size, 1, "charges on the card");
+});
+
+test("a lost response is retried, and the card is charged once", () => {
+  const processor = fakeProcessor(["lost", "ok"]);
+  const result = chargeCheckout(processor, ruth);
+  assert.equal(result.status, "succeeded", "status");
+  assert.equal(processor.charges.size, 1, "charges on the card");
+});
+
+test("the retry returns the charge the first attempt made", () => {
+  const processor = fakeProcessor(["lost", "ok"]);
+  const result = chargeCheckout(processor, ruth);
+  assert.equal(processor.requests.length, 2, "requests sent");
+  assert.equal(result.chargeId, "ch_1", "charge id");
+});
+
+test("pressing Pay twice on one checkout charges once", () => {
+  const processor = fakeProcessor(["ok", "ok"]);
+  chargeCheckout(processor, ruth);
+  chargeCheckout(processor, ruth);
+  assert.equal(processor.charges.size, 1, "charges on the card");
+});
+
+test("two different checkouts are two charges", () => {
+  const processor = fakeProcessor(["ok", "ok"]);
+  chargeCheckout(processor, ruth);
+  chargeCheckout(processor, { ...ruth, id: "chk_77c0e2" });
+  assert.equal(processor.charges.size, 2, "charges on the card");
+});
+
+test("a declined card is not retried", () => {
+  const processor = fakeProcessor(["declined"]);
+  const result = chargeCheckout(processor, ruth);
+  assert.equal(result.status, "declined", "status");
+  assert.equal(processor.requests.length, 1, "requests sent");
+});
+`;
+
+export const PAYMENTS_DOC = `# Card processor client
+
+processor.charge({ amountCents, card, idempotencyKey, timeoutMs })
+  Charges the card and returns one of:
+    { status: "succeeded", chargeId }
+    { status: "declined", reason }
+    { status: "timeout" }      no answer within timeoutMs
+
+  A timeout does not cancel anything. The processor keeps working on
+  the request and usually charges the card a moment later.
+
+Idempotency keys
+  The processor keeps every key for 24 hours. A request with a key it
+  has already seen does not charge again: it returns the first
+  request's result, and waits for that request if it is still running.
+  A request with a new key is a new payment.
+
+  Choose a key that names the payment, not the attempt. Larder uses
+  "checkout-" followed by the checkout id, so a retry or a second press
+  of the Pay button sends the same key.
+
+processor.newIdempotencyKey()
+  Returns a random key, different on every call.
+
+Timeouts
+  The Pay button has to answer within about 5 seconds, so keep each
+  attempt at 2 seconds.
+`;
+
+export const CHECKOUT_JS_158 = `// Read-only here: the checkout handler that calls your code.
+import { orderTotalCents } from "./pricing.js";
+import { reserveStock } from "./reserve.js";
+import { chargeCheckout } from "./charge.js";
+
+export function handleCheckout(cart, deps) {
+  const amountCents = orderTotalCents(cart.lines, cart.promoCode);
+  const holds = reserveStock(deps.inventory, cart.lines);
+  if (holds.some((hold) => !hold.ok)) return { status: 409, code: "out_of_stock" };
+  const charge = chargeCheckout(deps.processor, { id: cart.id, amountCents, card: cart.card });
+  if (charge.status === "timeout") return { status: 504, code: "payment_timeout" };
+  if (charge.status !== "succeeded") return { status: 402, code: charge.reason };
+  return { status: 201, order: deps.orders.create(cart, charge.chargeId) };
+}
+`;
+
+export function larderFiles(incident: "checkout-errors" | "slow-checkout" | "double-charge"): CodeFile[] {
+  if (incident === "double-charge") {
+    return [
+      { path: "storefront/src/charge.js", source: CHARGE_V158, language: "javascript", editable: true },
+      { path: "storefront/src/charge.test.js", source: CHARGE_TESTS, language: "javascript" },
+      { path: "storefront/src/checkout.js", source: CHECKOUT_JS_158, language: "javascript" },
+      { path: "docs/payments-api.md", source: PAYMENTS_DOC, language: "markdown" },
+    ];
+  }
   if (incident === "checkout-errors") {
     return [
       { path: "storefront/src/pricing.js", source: PRICING_V142, language: "javascript", editable: true },

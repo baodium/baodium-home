@@ -1,7 +1,7 @@
 import type { Point } from "./telemetry";
 
 export type ProductId = "larder" | "northlight" | "porch";
-export type IncidentKind = "Programming" | "Observability" | "Release";
+export type IncidentKind = "Programming" | "Observability" | "Release" | "Configuration" | "Capacity";
 
 export type CodeFile = {
   path: string;
@@ -62,7 +62,7 @@ export type Tone = "primary" | "bad" | "muted" | "good" | "accent";
 export type ChartSpec = {
   id: string;
   title: string;
-  unit: "%" | "ms" | "/min" | "×" | "posts";
+  unit: "%" | "ms" | "s" | "/min" | "/s" | "×" | "posts" | "count";
   help: string;
   series: { label: string; points: Point[]; tone: Tone }[];
   threshold?: { value: number; label: string };

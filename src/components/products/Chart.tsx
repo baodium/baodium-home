@@ -12,8 +12,11 @@ const BUCKET = 15_000;
 function format(value: number, unit: ChartSpec["unit"]) {
   if (unit === "%") return `${value < 10 ? value.toFixed(1) : value.toFixed(0)}%`;
   if (unit === "ms") return value >= 1000 ? `${(value / 1000).toFixed(1)} s` : `${Math.round(value)} ms`;
+  if (unit === "s") return value >= 120 ? `${(value / 60).toFixed(0)} min` : `${value.toFixed(0)} s`;
   if (unit === "/min") return `${value.toFixed(0)}/min`;
+  if (unit === "/s") return `${value < 10 && value % 1 ? value.toFixed(1) : value.toFixed(0)}/s`;
   if (unit === "×") return `${value.toFixed(1)}×`;
+  if (unit === "count") return value >= 1e6 ? `${(value / 1e6).toFixed(1)}M` : value >= 1e3 ? `${(value / 1e3).toFixed(value >= 1e4 ? 0 : 1)}k` : value.toFixed(0);
   return value.toFixed(value < 10 && value % 1 ? 1 : 0);
 }
 
@@ -25,7 +28,7 @@ export function Chart({ spec: raw, markers, now }: { spec: ChartSpec; markers: M
   const values = spec.series.flatMap((series) => series.points.map((point) => point.v ?? NaN)).filter(Number.isFinite);
   const top = Math.max(...values, spec.threshold?.value ?? 0, 1);
   const [lo, hi] = spec.domain ?? [0, top * 1.15];
-  const yMax = spec.domain ? Math.max(hi, Math.min(top * 1.05, hi * 2)) : hi;
+  const yMax = spec.domain ? (top <= hi ? hi : Math.min(top * 1.05, hi * 2)) : hi;
   const x = (t: number) => PAD.left + ((t - from) / (now - from)) * (W - PAD.left - PAD.right);
   const y = (v: number) => PAD.top + (1 - (Math.min(Math.max(v, lo), yMax) - lo) / (yMax - lo || 1)) * (H - PAD.top - PAD.bottom);
   const ticks = [lo, lo + (yMax - lo) / 2, yMax];
@@ -49,7 +52,14 @@ export function Chart({ spec: raw, markers, now }: { spec: ChartSpec; markers: M
     if (best === null) return index;
     return Math.abs(x(point.t + 7_500) - hover) < Math.abs(x(reference[best].t + 7_500) - hover) ? index : best;
   }, null);
-  const visibleMarkers = markers.filter((marker) => marker.t >= from && marker.t <= now);
+  const visibleMarkers: (Marker & { row: number })[] = [];
+  for (const marker of [...markers].filter((item) => item.t >= from && item.t <= now).sort((a, b) => a.t - b.t)) {
+    const near = visibleMarkers.filter((item) => Math.abs(x(item.t) - x(marker.t)) < 120);
+    const used = new Set(near.map((item) => item.row));
+    let row = 0;
+    while (used.has(row)) row += 1;
+    visibleMarkers.push({ ...marker, row: Math.min(row, 2) });
+  }
   return (
     <figure className="pl-chart" aria-labelledby={`${id}-title`}>
       <figcaption>
@@ -107,7 +117,7 @@ export function Chart({ spec: raw, markers, now }: { spec: ChartSpec; markers: M
             <line x1={x(marker.t)} x2={x(marker.t)} y1={PAD.top - 6} y2={H - PAD.bottom} />
             <text
               x={x(marker.t) > W * 0.75 ? x(marker.t) - 4 : x(marker.t) + 4}
-              y={PAD.top + 2}
+              y={PAD.top + 2 + marker.row * 10}
               textAnchor={x(marker.t) > W * 0.75 ? "end" : "start"}
             >
               {marker.label}

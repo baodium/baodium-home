@@ -122,7 +122,70 @@ Keys
   porch-2026-11   created by auth 2.14.0, publish before signing with it
 `;
 
-export function porchFiles(incident: "signin" | "missing-posts"): CodeFile[] {
+export const FANOUT_DOC = `# Feed fanout
+
+When a neighbor posts, the API saves the post and enqueues one fanout
+job. A fanout worker copies the post into the home feed of every
+follower, so loading a feed is a single read.
+
+Jobs are split across 8 partitions. Since feed-fanout 5.2.0 the
+partition comes from the author id, so one author's posts are always
+copied in the order they were written. Each partition is read by
+exactly one consumer in the group, and a consumer writes about 6,000
+feed entries per second. Consumers beyond the number of partitions
+sit idle. Changing the size of the group pauses every partition for
+a few seconds while partitions are reassigned.
+
+Fan out on read: accounts above a follower threshold skip the
+fanout. Their posts are not copied into feeds; feed-api fetches them
+from the author when a feed loads and merges them in. Queued jobs
+for those accounts are dropped when a consumer reaches them. Every
+such account a neighbor follows adds about 12 ms to each feed page.
+
+Objectives
+  A new post reaches followers' feeds within 60 seconds.
+  Feed pages load in under 300 ms at p95.
+`;
+
+export const IMPORT_NOTE = `# Events calendar import
+
+Owner: events team. Runs on request from a partner account.
+
+Posts each event in the partner's calendar as a regular post from
+the partner's account, one every 4.5 seconds, so the feed is not
+flooded all at once.
+
+Today: Ravenswood Chamber of Commerce, 400 holiday events,
+started 10:20. Can be paused from the fanout settings.
+`;
+
+export const PARTITION_V514 = `// feed-fanout 5.1.4: spread jobs evenly across partitions.
+const PARTITIONS = 8;
+
+export function partitionFor(job) {
+  return job.sequence % PARTITIONS;
+}
+`;
+
+export const PARTITION_V520 = `// feed-fanout 5.2.0: keep each author's posts in order by sending
+// all of an author's jobs to the same partition.
+import { hash } from "./hash.js";
+
+const PARTITIONS = 8;
+
+export function partitionFor(job) {
+  return hash(job.authorId) % PARTITIONS;
+}
+`;
+
+export function porchFiles(incident: "signin" | "missing-posts" | "slow-posts"): CodeFile[] {
+  if (incident === "slow-posts") {
+    return [
+      { path: "feed-fanout/src/partition.js", source: PARTITION_V520, language: "javascript" },
+      { path: "docs/feed-fanout.md", source: FANOUT_DOC, language: "markdown" },
+      { path: "docs/events-import.md", source: IMPORT_NOTE, language: "markdown" },
+    ];
+  }
   if (incident === "missing-posts") {
     return [
       { path: "feed-api/src/paginate.js", source: PAGINATE_V31, language: "javascript", editable: true },
